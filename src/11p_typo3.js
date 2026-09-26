@@ -68,7 +68,7 @@ const glyphEdges = (env, bb) => {
 
 /* 奥付 — a small colophon block (line, time, glyph count, reading) typed into a free corner, with a hairline */
 reg('decor', 'tyColophon', {
-  name: '奥付', tags: ['editorial', 'calm', 'graphic'], ae: 'leaders', w: 1, layer: 'front',
+  name: '奥付', tags: ['editorial', 'calm', 'graphic'], w: 1, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { sc } = env, cut = env.cut, u = U(env);
@@ -97,7 +97,7 @@ reg('decor', 'tyColophon', {
 
 /* 柱とノンブル — a running head (line number + lyric line + hairline) at the top and a folio number at the bottom */
 reg('decor', 'tyRunningHead', {
-  name: '柱とノンブル', tags: ['editorial', 'calm'], ae: 'timecodeBar', w: 1, layer: 'front',
+  name: '柱とノンブル', tags: ['editorial', 'calm'], w: 1, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { W, H, sc } = env, cut = env.cut, u = U(env), m = MG(env);
@@ -128,7 +128,7 @@ reg('decor', 'tyRunningHead', {
 
 /* 字割り線 — hairlines at every glyph body edge run from the lyric out to the frame edges, like a type specimen */
 reg('decor', 'tyGlyphBody', {
-  name: '字割り線', tags: ['editorial', 'graphic', 'calm'], ae: 'guides', w: 0.9, layer: 'front',
+  name: '字割り線', tags: ['editorial', 'graphic', 'calm'], w: 0.9, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { W, H, sc } = env, u = U(env), m = MG(env) * 0.6;
@@ -156,7 +156,7 @@ reg('decor', 'tyGlyphBody', {
 
 /* 文字罫 — a rule made of tiny repeated lyric text runs along the top and bottom edges, drifting in opposite directions */
 reg('decor', 'tyTextRule', {
-  name: '文字罫', tags: ['editorial', 'graphic', 'calm'], ae: 'verticalStrip', w: 1, layer: 'front', subtle: true,
+  name: '文字罫', tags: ['editorial', 'graphic', 'calm'], w: 1, layer: 'front', subtle: true,
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { W, H, sc, ctx } = env, cut = env.cut, u = U(env), m = MG(env);
@@ -183,7 +183,7 @@ reg('decor', 'tyTextRule', {
 
 /* 級数見本 — the key glyph of the lyric set at five falling sizes on one baseline, each with its size, in a free corner */
 reg('decor', 'tyTypeScale', {
-  name: '級数見本', tags: ['editorial', 'graphic'], ae: 'indexNum', w: 0.8, layer: 'front',
+  name: '級数見本', tags: ['editorial', 'graphic'], w: 0.8, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { sc } = env, u = U(env);
@@ -213,7 +213,7 @@ reg('decor', 'tyTypeScale', {
 
 /* 大きな約物 — huge dim 「 」 (or 『 』 / “ ”) glyphs set behind the lyric at its opposite corners */
 reg('decor', 'tyBigPunct', {
-  name: '大きな約物', tags: ['editorial', 'emotional', 'graphic'], ae: 'bracketsJP', w: 0.9, layer: 'front',
+  name: '大きな約物', tags: ['editorial', 'emotional', 'graphic'], w: 0.9, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { W, H, sc } = env;
@@ -261,7 +261,7 @@ const itemSpace = (env, it, fn) => {
 
 /* 一字抜き — the key glyph is set hollow (outline only) among solid glyphs, or the reverse */
 reg('treat', 'tyHollowKey', {
-  name: '一字抜き', tags: ['graphic', 'editorial', 'pop'], ae: 'spotChar', w: 0.9, safe: true,
+  name: '一字抜き', tags: ['graphic', 'editorial', 'pop'], w: 0.9, safe: true,
   plan: rng => ({ rev: rng.chance(0.35) }),
   apply(env, it, Pt) {
     if (!alive(it, 0.5)) return;
@@ -281,7 +281,7 @@ reg('treat', 'tyHollowKey', {
 
 /* 天地罫 — a heavy rule above and a hairline below every line (right / left of a vertical column) */
 reg('treat', 'tyHeadRules', {
-  name: '天地罫', tags: ['editorial', 'graphic', 'calm'], ae: 'underline', w: 0.8,
+  name: '天地罫', tags: ['editorial', 'graphic', 'calm'], w: 0.8,
   plan: rng => ({ k: rng.range(0.06, 0.09), acc: rng.chance(0.5) }),
   apply(env, it, Pt) {
     if (!alive(it) || nonSp(it) < 2) return;
@@ -306,7 +306,7 @@ reg('treat', 'tyHeadRules', {
 
 /* 頭字強調 — the first glyph of the line is set larger (baseline kept) in the accent colour, the rest make room */
 reg('treat', 'tyHeadBig', {
-  name: '頭字強調', tags: ['editorial', 'pop', 'emotional'], ae: 'sizeWave', w: 0.9,
+  name: '頭字強調', tags: ['editorial', 'pop', 'emotional'], w: 0.9,
   plan: rng => ({ k: rng.range(1.35, 1.6), acc: rng.chance(0.7) }),
   apply(env, it, Pt) {
     if (!alive(it) || nonSp(it) < 2) return;
@@ -333,7 +333,7 @@ reg('treat', 'tyHeadBig', {
 
 /* 字番号 — a tiny superscript index number beside every glyph */
 reg('treat', 'tyIndexSup', {
-  name: '字番号', tags: ['editorial', 'graphic'], ae: 'emphasisDots', w: 0.7,
+  name: '字番号', tags: ['editorial', 'graphic'], w: 0.7,
   plan: rng => ({ acc: rng.chance(0.6) }),
   apply(env, it, Pt) {
     if (!alive(it)) return;
@@ -387,7 +387,7 @@ const trReg = (k, d) => reg('trans', k, Object.assign({}, d, {
 
 /* 罫線ワイプ — the frame is ruled into text lines; each line is "typed" across from the left, a cursor bar leading it */
 trReg('tyRuleWipe', {
-  name: '罫線ワイプ', tags: ['editorial', 'graphic', 'calm'], ae: 'blinds', w: 0.9, dur: 0.45,
+  name: '罫線ワイプ', tags: ['editorial', 'graphic', 'calm'], w: 0.9, dur: 0.45,
   plan: rng => ({ n: rng.int(7, 12), rtl: rng.chance(0.25) }),
   draw(ctx, A, B, p, I, Pt) {
     const { cw, ch } = I, n = Pt.n || 9, bh = ch / n, ac = tAcc(I), lw = Math.max(1, Math.min(cw, ch) * 0.0015);
@@ -411,7 +411,7 @@ trReg('tyRuleWipe', {
 
 /* 升目送り — a manuscript grid; the new cut fills in cell by cell in vertical reading order (columns right to left) */
 trReg('tyGridCells', {
-  name: '升目送り', tags: ['editorial', 'graphic'], ae: 'checker', w: 0.8, dur: 0.5,
+  name: '升目送り', tags: ['editorial', 'graphic'], w: 0.8, dur: 0.5,
   plan: rng => ({ rows: rng.int(4, 6), tate: rng.chance(0.7) }),
   draw(ctx, A, B, p, I, Pt) {
     const { cw, ch } = I, rows = Pt.rows || 5, cell = ch / rows, cols = Math.ceil(cw / cell), ox = (cw - cols * cell) / 2;

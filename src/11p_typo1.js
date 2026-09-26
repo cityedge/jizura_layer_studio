@@ -74,7 +74,7 @@ const labelSize = env => J.clamp(Math.min(env.W, env.H) * 0.018, 11, 22);
 
 /* ================================================================== 1 tyKeySplit — 大字挟み */
 reg('tyKeySplit', {
-  name: '大字挟み', tags: ['editorial', 'graphic', 'emotional'], ae: 'mixed', w: 1.1, emph: 1.4, fits: n => n >= 2 && n <= 16,
+  name: '大字挟み', tags: ['editorial', 'graphic', 'emotional'], w: 1.1, emph: 1.4, fits: n => n >= 2 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), fs: rng.pick(fontsOf(st, ['serif', 'body', 'display'])), mode: rng.pick(['kanji', 'kanji', 'mid']), big: rng.pick(['fill', 'fill', 'accent', 'outline']), rule: rng.chance(0.75) };
   },
@@ -152,7 +152,7 @@ reg('tyKeySplit', {
 
 /* ================================================================== 2 tyCropGiant — 見切れ大文字 */
 reg('tyCropGiant', {
-  name: '見切れ大文字', tags: ['graphic', 'editorial', 'pop'], ae: 'huge', w: 1, fits: n => n >= 1 && n <= 14,
+  name: '見切れ大文字', tags: ['graphic', 'editorial', 'pop'], w: 1, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), fm: rng.pick(fontsOf(st, ['display', 'serif'])), edge: rng.pick(['a', 'b']), style: rng.pick(['dim', 'dim', 'outline']), dir: rng.pick([1, -1]) };
   },
@@ -200,7 +200,7 @@ reg('tyCropGiant', {
 
 /* ================================================================== 3 tyCross — 十字組 */
 reg('tyCross', {
-  name: '十字組', tags: ['graphic', 'editorial'], ae: 'vcols', w: 0.9, fits: n => n >= 3 && n <= 11,
+  name: '十字組', tags: ['graphic', 'editorial'], w: 0.9, fits: n => n >= 3 && n <= 11,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), mode: rng.pick(['kanji', 'mid', 'mid']), rules: rng.chance(0.8), key: rng.pick(['accent', 'accent', 'fg']) };
   },
@@ -244,7 +244,7 @@ reg('tyCross', {
 
 /* ================================================================== 4 tyBandHide — 帯隠れ */
 reg('tyBandHide', {
-  name: '帯隠れ', tags: ['graphic', 'pop', 'editorial'], ae: 'diag', w: 1, fits: n => n >= 1 && n <= 14,
+  name: '帯隠れ', tags: ['graphic', 'pop', 'editorial'], w: 1, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), band: rng.pick(['ink', 'accent', 'fg']), pos: rng.pick(['low', 'low', 'high']), speed: rng.range(40, 90), dir: rng.pick([1, -1]), k: rng.range(0.3, 0.38) };
   },
@@ -284,7 +284,7 @@ reg('tyBandHide', {
 
 /* ================================================================== 5 tyRuby — ルビ振り */
 reg('tyRuby', {
-  name: 'ルビ振り', tags: ['editorial', 'calm', 'emotional'], ae: 'gloss', w: 1, fits: n => n >= 1 && n <= 14,
+  name: 'ルビ振り', tags: ['editorial', 'calm', 'emotional'], w: 1, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display'])), idx: rng.chance(0.7), up: rng.chance(0.5) };
   },
@@ -324,7 +324,7 @@ reg('tyRuby', {
 
 /* ================================================================== 6 tyBaseline — 罫線組 */
 reg('tyBaseline', {
-  name: '罫線組', tags: ['editorial', 'calm', 'graphic'], ae: 'type', w: 1.1, fits: n => n >= 2 && n <= 18,
+  name: '罫線組', tags: ['editorial', 'calm', 'graphic'], w: 1.1, fits: n => n >= 2 && n <= 18,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display', 'body'])), nl: rng.pick([2, 3, 3]), key: rng.chance(0.8), right: rng.chance(0.5) };
   },
@@ -372,7 +372,7 @@ reg('tyBaseline', {
 
 /* ================================================================== 7 tyScaleSteps — 級数上げ */
 reg('tyScaleSteps', {
-  name: '級数上げ', tags: ['graphic', 'editorial', 'pop'], ae: 'mixed', w: 1, fits: n => n >= 2 && n <= 16,
+  name: '級数上げ', tags: ['graphic', 'editorial', 'pop'], w: 1, fits: n => n >= 2 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), dir: rng.pick(['up', 'up', 'down']), labels: rng.chance(0.8), ratio: rng.range(2.0, 2.8) };
   },
@@ -449,7 +449,7 @@ const groupLines = (units, L) => {
   return out;
 };
 reg('tyJustify', {
-  name: '幅揃え', tags: ['graphic', 'pop', 'editorial'], ae: 'stack', w: 1.1, fits: n => n >= 3 && n <= 16,
+  name: '幅揃え', tags: ['graphic', 'pop', 'editorial'], w: 1.1, fits: n => n >= 3 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), rules: rng.chance(0.7), acc: rng.int(0, 3), align: rng.pick(['center', 'left']) };
   },
@@ -494,7 +494,7 @@ reg('tyJustify', {
 
 /* ================================================================== 9 tyIndexTable — 一覧表 */
 reg('tyIndexTable', {
-  name: '一覧表', tags: ['editorial', 'graphic', 'calm'], ae: 'gloss', w: 0.8, portrait: 1.3, fits: n => n >= 2 && n <= 9,
+  name: '一覧表', tags: ['editorial', 'graphic', 'calm'], w: 0.8, portrait: 1.3, fits: n => n >= 2 && n <= 9,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), info: rng.pick(['roma', 'roma', 'code']), head: rng.chance(0.8) };
   },
@@ -544,7 +544,7 @@ reg('tyIndexTable', {
 
 /* ================================================================== 10 tySplitType — 断ち割り */
 reg('tySplitType', {
-  name: '断ち割り', tags: ['graphic', 'glitch', 'pop'], ae: 'center', w: 1, fits: n => n >= 1 && n <= 14,
+  name: '断ち割り', tags: ['graphic', 'glitch', 'pop'], w: 1, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), off: rng.range(0.08, 0.15) * rng.pick([1, -1]), cutY: rng.pick([0.02, -0.06, 0.08]), cap: rng.chance(0.75) };
   },
@@ -586,7 +586,7 @@ reg('tySplitType', {
 
 /* ================================================================== 11 tyErode — 削り反復 */
 reg('tyErode', {
-  name: '削り反復', tags: ['emotional', 'editorial', 'calm'], ae: 'stack', w: 0.9, portrait: 0.6, fits: n => n >= 3 && n <= 12,
+  name: '削り反復', tags: ['emotional', 'editorial', 'calm'], w: 0.9, portrait: 0.6, fits: n => n >= 3 && n <= 12,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display'])), mode: rng.pick(['grow', 'grow', 'erode']), idx: rng.chance(0.7) };
   },
@@ -624,7 +624,7 @@ reg('tyErode', {
 
 /* ================================================================== 12 tyVRuler — 縦目盛り */
 reg('tyVRuler', {
-  name: '縦目盛り', tags: ['editorial', 'calm', 'graphic'], ae: 'vcols', w: 0.9, portrait: 1.3, fits: n => n >= 1 && n <= 12,
+  name: '縦目盛り', tags: ['editorial', 'calm', 'graphic'], w: 0.9, portrait: 1.3, fits: n => n >= 1 && n <= 12,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display'])), side: rng.pick([1, -1]), lab: rng.pick(['time', 'time', 'roma']) };
   },
@@ -666,7 +666,7 @@ reg('tyVRuler', {
 
 /* ================================================================== 13 tyFullTrack — 全幅字送り */
 reg('tyFullTrack', {
-  name: '全幅字送り', tags: ['editorial', 'calm', 'graphic'], ae: 'center', w: 1, fits: n => n >= 3 && n <= 14,
+  name: '全幅字送り', tags: ['editorial', 'calm', 'graphic'], w: 1, fits: n => n >= 3 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif', 'body'])), caps: rng.chance(0.8), rule: rng.chance(0.75) };
   },
@@ -710,7 +710,7 @@ reg('tyFullTrack', {
 
 /* ================================================================== 14 tyStatCount — 字数表示 */
 reg('tyStatCount', {
-  name: '字数表示', tags: ['editorial', 'graphic'], ae: 'type', w: 0.8, fits: n => n >= 1 && n <= 16,
+  name: '字数表示', tags: ['editorial', 'graphic'], w: 0.8, fits: n => n >= 1 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), nf: rng.pick(fontsOf(st, ['display', 'mono'])), acc: rng.chance(0.5) };
   },
@@ -750,7 +750,7 @@ reg('tyStatCount', {
 
 /* ================================================================== 15 tyMargin — 余白 */
 reg('tyMargin', {
-  name: '余白', tags: ['calm', 'editorial', 'emotional'], ae: 'center', w: 0.8, emph: 0.4, fits: n => n >= 1 && n <= 18,
+  name: '余白', tags: ['calm', 'editorial', 'emotional'], w: 0.8, emph: 0.4, fits: n => n >= 1 && n <= 18,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'body', 'display'])), pos: rng.pick(['bl', 'bl', 'tr', 'br', 'lc']), mark: rng.chance(0.7) };
   },
@@ -785,7 +785,7 @@ reg('tyMargin', {
 
 /* ================================================================== 16 tyRotBlock — 回転ブロック */
 reg('tyRotBlock', {
-  name: '回転ブロック', tags: ['graphic', 'pop', 'editorial'], ae: 'sideways', w: 1, fits: n => n >= 4 && n <= 16,
+  name: '回転ブロック', tags: ['graphic', 'pop', 'editorial'], w: 1, fits: n => n >= 4 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), fb: rng.pick(fontsOf(st, ['display', 'serif'])), rot: rng.pick([-90, -90, 90]), accent: rng.chance(0.5), rule: rng.chance(0.8) };
   },
@@ -838,7 +838,7 @@ reg('tyRotBlock', {
 
 /* ================================================================== 17 tySquare — 方形組 */
 reg('tySquare', {
-  name: '方形組', tags: ['graphic', 'editorial', 'pop'], ae: 'gridCells', w: 1, fits: n => n >= 3 && n <= 16,
+  name: '方形組', tags: ['graphic', 'editorial', 'pop'], w: 1, fits: n => n >= 3 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), order: rng.pick(['yoko', 'yoko', 'tate']), frame: rng.chance(0.75), acc: rng.chance(0.7) };
   },
@@ -879,7 +879,7 @@ reg('tySquare', {
 
 /* ================================================================== 18 tyLineFocus — 行中強調 */
 reg('tyLineFocus', {
-  name: '行中強調', tags: ['editorial', 'emotional', 'calm'], ae: 'center', w: 1, fits: n => n >= 1 && n <= 16,
+  name: '行中強調', tags: ['editorial', 'emotional', 'calm'], w: 1, fits: n => n >= 1 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display', 'body'])), mark: rng.pick(['bar', 'bar', 'dot', 'box']) };
   },

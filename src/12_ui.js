@@ -1637,7 +1637,6 @@ function bind() {
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
   $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '@VERSION@' }), null, 1)));
-  $('btnAE').addEventListener('click', () => J.saveFile(baseName() + rangeSuffix() + '_ae.json', JSON.stringify(J.planForAE(S.plan, S.project, exportRange()), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -1672,7 +1671,7 @@ function bind() {
   bindFollow();
 }
 
-/* song file -> beat analysis (file input, or a host such as the After Effects panel) */
+/* song file -> beat analysis (file input) */
 let audioSeq = 0;
 async function loadAudioFile(f, restored) {
   const my = ++audioSeq;                      // only the latest choice may win (an earlier, slower analysis is dropped)
@@ -1773,7 +1772,7 @@ function boot() {
   setMode(mode); commit();
   bindTour();
   let seen = false; try { seen = localStorage.getItem('jizura.tourDone') === '1'; } catch (e) {}
-  if (!J.layerApp && !seen && S.mode === 'easy' && !window.__adobe_cep__) setTimeout(tourStart, 600);   // first visit: show the tour once
+  if (!J.layerApp && !seen && S.mode === 'easy') setTimeout(tourStart, 600);   // first visit: show the tour once
   // open on a representative frame (end of the first cut's entrance)
   const c0 = S.plan.cuts.find(c => c.line >= 0);
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
@@ -1783,6 +1782,6 @@ function boot() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
-// hooks for hosts that embed the app (the After Effects CEP panel)
+// Shared editor hooks used by the layer interface
 J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit };
 })();

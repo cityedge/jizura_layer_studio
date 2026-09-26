@@ -44,7 +44,7 @@ const curIdx = (ts, t) => { let k = -1; for (let i = 0; i < ts.length; i++) if (
 /* ================================================================ CAMERA */
 reg('cam', 'knReadPan', {
   // the frame steps along with the reading: one snap per word, then it settles back to centre
-  name: '読み追い', tags: ['pop', 'graphic', 'editorial'], w: 0.8, ae: 'snapPan',
+  name: '読み追い', tags: ['pop', 'graphic', 'editorial'], w: 0.8,
   plan: rng => ({ a: rng.range(0.026, 0.036) }),
   get(env, P) {
     const ts = wordTimes(env), n = ts.length, K = KM(env), A = env.W * (P.a || 0.03) * K, lt = env.lt;
@@ -60,7 +60,7 @@ reg('cam', 'knReadPan', {
 
 reg('cam', 'knTiltKick', {
   // every new word kicks the frame into a lean, alternating sides, and the last one sets it level
-  name: '語で傾く', tags: ['pop', 'graphic', 'emotional'], w: 0.8, ae: 'dutch',
+  name: '語で傾く', tags: ['pop', 'graphic', 'emotional'], w: 0.8,
   plan: rng => ({ dir: rng.pick([1, -1]), a: rng.range(2.4, 3.4) }),
   get(env, P) {
     const ts = wordTimes(env), n = ts.length, K = Math.min(1, KM(env)), lt = env.lt, A = (P.a || 3) * K * (P.dir || 1);
@@ -74,7 +74,7 @@ reg('cam', 'knTiltKick', {
 
 reg('cam', 'knCardFlip', {
   // the frame flips over like a card to show the cut, and pinches on each new word
-  name: 'カード返し', tags: ['pop', 'graphic'], w: 0.7, ae: 'barrelRoll', strong: true,
+  name: 'カード返し', tags: ['pop', 'graphic'], w: 0.7, strong: true,
   plan: rng => ({ vert: rng.chance(0.3), dir: rng.pick([1, -1]) }),
   get(env, P) {
     const ts = wordTimes(env), lt = env.lt, K = Math.min(1, KM(env)), d = P.dir || 1;
@@ -87,7 +87,7 @@ reg('cam', 'knCardFlip', {
 
 reg('cam', 'knShearKick', {
   // a sideways shear kick on every word (or beat) that springs back upright
-  name: 'シアーキック', tags: ['pop', 'glitch', 'graphic'], w: 0.8, ae: 'jelly',
+  name: 'シアーキック', tags: ['pop', 'glitch', 'graphic'], w: 0.8,
   plan: rng => ({ a: rng.range(5, 8) }),
   get(env, P) {
     const ts = wordTimes(env), lt = env.lt, K = Math.min(1.1, KM(env));
@@ -100,7 +100,7 @@ reg('cam', 'knShearKick', {
 
 reg('cam', 'knJumpCut', {
   // hard reframes on every word (tighter, wider, off-centre) with no in-betweens, then back to centre
-  name: 'ジャンプカット', tags: ['pop', 'glitch', 'editorial'], w: 0.7, ae: 'stepZoom',
+  name: 'ジャンプカット', tags: ['pop', 'glitch', 'editorial'], w: 0.7,
   plan: rng => ({ s0: rng.int(0, 99) }),
   get(env, P) {
     const ts = wordTimes(env), n = ts.length, lt = env.lt, K = Math.min(1, KM(env));
@@ -113,7 +113,7 @@ reg('cam', 'knJumpCut', {
 
 reg('cam', 'knRushIn', {
   // the whole frame rushes up from far away, overshoots a touch and locks
-  name: '奥から突進', tags: ['pop', 'graphic', 'emotional'], w: 0.7, ae: 'crashZoom', strong: true,
+  name: '奥から突進', tags: ['pop', 'graphic', 'emotional'], w: 0.7, strong: true,
   plan: rng => ({ z: rng.range(0.66, 0.76), r: rng.range(-4, 4) }),
   get(env, P) {
     const K = Math.min(1, KM(env)), q = clamp(env.lt / 0.34);
@@ -137,7 +137,7 @@ const trReg = (k, d) => reg('trans', k, Object.assign({}, d, {
 
 trReg('knCornerSwing', {
   // the old frame swings away round a corner, the new one swings in behind it — a quarter turn to the next line
-  name: 'コーナースイング', tags: ['pop', 'graphic'], w: 0.8, ae: 'spinOut', dur: 0.42,
+  name: 'コーナースイング', tags: ['pop', 'graphic'], w: 0.8, dur: 0.42,
   plan: rng => ({ c: rng.int(0, 3) }),
   draw(ctx, A, B, p, I, P) {
     const { cw, ch } = I, c = P.c | 0;
@@ -161,7 +161,7 @@ trReg('knCornerSwing', {
 
 trReg('knStutterCut', {
   // rhythm cut: old and new frames trade places in hard cuts before the new one holds
-  name: '刻みカット', tags: ['pop', 'glitch', 'graphic'], w: 0.7, ae: 'flashCross', dur: 0.36,
+  name: '刻みカット', tags: ['pop', 'glitch', 'graphic'], w: 0.7, dur: 0.36,
   plan: rng => ({ z: rng.range(1.05, 1.1), o: rng.range(0.02, 0.035) * rng.pick([1, -1]) }),
   draw(ctx, A, B, p, I, P) {
     const { cw, ch } = I, z = P.z || 1.07, o = (P.o || 0.03) * cw;
@@ -178,7 +178,7 @@ trReg('knStutterCut', {
 
 trReg('knStripSlam', {
   // the new frame drops in as tall strips, one after another, each landing with a small bounce
-  name: '短冊スラム', tags: ['pop', 'graphic'], w: 0.8, ae: 'sliceShift', dur: 0.45,
+  name: '短冊スラム', tags: ['pop', 'graphic'], w: 0.8, dur: 0.45,
   plan: rng => ({ n: rng.int(3, 5), rev: rng.chance(0.5), up: rng.chance(0.25) }),
   draw(ctx, A, B, p, I, P) {
     const { cw, ch } = I, n = P.n || 4;
@@ -224,7 +224,7 @@ function treatGeo(env, it) {
 
 reg('treat', 'knWordScale', {
   // one key word is set big, the rest small — the line re-flows around the contrast
-  name: '大小語', tags: ['pop', 'graphic', 'editorial'], w: 0.9, ae: 'sizeWave', safe: true,
+  name: '大小語', tags: ['pop', 'graphic', 'editorial'], w: 0.9, safe: true,
   plan: rng => ({ big: rng.range(1.28, 1.42), small: rng.range(0.78, 0.86), pick: rng.pick(['long', 'long', 'last', 'first']) }),
   apply(env, it, P) {
     if (!alive(it)) return;
@@ -269,7 +269,7 @@ reg('treat', 'knWordScale', {
 
 reg('treat', 'knWordPlate', {
   // every other word is knocked out of a solid plate that follows the word as it moves
-  name: '語ごと反転', tags: ['pop', 'graphic', 'glitch'], w: 0.8, ae: 'boxed',
+  name: '語ごと反転', tags: ['pop', 'graphic', 'glitch'], w: 0.8,
   plan: rng => ({ first: rng.chance(0.5), pad: rng.range(0.08, 0.14), tilt: rng.chance(0.4) ? rng.range(1.5, 3) : 0 }),
   apply(env, it, P) {
     if (!alive(it)) return;
@@ -314,7 +314,7 @@ const getBB = (env, bb) => J.centerBB(env, bb);
 
 reg('decor', 'knSpeedTrail', {
   // speed lines stream off the back of the lyric and follow it wherever it moves
-  name: '追従スピード線', tags: ['pop', 'graphic', 'glitch'], w: 0.8, ae: 'slash', layer: 'front',
+  name: '追従スピード線', tags: ['pop', 'graphic', 'glitch'], w: 0.8, layer: 'front',
   draw(env, bb0, P) {
     if (env.pass !== 'main') return;
     const bb = getBB(env, bb0), { W, H, sc } = env, u = Math.min(W, H);
@@ -347,7 +347,7 @@ reg('decor', 'knSpeedTrail', {
 
 reg('decor', 'knWordTicks', {
   // a small segmented bar that fills one segment per word as the words arrive, with a running count
-  name: '語カウンター', tags: ['graphic', 'editorial', 'pop'], w: 0.8, ae: 'counter', layer: 'front', subtle: true,
+  name: '語カウンター', tags: ['graphic', 'editorial', 'pop'], w: 0.8, layer: 'front', subtle: true,
   draw(env, bb0, P) {
     const bb = getBB(env, bb0), { W, H, sc } = env, u = Math.min(W, H);
     const o = E.outCubic(clamp(env.lt / 0.35)) * (1 - E.inCubic(env.pOut));

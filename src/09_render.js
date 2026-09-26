@@ -59,9 +59,9 @@ class Renderer {
     const W = plan.W, H = plan.H, scale = opt.scale || 1;
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style, fps = plan.fps;
-    // motion is quantised to 'koma' drawings per second (24fps timebase); random flicker runs on a <=24Hz clock
+    // motion is quantised to 'koma' drawings per second (30fps timebase); random flicker runs on a <=30Hz clock
     const stepDur = J.stepDur(fx, fps);
-    const clock = J.komaOf(fx) > 0 ? stepDur : 1 / 24;
+    const clock = J.komaOf(fx) > 0 ? stepDur : 1 / 30;
     const cue = opt.layerComposition && plan.explicitCues ? plan.lines.find(l => t >= l.start && t < l.end) : null;
     const tq = Math.max(Math.floor(t / stepDur + 1e-6) * stepDur, cue ? cue.start : -Infinity);
     const mainCut = J.cutAt(plan, tq);
@@ -443,13 +443,13 @@ class Renderer {
     const S = needScratch ? this.ensure(this.scratch, cw, ch) : null;
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
     const copy = () => { const sx = S.getContext('2d'); sx.globalCompositeOperation = 'copy'; sx.drawImage(ctx.canvas, 0, 0); sx.globalCompositeOperation = 'source-over'; };
-    const clock24 = Math.floor(t * 24);           // glitch randomness changes at most 24 times a second at any output fps
+    const clock30 = Math.floor(t * 30 + 1e-6);           // glitch randomness changes at most 30 times a second at any output fps
     // A matte can retain actual full-frame flashes/wipes; PNG alpha guards used to erase them.
     const guard = opt.transparent && !opt.layerComposition ? this.alphaGuard(ctx, S, sc) : null;
     for (const ev of active) {
       // progress clamped to 0..1 (an event shorter than one output frame is still shown for that frame — k would pass 1)
       const k0 = (t - ev.t) / Math.max(ev.dur, 1e-3), k = Number.isFinite(k0) ? J.clamp(k0, 0, 1) : 0;
-      const st2 = clock24;
+      const st2 = clock30;
       const D = J.FXE[ev.type];
       if (guard) guard.begin();
       if (D && D.draw) {

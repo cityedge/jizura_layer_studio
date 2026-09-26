@@ -4,6 +4,7 @@ import hashlib
 import shutil
 import subprocess
 import sys
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -14,7 +15,7 @@ FILES = [
     'CHANGELOG.md', 'build.py', 'tools/package_release.py', 'dev/layer_test.js',
 ]
 PATTERNS = ['src/*.js', 'app/*.py', 'app/*.js', 'app/*.html', 'app/*.css',
-            'vendor/*.js', 'vendor/*.txt', 'docs/*.md']
+            'vendor/*.js', 'vendor/*.txt', 'vendor/*.tgz', 'docs/*.md']
 LANGUAGES = ['en', 'id', 'ko', 'vi', 'zh-hans', 'zh-hant']
 
 
@@ -56,9 +57,22 @@ def main():
         'See upload/docs/PUBLISHING.en.md for instructions.\n\n'
         f'Files: {count}\nLargest file: {largest:,} bytes\n'
         'If the browser rejects a large selection, upload the root files and each folder in separate batches.\n', encoding='utf-8')
+    archive = release / ('JIZURA-Layer-Studio-v' + version + '.zip')
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
+        for path in sorted(upload.rglob('*')):
+            if path.is_file():
+                bundle.write(path, path.relative_to(upload).as_posix())
+    with zipfile.ZipFile(archive) as bundle:
+        if bundle.testzip() is not None or len(bundle.namelist()) != count:
+            raise ValueError('Release ZIP verification failed')
+        for path in upload.rglob('*'):
+            if path.is_file() and bundle.read(path.relative_to(upload).as_posix()) != path.read_bytes():
+                raise ValueError('Release ZIP content mismatch: ' + str(path))
+    archive.with_suffix('.zip.sha256').write_text(hashlib.sha256(archive.read_bytes()).hexdigest() + '  ' + archive.name + '\n', encoding='utf-8')
     print('Release folder:', release)
     print('Upload folder:', upload)
     print('Files:', count, '/ largest:', largest, 'bytes')
+    print('Release ZIP:', archive)
 
 
 if __name__ == '__main__':

@@ -47,7 +47,7 @@ const bgT = env => {
 const bgReg = (k, d) => reg('bg', k, Object.assign({}, d, { draw(env, Pm) { const ctx = env.ctx; ctx.save(); try { d.draw(env, Pm || {}, ctx); } finally { ctx.restore(); } } }));
 /* failing-light level 0..1 on a ≤24 Hz clock (mostly on, stutters now and then) */
 const lamp = (t, seed, rate = 1) => {
-  const st = Math.floor(t * 24), run = st >> 2;
+  const st = Math.floor(t * 30 + 1e-6), run = st >> 2;
   if (J.r(seed, run, 7) < 0.1 * rate) return J.r(seed, st, 8) < 0.5 ? 0.15 : 0.55;
   return 0.88 + 0.12 * J.r(seed, st, 9);
 };
@@ -56,7 +56,7 @@ const lamp = (t, seed, rate = 1) => {
 
 /* claw scratches: parallel jagged gouges scraped in around the words */
 reg('decor', 'hrScratches', {
-  name: '引っ掻き傷', tags: TAGS.concat(['glitch']), w: 0.9, layer: 'front', ae: 'slash',
+  name: '引っ掻き傷', tags: TAGS.concat(['glitch']), w: 0.9, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H, sc } = env, s = Pd.seed | 0, u = U(env), out = 1 - E.inCubic(env.pOut);
@@ -85,7 +85,7 @@ reg('decor', 'hrScratches', {
 
 /* sigil: a slow-turning ring of marks and a seven-pointed star drawn in faint lines behind the words */
 reg('decor', 'hrSigil', {
-  name: '魔法陣', tags: TAGS.concat(['graphic']), w: 0.7, layer: 'back', subtle: true, ae: 'rings',
+  name: '魔法陣', tags: TAGS.concat(['graphic']), w: 0.7, layer: 'back', subtle: true,
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H, sc } = env, s = Pd.seed | 0, u = U(env);
@@ -113,7 +113,7 @@ reg('decor', 'hrSigil', {
 
 /* the eye: a simple outline eye in a corner that opens, follows the words and blinks at the wrong moments */
 reg('decor', 'hrWatchEye', {
-  name: '見ている目', tags: TAGS.concat(['graphic']), w: 0.8, layer: 'front', ae: 'reticle',
+  name: '見ている目', tags: TAGS.concat(['graphic']), w: 0.8, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H, sc } = env, s = Pd.seed | 0, u = U(env);
@@ -141,7 +141,7 @@ reg('decor', 'hrWatchEye', {
 
 /* static patches: small rectangles of TV snow flicker at the edges of the frame */
 reg('decor', 'hrStaticPatch', {
-  name: '砂嵐の欠片', tags: TAGS.concat(['glitch']), w: 0.8, layer: 'front', ae: 'glitchRects',
+  name: '砂嵐の欠片', tags: TAGS.concat(['glitch']), w: 0.8, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H } = env, s = Pd.seed | 0, st = env.step, u = U(env), ctx = env.ctx;
@@ -167,7 +167,7 @@ reg('decor', 'hrStaticPatch', {
 
 /* light shaft: a slanted beam from a high window with dust hanging in it */
 reg('decor', 'hrDustBeam', {
-  name: '光の筋と埃', tags: TAGS.concat(['calm', 'emotional']), w: 0.8, layer: 'back', subtle: true, ae: 'sparks',
+  name: '光の筋と埃', tags: TAGS.concat(['calm', 'emotional']), w: 0.8, layer: 'back', subtle: true,
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const { W, H, sc, ctx } = env, s = Pd.seed | 0, u = U(env);
@@ -197,7 +197,7 @@ reg('decor', 'hrDustBeam', {
 
 /* drips: dark ink running down from the top edge of the frame, slowly */
 reg('decor', 'hrDrips', {
-  name: '垂れる墨', tags: TAGS.concat(['emotional']), w: 0.8, layer: 'front', ae: 'blobs',
+  name: '垂れる墨', tags: TAGS.concat(['emotional']), w: 0.8, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H, sc } = env, s = Pd.seed | 0, u = U(env);
@@ -222,7 +222,7 @@ reg('decor', 'hrDrips', {
 
 /* cracks: fine fractures creep out of a corner of the frame */
 reg('decor', 'hrCracks', {
-  name: 'ひび割れ', tags: TAGS.concat(['graphic', 'glitch']), w: 0.7, layer: 'front', ae: 'lineBurst',
+  name: 'ひび割れ', tags: TAGS.concat(['graphic', 'glitch']), w: 0.7, layer: 'front',
   draw(env, bb0, Pd) {
     if (env.pass !== 'main') return;
     const bb = center(env, bb0), { W, H, sc } = env, s = Pd.seed | 0, u = U(env);
@@ -244,7 +244,6 @@ reg('decor', 'hrCracks', {
 /* ================================================================== BACKGROUNDS */
 
 bgReg('hrFailingLamp', {
-  ae: 'vignettePulse',
   name: '切れかけの灯', tags: TAGS.concat(['emotional']), w: 0.9, subtle: true,
   plan: rng => ({ seed: rng.int(1, 1e9), x: rng.range(0.35, 0.65), rate: rng.range(0.7, 1.3) }),
   draw(env, Pm, ctx) {
@@ -262,7 +261,6 @@ bgReg('hrFailingLamp', {
   } });
 
 bgReg('hrCorridor', {
-  ae: 'squareTunnel',
   name: '暗い廊下', tags: TAGS.concat(['graphic']), w: 0.8,
   plan: rng => ({ seed: rng.int(1, 1e9), vx: rng.range(0.44, 0.56), vy: rng.range(0.44, 0.54), spd: rng.range(0.25, 0.45), doors: rng.chance(0.75) }),
   draw(env, Pm, ctx) {
@@ -304,7 +302,6 @@ bgReg('hrCorridor', {
   } });
 
 bgReg('hrMold', {
-  ae: 'meshBlobs',
   name: '広がる染み', tags: TAGS.concat(['emotional']), w: 0.7, subtle: true,
   plan: rng => ({ seed: rng.int(1, 1e9), n: rng.int(3, 5), k: rng.range(0.08, 0.14) }),
   draw(env, Pm, ctx) {
@@ -326,7 +323,6 @@ bgReg('hrMold', {
   } });
 
 bgReg('hrDeadTrees', {
-  ae: 'mountains',
   name: '枯れ木の森', tags: TAGS.concat(['calm', 'emotional']), w: 0.7,
   plan: rng => ({ seed: rng.int(1, 1e9), n: rng.int(5, 8), fog: rng.range(0.1, 0.2) }),
   draw(env, Pm, ctx) {
@@ -357,7 +353,6 @@ bgReg('hrDeadTrees', {
 const KM = env => clamp((env.fx.motion ?? 0.7) * 1.25, 0, 1.25);
 
 reg('cam', 'hrNervous', {
-  ae: 'handheld',
   name: '怯えた手持ち', tags: TAGS.concat(['glitch', 'emotional']), w: 0.9,
   plan: rng => ({ f: rng.range(0.9, 1.3), jerk: rng.range(0.6, 1) }),
   get: (env, Pm) => {
@@ -375,7 +370,6 @@ reg('cam', 'hrNervous', {
   } });
 
 reg('cam', 'hrDutchSnap', {
-  ae: 'dutch',
   name: '不意の傾き', tags: TAGS.concat(['emotional', 'graphic']), w: 0.7, strong: true,
   plan: rng => ({ at: rng.range(0.45, 0.65), a: rng.range(3, 4.8) * rng.pick([1, -1]) }),
   get: (env, Pm) => {
@@ -390,7 +384,7 @@ const fx = (k, d) => reg('fx', k, Object.assign({}, d, { draw(ctx, ev, k2, I) { 
 
 /* one frame of a zoomed, red-stained negative */
 fx('hrSubliminal', {
-  name: 'サブリミナル', tags: TAGS.concat(['glitch']), w: 0.6, dur: 2, amp: 1, glitchy: true, mid: true, scratch: true, ae: 'invert',
+  name: 'サブリミナル', tags: TAGS.concat(['glitch']), w: 0.6, dur: 2, amp: 1, glitchy: true, mid: true, scratch: true,
   draw(ctx, ev, k, I) {
     const { cw, ch, S, sc } = I; if (!S) return;
     if (k > 0.55) return;
@@ -403,7 +397,7 @@ fx('hrSubliminal', {
 
 /* the picture tears, drops to black with a signal-lost caption, and rolls back in */
 fx('hrSignalLoss', {
-  name: '映像の途切れ', tags: TAGS.concat(['glitch', 'editorial']), w: 0.7, dur: 9, pre: 3, amp: 1, glitchy: true, scratch: true, ae: 'blackFrame',
+  name: '映像の途切れ', tags: TAGS.concat(['glitch', 'editorial']), w: 0.7, dur: 9, pre: 3, amp: 1, glitchy: true, scratch: true,
   draw(ctx, ev, k, I) {
     const { cw, ch, S } = I; if (!S) return;
     const s = evS(ev), st = I.step * 7 + s;
@@ -433,7 +427,7 @@ fx('hrSignalLoss', {
 
 /* something tall and dark crosses the frame in a few frames */
 fx('hrPassingShadow', {
-  name: '横切る影', tags: TAGS.concat(['emotional']), w: 0.5, dur: 5, amp: 1, mid: true, ae: 'flash',
+  name: '横切る影', tags: TAGS.concat(['emotional']), w: 0.5, dur: 5, amp: 1, mid: true,
   draw(ctx, ev, k, I) {
     const { cw, ch } = I, s = evS(ev), dir = J.r(s, 1) < 0.5 ? 1 : -1, M = Math.min(cw, ch);
     const x = dir > 0 ? J.lerp(-cw * 0.25, cw * 1.25, k) : J.lerp(cw * 1.25, -cw * 0.25, k);
@@ -460,7 +454,7 @@ const trReg = (k, d) => reg('trans', k, Object.assign({}, d, {
 
 /* static cut: the old shot drowns in snow, the new one surfaces out of it */
 trReg('hrStaticCut', {
-  name: '砂嵐カット', tags: TAGS.concat(['glitch']), w: 0.9, dur: 0.4, ae: 'pixelate',
+  name: '砂嵐カット', tags: TAGS.concat(['glitch']), w: 0.9, dur: 0.4,
   plan: rng => ({ roll: rng.chance(0.6) }),
   draw(ctx, A, B, p, I, Pm) {
     const { cw, ch } = I, st = I.step, src = p < 0.5 ? A : B;
@@ -476,7 +470,7 @@ trReg('hrStaticCut', {
 
 /* blink: eyelids close on the old shot and open on the new one */
 trReg('hrBlink', {
-  name: 'まばたき', tags: TAGS.concat(['emotional']), w: 0.8, dur: 0.45, ae: 'irisOpen',
+  name: 'まばたき', tags: TAGS.concat(['emotional']), w: 0.8, dur: 0.45,
   plan: rng => ({ half: rng.chance(0.3) }),
   draw(ctx, A, B, p, I, Pm) {
     const { cw, ch } = I, src = p < 0.5 ? A : B;

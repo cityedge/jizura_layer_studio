@@ -88,7 +88,7 @@ const shaky = (env, pts, col, lw, a, seed, amp) => {
 
 /* ================================================================== 1. flashlight */
 reg('hrFlashlight', {
-  name: '懐中電灯', tags: TAGS.concat(['emotional']), w: 1, busy: true, ae: 'circle', fits: n => n >= 1 && n <= 18,
+  name: '懐中電灯', tags: TAGS.concat(['emotional']), w: 1, busy: true, fits: n => n >= 1 && n <= 18,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, rng.chance(0.6) ? ['serif', 'display'] : ['display'])), path: rng.pick(['read', 'read', 'search']), rk: rng.range(0.85, 1.1), dark: rng.range(0.9, 0.96), dust: rng.chance(0.7), sx: rng.range(-0.3, 0.3), sy: rng.range(-0.3, 0.3) };
   },
@@ -139,7 +139,7 @@ reg('hrFlashlight', {
 
 /* ================================================================== 2. door gap */
 reg('hrDoorGap', {
-  name: '扉の隙間', tags: TAGS.concat(['editorial']), w: 0.9, busy: true, ae: 'vcols', fits: n => n >= 1 && n <= 16,
+  name: '扉の隙間', tags: TAGS.concat(['editorial']), w: 0.9, busy: true, fits: n => n >= 1 && n <= 16,
   plan(rng, cut, st) {
     const n = J.glyphCount(cut.text);
     return { font: rng.pick(fontsOf(st, ['serif', 'display'])), vert: n <= 7 && !hasLatin(cut.text) && rng.chance(0.75), side: rng.pick([-1, 1]), pause: rng.range(0.16, 0.26), wedge: rng.chance(0.8) };
@@ -192,7 +192,7 @@ reg('hrDoorGap', {
 
 /* ================================================================== 3. obsessive wall writing */
 reg('hrWallScrawl', {
-  name: '壁の落書き', tags: TAGS.concat(['glitch']), w: 0.9, busy: true, ae: 'tile', fits: n => n >= 1 && n <= 14,
+  name: '壁の落書き', tags: TAGS.concat(['glitch']), w: 0.9, busy: true, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), hand: handOf(rng, st), rows: rng.int(7, 10), mainHand: rng.chance(0.4), red: rng.range(0.06, 0.16), rise: rng.range(0.55, 0.8) };
   },
@@ -239,7 +239,7 @@ reg('hrWallScrawl', {
 
 /* ================================================================== 4. CCTV monitor */
 reg('hrCctv', {
-  name: '監視モニター', tags: TAGS.concat(['glitch', 'editorial']), w: 1, busy: true, treat: 'safe', ae: 'type', fits: n => n >= 1 && n <= 18,
+  name: '監視モニター', tags: TAGS.concat(['glitch', 'editorial']), w: 1, busy: true, treat: 'safe', fits: n => n >= 1 && n <= 18,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'body'])), v: rng.pick(['quad', 'quad', 'single']), act: rng.int(0, 3), cam0: rng.int(1, 12), box: rng.chance(0.7) };
   },
@@ -313,7 +313,7 @@ reg('hrCctv', {
 const KANA = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
 const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 reg('hrOuija', {
-  name: '降霊盤', tags: TAGS, w: 0.7, portrait: 0.8, ae: 'type', fits: n => n >= 1 && n <= 14,
+  name: '降霊盤', tags: TAGS, w: 0.7, portrait: 0.8, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'display'])), fontB: rng.pick(fontsOf(st, ['serif'])), jit: rng.range(0.45, 0.9), latin: hasLatin(cut.text) };
   },
@@ -385,7 +385,7 @@ reg('hrOuija', {
 
 /* ================================================================== 6. missing poster */
 reg('hrMissing', {
-  name: '尋ね人', tags: TAGS.concat(['editorial']), w: 0.8, treat: 'safe', ae: 'labels', fits: n => n >= 1 && n <= 16,
+  name: '尋ね人', tags: TAGS.concat(['editorial']), w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 16,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), fontH: rng.pick(fontsOf(st, ['display'])), ang: rng.range(-3.5, 3.5), off: rng.range(-0.06, 0.06), torn: rng.int(1, 3), stains: rng.int(1, 3) };
   },
@@ -458,7 +458,7 @@ reg('hrMissing', {
 
 /* ================================================================== 7. the one wrong glyph */
 reg('hrWrongOne', {
-  name: '一字だけ違う', tags: TAGS.concat(['editorial', 'calm']), w: 1, ae: 'mixed', fits: n => n >= 2 && n <= 16,
+  name: '一字だけ違う', tags: TAGS.concat(['editorial', 'calm']), w: 1, fits: n => n >= 2 && n <= 16,
   plan(rng, cut, st) {
     const cs = [...flat(cut.text)].map((c, i) => [c, i]).filter(([c]) => c !== ' ' && !J.isPunct(c));
     const kan = cs.filter(([c]) => J.isKanji(c) || J.isKata(c) || /[A-Za-z]/.test(c));
@@ -505,7 +505,7 @@ reg('hrWrongOne', {
 
 /* ================================================================== 8. rising out of the dark */
 reg('hrRisingDark', {
-  name: '闇から這い出る', tags: TAGS.concat(['emotional']), w: 0.8, ae: 'wave', fits: n => n >= 1 && n <= 14,
+  name: '闇から這い出る', tags: TAGS.concat(['emotional']), w: 0.8, fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), pulls: rng.int(3, 5), span: rng.range(0.45, 0.6), rim: rng.chance(0.8) };
   },
@@ -550,7 +550,7 @@ reg('hrRisingDark', {
 
 /* ================================================================== 9. redacted file */
 reg('hrRedacted', {
-  name: '黒塗り文書', tags: TAGS.concat(['editorial']), w: 0.8, busy: true, ae: 'type', fits: n => n >= 1 && n <= 20,
+  name: '黒塗り文書', tags: TAGS.concat(['editorial']), w: 0.8, busy: true, fits: n => n >= 1 && n <= 20,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['serif', 'body', 'mono'])), row: rng.range(0.42, 0.58), stamp: rng.chance(0.75), stampAng: rng.range(-14, -6), leak: rng.range(0.1, 0.25) };
   },
@@ -614,7 +614,7 @@ reg('hrRedacted', {
 
 /* ================================================================== 10. static TV */
 reg('hrStaticTv', {
-  name: '砂嵐のテレビ', tags: TAGS.concat(['glitch']), w: 0.8, treat: 'safe', ae: 'circle', fits: n => n >= 1 && n <= 14,
+  name: '砂嵐のテレビ', tags: TAGS.concat(['glitch']), w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 14,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'body'])), off: rng.range(-0.06, 0.06), tune: rng.range(0.3, 0.5), ant: rng.range(18, 34) };
   },
@@ -673,7 +673,7 @@ reg('hrStaticTv', {
 
 /* ================================================================== 11. spirit photo */
 reg('hrSpiritPhoto', {
-  name: '心霊写真', tags: TAGS.concat(['emotional']), w: 0.8, ae: 'gloss', fits: n => n >= 1 && n <= 16,
+  name: '心霊写真', tags: TAGS.concat(['emotional']), w: 0.8, fits: n => n >= 1 && n <= 16,
   plan(rng, cut, st) {
     return { hand: handOf(rng, st), ang: rng.range(-5, 5), spot: [rng.range(0.25, 0.75), rng.range(0.3, 0.6)], win: rng.chance(0.6), side: rng.pick([1, -1]) };
   },
@@ -737,7 +737,7 @@ reg('hrSpiritPhoto', {
 
 /* ================================================================== 12. the shadow that does not match */
 reg('hrWrongShadow', {
-  name: '影が違う', tags: TAGS.concat(['emotional', 'graphic']), w: 0.9, ae: 'stack', fits: n => n >= 1 && n <= 12,
+  name: '影が違う', tags: TAGS.concat(['emotional', 'graphic']), w: 0.9, fits: n => n >= 1 && n <= 12,
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), k: rng.range(1.5, 1.9), turn: rng.range(0.45, 0.65), dir: rng.pick([1, -1]), lean: rng.range(4, 9) };
   },

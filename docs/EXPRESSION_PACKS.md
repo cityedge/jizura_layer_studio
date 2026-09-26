@@ -136,11 +136,10 @@ use `env.t` (absolute time). Keep contrast LOW so text on top stays readable. `s
 content around the screen centre (design px / degrees). Called per pass with lagged time. Keep the lyric on screen (|x|,|y| ≤ 5%,
 s 0.92..1.15, rot ≤ 5°); big moves only briefly and they must settle. Scale by `env.fx.motion`; `strong: true` for aggressive moves.
 
-**fx** `{ name, tags, w, glitchy?, edge? (default true), mid?, dur (frames @24fps, default 4), pre (frames before the cut boundary),
-amp, scratch?, ae?, draw(ctx, ev, k, info) }` — post-processing in DEVICE pixels (identity transform). `info = {cw, ch, S (copy of the
+**fx** `{ name, tags, w, glitchy?, edge? (default true), mid?, dur (legacy 1/24-second units; these preserve the original duration, default 4), pre (frames before the cut boundary),
+amp, scratch?, draw(ctx, ev, k, info) }` — post-processing in DEVICE pixels (identity transform). `info = {cw, ch, S (copy of the
 frame when scratch:true), sc, st, step, t, scale, allowFilter, opt, tmp(w,h), tmp2(w,h)}`; `k` 0..1 progress, `ev.amp` intensity.
-Leave ctx state clean. No getImageData on full frames. `ae` = the closest After Effects event type
-(`chroma shake slice block invert flash zoom mosaic`) or omit.
+Leave ctx state clean. No getImageData on full frames.
 
 **trans** (カット間のつなぎ) `{ name, tags, w, dur (seconds, default 0.35), plan?(rng, st) → params, draw(ctx, A, B, p, info) }` — how a
 cut takes over from the previous one. `A` = canvas with the previous cut's resting frame, `B` = canvas with this cut's frame (both full
@@ -151,15 +150,6 @@ The planner turns the previous cut's exit and this cut's entrance into plain cut
 **style** (配色セット) — added directly to `J.STYLES` + `J.STYLE_ORDER` (see src/04_styles.js for the full schema): `{ name, desc,
 moods: [mood keys], schemes: [2–4 × {bg, fg, sub, accent, accent2, ink, dim, ghostA, ghostB, grad?, paper?}], fonts: {display, serif,
 body, mono}, texture: {grain, paper, scan}, ghost, bias: {layout, enter, exit}, decor: {decorKey: weight}, hud, glow?, glitchBoost?, useGrad? }`.
-
-### After Effects counterpart (`ae`)
-Every new **layout / enter / exit / hold / decor** entry must declare `ae: '<key>'` = its closest counterpart in the original set, used
-when the browser exports a plan to the After Effects panel:
-- layout: `center mixed vcols marquee tile scatter ring wave huge labels condensed gloss type diag circle stack pill`
-- enter: `cut assemble slice type pop drop stretch wipe blur spin flicker scramble zoom`
-- exit: `cut explode fall drift slice wipe shrink blur stretch scatter glitch`
-- hold: `still jitter drift breathe wave glitchtick`
-- decor: `brackets rings dots arrows slash sparks leaders waveform barcode grid stripes blobs bars shapes counter`
 
 ### Fonts
 Catalogue keys: `gothic_black gothic_bold gothic_med gothic_light dela zenkaku mincho_black mincho_bold mincho mincho_light tokumin
@@ -204,13 +194,3 @@ graphics that pop instead of animating. `python3 dev/build_test.py all --all-pac
 entry in many combinations; `python3 dev/overview.py <group> out/ov t_all` makes one overview grid per group (groups: layout enter exit hold decor treat bg cam fx trans style).
 `python3 dev/cost_scan.py t_all 45` lists entries whose frames take longer than 45 ms.
 Syntax check: `node -e "new Function(require('fs').readFileSync('src/11p_<pack>.js','utf8'))"`. Finally run `python3 build.py`.
-
-## After Effects
-The AE panel (`ae/*.jsx`, built by `python3 build_ae.py`) has its own registry: `jzReg(group, key, def)` in `ae/05_reg.jsx`, core
-entries in `ae/20_motion.jsx` … `ae/45_core.jsx`, and one file per ported pack (`ae/p_*.jsx`). Planning metadata (weights, tags,
-追加分/和風 flags, fits, durations) is exported from the browser engine into `ae/data.json` by `node tools/export_ae_data.js`, so both
-planners make the same decisions. A browser entry that has no AE port yet is replaced by its closest ported entry (the `ae`
-counterpart, see "After Effects counterpart" above; `J.AE_MAP` in src/11_export.js can override it) — keep giving new entries an `ae`
-counterpart so browser → AE JSON exports keep working.
-Checks (need `cd dev && npm install` once): `node dev/ae_test.js` builds every style × several seeds on an emulated AE object model
-in an ES3 realm; `node dev/ae_check.js --group layout --ids all` checks the ported parts of one group.

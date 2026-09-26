@@ -70,7 +70,7 @@ const alive = (it, amin = 0.9) => it.fill !== false && (it.alpha ?? 1) >= amin &
 
 /* between blinks: every time the screen blinks, the glyphs are closer */
 reg('enter', 'hrBlinkCreep', {
-  name: '瞬きの間に', tags: TAGS.concat(['emotional']), w: 0.9, ae: 'flicker', minDur: 1,
+  name: '瞬きの間に', tags: TAGS.concat(['emotional']), w: 0.9, minDur: 1,
   inDur: dur => J.clamp(dur * 0.5, 0.6, 1.3),
   apply(env, it, p) {
     const seed = it.seed | 0, sz = it.size, cs = cseed(env), ord = orderOf(env, it);
@@ -90,7 +90,7 @@ reg('enter', 'hrBlinkCreep', {
 
 /* jump scare: faint and tiny, then it snaps at you and settles */
 reg('enter', 'hrJumpScare', {
-  name: '飛び出し', tags: TAGS.concat(['glitch', 'pop']), w: 0.7, ae: 'zoom', minDur: 0.9,
+  name: '飛び出し', tags: TAGS.concat(['glitch', 'pop']), w: 0.7, minDur: 0.9,
   inDur: dur => J.clamp(dur * 0.42, 0.45, 1),
   apply(env, it, p) {
     const at = 0.62, seed = it.seed | 0;
@@ -110,7 +110,7 @@ reg('enter', 'hrJumpScare', {
 
 /* uneasy timing: glyphs arrive one by one after irregular, too-long pauses, each with a twitch */
 reg('enter', 'hrUneasy', {
-  name: '間の悪い出現', tags: TAGS.concat(['editorial']), w: 1, ae: 'type', minDur: 0.9,
+  name: '間の悪い出現', tags: TAGS.concat(['editorial']), w: 1, minDur: 0.9,
   inDur: (dur, n) => J.clamp(dur * 0.55, 0.5, 1.6),
   apply(env, it, p) {
     const cs = cseed(env), N = cutN(env), idx = indexOf(env, it), times = uneasyTimes(cs, N, 0.86), sz = it.size, acc = env.sc.accent;
@@ -126,7 +126,7 @@ reg('enter', 'hrUneasy', {
 
 /* vertical hold: the line rolls through the frame like a TV losing sync, then locks */
 reg('enter', 'hrVhold', {
-  name: '垂直同期', tags: TAGS.concat(['glitch']), w: 0.8, ae: 'slice',
+  name: '垂直同期', tags: TAGS.concat(['glitch']), w: 0.8,
   inDur: dur => J.clamp(dur * 0.4, 0.35, 0.8),
   apply(env, it, p) {
     const bx = J.itemBox(it), pad = it.size * 0.25, y0 = bx.y0 - pad, y1 = bx.y1 + pad, Hh = y1 - y0;
@@ -149,7 +149,7 @@ reg('enter', 'hrVhold', {
 
 /* mirror writing: it appears reversed, shudders, and snaps the right way round */
 reg('enter', 'hrMirrorSnap', {
-  name: '鏡文字', tags: TAGS.concat(['glitch']), w: 0.8, ae: 'flicker', minDur: 0.8,
+  name: '鏡文字', tags: TAGS.concat(['glitch']), w: 0.8, minDur: 0.8,
   inDur: dur => J.clamp(dur * 0.45, 0.5, 1.1),
   apply(env, it, p) {
     const seed = it.seed | 0, [cx] = layCenter(it), sx = it.sx || 1, st = env.step;
@@ -165,7 +165,7 @@ reg('enter', 'hrMirrorSnap', {
 
 /* manifesting: it wavers in and out, each glyph on its own breath, and finally holds */
 reg('enter', 'hrManifest', {
-  name: '浮かび上がる', tags: TAGS.concat(['emotional', 'calm']), w: 1, ae: 'blur', minDur: 0.8,
+  name: '浮かび上がる', tags: TAGS.concat(['emotional', 'calm']), w: 1, minDur: 0.8,
   inDur: dur => J.clamp(dur * 0.5, 0.5, 1.4),
   apply(env, it, p) {
     const cs = cseed(env), idx = indexOf(env, it), sz = it.size, N = cutN(env);
@@ -182,7 +182,7 @@ reg('enter', 'hrManifest', {
 
 /* claw marks: four slanted tears open across the line and widen until it is all there */
 reg('enter', 'hrClawReveal', {
-  name: '爪痕から', tags: TAGS.concat(['graphic']), w: 0.8, ae: 'wipe',
+  name: '爪痕から', tags: TAGS.concat(['graphic']), w: 0.8,
   inDur: dur => J.clamp(dur * 0.36, 0.3, 0.7),
   apply(env, it, p) {
     const seed = it.seed | 0, bx = J.itemBox(it), pad = it.size * 0.3;
@@ -210,7 +210,7 @@ reg('enter', 'hrClawReveal', {
 
 /* pulled under: glyphs are yanked down one by one; the last one clings and trembles first */
 reg('exit', 'hrPulledDown', {
-  name: '引きずり込み', tags: TAGS.concat(['glitch', 'emotional']), w: 1, ae: 'fall',
+  name: '引きずり込み', tags: TAGS.concat(['glitch', 'emotional']), w: 1,
   outDur: dur => J.clamp(dur * 0.4, 0.4, 0.9),
   apply(env, it, p) {
     const cs = cseed(env), N = cutN(env), idx = indexOf(env, it), H = env.H, sz = it.size, st = env.step;
@@ -232,7 +232,7 @@ reg('exit', 'hrPulledDown', {
 
 /* one stays behind: the line vanishes at once except one glyph, which turns to look, then is gone */
 reg('exit', 'hrLookBack', {
-  name: '一字残る', tags: TAGS.concat(['emotional']), w: 0.9, ae: 'cut', minDur: 1,
+  name: '一字残る', tags: TAGS.concat(['emotional']), w: 0.9, minDur: 1,
   outDur: dur => J.clamp(dur * 0.45, 0.55, 1.2),
   apply(env, it, p) {
     const cs = cseed(env), N = cutN(env), idx = indexOf(env, it), sz = it.size, st = env.step;
@@ -252,7 +252,7 @@ reg('exit', 'hrLookBack', {
 
 /* turning away: each glyph turns its back (edge-on, then reversed and darkened) and fades */
 reg('exit', 'hrTurnAway', {
-  name: '背を向ける', tags: TAGS.concat(['calm', 'emotional']), w: 0.9, ae: 'stretch',
+  name: '背を向ける', tags: TAGS.concat(['calm', 'emotional']), w: 0.9,
   outDur: dur => J.clamp(dur * 0.4, 0.4, 0.9),
   apply(env, it, p) {
     const ord = orderOf(env, it), c0 = colOf(it), dk = nightC(env.sc), sz = it.size;
@@ -268,7 +268,7 @@ reg('exit', 'hrTurnAway', {
 
 /* shiver: a tremor that keeps growing, and glyphs drop out of existence between frames */
 reg('exit', 'hrShiver', {
-  name: '震えて消える', tags: TAGS.concat(['glitch']), w: 0.9, ae: 'glitch',
+  name: '震えて消える', tags: TAGS.concat(['glitch']), w: 0.9,
   outDur: dur => J.clamp(dur * 0.35, 0.35, 0.8),
   apply(env, it, p) {
     const cs = cseed(env), idx = indexOf(env, it), sz = it.size, st = env.step;
@@ -283,7 +283,7 @@ reg('exit', 'hrShiver', {
 
 /* swallowed: a stain of darkness spreads from one point and eats the line */
 reg('exit', 'hrSwallow', {
-  name: '闇に呑まれる', tags: TAGS.concat(['emotional', 'graphic']), w: 0.9, ae: 'wipe',
+  name: '闇に呑まれる', tags: TAGS.concat(['emotional', 'graphic']), w: 0.9,
   outDur: dur => J.clamp(dur * 0.4, 0.4, 0.9),
   apply(env, it, p) {
     const seed = it.seed | 0, bx = J.itemBox(it), sz = it.size;
@@ -304,7 +304,7 @@ reg('exit', 'hrSwallow', {
 
 /* dying light: the words strobe out, with single frames where they come back wrong */
 reg('exit', 'hrFlickerDie', {
-  name: '明滅して消える', tags: TAGS.concat(['glitch']), w: 0.9, ae: 'glitch',
+  name: '明滅して消える', tags: TAGS.concat(['glitch']), w: 0.9,
   outDur: dur => J.clamp(dur * 0.38, 0.35, 0.8),
   apply(env, it, p) {
     const seed = it.seed | 0, st = env.step, r = J.r(seed, st, 81);
@@ -319,7 +319,7 @@ reg('exit', 'hrFlickerDie', {
 
 /* draining: the ink level sinks inside each glyph while drips run out of the bottom */
 reg('exit', 'hrDrain', {
-  name: '滴り落ちる', tags: TAGS.concat(['emotional']), w: 0.8, ae: 'wipe', minDur: 0.8,
+  name: '滴り落ちる', tags: TAGS.concat(['emotional']), w: 0.8, minDur: 0.8,
   outDur: dur => J.clamp(dur * 0.45, 0.5, 1.1),
   apply(env, it, p) {
     const cs = cseed(env), idx = indexOf(env, it), ord = orderOf(env, it), sz = it.size;
@@ -353,7 +353,7 @@ reg('exit', 'hrDrain', {
 
 /* twitch: dead still, then a rare violent jerk of one glyph (or the whole line) */
 reg('hold', 'hrTwitch', {
-  name: '痙攣', tags: TAGS.concat(['glitch']), w: 1, ae: 'glitchtick',
+  name: '痙攣', tags: TAGS.concat(['glitch']), w: 1,
   apply(env, it, amt) {
     const k = amt * motionK(env); if (k < 0.02) return;
     const cs = cseed(env), st = env.step, idx = indexOf(env, it), N = cutN(env), sz = it.size;
@@ -368,7 +368,7 @@ reg('hold', 'hrTwitch', {
 
 /* staring: now and then one glyph slowly tilts its head towards you, holds, and snaps back */
 reg('hold', 'hrStare', {
-  name: '見つめる字', tags: TAGS.concat(['emotional']), w: 0.8, ae: 'drift',
+  name: '見つめる字', tags: TAGS.concat(['emotional']), w: 0.8,
   apply(env, it, amt) {
     const k = amt * motionK(env); if (k < 0.02) return;
     const cs = cseed(env), idx = indexOf(env, it), N = cutN(env), per = 2, t = env.ltb - 0.3;
@@ -382,7 +382,7 @@ reg('hold', 'hrStare', {
 
 /* the late one: the line sways together, one glyph follows a moment too late */
 reg('hold', 'hrLagOne', {
-  name: '遅れる一字', tags: TAGS.concat(['calm']), w: 0.8, ae: 'drift',
+  name: '遅れる一字', tags: TAGS.concat(['calm']), w: 0.8,
   apply(env, it, amt) {
     const k = amt * motionK(env); if (k < 0.02) return;
     const cs = cseed(env), idx = indexOf(env, it), N = cutN(env), sz = it.size, t = env.ltb, late = J.h(cs, 121) % N;
@@ -394,7 +394,7 @@ reg('hold', 'hrLagOne', {
 
 /* failing light: the words buzz, dim and drop out for a frame or two */
 reg('hold', 'hrFlickerLight', {
-  name: '切れかけの灯', tags: TAGS.concat(['glitch', 'emotional']), w: 0.9, ae: 'glitchtick',
+  name: '切れかけの灯', tags: TAGS.concat(['glitch', 'emotional']), w: 0.9,
   apply(env, it, amt) {
     const k = amt * J.clamp(motionK(env), 0.4, 1.3); if (k < 0.02) return;
     const cs = cseed(env), st = env.step, run = st >> 1;
@@ -411,7 +411,7 @@ reg('hold', 'hrFlickerLight', {
 
 /* ink bleed: a dark halo seeps out of the letters and thin drips run down from some of them */
 reg('treat', 'hrInkBleed', {
-  name: '滲み垂れ', tags: TAGS.concat(['emotional']), w: 0.8, ae: 'softShadow',
+  name: '滲み垂れ', tags: TAGS.concat(['emotional']), w: 0.8,
   plan: rng => ({ drips: rng.range(0.25, 0.45), red: rng.chance(0.4) }),
   apply(env, it, P) {
     if (!alive(it)) return;
@@ -443,7 +443,7 @@ reg('treat', 'hrInkBleed', {
 
 /* eroded: letters worn away with pits and scratches in the background colour */
 reg('treat', 'hrEroded', {
-  name: '風化', tags: TAGS.concat(['editorial', 'graphic']), w: 0.8, ae: 'halftone',
+  name: '風化', tags: TAGS.concat(['editorial', 'graphic']), w: 0.8,
   plan: rng => ({ dens: rng.range(0.7, 1.2), scr: rng.chance(0.7) }),
   apply(env, it, P) {
     if (!alive(it)) return;
@@ -471,7 +471,7 @@ reg('treat', 'hrEroded', {
 
 /* redacted: a black bar covers part of the line and is pulled off later, leaving its outline */
 reg('treat', 'hrRedact', {
-  name: '黒塗り', tags: TAGS.concat(['editorial', 'graphic']), w: 0.7, ae: 'boxed',
+  name: '黒塗り', tags: TAGS.concat(['editorial', 'graphic']), w: 0.7,
   plan: rng => ({ at: rng.range(0.25, 0.5), frac: rng.range(0.3, 0.6), from: rng.range(0, 1) }),
   apply(env, it, P) {
     if (!alive(it)) return;
@@ -503,7 +503,7 @@ reg('treat', 'hrRedact', {
 
 /* double exposure: a second, fainter take of the line drifts out of register */
 reg('treat', 'hrDoubleExp', {
-  name: '二重露光', tags: TAGS.concat(['emotional', 'glitch']), w: 0.8, ae: 'echoOutline',
+  name: '二重露光', tags: TAGS.concat(['emotional', 'glitch']), w: 0.8,
   plan: rng => ({ amp: rng.range(0.18, 0.28), k: rng.range(1.03, 1.08) }),
   apply(env, it, P) {
     if (!alive(it)) return;

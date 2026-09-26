@@ -38,6 +38,10 @@ For updates, change source, VERSION and CHANGELOG, test, generate a new bundle a
 
 ## Optional site metadata
 
-The default build does not point canonical or OG URL metadata at the original app. Language links are relative. Once your URL is known, set `JIZURA_SITE_URL` to your final HTTPS site URL before rebuilding to include it in metadata. This is optional.
+The default canonical and OG URL is https://cityedge.github.io/jizura_layer_studio/. Language links are relative. Override `JIZURA_SITE_URL` for another site, or set it to an empty string to omit site metadata.
 
 Edit identity in `app/publication.py` and `app/body.html`, and guides in `app/guide.ja.html` and `app/guide.en.html`. Full notices are embedded from LICENSE and THIRD_PARTY_NOTICES.md at build time. Do not edit generated HTML alone.
+
+## Release ZIP and site URL
+
+Packaging also creates a ZIP with `index.html` at archive root. Attach it to GitHub Releases; upload the extracted files to update Pages. Preserve the Mediabunny source archive and license. The default canonical/OG site URL is https://cityedge.github.io/jizura_layer_studio/; override `JIZURA_SITE_URL` for a different site or set it to an empty string to omit these tags.

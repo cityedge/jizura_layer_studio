@@ -20,6 +20,16 @@ Import a front video; its matte is optional. Select both together to match `spea
 - Both start at zero, subtitles in front; media is empty after its end.
 - Default: 65% frame width, preserved source aspect, 3% left/bottom margins. Independent scales use the base as 100%. Settings persist in JSON; preview/export share placement. Outside-frame content is clipped.
 
+## FPS and spectrum frames
+
+New projects default to 30fps. Subtitle cadence options are 15 drawings/s (on twos), 10 drawings/s (on threes), and full output fps. Auto-compose uses these cadences. Saved 24fps and legacy 12/8 drawings/s settings are preserved; select 30fps explicitly when updating an existing project. Real-time effect durations and fade speeds are retained.
+
+Export decodes spectrum frames through WebCodecs and selects them by presentation timestamp (PTS), independently of preview playback. A constant 30fps source exported at 30fps from a source frame boundary uses every source frame once, in order. This is frame correspondence, not pixel-identical output: scaling, compositing and lossy MP4 encoding still change pixels.
+
+Front and matte are sampled at the same output times; source files must already be synchronized. 29.97fps, variable-frame-rate and mismatched rates require timestamp-based frame holds or drops. Subtitle cadence does not affect spectrum frames. 24fps and 60fps output remain available.
+
+Supported containers: MP4, MOV, WebM, Matroska and Ogg; codec support depends on the browser. If exact decoding is unavailable, export reports an error rather than silently falling back to video-element seeking. Editing previews still use video elements.
+
 ## Exterior bloom cleanup
 
 Below the cut list, adjust 0–128 (default 32). Zero disables cleanup; higher values remove more dark exterior glow. Preview updates without replanning. The value is saved and locked during export.

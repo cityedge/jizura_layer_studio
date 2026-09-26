@@ -59,7 +59,7 @@ J.omakase = (project, rnd = Math.random) => {
   const style = pick(pool);
   const fx = Object.assign({}, project.fx);
   for (const k of Object.keys(M.fx)) fx[k] = range(M.fx[k]);
-  fx.koma = pick({ horror: [12, 8, 0], glitch: [12, 12, 8], pop: [12, 12, 8, 0], calm: [0, 0, 12], editorial: [0, 12], emotional: [12, 0], graphic: [12, 12, 0] }[mood] || [12, 8, 0]);
+  fx.koma = pick({ horror: [15, 10, 0], glitch: [15, 15, 10], pop: [15, 15, 10, 0], calm: [0, 0, 15], editorial: [0, 15], emotional: [15, 0], graphic: [15, 15, 0] }[mood] || [15, 10, 0]);
   fx.onTwos = fx.koma > 0; fx.flash = rnd() < 0.65; fx.hud = pick(['auto', 'auto', 'on', 'off']);
   // technique subset per group: everything tagged with the mood (plus the mood's hand-picked core items),
   // a sprinkle of everything else, and a minimum count so the planner always has room to vary

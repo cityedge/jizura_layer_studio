@@ -72,7 +72,7 @@ const boxOf = it => { it._m = J.measure(it); return J.itemBox(it); };
 
 /* キー字先行 — the key glyph lands first (big → size), the rest slide out from behind it */
 reg('enter', 'tyKeyFirst', {
-  name: 'キー字先行', tags: ['pop', 'graphic', 'editorial', 'emotional'], ae: 'pop', w: 1,
+  name: 'キー字先行', tags: ['pop', 'graphic', 'editorial', 'emotional'], w: 1,
   apply(env, it, p) {
     const lay = layOf(it), sx = it.sx || 1, sy = it.sy || 1;
     const plain = lay.filter(g => !isSp(g.ch));
@@ -96,7 +96,7 @@ reg('enter', 'tyKeyFirst', {
 
 /* 行送りワイプ — each line is wiped on in turn, an accent rule running ahead under it */
 reg('enter', 'tyLineWipe', {
-  name: '行送りワイプ', tags: ['editorial', 'graphic', 'calm'], ae: 'wipe', w: 1,
+  name: '行送りワイプ', tags: ['editorial', 'graphic', 'calm'], w: 1,
   apply(env, it, p) {
     const lines = lineInfo(it), nL = Math.max(1, lines.length), st = Math.min(0.28, 0.6 / nL);
     const qOf = li => { const k = lines.findIndex(L => L.li === li); return E.inOutCubic(clamp((p - Math.max(0, k) * st) / (1 - (nL - 1) * st))); };
@@ -128,7 +128,7 @@ reg('enter', 'tyLineWipe', {
 
 /* 一字ずつ拡大 — glyphs are flashed one at a time, large in the middle, then set into their slot */
 reg('enter', 'tyZoomOne', {
-  name: '一字ずつ拡大', tags: ['pop', 'graphic', 'emotional'], ae: 'zoom', w: 0.8, minDur: 1.0,
+  name: '一字ずつ拡大', tags: ['pop', 'graphic', 'emotional'], w: 0.8, minDur: 1.0,
   inDur: (dur, n) => J.clamp(0.14 * n + 0.2, 0.4, Math.min(1.5, dur * 0.55)),
   apply(env, it, p) {
     const lay = layOf(it), sx = it.sx || 1, sy = it.sy || 1;
@@ -157,7 +157,7 @@ reg('enter', 'tyZoomOne', {
 
 /* 下線から立つ — an underline is drawn, the glyphs grow up out of it, the line then retracts */
 reg('enter', 'tyUnderLift', {
-  name: '下線から立つ', tags: ['editorial', 'graphic', 'pop'], ae: 'stretch', w: 1,
+  name: '下線から立つ', tags: ['editorial', 'graphic', 'pop'], w: 1,
   apply(env, it, p) {
     const lines = lineInfo(it), ord = orders(env, it), V = !!it.vertical, sx = it.sx || 1, sy = it.sy || 1;
     const multi = layOf(it).filter(g => !isSp(g.ch)).length > 1;
@@ -183,7 +183,7 @@ reg('enter', 'tyUnderLift', {
 
 /* 点から字 — every glyph starts as a middle dot (・) that pops and turns into the glyph */
 reg('enter', 'tyDotGrow', {
-  name: '点から字', tags: ['pop', 'calm', 'graphic'], ae: 'pop', w: 0.9,
+  name: '点から字', tags: ['pop', 'calm', 'graphic'], w: 0.9,
   apply(env, it, p) {
     const ord = orders(env, it), ac = accentOf(env);
     it.charFns.push((i) => {
@@ -211,7 +211,7 @@ const drawBrackets = (e, V, cx, cy, half, w, h, size, col, a) => {
   }
 };
 reg('enter', 'tyBracketOpen', {
-  name: '括弧が開く', tags: ['editorial', 'graphic', 'pop'], ae: 'wipe', w: 0.9,
+  name: '括弧が開く', tags: ['editorial', 'graphic', 'pop'], w: 0.9,
   apply(env, it, p) {
     const b = boxOf(it), V = !!it.vertical, pad = it.size * 0.12;
     const e = E.inOutCubic(clamp((p - 0.08) / 0.62));
@@ -225,7 +225,7 @@ reg('enter', 'tyBracketOpen', {
 
 /* 打ち直し — typed in with a cursor; one glyph is mistyped, deleted and typed again */
 reg('enter', 'tyRetype', {
-  name: '打ち直し', tags: ['editorial', 'glitch', 'emotional'], ae: 'type', w: 0.8, minDur: 1.0, cursor: true,
+  name: '打ち直し', tags: ['editorial', 'glitch', 'emotional'], w: 0.8, minDur: 1.0, cursor: true,
   inDur: (dur, n) => J.clamp(0.1 * n + 0.4, 0.45, Math.min(1.5, dur * 0.55)),
   apply(env, it, p) {
     const lay = layOf(it), N = lay.N;
@@ -255,7 +255,7 @@ reg('enter', 'tyRetype', {
 
 /* ルビから — each glyph appears small in the ruby position above its slot, then drops and grows into place */
 reg('enter', 'tyRubyDrop', {
-  name: 'ルビから', tags: ['calm', 'editorial', 'emotional'], ae: 'drop', w: 1,
+  name: 'ルビから', tags: ['calm', 'editorial', 'emotional'], w: 1,
   apply(env, it, p) {
     const ord = orders(env, it), V = !!it.vertical, sx = it.sx || 1, sy = it.sy || 1, sub = subOf(env);
     it.charFns.push((i, g) => {
@@ -276,7 +276,7 @@ reg('enter', 'tyRubyDrop', {
 
 /* 線で消す — a strike line is drawn through each line, the glyphs collapse onto it, then the line retracts */
 reg('exit', 'tyStrike', {
-  name: '線で消す', tags: ['editorial', 'graphic', 'emotional'], ae: 'wipe', w: 1,
+  name: '線で消す', tags: ['editorial', 'graphic', 'emotional'], w: 1,
   apply(env, it, p) {
     const lines = lineInfo(it), ord = orders(env, it), V = !!it.vertical;
     it.charFns.push((i) => {
@@ -302,7 +302,7 @@ reg('exit', 'tyStrike', {
 
 /* 点に戻る — glyphs shrink into middle dots (・), which then wink out */
 reg('exit', 'tyToDot', {
-  name: '点に戻る', tags: ['calm', 'pop', 'graphic'], ae: 'shrink', w: 0.9,
+  name: '点に戻る', tags: ['calm', 'pop', 'graphic'], w: 0.9,
   apply(env, it, p) {
     const ord = orders(env, it), ac = accentOf(env);
     it.charFns.push((i) => {
@@ -318,7 +318,7 @@ reg('exit', 'tyToDot', {
 
 /* 改行送り — the text line-feeds upward in three steps and leaves through a window */
 reg('exit', 'tyLineFeed', {
-  name: '改行送り', tags: ['editorial', 'calm', 'graphic'], ae: 'wipe', w: 1,
+  name: '改行送り', tags: ['editorial', 'calm', 'graphic'], w: 1,
   apply(env, it, p) {
     const b = boxOf(it), V = !!it.vertical, pad = it.size * 0.12;
     const k = clamp(p) * 3, st = Math.min(3, Math.floor(k)), f = k - st;
@@ -332,7 +332,7 @@ reg('exit', 'tyLineFeed', {
 
 /* 括弧閉じ — 「 」 appear at the ends and close in to the middle, taking the line with them */
 reg('exit', 'tyBracketClose', {
-  name: '括弧閉じ', tags: ['editorial', 'graphic', 'pop'], ae: 'wipe', w: 0.9,
+  name: '括弧閉じ', tags: ['editorial', 'graphic', 'pop'], w: 0.9,
   apply(env, it, p) {
     const b = boxOf(it), V = !!it.vertical, pad = it.size * 0.12;
     const e = E.inOutCubic(clamp((p - 0.12) / 0.7));
@@ -347,7 +347,7 @@ reg('exit', 'tyBracketClose', {
 
 /* 番号に変わる — each glyph turns into its small index number, then the numbers fade */
 reg('exit', 'tyToIndex', {
-  name: '番号に変わる', tags: ['editorial', 'glitch', 'graphic'], ae: 'scatter', w: 0.8,
+  name: '番号に変わる', tags: ['editorial', 'glitch', 'graphic'], w: 0.8,
   apply(env, it, p) {
     const lay = layOf(it), ord = orders(env, it), sub = subOf(env), V = !!it.vertical;
     const num = new Map(); let k = 0;
@@ -369,7 +369,7 @@ reg('exit', 'tyToIndex', {
 
 /* 一字残し — everything folds into the key glyph, which then swells and fades */
 reg('exit', 'tyKeyLast', {
-  name: '一字残し', tags: ['emotional', 'pop', 'graphic'], ae: 'shrink', w: 0.9,
+  name: '一字残し', tags: ['emotional', 'pop', 'graphic'], w: 0.9,
   apply(env, it, p) {
     const lay = layOf(it), sx = it.sx || 1, sy = it.sy || 1;
     const plain = lay.filter(g => !isSp(g.ch));
@@ -398,7 +398,7 @@ reg('exit', 'tyKeyLast', {
 
 /* 下線へ沈む — an underline is drawn, each glyph sinks into it (masked at the line), then the line retracts */
 reg('exit', 'tyUnderSink', {
-  name: '下線へ沈む', tags: ['editorial', 'calm', 'graphic'], ae: 'fall', w: 1,
+  name: '下線へ沈む', tags: ['editorial', 'calm', 'graphic'], w: 1,
   apply(env, it, p) {
     const lines = lineInfo(it), ord = orders(env, it), V = !!it.vertical, sx = it.sx || 1, sy = it.sy || 1;
     it.charFns.push((i, g) => {
@@ -423,7 +423,7 @@ reg('exit', 'tyUnderSink', {
 
 /* 縦組に折れる — a horizontal line folds down into a vertical column (a column folds into a row), then fades */
 reg('exit', 'tyFoldVert', {
-  name: '縦組に折れる', tags: ['graphic', 'editorial', 'pop'], ae: 'fall', w: 0.9,
+  name: '縦組に折れる', tags: ['graphic', 'editorial', 'pop'], w: 0.9,
   apply(env, it, p) {
     const lay = layOf(it), V = !!it.vertical, sx = it.sx || 1, sy = it.sy || 1;
     const ln = new Map();
@@ -448,7 +448,7 @@ reg('exit', 'tyFoldVert', {
 
 /* 一字の鼓動 — only the key glyph pulses (on the beat when there is one) */
 reg('hold', 'tyKeyPulse', {
-  name: '一字の鼓動', tags: ['emotional', 'pop', 'calm'], ae: 'breathe', w: 1,
+  name: '一字の鼓動', tags: ['emotional', 'pop', 'calm'], w: 1,
   apply(env, it, amt) {
     const lay = layOf(it), plain = lay.filter(g => !isSp(g.ch));
     if (!plain.length) return;
@@ -468,7 +468,7 @@ reg('hold', 'tyKeyPulse', {
 
 /* 読み送り — a reading cursor steps along the line: the current glyph lifts a little in the accent colour */
 reg('hold', 'tyReadCursor', {
-  name: '読み送り', tags: ['calm', 'editorial', 'pop'], ae: 'wave', w: 1,
+  name: '読み送り', tags: ['calm', 'editorial', 'pop'], w: 1,
   apply(env, it, amt) {
     if (amt < 0.3) return;
     const lay = layOf(it), plain = lay.filter(g => !isSp(g.ch)), n = plain.length;
@@ -490,7 +490,7 @@ reg('hold', 'tyReadCursor', {
 
 /* 白抜き明滅 — now and then one glyph switches to outline only for a moment */
 reg('hold', 'tyOutlineBlink', {
-  name: '白抜き明滅', tags: ['glitch', 'graphic', 'pop'], ae: 'glitchtick', w: 0.9,
+  name: '白抜き明滅', tags: ['glitch', 'graphic', 'pop'], w: 0.9,
   apply(env, it, amt) {
     const lay = layOf(it), plain = lay.filter(g => !isSp(g.ch));
     if (!plain.length) return;
@@ -504,7 +504,7 @@ reg('hold', 'tyOutlineBlink', {
 
 /* 字間ステップ — letter spacing snaps between a few set values (on the beat), like a typographer trying options */
 reg('hold', 'tyTrackStep', {
-  name: '字間ステップ', tags: ['graphic', 'editorial', 'pop'], ae: 'breathe', w: 0.8,
+  name: '字間ステップ', tags: ['graphic', 'editorial', 'pop'], w: 0.8,
   apply(env, it, amt) {
     if (layOf(it).filter(g => !isSp(g.ch)).length < 2) return;
     const len = env.beat ? Math.max(0.25, env.beat.len) : 0.55;

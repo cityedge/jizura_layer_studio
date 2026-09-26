@@ -146,7 +146,7 @@ function flowUnits(units, font, maxW, maxH, o = {}) {
 
 /* ================================================================== 1 knSlamStack — 積み上げ */
 reg('knSlamStack', {
-  name: '積み上げ', tags: ['pop', 'graphic'], w: 1.1, ae: 'justified', fits: n => n >= 2 && n <= 18,
+  name: '積み上げ', tags: ['pop', 'graphic'], w: 1.1, fits: n => n >= 2 && n <= 18,
   enterBias: { cut: 3, blur: 0.7, pop: 0.8, slice: 0.3, wipe: 0.4 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), align: rng.pick(['center', 'center', 'left', 'right']), from: rng.pick(['scale', 'scale', 'drop', 'side']),
@@ -215,7 +215,7 @@ reg('knSlamStack', {
 
 /* ================================================================== 2 knQuarterTurn — 直角ターン */
 reg('knQuarterTurn', {
-  name: '直角ターン', tags: ['pop', 'graphic', 'editorial'], w: 0.9, ae: 'sideways', portrait: 0.9, fits: n => n >= 2 && n <= 16,
+  name: '直角ターン', tags: ['pop', 'graphic', 'editorial'], w: 0.9, portrait: 0.9, fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 3, pop: 0.8, blur: 0.8, slice: 0.2, wipe: 0.3 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), sgn: rng.pick([1, -1]), end: 'all', acc: rng.int(0, 3), joint: rng.chance(0.6) };
@@ -278,7 +278,7 @@ reg('knQuarterTurn', {
 
 /* ================================================================== 3 knSwapCenter — 入れ替わり */
 reg('knSwapCenter', {
-  name: '入れ替わり', tags: ['pop', 'graphic', 'glitch'], w: 1, ae: 'slotMachine', fits: n => n >= 2 && n <= 18,
+  name: '入れ替わり', tags: ['pop', 'graphic', 'glitch'], w: 1, fits: n => n >= 2 && n <= 18,
   enterBias: { cut: 3, pop: 0.7, blur: 0.8, slice: 0.3, wipe: 0.3 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), fontL: rng.pick(fontsOf(st, ['display', 'serif'])), mode: rng.pick(['roll', 'punch', 'slide', 'roll']), ticks: rng.chance(0.7), acc: rng.chance(0.5) };
@@ -333,7 +333,7 @@ reg('knSwapCenter', {
 
 /* ================================================================== 4 knZoomDive — 文字へ潜る */
 reg('knZoomDive', {
-  name: '文字へ潜る', tags: ['pop', 'emotional', 'graphic'], w: 0.9, ae: 'zoomRepeat', fits: n => n >= 2 && n <= 16,
+  name: '文字へ潜る', tags: ['pop', 'emotional', 'graphic'], w: 0.9, fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 3, blur: 0.8, pop: 0.5, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'serif'])), cap: rng.chance(0.75), acc: rng.chance(0.5) };
@@ -387,7 +387,7 @@ reg('knZoomDive', {
 
 /* ================================================================== 5 knFlowSnap — 流れて整列 */
 reg('knFlowSnap', {
-  name: '流れて整列', tags: ['graphic', 'pop', 'editorial'], w: 0.9, ae: 'gridCells', fits: n => n >= 3 && n <= 16,
+  name: '流れて整列', tags: ['graphic', 'pop', 'editorial'], w: 0.9, fits: n => n >= 3 && n <= 16,
   enterBias: { cut: 3, blur: 0.6, pop: 0.6, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display', 'body'])), amp: rng.range(0.1, 0.16), lam: rng.range(0.45, 0.7), grid: rng.pick(['cells', 'cells', 'rules']), acc: rng.int(0, 15) };
@@ -465,7 +465,7 @@ reg('knFlowSnap', {
 
 /* ================================================================== 6 knSeesaw — シーソー */
 reg('knSeesaw', {
-  name: 'シーソー', tags: ['pop', 'graphic'], w: 0.8, ae: 'bounceLine', portrait: 0.4, fits: n => n >= 2 && n <= 14,
+  name: 'シーソー', tags: ['pop', 'graphic'], w: 0.8, portrait: 0.4, fits: n => n >= 2 && n <= 14,
   enterBias: { cut: 3, pop: 0.6, blur: 0.5, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), order: rng.pick(['lr', 'lr', 'out']), acc: rng.chance(0.5), fulc: rng.pick(['tri', 'tri', 'round']) };
@@ -521,7 +521,7 @@ reg('knSeesaw', {
 
 /* ================================================================== 7 knTypeSlam — タイプ→スラム */
 reg('knTypeSlam', {
-  name: 'タイプ→スラム', tags: ['pop', 'graphic', 'editorial'], w: 1, ae: 'type', fits: n => n >= 2 && n <= 24,
+  name: 'タイプ→スラム', tags: ['pop', 'graphic', 'editorial'], w: 1, fits: n => n >= 2 && n <= 24,
   enterBias: { cut: 3, blur: 0.5, pop: 0.5, slice: 0.2, wipe: 0.3 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), key: rng.pick(['long', 'long', 'last']), side: rng.pick(['below', 'below', 'above']), burst: rng.chance(0.7) };
@@ -585,7 +585,7 @@ reg('knTypeSlam', {
 /* ================================================================== 8 knRhythmCuts — 語のカット割り */
 const SHOTS = ['huge', 'vert', 'small', 'crop', 'band', 'tilt'];
 reg('knRhythmCuts', {
-  name: '語のカット割り', tags: ['pop', 'graphic', 'glitch'], w: 0.9, ae: 'panels', fits: n => n >= 2 && n <= 18,
+  name: '語のカット割り', tags: ['pop', 'graphic', 'glitch'], w: 0.9, fits: n => n >= 2 && n <= 18,
   enterBias: { cut: 3.5, pop: 0.4, blur: 0.4, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     const sh = SHOTS.slice(); for (let i = sh.length - 1; i > 0; i--) { const j = rng.int(0, i); const t = sh[i]; sh[i] = sh[j]; sh[j] = t; }
@@ -672,7 +672,7 @@ function pathAt(P0, s) {
   return [lerp(a[0], b[0], k), lerp(a[1], b[1], k), Math.atan2(b[1] - a[1], b[0] - a[0]) / DEG];
 }
 reg('knPathRide', {
-  name: 'ループ軌道', tags: ['pop', 'graphic'], w: 0.8, ae: 'wave', portrait: 0.4, fits: n => n >= 2 && n <= 14,
+  name: 'ループ軌道', tags: ['pop', 'graphic'], w: 0.8, portrait: 0.4, fits: n => n >= 2 && n <= 14,
   enterBias: { cut: 3, blur: 0.6, pop: 0.3, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), side: rng.pick([1, 1, -1]), rail: rng.pick(['dash', 'line', 'dots']), acc: rng.chance(0.5) };
@@ -718,7 +718,7 @@ reg('knPathRide', {
 
 /* ================================================================== 10 knGearWords — 歯車 */
 reg('knGearWords', {
-  name: '歯車', tags: ['pop', 'graphic'], w: 0.7, ae: 'circleWords', treat: 'safe', fits: n => n >= 2 && n <= 16,
+  name: '歯車', tags: ['pop', 'graphic'], w: 0.7, treat: 'safe', fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 3, pop: 0.5, blur: 0.4, slice: 0.1, wipe: 0.1 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), dir: rng.pick([1, -1]), fillMode: rng.pick(['alt', 'alt', 'ink', 'ring']) };
@@ -773,7 +773,7 @@ reg('knGearWords', {
 
 /* ================================================================== 11 knCollide — 正面衝突 */
 reg('knCollide', {
-  name: '正面衝突', tags: ['pop', 'graphic', 'glitch'], w: 0.9, ae: 'splitHalves', fits: n => n >= 2 && n <= 16,
+  name: '正面衝突', tags: ['pop', 'graphic', 'glitch'], w: 0.9, fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 3.5, pop: 0.3, blur: 0.4, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), acc: rng.pick(['A', 'B', 'none']), spark: rng.chance(0.8), at: rng.range(0.28, 0.36) };
@@ -839,7 +839,7 @@ reg('knCollide', {
 
 /* ================================================================== 12 knTumble — 箱転がし */
 reg('knTumble', {
-  name: '箱転がし', tags: ['pop', 'graphic'], w: 0.8, ae: 'dominoes', fits: n => n >= 2 && n <= 16,
+  name: '箱転がし', tags: ['pop', 'graphic'], w: 0.8, fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 3.5, pop: 0.3, blur: 0.4, slice: 0.1, wipe: 0.1 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), box: rng.pick(['plate', 'frame', 'none']), acc: rng.int(0, 5), floor: rng.chance(0.7) };
@@ -888,7 +888,7 @@ reg('knTumble', {
 
 /* ================================================================== 13 knReflow — 縦から横へ */
 reg('knReflow', {
-  name: '縦から横へ', tags: ['editorial', 'graphic', 'emotional'], w: 0.9, ae: 'halfVertical', fits: n => n >= 2 && n <= 16,
+  name: '縦から横へ', tags: ['editorial', 'graphic', 'emotional'], w: 0.9, fits: n => n >= 2 && n <= 16,
   enterBias: { cut: 2.5, blur: 1, pop: 0.4, slice: 0.2, wipe: 0.3 },
   plan(rng, cut, st) {
     const port = cut.H > cut.W * 1.08, lat = /[A-Za-z]/.test(cut.text);
@@ -925,7 +925,7 @@ reg('knReflow', {
 
 /* ================================================================== 14 knPadGrid — パッド */
 reg('knPadGrid', {
-  name: 'パッド', tags: ['pop', 'graphic', 'glitch'], w: 0.8, ae: 'gridCells', fits: n => n >= 2 && n <= 18,
+  name: 'パッド', tags: ['pop', 'graphic', 'glitch'], w: 0.8, fits: n => n >= 2 && n <= 18,
   enterBias: { cut: 3, pop: 0.8, blur: 0.4, slice: 0.2, wipe: 0.2 },
   plan(rng, cut, st) {
     return { font: rng.pick(fontsOf(st, ['display'])), round: rng.chance(0.5), flash: rng.pick(['accent', 'accent', 'ink']), beat: rng.chance(0.7) };

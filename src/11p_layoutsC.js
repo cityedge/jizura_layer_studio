@@ -415,7 +415,7 @@ function tombo(env, x0, y0, x1, y1, g, L, col, lw, a) {
    1  magazine — 見開き
    ====================================================================== */
 reg('magazine', {
-  name: '見開き', tags: ['editorial', 'calm', 'emotional'], w: 0.9, ae: 'gloss', treat: 'safe', fits: n => n <= 18,
+  name: '見開き', tags: ['editorial', 'calm', 'emotional'], w: 0.9, treat: 'safe', fits: n => n <= 18,
   enterBias: { blur: 1.3, wipe: 1.3, type: 1.2, cut: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['display', 'serif', 'serif'])), qf: rng.pick(fontsOf(st, ['serif'])),
@@ -580,7 +580,7 @@ reg('magazine', {
    2  headlineDeck — 見出しとリード
    ====================================================================== */
 reg('headlineDeck', {
-  name: '見出しとリード', tags: ['editorial', 'graphic', 'calm'], w: 1.1, ae: 'center', fits: n => n <= 22,
+  name: '見出しとリード', tags: ['editorial', 'graphic', 'calm'], w: 1.1, fits: n => n <= 22,
   enterBias: { wipe: 1.4, slice: 1.2, stretch: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['display', 'display', 'serif'])), variant: portOf(cut) ? rng.pick(['top', 'bottom']) : rng.pick(['top', 'bottom', 'split']),
@@ -664,7 +664,7 @@ reg('headlineDeck', {
    3  contents — 目次
    ====================================================================== */
 reg('contents', {
-  name: '目次', tags: ['editorial', 'calm'], w: 0.9, ae: 'stack', fits: n => n >= 2 && n <= 20,
+  name: '目次', tags: ['editorial', 'calm'], w: 0.9, fits: n => n >= 2 && n <= 20,
   enterBias: { wipe: 1.5, type: 1.3, slice: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n, port = portOf(cut);
@@ -780,7 +780,7 @@ reg('contents', {
    4  footnote — 脚注
    ====================================================================== */
 reg('footnote', {
-  name: '脚注', tags: ['editorial', 'calm', 'emotional'], w: 0.9, ae: 'gloss', fits: n => n >= 2 && n <= 22,
+  name: '脚注', tags: ['editorial', 'calm', 'emotional'], w: 0.9, fits: n => n >= 2 && n <= 22,
   enterBias: { blur: 1.3, type: 1.3, wipe: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -848,7 +848,7 @@ reg('footnote', {
    ====================================================================== */
 const PROOF_NOTES = { circle: 'ママ', wave: '強調', box: '太字', dots: 'イキ' };
 reg('proofread', {
-  name: '校正刷り', tags: ['editorial', 'graphic', 'calm'], w: 0.8, ae: 'gloss', fits: n => n >= 2 && n <= 20,
+  name: '校正刷り', tags: ['editorial', 'graphic', 'calm'], w: 0.8, fits: n => n >= 2 && n <= 20,
   enterBias: { type: 1.4, blur: 1.2, cut: 1.2 },
   plan: (rng, cut, st) => {
     const all = ['circle', 'wave', 'box', 'dots'];
@@ -967,7 +967,7 @@ function ls0(env) { return smallSize(env); }
    6  numbered — 番号付き
    ====================================================================== */
 reg('numbered', {
-  name: '番号付き', tags: ['graphic', 'editorial', 'pop'], w: 1, ae: 'mixed', fits: n => n >= 2 && n <= 18,
+  name: '番号付き', tags: ['graphic', 'editorial', 'pop'], w: 1, fits: n => n >= 2 && n <= 18,
   enterBias: { slice: 1.3, wipe: 1.3, drop: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n, port = portOf(cut);
@@ -1061,7 +1061,7 @@ reg('numbered', {
    7  poster — ポスター
    ====================================================================== */
 reg('poster', {
-  name: 'ポスター', tags: ['graphic', 'pop', 'editorial'], w: 1, ae: 'huge', emph: 1.3, fits: n => n <= 16,
+  name: 'ポスター', tags: ['graphic', 'pop', 'editorial'], w: 1, emph: 1.3, fits: n => n <= 16,
   enterBias: { slice: 1.4, stretch: 1.3, wipe: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n, port = portOf(cut);
@@ -1163,7 +1163,7 @@ reg('poster', {
    8  swissGrid — スイスグリッド
    ====================================================================== */
 reg('swissGrid', {
-  name: 'スイスグリッド', tags: ['graphic', 'editorial', 'calm'], w: 1, ae: 'mixed', fits: n => n <= 18,
+  name: 'スイスグリッド', tags: ['graphic', 'editorial', 'calm'], w: 1, fits: n => n <= 18,
   enterBias: { wipe: 1.4, slice: 1.3, cut: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -1231,7 +1231,7 @@ reg('swissGrid', {
    9  dictionary — 辞書
    ====================================================================== */
 reg('dictionary', {
-  name: '辞書', tags: ['editorial', 'calm', 'emotional'], w: 0.9, ae: 'gloss', fits: n => n >= 1 && n <= 16,
+  name: '辞書', tags: ['editorial', 'calm', 'emotional'], w: 0.9, fits: n => n >= 1 && n <= 16,
   enterBias: { blur: 1.3, type: 1.3, wipe: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['serif', 'display'])), variant: rng.pick(['entry', 'page', 'page']), pos: rng.pick(['名', '連語', '感', '形動', '副']),
@@ -1327,7 +1327,7 @@ const slotsOf = t => [...String(t || '').trim().replace(/[\s　]+/g, ' ')];
 /* pentagon plaque (house shape) centred on (0, 0) of width w, height h */
 const emaPts = (w, h) => { const r = h * 0.26; return [[-w / 2, -h / 2 + r], [0, -h / 2], [w / 2, -h / 2 + r], [w / 2, h / 2], [-w / 2, h / 2]]; };
 reg('ema', {
-  name: '絵馬', tags: ['emotional', 'calm', 'pop'], w: 0.7, ae: 'labels', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: '絵馬', tags: ['emotional', 'calm', 'pop'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { blur: 1.3, cut: 1.3, type: 1.3, slice: 0.5, stretch: 0.5 },
   plan: (rng, cut, st) => ({
     font: rng.chance(0.55) ? rng.pick(['klee', 'brush']) : rng.pick(fontsOf(st, ['serif', 'display'])), vert: !hasLatin(cut.text) && rng.chance(0.5),
@@ -1422,7 +1422,7 @@ reg('ema', {
    11  ransom — 切り抜き文字
    ====================================================================== */
 reg('ransom', {
-  name: '切り抜き文字', tags: ['pop', 'glitch', 'graphic'], w: 0.8, ae: 'labels', treat: false, fits: n => n >= 1 && n <= 16,
+  name: '切り抜き文字', tags: ['pop', 'glitch', 'graphic'], w: 0.8, treat: false, fits: n => n >= 1 && n <= 16,
   enterBias: { cut: 2, pop: 1.5, drop: 1.3, blur: 0.4, wipe: 0.4, slice: 0.5 },
   plan: (rng, cut, st) => {
     const fonts = [...new Set(fontsOf(st, ['display', 'serif', 'body']).concat(fontsOf(st, ['mono']), ['mincho_black', 'gothic_black', 'pop', 'dot', 'brush'].filter(f => J.FONTS[f] && rng.chance(0.35))))];
@@ -1512,7 +1512,7 @@ reg('ransom', {
    12  newspaper — 新聞
    ====================================================================== */
 reg('newspaper', {
-  name: '新聞', tags: ['editorial', 'graphic', 'pop'], w: 0.8, ae: 'tile', busy: true, treat: 'safe', emph: 1.3, fits: n => n >= 1 && n <= 16,
+  name: '新聞', tags: ['editorial', 'graphic', 'pop'], w: 0.8, busy: true, treat: 'safe', emph: 1.3, fits: n => n >= 1 && n <= 16,
   enterBias: { cut: 1.4, zoom: 1.3, slice: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['display', 'serif'])), variant: hasLatin(cut.text) ? 'yoko' : rng.pick(['yoko', 'tate', 'tate']),
@@ -1639,7 +1639,7 @@ function disc(env, cx, cy, R, ang, labC, a, txt, seed, big = false) {
   env.circle(cx, cy, R * 0.022, sc.bg, null, 0, a, false);
 }
 reg('vinyl', {
-  name: 'レコード', tags: ['emotional', 'pop', 'calm'], w: 0.8, ae: 'ring', treat: 'safe', fits: n => n <= 16,
+  name: 'レコード', tags: ['emotional', 'pop', 'calm'], w: 0.8, treat: 'safe', fits: n => n <= 16,
   enterBias: { blur: 1.3, zoom: 1.2, spin: 0.4 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['display', 'serif'])), variant: cut.n <= 6 ? rng.pick(['sleeve', 'label']) : 'sleeve', side: rng.pick(['A', 'B']), rpm: rng.pick(['33⅓', '45']),
@@ -1710,7 +1710,7 @@ reg('vinyl', {
    14  cassette — カセット
    ====================================================================== */
 reg('cassette', {
-  name: 'カセット', tags: ['emotional', 'pop', 'calm'], w: 0.8, ae: 'pill', treat: 'safe', portrait: 0.7, fits: n => n <= 16,
+  name: 'カセット', tags: ['emotional', 'pop', 'calm'], w: 0.8, treat: 'safe', portrait: 0.7, fits: n => n <= 16,
   enterBias: { type: 1.6, wipe: 1.3, cut: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.chance(0.55) ? 'klee' : rng.pick(fontsOf(st, ['body', 'display'])), shell: rng.pick(['ink', 'accent', 'clear']), band: rng.pick(['accent', 'ink', 'stripe']),
@@ -1777,7 +1777,7 @@ reg('cassette', {
    15  bookSpine — 背表紙
    ====================================================================== */
 reg('bookSpine', {
-  name: '背表紙', tags: ['calm', 'editorial', 'emotional'], w: 0.8, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 14, portrait: 1.1,
+  name: '背表紙', tags: ['calm', 'editorial', 'emotional'], w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 14, portrait: 1.1,
   enterBias: { wipe: 1.3, blur: 1.2, cut: 1.2 },
   plan: (rng, cut, st) => {
     const port = portOf(cut);
@@ -1883,7 +1883,7 @@ reg('bookSpine', {
    16  polaroid — ポラロイド
    ====================================================================== */
 reg('polaroid', {
-  name: 'ポラロイド', tags: ['emotional', 'calm', 'pop'], w: 0.9, ae: 'labels', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: 'ポラロイド', tags: ['emotional', 'calm', 'pop'], w: 0.9, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { blur: 1.6, cut: 1.2, drop: 1.2, slice: 0.5 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -1958,7 +1958,7 @@ function perfRect(env, x, y, w, h, hole, col, a) {
   ctx.fill(); ctx.restore();
 }
 reg('stampSheet', {
-  name: '切手シート', tags: ['pop', 'graphic', 'calm'], w: 0.7, ae: 'tile', treat: 'safe', fits: n => n >= 1 && n <= 12,
+  name: '切手シート', tags: ['pop', 'graphic', 'calm'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 12,
   enterBias: { pop: 1.4, cut: 1.3, blur: 1.1 },
   plan: (rng, cut, st) => {
     const port = portOf(cut);
@@ -2034,7 +2034,7 @@ reg('stampSheet', {
    18  postcard — はがき
    ====================================================================== */
 reg('postcard', {
-  name: 'はがき', tags: ['emotional', 'calm', 'editorial'], w: 0.8, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 18,
+  name: 'はがき', tags: ['emotional', 'calm', 'editorial'], w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 18,
   enterBias: { blur: 1.3, type: 1.3, wipe: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.chance(0.4) ? 'klee' : rng.pick(fontsOf(st, ['serif', 'display'])), tilt: rng.range(-5, 5), val: rng.pick([63, 85, 110]),
@@ -2128,7 +2128,7 @@ reg('postcard', {
    19  letterPaper — 便箋
    ====================================================================== */
 reg('letterPaper', {
-  name: '便箋', tags: ['emotional', 'calm'], w: 0.9, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 22, portrait: 1.1,
+  name: '便箋', tags: ['emotional', 'calm'], w: 0.9, treat: 'safe', fits: n => n >= 1 && n <= 22, portrait: 1.1,
   enterBias: { type: 1.8, wipe: 1.5, blur: 1.3, slice: 0.4, stretch: 0.4 },
   plan: (rng, cut, st) => ({
     font: rng.chance(0.5) ? 'klee' : rng.pick(fontsOf(st, ['serif'])), variant: hasLatin(cut.text) ? 'yoko' : rng.pick(['tate', 'tate', 'yoko']),
@@ -2220,7 +2220,7 @@ const WD_J = '日月火水木金土', WD_E = ['SUN', 'MON', 'TUE', 'WED', 'THU',
 const MON_E = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
 const ROKUYO = ['大安', '赤口', '先勝', '友引', '先負', '仏滅'];
 reg('calendar', {
-  name: 'カレンダー', tags: ['pop', 'editorial', 'calm'], w: 0.7, ae: 'center', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: 'カレンダー', tags: ['pop', 'editorial', 'calm'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { pop: 1.3, cut: 1.3, zoom: 1.2 },
   plan: (rng, cut, st) => ({
     font: rng.pick(fontsOf(st, ['display', 'serif'])), variant: rng.pick(['month', 'himekuri']), month: rng.int(0, 11), off: rng.int(0, 6), day: rng.int(3, 27), days: rng.pick([30, 31]),
@@ -2347,7 +2347,7 @@ function lantern(env, cx, top, lw, lh, bodyC, a, glow, flick) {
   return { y0, y1, bh, hw };
 }
 reg('chochin', {
-  name: '提灯', tags: ['emotional', 'calm', 'pop'], w: 0.7, ae: 'circle', treat: 'safe', fits: n => n >= 1 && n <= 12, portrait: 1.1,
+  name: '提灯', tags: ['emotional', 'calm', 'pop'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 12, portrait: 1.1,
   enterBias: { blur: 1.4, flicker: 1.4, cut: 1.2, slice: 0.4 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -2425,7 +2425,7 @@ reg('chochin', {
    22  routeMap — 路線図
    ====================================================================== */
 reg('routeMap', {
-  name: '路線図', tags: ['graphic', 'pop', 'editorial'], w: 0.8, ae: 'labels', fits: n => n >= 2 && n <= 18,
+  name: '路線図', tags: ['graphic', 'pop', 'editorial'], w: 0.8, fits: n => n >= 2 && n <= 18,
   enterBias: { wipe: 1.4, pop: 1.3, type: 1.2 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -2526,7 +2526,7 @@ reg('routeMap', {
    23  stationSign — 駅名標
    ====================================================================== */
 reg('stationSign', {
-  name: '駅名標', tags: ['graphic', 'pop', 'editorial'], w: 0.8, ae: 'center', treat: 'safe', portrait: 0.6, fits: n => n >= 1 && n <= 12,
+  name: '駅名標', tags: ['graphic', 'pop', 'editorial'], w: 0.8, treat: 'safe', portrait: 0.6, fits: n => n >= 1 && n <= 12,
   enterBias: { cut: 1.4, wipe: 1.3, slice: 1.2 },
   plan: (rng, cut, st) => ({ font: rng.pick(fontsOf(st, ['display', 'body'])), letter: rng.pick(['JZ', 'LY', 'KT', 'SN']), num: rng.int(1, 36), band: rng.pick(['accent', 'accent2', 'ink']), posts: rng.chance(0.7) }),
   render(env) {
@@ -2593,7 +2593,7 @@ reg('stationSign', {
    24  noren — 暖簾
    ====================================================================== */
 reg('noren', {
-  name: '暖簾', tags: ['calm', 'emotional', 'graphic'], w: 0.8, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 12, portrait: 1.1,
+  name: '暖簾', tags: ['calm', 'emotional', 'graphic'], w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 12, portrait: 1.1,
   enterBias: { wipe: 1.5, blur: 1.3, cut: 1.2, slice: 0.4 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -2661,7 +2661,7 @@ reg('noren', {
    25  tanzaku — 短冊
    ====================================================================== */
 reg('tanzaku', {
-  name: '短冊', tags: ['emotional', 'calm', 'pop'], w: 0.7, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 16, portrait: 1.2,
+  name: '短冊', tags: ['emotional', 'calm', 'pop'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 16, portrait: 1.2,
   enterBias: { blur: 1.3, drop: 1.3, cut: 1.2, slice: 0.4, stretch: 0.4 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -2739,7 +2739,7 @@ reg('tanzaku', {
 const KUJI = ['大吉', '吉', '中吉', '小吉', '末吉', '大吉'];
 const KUJI_CAT = ['願望', '待人', '失物', '旅行', '商売', '学問', '恋愛', '健康'];
 reg('omikuji', {
-  name: 'おみくじ', tags: ['emotional', 'calm', 'editorial'], w: 0.7, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 16, portrait: 1.1,
+  name: 'おみくじ', tags: ['emotional', 'calm', 'editorial'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 16, portrait: 1.1,
   enterBias: { wipe: 1.5, blur: 1.3, type: 1.2 },
   plan: (rng, cut, st) => ({ font: rng.chance(0.4) ? 'brush' : rng.pick(fontsOf(st, ['serif'])), rank: rng.pick(KUJI), cats: KUJI_CAT.slice().sort(() => rng() - 0.5).slice(0, 4) }),
   render(env) {
@@ -2825,7 +2825,7 @@ reg('omikuji', {
    27  kakejiku — 掛け軸
    ====================================================================== */
 reg('kakejiku', {
-  name: '掛け軸', tags: ['calm', 'emotional', 'editorial'], w: 0.7, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 14, portrait: 1.3,
+  name: '掛け軸', tags: ['calm', 'emotional', 'editorial'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 14, portrait: 1.3,
   enterBias: { blur: 1.4, wipe: 1.3, cut: 1.2, slice: 0.4, stretch: 0.4 },
   plan: (rng, cut, st) => ({ font: rng.chance(0.5) ? 'brush' : rng.pick(fontsOf(st, ['serif'])), variant: portOf(cut) ? 'kake' : rng.pick(['kake', 'kake', 'yoko']), mount: rng.pick(['accent', 'ink', 'sub']), seal: rng.chance(0.7) }),
   render(env) {
@@ -2918,7 +2918,7 @@ function shojiPanel(env, x, y, w, h, paperC, woodC, a, cols, rows, glow) {
   ctx.restore();
 }
 reg('shoji', {
-  name: '障子', tags: ['calm', 'emotional', 'graphic'], w: 0.7, ae: 'center', busy: true, treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: '障子', tags: ['calm', 'emotional', 'graphic'], w: 0.7, busy: true, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { blur: 1.6, cut: 1.2, wipe: 0.6, slice: 0.4 },
   plan: (rng, cut, st) => ({ font: rng.pick(fontsOf(st, ['serif', 'display'])), variant: rng.pick(['shadow', 'open', 'shadow']), rows: rng.int(4, 6), cols: rng.int(2, 3) }),
   render(env) {
@@ -2970,7 +2970,7 @@ reg('shoji', {
    29  clapper — カチンコ
    ====================================================================== */
 reg('clapper', {
-  name: 'カチンコ', tags: ['pop', 'graphic', 'editorial'], w: 0.6, ae: 'labels', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: 'カチンコ', tags: ['pop', 'graphic', 'editorial'], w: 0.6, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { cut: 1.8, pop: 1.2, blur: 0.5 },
   plan: (rng, cut, st) => ({ font: rng.chance(0.5) ? 'klee' : rng.pick(fontsOf(st, ['display', 'body'])), tilt: rng.range(-6, 6), roll: 'A' + rng.int(1, 9), take: rng.int(1, 12) }),
   render(env) {
@@ -3038,7 +3038,7 @@ function warnTri(env, cx, cy, s, fill, mark, a, flash) {
   env.circle(cx, cy + s * 0.3, s * 0.065, mark, null, 0, ma, false);
 }
 reg('warningLabel', {
-  name: '警告ラベル', tags: ['graphic', 'glitch', 'pop'], w: 0.7, ae: 'pill', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: '警告ラベル', tags: ['graphic', 'glitch', 'pop'], w: 0.7, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { cut: 1.5, flicker: 1.5, pop: 1.3, blur: 0.5 },
   plan: (rng, cut, st) => ({ font: rng.pick(fontsOf(st, ['display'])), variant: rng.pick(['header', 'stripe', 'side']), word: rng.int(0, 3), tilt: rng.range(-3, 3) }),
   render(env) {
@@ -3098,7 +3098,7 @@ reg('warningLabel', {
    ====================================================================== */
 const yen = v => '¥' + String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 reg('priceTag', {
-  name: '値札', tags: ['pop', 'graphic'], w: 0.6, ae: 'pill', treat: 'safe', fits: n => n >= 1 && n <= 14,
+  name: '値札', tags: ['pop', 'graphic'], w: 0.6, treat: 'safe', fits: n => n >= 1 && n <= 14,
   enterBias: { pop: 1.5, cut: 1.3, drop: 1.2, slice: 0.5 },
   plan: (rng, cut, st) => {
     const price = rng.pick([980, 1280, 1980, 2480, 3300, 4980, 580, 12800]);
@@ -3178,7 +3178,7 @@ reg('priceTag', {
    32  nameTag — 名札
    ====================================================================== */
 reg('nameTag', {
-  name: '名札', tags: ['pop', 'emotional'], w: 0.6, ae: 'pill', treat: 'safe', fits: n => n >= 1 && n <= 14,
+  name: '名札', tags: ['pop', 'emotional'], w: 0.6, treat: 'safe', fits: n => n >= 1 && n <= 14,
   enterBias: { cut: 1.4, type: 1.3, pop: 1.2, slice: 0.5 },
   plan: (rng, cut, st) => ({ font: rng.chance(0.6) ? 'klee' : rng.pick(fontsOf(st, ['display', 'body'])), variant: rng.pick(['hello', 'hello', 'school']), tilt: rng.range(-6, 6), grade: rng.int(1, 6), cls: rng.int(1, 4) }),
   render(env) {
@@ -3232,7 +3232,7 @@ reg('nameTag', {
    33  stickyNotes — 付箋
    ====================================================================== */
 reg('stickyNotes', {
-  name: '付箋', tags: ['pop', 'emotional', 'calm'], w: 0.8, ae: 'labels', treat: 'safe', fits: n => n >= 1 && n <= 18,
+  name: '付箋', tags: ['pop', 'emotional', 'calm'], w: 0.8, treat: 'safe', fits: n => n >= 1 && n <= 18,
   enterBias: { cut: 1.5, pop: 1.4, type: 1.2, slice: 0.5, stretch: 0.5 },
   plan: (rng, cut, st) => {
     const n = cut.n;
@@ -3294,7 +3294,7 @@ reg('stickyNotes', {
    34  karuta — かるた札
    ====================================================================== */
 reg('karuta', {
-  name: 'かるた札', tags: ['pop', 'emotional', 'editorial'], w: 0.6, ae: 'vcols', treat: 'safe', fits: n => n >= 1 && n <= 16,
+  name: 'かるた札', tags: ['pop', 'emotional', 'editorial'], w: 0.6, treat: 'safe', fits: n => n >= 1 && n <= 16,
   enterBias: { cut: 1.6, pop: 1.2, blur: 0.6, slice: 0.5 },
   plan: (rng, cut, st) => ({ font: rng.pick(fontsOf(st, ['serif', 'display'])), variant: portOf(cut) ? rng.pick(['single', 'pair']) : rng.pick(['pair', 'pair', 'single']), from: rng.pick([1, -1]), tilt: rng.range(-4, 4), art: rng.pick(['sun', 'wave', 'mount']) }),
   render(env) {

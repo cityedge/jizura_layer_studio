@@ -64,6 +64,8 @@ J.defaultProject = () => {
 };
 // Old layer releases forced these controls off and hid them from the UI.
 J.upgradeLayerProject = (project, source) => {
+  // Preserve the old onTwos-only project format without changing saved motion cadence.
+  if (source?.fx && source.fx.koma == null) project.fx.koma = source.fx.onTwos === false ? 0 : 12;
   if (source?.layerOnly && !source.layerEffectsVersion) {
     const defaults = defaultProject().fx;
     for (const key of ['decor', 'texture', 'bgSwitch', 'hud', 'flash']) project.fx[key] = defaults[key];
@@ -209,7 +211,7 @@ J.loadLayerMedia = async (file, videoOnly = false) => {
   try {
     await event(el, video ? 'loadeddata' : 'load', null, () => { el.src = url; if (video) el.load(); });
     if (video && (!Number.isFinite(el.duration) || el.duration <= 0)) throw new Error(msg('動画の長さを取得できません。', 'Cannot determine video duration.'));
-    return { el, video, name: file.name, url, duration: video ? el.duration : Infinity,
+    return { el, file, video, name: file.name, url, duration: video ? el.duration : Infinity,
       width: video ? el.videoWidth : el.naturalWidth, height: video ? el.videoHeight : el.naturalHeight,
       dispose() { if (video) el.pause(); el.removeAttribute('src'); if (video) el.load(); URL.revokeObjectURL(url); } };
   } catch (e) { URL.revokeObjectURL(url); throw e; }
@@ -223,7 +225,7 @@ J.seekLayerMedia = async (media, t, signal) => {
   if (media.el.readyState < 2) await event(media.el, 'loadeddata', signal);
 };
 J.spectrumDuration = (front, matte) => matte ? Math.min(front.duration, matte.duration) : front.duration;
-J.validateSpectrum = (front, matte, fps = 24) => {
+J.validateSpectrum = (front, matte, fps = 30) => {
   if (!front) throw new Error(msg('スペアナのフロント動画を選択してください。', 'Select a spectrum front video.'));
   if (!matte) return;
   if (front.width !== matte.width || front.height !== matte.height || Math.abs(front.duration - matte.duration) > 1 / fps + 0.005)
@@ -235,13 +237,17 @@ J.SpectrumReader = class {
     this.front = front; this.matte = matte; this.w = w; this.h = h;
     this.a = canvas(w, h); this.b = canvas(w, h);
   }
-  framePixels(layout) {
+  framePixels(layout, frontSample = null, matteSample = null) {
     const a = this.a.getContext('2d', { willReadFrequently: true }), b = this.b.getContext('2d', { willReadFrequently: true });
     a.fillStyle = '#000'; a.fillRect(0, 0, this.w, this.h);
     b.fillStyle = '#fff'; b.fillRect(0, 0, this.w, this.h);
     const r = J.spectrumRect(this.w, this.h, this.front.width, this.front.height, layout);
-    a.drawImage(this.front.el, r.x, r.y, r.width, r.height);
-    if (this.matte) b.drawImage(this.matte.el, r.x, r.y, r.width, r.height);
+    if (frontSample) frontSample.draw(a, r.x, r.y, r.width, r.height);
+    else a.drawImage(this.front.el, r.x, r.y, r.width, r.height);
+    if (this.matte) {
+      if (matteSample) matteSample.draw(b, r.x, r.y, r.width, r.height);
+      else b.drawImage(this.matte.el, r.x, r.y, r.width, r.height);
+    }
     return J.binaryPixels(a.getImageData(0, 0, this.w, this.h).data, this.matte ? b.getImageData(0, 0, this.w, this.h).data : null);
   }
   async pixels(t, signal, layout) {
@@ -263,7 +269,9 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
   for (const codec of attempts) {
     abort(signal);
     const writers = [];
+    let reader = null;
     try {
+      if (spectrum) reader = await J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
       for (const name of ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
@@ -271,7 +279,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         state.encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); state.count++; } catch (e) { state.error = e; } }, error(e) { state.error = e; } });
         writers.push(state); state.encoder.configure(Object.assign({}, codec.cfg, { latencyMode: 'quality' }));
       }
-      const render = new J.LayerRenderer(w, h), reader = spectrum ? new J.SpectrumReader(spectrum.front, spectrum.matte, w, h) : null;
+      const render = new J.LayerRenderer(w, h);
       for (let i = 0; i < total; i++) {
         abort(signal);
         let pixels = render.draw(plan, t0 + i / fps);
@@ -309,7 +317,10 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     } catch (e) {
       if (signal?.aborted || e.name === 'AbortError') throw e;
       errors.push(codec.label + ': ' + e.message);
-    } finally { for (const s of writers) { clearTimeout(s.flushTimer); try { s.encoder.close(); } catch (_) {} } }
+    } finally {
+      for (const s of writers) { clearTimeout(s.flushTimer); try { s.encoder.close(); } catch (_) {} }
+      await reader?.close();
+    }
   }
   throw new Error(msg('MP4出力に失敗しました。', 'MP4 export failed. ') + errors.join(' / '));
 };

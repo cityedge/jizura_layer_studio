@@ -26,8 +26,8 @@ J.defaultProject = () => ({
   centerDir: 'tb',                // 中央を空ける on tall frames: 'tb' = top / bottom, 'lr' = left / right
   centerFree: false,              // 中央を空ける: lay the cuts out in side bands (left / right or top / bottom) around a character
   seed: 20260922,
-  aspect: '16:9', res: 1080, fps: 24,
-  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35 },
+  aspect: '16:9', res: 1080, fps: 30,
+  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 15, hud: 'auto', bgSwitch: 0.35 },
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
   timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
   overrides: {},
@@ -36,12 +36,12 @@ J.defaultProject = () => ({
   fonts: {},
 });
 
-/* the original (After Effects-implemented) sets, captured before any expression pack registers */
+/* the original expression sets, captured before any expression pack registers */
 J.CORE_ORDER = { layout: J.LAYOUT_ORDER.slice(), enter: J.ENTER_ORDER.slice(), exit: J.EXIT_ORDER.slice(), hold: J.HOLD_ORDER.slice(), decor: J.DECOR_ORDER.slice() };
 
-/* animation step length: 'koma' = drawings per second on a 24fps timebase (12 = on twos, 8 = on threes, 0 = every output frame) */
-J.komaOf = fx => (fx.koma != null ? +fx.koma : (fx.onTwos === false ? 0 : 12));
-J.stepDur = (fx, fps) => { const k = J.komaOf(fx); return k > 0 ? 1 / k : 1 / (fps || 24); };
+/* animation step length: 'koma' = drawings per second on a 30fps timebase (15 = on twos, 10 = on threes, 0 = every output frame) */
+J.komaOf = fx => (fx.koma != null ? +fx.koma : (fx.onTwos === false ? 0 : 15));
+J.stepDur = (fx, fps) => { const k = J.komaOf(fx); return k > 0 ? 1 / k : 1 / (fps || 30); };
 
 /* ---------------- lyric parsing ---------------- */
 J.parseLyrics = (raw, cues = null) => {
@@ -241,7 +241,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'JIZURA', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -499,7 +499,7 @@ J.plan = (project, audio) => {
       for (const g of Object.keys(hist)) if (tech[g] !== undefined && drawn[g] !== undefined) hist[g] = g === 'enter' && drawn.trans ? 'cut' : drawn[g];
       history.push(hist);
       // events at cut start
-      // events at cut start — durations are on a 24fps timebase so every output rate looks the same
+      // Legacy pack durations are authored in 1/24-second units, not a render clock. Keep their real-time length.
       const g = fx.glitch * (st.glitchBoost || 1);
       const fxOn = k2 => en.fx == null || en.fx[k2] !== false;
       const F = 1 / 24;
@@ -964,7 +964,7 @@ J.previewPlan = (project, group, key) => {
   }
   cuts.forEach((c, i) => { c.index = i; });
   return {
-    version: 1, generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 24,
+    version: 1, generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 30,
     duration: cuts[cuts.length - 1].end, styleKey: project.style, style: st, fx,
     lines: [], cuts, events, beats: [], hud: false, keyBg: null,
   };

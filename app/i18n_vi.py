@@ -117,7 +117,6 @@ BODY = {
     'すべての設定を表示': 'Hiển thị tất cả cài đặt',
     '保存したプロジェクト(.json)を開く': 'Mở dự án đã lưu (.json)',
     'プロジェクトを .json で保存': 'Lưu dự án dưới dạng .json',
-    'After Effects パネル用の構成データを書き出す': 'Xuất dữ liệu dự án sang bảng After Effects',
     '出力物の権利とライセンス': 'Quyền và giấy phép đối với sản phẩm đã xuất',
     '歌詞とタイミング': 'Lời bài hát và thời gian',
     'スタイルと書き出し': 'Phong cách và xuất khẩu',
@@ -216,7 +215,7 @@ BODY = {
     '詳細': 'Nâng cao',
     '開く': 'Mở dự án',
     '保存': 'Lưu',
-    'AE用に書き出し': 'Xuất cho AE',
+
     '利用について': 'Giới thiệu & quyền sử dụng',
     '記法': 'Cú pháp',
     'プレビュー': 'Xem trước',

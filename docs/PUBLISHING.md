@@ -45,8 +45,12 @@ GitHub Pagesを使う場合、リポジトリのSettings → Pagesで、公開�
 
 手元のコミットは復元用の記録として利用できます。原版の更新を取り込むかどうかは、この派生版で個別に判断します。
 
-## 公開先URLが決まったら（任意）
+## 公開先URL
 
-標準ビルドは原版URLをcanonicalやOG URLに設定しません。言語切り替えは相対リンクで動きます。公開URLが確定した場合だけ、環境変数`JIZURA_SITE_URL`に`https://ユーザー名.github.io/リポジトリ名/`を指定して再ビルドすると、そのURLをメタ情報に使えます。未指定でもアプリは動作します。
+標準の公開URLは https://cityedge.github.io/jizura_layer_studio/ です。canonicalとOG URLにも設定します。別のサイトで公開する場合は環境変数`JIZURA_SITE_URL`にそのURLを指定し、空文字ならメタ情報を省略できます。言語切り替えは相対リンクで動きます。
 
 アプリ名は`app/publication.py`と`app/body.html`、利用ガイドは`app/guide.ja.html`・`app/guide.en.html`が編集元です。利用についてのライセンス全文は`LICENSE`・`THIRD_PARTY_NOTICES.md`からビルド時に埋め込みます。生成されたHTMLだけを直接修正しないでください。
+
+## Release用ZIP
+
+パッケージ作成時に`upload/`の中身をまとめたZIPも生成します。ZIP内のルートに`index.html`があります。GitHub Releasesの添付ファイルに使えます。Pages更新用にはZIPを展開した中身をアップロードしてください。Mediabunnyのソース配布物とライセンスも含めたまま配布してください。

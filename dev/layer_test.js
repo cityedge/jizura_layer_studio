@@ -5,6 +5,17 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const context = { J: { defaultProject: () => ({fx:{}}), plan: p => p }, document: { documentElement: {lang:'ja'} } };
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/11r_layers.js'),'utf8'), context);
 const J = context.J, json = x => JSON.parse(JSON.stringify(x));
+
+test('legacy cadence survives project migration; new default comes from planner', () => {
+  const p = {fx:{koma:15}};
+  J.upgradeLayerProject(p, {fx:{onTwos:true}});
+  assert.equal(p.fx.koma,12);
+  J.upgradeLayerProject(p, {fx:{onTwos:false}});
+  assert.equal(p.fx.koma,0);
+  const explicit = {fx:{koma:8},fps:24};
+  J.upgradeLayerProject(explicit,explicit);
+  assert.equal(explicit.fx.koma,8); assert.equal(explicit.fps,24);
+});
 test('UTF-8 BOM / CRLF / literal punctuation / multiline SRT', () => {
   const s = '\uFEFF1\r\n00:00:01,250 --> 00:00:02,500\r\nA/B *C* | D!\r\n二行目\r\n';
   assert.deepEqual(json(J.parseSRT(s)), [{id:'1',start:1.25,end:2.5,text:'A/B *C* | D!\n二行目'}]);

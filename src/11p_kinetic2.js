@@ -89,7 +89,7 @@ const WIN = dur => clamp(dur * 0.45, 0.32, 1.0);
 
 reg('enter', 'knWordSlam', {
   // words slam down one after another from a huge scale; the ones already down take a knock at each impact
-  name: '語ごとスラム', tags: ['pop', 'graphic', 'glitch'], w: 1.1, ae: 'pop', minDur: 0.5, inDur: WIN,
+  name: '語ごとスラム', tags: ['pop', 'graphic', 'glitch'], w: 1.1, minDur: 0.5, inDur: WIN,
   apply(env, it, p, ctx) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.62 : 0, secs = ctx.inDur * (1 - sp);
     const land = j => stg(p, j, n, sp);
@@ -108,7 +108,7 @@ reg('enter', 'knWordSlam', {
 
 reg('enter', 'knTypeToSlam', {
   // each word is typed small at its start, then snaps up to full size
-  name: '打鍵→拡大', tags: ['pop', 'editorial', 'graphic'], w: 0.9, ae: 'type', minDur: 0.55, inDur: WIN,
+  name: '打鍵→拡大', tags: ['pop', 'editorial', 'graphic'], w: 0.9, minDur: 0.55, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.55 : 0;
     glyphs(it, (i, g) => {
@@ -126,7 +126,7 @@ reg('enter', 'knTypeToSlam', {
 
 reg('enter', 'knReplaceIn', {
   // the words flash big in the middle one by one, replacing each other, then all fly to their places
-  name: '入れ替わり登場', tags: ['pop', 'graphic', 'glitch'], w: 0.9, ae: 'scramble', minDur: 0.7, inDur: dur => clamp(dur * 0.5, 0.45, 1.2),
+  name: '入れ替わり登場', tags: ['pop', 'graphic', 'glitch'], w: 0.9, minDur: 0.7, inDur: dur => clamp(dur * 0.5, 0.45, 1.2),
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, T = n > 1 ? 0.7 : 0.2, B = G.box, bw = Math.max(1e-3, (G.vert ? B.y1 - B.y0 : B.x1 - B.x0));
     const fly = E.outExpo(clamp((p - T) / (1 - T)));
@@ -152,7 +152,7 @@ reg('enter', 'knReplaceIn', {
 
 reg('enter', 'knHingeDrop', {
   // each word swings down from upright on a hinge at its bottom-left corner and bounces level
-  name: '蝶番おろし', tags: ['pop', 'graphic'], w: 0.9, ae: 'drop', minDur: 0.5, inDur: WIN,
+  name: '蝶番おろし', tags: ['pop', 'graphic'], w: 0.9, minDur: 0.5, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.5 : 0, dir = (J.h(env.cut.seed | 0, it.mi | 0, 61) & 1) ? 1 : -1;
     glyphs(it, (i, g) => {
@@ -169,7 +169,7 @@ reg('enter', 'knHingeDrop', {
 
 reg('enter', 'knLoopIn', {
   // every glyph rides the same looping track into its place, one after another like a train
-  name: 'ループ入り', tags: ['pop', 'graphic'], w: 0.8, ae: 'spin', minDur: 0.5, inDur: dur => clamp(dur * 0.5, 0.4, 1.1),
+  name: 'ループ入り', tags: ['pop', 'graphic'], w: 0.8, minDur: 0.5, inDur: dur => clamp(dur * 0.5, 0.4, 1.1),
   apply(env, it, p) {
     const vert = !!it.vertical, dir = (J.h(env.cut.seed | 0, it.mi | 0, 63) & 1) ? 1 : -1;
     const D = Math.min(env.W, env.H) * 0.55, R = D / TAU * 1.5;
@@ -186,7 +186,7 @@ reg('enter', 'knLoopIn', {
 
 reg('enter', 'knPushIn', {
   // words arrive at the end of the line one by one and push the ones before them into place
-  name: '押し込み', tags: ['pop', 'editorial', 'graphic'], w: 1, ae: 'type', minDur: 0.45, inDur: WIN,
+  name: '押し込み', tags: ['pop', 'editorial', 'graphic'], w: 1, minDur: 0.45, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, vert = G.vert;
     const f = p * n, k0 = Math.min(n - 1, Math.floor(f)), e = E.outBack(clamp((f - k0) / 0.75), 1.5);
@@ -212,7 +212,7 @@ reg('enter', 'knPushIn', {
 
 reg('enter', 'knInertia', {
   // the line brakes into place: the front stops first, the rest bunch up behind it and spring apart
-  name: '急ブレーキ', tags: ['pop', 'graphic'], w: 0.9, ae: 'stretch', minDur: 0.45, inDur: dur => clamp(dur * 0.4, 0.3, 0.8),
+  name: '急ブレーキ', tags: ['pop', 'graphic'], w: 0.9, minDur: 0.45, inDur: dur => clamp(dur * 0.4, 0.3, 0.8),
   apply(env, it, p) {
     const vert = !!it.vertical, dir = (J.h(env.cut.seed | 0, it.mi | 0, 67) & 1) ? 1 : -1;   // 1: comes from the left
     const D = (vert ? env.H : env.W) * 0.6;
@@ -229,7 +229,7 @@ reg('enter', 'knInertia', {
 
 reg('enter', 'knWordSpin', {
   // each word spins in as one rigid piece, neighbours turning the opposite way
-  name: '語ごと回転', tags: ['pop', 'graphic'], w: 0.9, ae: 'spin', inDur: WIN,
+  name: '語ごと回転', tags: ['pop', 'graphic'], w: 0.9, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.5 : 0;
     glyphs(it, (i, g) => {
@@ -245,7 +245,7 @@ reg('enter', 'knWordSpin', {
 
 reg('enter', 'knDiveIn', {
   // words fly in from behind the camera one after another, huge and soft, landing sharp
-  name: '手前から語', tags: ['pop', 'emotional', 'graphic'], w: 0.9, ae: 'zoom', inDur: WIN,
+  name: '手前から語', tags: ['pop', 'emotional', 'graphic'], w: 0.9, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.55 : 0;
     glyphs(it, (i, g) => {
@@ -260,7 +260,7 @@ reg('enter', 'knDiveIn', {
 
 reg('enter', 'knStretchOut', {
   // each word shoots out from its first letter like a tape measure and snaps back to length
-  name: '伸び出し', tags: ['pop', 'graphic'], w: 0.9, ae: 'stretch', inDur: WIN,
+  name: '伸び出し', tags: ['pop', 'graphic'], w: 0.9, inDur: WIN,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.55 : 0;
     glyphs(it, (i, g) => {
@@ -278,7 +278,7 @@ const WOUT = dur => clamp(dur * 0.32, 0.3, 0.75);
 
 reg('exit', 'knWordKick', {
   // the words are kicked out one after another, up and down in turn, tumbling
-  name: '語ごと蹴り出し', tags: ['pop', 'graphic'], w: 1, ae: 'scatter', outDur: WOUT,
+  name: '語ごと蹴り出し', tags: ['pop', 'graphic'], w: 1, outDur: WOUT,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, sp = n > 1 ? 0.4 : 0, H = env.H;
     glyphs(it, (i, g) => {
@@ -295,7 +295,7 @@ reg('exit', 'knWordKick', {
 
 reg('exit', 'knPushOut', {
   // the line is shunted along in word-sized steps; each word fades as it passes the line's start
-  name: '押し出し退場', tags: ['editorial', 'graphic', 'pop'], w: 0.9, ae: 'wipe', outDur: WOUT,
+  name: '押し出し退場', tags: ['editorial', 'graphic', 'pop'], w: 0.9, outDur: WOUT,
   apply(env, it, p) {
     const G = wgeo(env, it), vert = G.vert;
     const st = j => (vert ? G.wb[j].y0 : G.wb[j].x0), en = j => (vert ? G.wb[j].y1 : G.wb[j].x1);
@@ -320,7 +320,7 @@ reg('exit', 'knPushOut', {
 
 reg('exit', 'knDiveGlyph', {
   // the camera dives into one letter: the line blows up around it and the rest flies past
-  name: '一字へ突入', tags: ['pop', 'emotional', 'graphic'], w: 0.9, ae: 'shrink', outDur: dur => clamp(dur * 0.3, 0.3, 0.7),
+  name: '一字へ突入', tags: ['pop', 'emotional', 'graphic'], w: 0.9, outDur: dur => clamp(dur * 0.3, 0.3, 0.7),
   apply(env, it, p) {
     const lay = J.layoutText(Object.assign({}, it, { size: 1, _lay: null, _m: null })).filter(g => !isBlank(g.ch));
     if (!lay.length) return;
@@ -345,7 +345,7 @@ reg('exit', 'knDiveGlyph', {
 
 reg('exit', 'knLaunch', {
   // the line pulls away: the front glyph goes first, the rest follow on a stretching chain
-  name: '急発進', tags: ['pop', 'graphic'], w: 0.9, ae: 'stretch', outDur: dur => clamp(dur * 0.3, 0.3, 0.65),
+  name: '急発進', tags: ['pop', 'graphic'], w: 0.9, outDur: dur => clamp(dur * 0.3, 0.3, 0.65),
   apply(env, it, p) {
     const vert = !!it.vertical, dir = (J.h(env.cut.seed | 0, it.mi | 0, 71) & 1) ? 1 : -1, D = (vert ? env.H : env.W) * 1.25;
     glyphs(it, (i, g, n) => {
@@ -362,7 +362,7 @@ reg('exit', 'knLaunch', {
 
 reg('exit', 'knWordBlink', {
   // one word at a time: a punch in the accent colour, then gone — on the beat when there is one
-  name: '一語ずつ消灯', tags: ['pop', 'glitch', 'graphic'], w: 0.9, ae: 'cut', outDur: dur => clamp(dur * 0.35, 0.3, 0.8),
+  name: '一語ずつ消灯', tags: ['pop', 'glitch', 'graphic'], w: 0.9, outDur: dur => clamp(dur * 0.35, 0.3, 0.8),
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, rev = (J.h(env.cut.seed | 0, 73) & 1) === 1, acc = env.sc.accent;
     glyphs(it, (i, g) => {
@@ -380,7 +380,7 @@ reg('exit', 'knWordBlink', {
 
 reg('exit', 'knCloseGap', {
   // words drop out one by one and the rest slide together, re-centring, until the last one pops
-  name: '詰めて消える', tags: ['editorial', 'graphic', 'pop'], w: 0.9, ae: 'shrink', outDur: dur => clamp(dur * 0.35, 0.35, 0.8),
+  name: '詰めて消える', tags: ['editorial', 'graphic', 'pop'], w: 0.9, outDur: dur => clamp(dur * 0.35, 0.35, 0.8),
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, vert = G.vert;
     const lo = j => (vert ? G.wb[j].y0 : G.wb[j].x0), hi = j => (vert ? G.wb[j].y1 : G.wb[j].x1);
@@ -412,7 +412,7 @@ reg('exit', 'knCloseGap', {
 
 reg('exit', 'knJumpCutOut', {
   // three hard jump cuts (closer, wider, tilted) and the line is gone — no in-betweens
-  name: 'ジャンプカット', tags: ['pop', 'glitch', 'graphic'], w: 0.8, ae: 'glitch', outDur: dur => clamp(dur * 0.3, 0.3, 0.6),
+  name: 'ジャンプカット', tags: ['pop', 'glitch', 'graphic'], w: 0.8, outDur: dur => clamp(dur * 0.3, 0.3, 0.6),
   apply(env, it, p) {
     const sd = J.h(env.cut.seed | 0, it.mi | 0, 79), side = sd & 1 ? 1 : -1;
     const st = Math.floor(clamp(p) * 4);
@@ -425,7 +425,7 @@ reg('exit', 'knJumpCutOut', {
 
 reg('exit', 'knStackAway', {
   // the words hop into a tower one by one, then the whole tower drops out of frame
-  name: '積んで落とす', tags: ['pop', 'graphic'], w: 0.8, ae: 'fall', outDur: dur => clamp(dur * 0.4, 0.45, 0.9), minDur: 0.9,
+  name: '積んで落とす', tags: ['pop', 'graphic'], w: 0.8, outDur: dur => clamp(dur * 0.4, 0.45, 0.9), minDur: 0.9,
   apply(env, it, p) {
     const G = wgeo(env, it), n = G.nW, T = 0.62, H = env.H;
     const lh = G.vert ? null : (G.box.y1 - G.box.y0);
@@ -450,7 +450,7 @@ reg('exit', 'knStackAway', {
 /* ================================================================ HOLDS */
 reg('hold', 'knWordPulse', {
   // one word at a time swells on the beat, cycling through the line
-  name: '語ごとの拍', tags: ['pop', 'graphic'], w: 1, ae: 'breathe',
+  name: '語ごとの拍', tags: ['pop', 'graphic'], w: 1,
   apply(env, it, amt) {
     const G = wgeo(env, it), n = G.nW;
     if (n < 1) return;
@@ -467,7 +467,7 @@ reg('hold', 'knWordPulse', {
 
 reg('hold', 'knCounterRock', {
   // neighbouring words rock the opposite way, like meshed gears
-  name: '逆回転ゆれ', tags: ['pop', 'calm', 'graphic'], w: 0.9, ae: 'wave',
+  name: '逆回転ゆれ', tags: ['pop', 'calm', 'graphic'], w: 0.9,
   apply(env, it, amt) {
     const G = wgeo(env, it), n = G.nW, t = env.ltb ?? env.lt;
     const A = 4 * amt * (0.4 + mot(env)) * Math.sin(t * TAU * 0.55);
@@ -484,7 +484,7 @@ reg('hold', 'knCounterRock', {
 
 reg('hold', 'knWordRide', {
   // a slow swell travels along the line; each word rides it as one piece, tilting with the slope
-  name: '語の波乗り', tags: ['calm', 'emotional', 'pop'], w: 0.9, ae: 'wave',
+  name: '語の波乗り', tags: ['calm', 'emotional', 'pop'], w: 0.9,
   apply(env, it, amt) {
     const G = wgeo(env, it), t = env.ltb ?? env.lt, A = it.size * 0.07 * amt * (0.4 + mot(env));
     if (A < 0.2) return;
@@ -500,7 +500,7 @@ reg('hold', 'knWordRide', {
 
 reg('hold', 'knTickShift', {
   // the line ticks sideways on every beat like a second hand: snap, tiny overshoot, hold
-  name: '刻みシフト', tags: ['graphic', 'pop', 'editorial'], w: 0.8, ae: 'jitter',
+  name: '刻みシフト', tags: ['graphic', 'pop', 'editorial'], w: 0.8,
   apply(env, it, amt) {
     const per = 0.5, s0 = beatSince(env, per), idx = beatIdx(env, per);
     const d = it.size * 0.05 * amt * (0.4 + mot(env));
@@ -513,7 +513,7 @@ reg('hold', 'knTickShift', {
 
 reg('hold', 'knBeatLean', {
   // on each beat the words lean over, alternately forward and back, and spring upright
-  name: '拍で傾く', tags: ['pop', 'glitch', 'graphic'], w: 0.8, ae: 'jitter',
+  name: '拍で傾く', tags: ['pop', 'glitch', 'graphic'], w: 0.8,
   apply(env, it, amt) {
     const G = wgeo(env, it), s0 = beatSince(env, 0.55), idx = beatIdx(env, 0.55);
     const A = 18 * amt * (0.4 + mot(env)) * Math.exp(-s0 * 4.5) * Math.cos(s0 * 15);
@@ -527,7 +527,7 @@ reg('hold', 'knBeatLean', {
 
 reg('hold', 'knGapBreath', {
   // the spaces between words breathe in and out; the words themselves keep still
-  name: '語間の呼吸', tags: ['calm', 'editorial', 'emotional'], w: 0.9, ae: 'breathe',
+  name: '語間の呼吸', tags: ['calm', 'editorial', 'emotional'], w: 0.9,
   apply(env, it, amt) {
     const G = wgeo(env, it), n = G.nW, t = env.ltb ?? env.lt;
     if (n < 2) return;

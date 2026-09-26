@@ -32,6 +32,7 @@ def body(source, lang, version):
     <p>{'原版と本派生版はMITライセンスです。無保証で提供します。' if ja else 'The original and this derivative are MIT licensed and provided without warranty.'}</p>
     <details class="terms-oss"><summary>{'アプリのライセンス全文' if ja else 'Full application license'}</summary><pre class="license-text">{escape(read('LICENSE'))}</pre></details>
     <details class="terms-oss"><summary>{'使用しているオープンソース' if ja else 'Third-party software and fonts'}</summary><pre class="license-text">{escape(read('THIRD_PARTY_NOTICES.md'))}</pre></details>
+    <details class="terms-oss"><summary>Mediabunny · MPL-2.0</summary><p><a href="https://registry.npmjs.org/mediabunny/-/mediabunny-1.60.0.tgz">{'使用版のソースコード（1.60.0）' if ja else 'Source code of the bundled version (1.60.0)'}</a></p><pre class="license-text">{escape(read('vendor/mediabunny.LICENSE.txt'))}</pre></details>
     <p><button type="button" class="guide-open">{guide_label}</button></p>
     <div class="terms-foot"><span class="muted">Original © 2026 hakoniwa<br>Modifications © 2026 cityedge · MIT</span><button value="close" class="primary" autofocus>{'閉じる' if ja else 'Close'}</button></div>
   </form>

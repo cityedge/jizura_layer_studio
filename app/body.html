@@ -25,7 +25,6 @@
     <div class="acts">
       <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="プロジェクトを .json で保存">保存</button>
-      <button id="btnAE" title="After Effects パネル用の構成データを書き出す">AE用に書き出し</button>
       <button id="btnReset" class="ghost" title="歌詞・曲・設定・履歴をすべて消して、最初の状態に戻します">初期化</button>
       <button id="btnTerms" class="ghost terms-open" title="出力物の権利とライセンス">利用について</button>
     </div>
@@ -160,7 +159,7 @@
           <div class="fields">
             <label class="field">画面比<select id="eAspect"><option value="16:9">16:9</option><option value="9:16">9:16 縦</option><option value="4:3">4:3</option><option value="3:4">3:4 縦</option><option value="1:1">1:1</option><option value="4:5">4:5 縦</option><option value="21:9">21:9</option></select></label>
             <label class="field">解像度<select id="eRes"><option value="480">480p</option><option value="540">540p</option><option value="720">720p</option><option value="765">1360×766</option><option value="900">900p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
-            <label class="field">fps<select id="eFps"><option>24</option><option>30</option><option>60</option></select></label>
+            <label class="field">fps<select id="eFps"><option>30</option><option>24</option><option>60</option></select></label>
             <label class="field field-wide">背景<select id="eKey"><option value="off">通常（スタイルの背景）</option><option value="green">グリーンバック（合成用）</option><option value="black">ブラックバック（合成用）</option></select></label>
           </div>
           <label class="check center-free"><input id="eCenter" class="center-toggle" type="checkbox"><span>中央を空ける（キャラクター用）<small>中央にキャラクターなどを重ねる前提で、文字と演出を横長の画面では左右、縦長の画面では上下に、行ごとに交互に置きます。背景と画面効果は全体のままです（プレビューには空ける範囲を点線で表示）</small></span></label>
@@ -211,7 +210,7 @@
         <div id="fxSliders"></div>
         <div class="row" style="margin-top:6px">
           <label class="row" style="gap:6px"><input id="fxFlash" type="checkbox"> フラッシュ</label>
-          <label class="row" style="gap:6px">コマ打ち <select id="fxKoma" title="動きを何枚/秒で描くか（出力fpsとは別）"><option value="0">フル（出力fpsのまま）</option><option value="12">2コマ打ち（12枚/秒）</option><option value="8">3コマ打ち（8枚/秒）</option></select></label>
+          <label class="row" style="gap:6px">コマ打ち <select id="fxKoma" title="動きを何枚/秒で描くか（出力fpsとは別）"><option value="0">フル（出力fpsのまま）</option><option value="15">2コマ打ち（15枚/秒）</option><option value="10">3コマ打ち（10枚/秒）</option><option value="12">旧設定（12枚/秒）</option><option value="8">旧設定（8枚/秒）</option></select></label>
         </div>
         <div class="fields" style="margin-top:12px">
           <label class="field">HUD<select id="fxHud"><option value="auto">スタイル次第</option><option value="on">常に表示</option><option value="off">表示しない</option></select></label>
@@ -238,7 +237,7 @@
         <div class="fields">
           <label class="field">画面比<select id="outAspect"><option value="16:9">16:9</option><option value="9:16">9:16 縦</option><option value="4:3">4:3</option><option value="3:4">3:4 縦</option><option value="1:1">1:1</option><option value="4:5">4:5 縦</option><option value="21:9">21:9</option></select></label>
           <label class="field">解像度<select id="outRes"><option value="480">480p</option><option value="540">540p</option><option value="720">720p</option><option value="765">1360×766</option><option value="900">900p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
-          <label class="field">fps<select id="outFps"><option>24</option><option>30</option><option>60</option></select></label>
+          <label class="field">fps<select id="outFps"><option>30</option><option>24</option><option>60</option></select></label>
           <label class="field">画質<select id="outQuality"><option value="standard">標準</option><option value="high">高</option><option value="max">最高</option></select></label>
           <label class="field field-wide">背景<select id="outKey"><option value="off">通常（スタイルの背景）</option><option value="green">グリーンバック（合成用）</option><option value="black">ブラックバック（合成用）</option></select></label>
         </div>

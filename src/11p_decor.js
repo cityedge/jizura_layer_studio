@@ -362,14 +362,14 @@ DEF.timecodeBar = {
     if (hitBB(x0, y0, x0 + w, y0 + h, bb, 10 * u)) { low = !low; y0 = low ? H - m - h : m; }
     const a = o * (hitBB(x0, y0, x0 + w, y0 + h, bb, 0) ? 0.3 : 1);
     const e = E.outExpo(J.clamp(env.lt / 0.5));
-    const t = Math.max(0, env.t || 0), fr = Math.floor(t * 24);
-    const tc = `${pad2(t / 3600)}:${pad2((t / 60) % 60)}:${pad2(t % 60)}:${pad2(fr % 24)}`;
+    const t = Math.max(0, env.t || 0), fr = Math.floor(t * 30 + 1e-6);
+    const tc = `${pad2(t / 3600)}:${pad2((t / 60) % 60)}:${pad2(t % 60)}:${pad2(fr % 30)}`;
     const n = Math.ceil(tc.length * J.clamp(env.lt / 0.35));
     const ty = y0 + fs * 0.8;
     const tcW = textW('TC ', monoF(env), fs * 0.8, 0.1);
     label(env, 'TC', x0, ty + fs * 0.12, { size: fs * 0.8, color: sc.accent, alpha: a });
     label(env, tc.slice(0, n), x0 + tcW, ty, { size: fs * 1.25, color: sc.fg, alpha: a, track: 0.06 });
-    label(env, `F ${pad2(Math.floor(env.lt * 24), 4)}`, x0 + w, ty + fs * 0.12, { size: fs * 0.8, align: 'right', alpha: a * e });
+    label(env, `F ${pad2(Math.floor(env.lt * 30 + 1e-6), 4)}`, x0 + w, ty + fs * 0.12, { size: fs * 0.8, align: 'right', alpha: a * e });
     // scrub bar
     const by = y0 + h - fs * 0.6, lw = Math.max(1, u), prog = J.clamp(env.lt / Math.max(0.1, env.cut.dur));
     stroke(env, [[x0, by], [x0 + w * e, by]], sc.sub, lw, 0.6 * a);

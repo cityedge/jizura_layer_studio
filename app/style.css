@@ -423,7 +423,7 @@ button.small.primary { padding: 4px 12px; }
 #app.is-mobile button.play { flex: none; width: 44px; }
 
 /* Layer workflow: standalone-video controls are intentionally unavailable. */
-.layer-app .layer-removed, .layer-app #songArtist, .layer-app #btnAE,
+.layer-app .layer-removed, .layer-app #songArtist,
 .layer-app #btnTour, .layer-app #btnMP4, .layer-app #eMP4, .layer-app #btnMP4File,
 .layer-app #eMP4File, .layer-app #btnPNG, .layer-app #btnPNGA, .layer-app #btnPNGL,
 .layer-app .key-note, .layer-app #keyBadge { display: none !important; }

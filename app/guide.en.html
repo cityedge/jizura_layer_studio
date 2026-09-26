@@ -10,6 +10,8 @@
       <li><strong>Save two MP4 files</strong><p>Select aspect ratio, resolution and fps, then “Export matte + front MP4”. Allow multiple downloads if the browser asks. Individual save links remain available if either file is missing. Both videos are silent and are downloaded without ZIP compression. Keep the tab open during export.</p></li>
       <li><strong>Composite in your video editor</strong><p>Apply the matte to the background with Darken, then apply the front with Lighten. Keep both videos aligned in time and size. If using the matte as alpha, invert it so white is transparent and black is opaque.</p></li>
     </ol>
+    <h3>FPS and spectrum</h3>
+    <p>The default is 30fps. Subtitle cadence offers 15 drawings/s (on twos), 10 drawings/s (on threes), and full output fps. Saved 24fps and legacy cadences are preserved. Spectrum export selects decoded frames by presentation timestamp, independently of subtitle cadence. A constant 30fps source exported at 30fps from a source frame boundary uses each source frame once in order. 29.97fps, variable or mismatched frame rates require holds or drops. Unsupported sources report an error.</p>
     <h3>Save and restore</h3>
     <p>Save a project JSON with the top Save button. It preserves subtitles, effects and spectrum placement, but not the actual background, spectrum or song files. Reselect those files when reopening. Save your project before switching languages.</p>
     <h3>Output characteristics</h3>
