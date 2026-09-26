@@ -66,4 +66,4 @@ System fonts and fonts selected by the user are not distributed with this app an
 JIZURA Layer Studio is based on JIZURA v0.9.0 by hakoniwa:
 https://github.com/852wa/JIZURA
 The original MIT copyright and license are preserved in `LICENSE`, with a separate notice for cityedge's modifications.
-The original community translations are retained; fork-specific guides and controls are Japanese/English.
+This edition provides Japanese and English interfaces. Other interface translations are not distributed.

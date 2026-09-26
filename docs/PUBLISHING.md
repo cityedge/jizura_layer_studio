@@ -15,6 +15,7 @@ python tools/package_release.py
 - `upload/`：アップロードするアプリ・ソース・説明・ライセンス一式。
 - `UPLOAD_README.txt`：アップロードする場所の説明。
 - `SHA256SUMS.txt`：`upload/`内のファイルのハッシュ一覧。
+- `DELETE_FROM_REPOSITORY.txt`：更新時にGitHub上でも削除する旧ファイルの一覧。自動削除は行いません。
 
 パッケージ作成時にHTMLを再ビルドします。許可リストにあるファイルだけをコピーし、`.git`、仮想環境、入力素材、テスト生成物、旧版のAE/CEP配布物は含めません。ソースとビルドスクリプトも含むので、公開物からHTMLを再生成できます。パッケージ作成はGit操作や公開操作を行いません。
 
@@ -44,6 +45,20 @@ GitHub Pagesを使う場合、リポジトリのSettings → Pagesで、公開�
 4. Pagesの更新後、画面に表示されるバージョンと動作を確認します。
 
 手元のコミットは復元用の記録として利用できます。原版の更新を取り込むかどうかは、この派生版で個別に判断します。
+
+### layer.13 / layer.14から日英版へ更新するとき
+
+新しい`upload/`の中身をアップロードした後、`DELETE_FROM_REPOSITORY.txt`にある18ファイルをGitHub上でも削除します。リポジトリ内の一覧は[tools/obsolete_files.txt](../tools/obsolete_files.txt)です。存在しないものはスキップしてください。
+
+- `id/`・`ko/`・`vi/`・`zh-hans/`・`zh-hant/`の各`index.html`。
+- ルートの`README.id.md`・`README.ko.md`・`README.vi.md`。
+- `app/`内の不要な翻訳10ファイル（正確な名前は一覧を参照）。**`app/`全体は削除しません。**
+
+GitHubの対象ファイルを開き、右上の「…」→「Delete file」→「Commit changes」で削除できます。上記5つの言語フォルダに旧`index.html`しか入っていない場合は、各フォルダを開いて「…」→「Delete directory」でもまとめて削除できます。削除対象を確認してから確定してください。
+
+更新後は言語メニューが日本語・Englishの2項目になり、v0.9.0-layer.15と表示されることを確認します。旧ファイルを残しても新しい日英版は動きますが、旧URLでは古いアプリが引き続き公開されるため削除してください。リポジトリ自体を作り直す必要はありません。
+
+ソース: [GitHub公式・ファイルとフォルダの削除](https://docs.github.com/en/repositories/working-with-files/managing-files/deleting-files-in-a-repository)
 
 ## 公開先URL
 

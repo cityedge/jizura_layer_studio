@@ -36,7 +36,15 @@ See [GitHub’s Pages source instructions](https://docs.github.com/en/pages/gett
 
 For updates, change source, VERSION and CHANGELOG, test, generate a new bundle and manually upload its files. Delete obsolete/renamed files on GitHub too; uploads alone do not remove them. Verify the displayed version after Pages updates. Local commits can remain private recovery records. Upstream updates are optional.
 
-## Optional site metadata
+## Updating the old language editions
+
+When updating from layer.13 / layer.14 to the Japanese/English edition, upload the new files, then delete the 18 obsolete paths in `DELETE_FROM_REPOSITORY.txt`. The same list is stored in [tools/obsolete_files.txt](../tools/obsolete_files.txt). Skip absent files. The list covers five old language HTML files, three README translations and ten translation sources. Do not delete the entire `app/` folder.
+
+Open each old file on GitHub and use the top-right menu → Delete file → Commit changes. If an old language directory contains only the obsolete HTML, use Delete directory instead. Review the deletion before committing. The new language menu should contain only Japanese and English. Old files left online still serve the old app at their URLs; uploading alone does not remove them. You do not need to recreate the repository.
+
+See [GitHub's file and directory deletion instructions](https://docs.github.com/en/repositories/working-with-files/managing-files/deleting-files-in-a-repository).
+
+## Site URL
 
 The default canonical and OG URL is https://cityedge.github.io/jizura_layer_studio/. Language links are relative. Override `JIZURA_SITE_URL` for another site, or set it to an empty string to omit site metadata.
 

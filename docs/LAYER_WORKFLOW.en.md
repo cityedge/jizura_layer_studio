@@ -62,4 +62,4 @@ Save project JSON explicitly; autosave is a convenience. Subtitles, effects, pla
 
 Desktop Chrome / Edge is recommended. MP4 requires WebCodecs and H.264 encoding, depending on browser/OS. Long/4K exports are not thoroughly verified and use substantial memory; start with a short range. File-URL storage behavior depends on browser.
 
-Finished background/audio video, PNG and AE export are not offered. New controls/guides are Japanese/English; other inherited language editions use English for new functionality.
+Finished background/audio video, PNG and AE export are not offered. The interface supports Japanese and English; subtitle text languages and font support are preserved.

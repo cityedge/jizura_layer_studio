@@ -9,11 +9,6 @@
 <meta property="og:url" content="https://cityedge.github.io/jizura_layer_studio/">
 <link rel="alternate" hreflang="ja" href="https://cityedge.github.io/jizura_layer_studio/">
 <link rel="alternate" hreflang="en" href="https://cityedge.github.io/jizura_layer_studio/en/">
-<link rel="alternate" hreflang="zh-Hant" href="https://cityedge.github.io/jizura_layer_studio/zh-hant/">
-<link rel="alternate" hreflang="zh-Hans" href="https://cityedge.github.io/jizura_layer_studio/zh-hans/">
-<link rel="alternate" hreflang="ko" href="https://cityedge.github.io/jizura_layer_studio/ko/">
-<link rel="alternate" hreflang="id-ID" href="https://cityedge.github.io/jizura_layer_studio/id/">
-<link rel="alternate" hreflang="vi" href="https://cityedge.github.io/jizura_layer_studio/vi/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JIZURA Layer Studio — cityedge fork">
 <meta property="og:description" content="字幕フロントと白黒マットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。">
@@ -519,7 +514,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v0.9.0-layer.14</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v0.9.0-layer.15</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -532,7 +527,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
       <button id="modePro" aria-pressed="true" title="すべての設定を表示">詳細</button>
       <button id="btnTour" class="ghost tour-btn" title="かんたんモードの使い方を案内します" aria-label="使い方の案内">？</button>
     </div>
-    <label class="lang-switch"><span class="sr-only">Language</span><select aria-label="Language" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="ja" selected>日本語</option><option value="en/index.html" lang="en">English</option><option value="zh-hant/index.html" lang="zh-Hant">繁體中文</option><option value="zh-hans/index.html" lang="zh-Hans">简体中文</option><option value="ko/index.html" lang="ko">한국어</option><option value="id/index.html" lang="id-ID">Bahasa Indonesia</option><option value="vi/index.html" lang="vi">Tiếng Việt</option></select></label>
+    <label class="lang-switch"><span class="sr-only">言語</span><select aria-label="言語" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="ja" selected>日本語</option><option value="en/index.html" lang="en">English</option></select></label>
     <div class="acts">
       <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="プロジェクトを .json で保存">保存</button>
@@ -795,7 +790,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v0.9.0-layer.14</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v0.9.0-layer.15</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -892,7 +887,7 @@ System fonts and fonts selected by the user are not distributed with this app an
 JIZURA Layer Studio is based on JIZURA v0.9.0 by hakoniwa:
 https://github.com/852wa/JIZURA
 The original MIT copyright and license are preserved in `LICENSE`, with a separate notice for cityedge&#x27;s modifications.
-The original community translations are retained; fork-specific guides and controls are Japanese/English.
+This edition provides Japanese and English interfaces. Other interface translations are not distributed.
 </pre></details>
     <details class="terms-oss"><summary>Mediabunny · MPL-2.0</summary><p><a href="https://registry.npmjs.org/mediabunny/-/mediabunny-1.60.0.tgz">使用版のソースコード（1.60.0）</a></p><pre class="license-text">Mozilla Public License Version 2.0
 ==================================
@@ -1292,7 +1287,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <h3>出力の特徴</h3>
     <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。圧縮前の最終フロントで黒以外の場所だけ、マットが黒になります。マットは2値で、半透明は保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
     <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v0.9.0-layer.14</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v0.9.0-layer.15</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -4209,7 +4204,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '0.9.0-layer.14', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '0.9.0-layer.15', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -38245,7 +38240,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.9.0-layer.14' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.9.0-layer.15' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {

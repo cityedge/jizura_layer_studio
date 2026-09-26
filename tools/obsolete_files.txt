@@ -1,0 +1,20 @@
+# Obsolete paths from the layer.13 / layer.14 manual-upload bundles.
+# Skip absent files; never delete the whole app/ directory.
+id/index.html
+ko/index.html
+vi/index.html
+zh-hans/index.html
+zh-hant/index.html
+README.id.md
+README.ko.md
+README.vi.md
+app/chinese.js
+app/chinese.py
+app/chinese_hans.js
+app/korean.js
+app/korean.py
+app/i18n_id.py
+app/i18n_ko.py
+app/i18n_vi.py
+app/i18n_zh_hans.py
+app/i18n_zh_hant.py

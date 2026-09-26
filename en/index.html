@@ -9,11 +9,6 @@
 <meta property="og:url" content="https://cityedge.github.io/jizura_layer_studio/en/">
 <link rel="alternate" hreflang="ja" href="https://cityedge.github.io/jizura_layer_studio/">
 <link rel="alternate" hreflang="en" href="https://cityedge.github.io/jizura_layer_studio/en/">
-<link rel="alternate" hreflang="zh-Hant" href="https://cityedge.github.io/jizura_layer_studio/zh-hant/">
-<link rel="alternate" hreflang="zh-Hans" href="https://cityedge.github.io/jizura_layer_studio/zh-hans/">
-<link rel="alternate" hreflang="ko" href="https://cityedge.github.io/jizura_layer_studio/ko/">
-<link rel="alternate" hreflang="id-ID" href="https://cityedge.github.io/jizura_layer_studio/id/">
-<link rel="alternate" hreflang="vi" href="https://cityedge.github.io/jizura_layer_studio/vi/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JIZURA Layer Studio — cityedge fork">
 <meta property="og:description" content="Create subtitle front and binary matte MP4 pairs. An unofficial JIZURA derivative with SRT import, preview backgrounds and spectrum compositing.">
@@ -519,7 +514,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v0.9.0-layer.14</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v0.9.0-layer.15</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -532,7 +527,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
       <button id="modePro" aria-pressed="true" title="Show all settings">Advanced</button>
       <button id="btnTour" class="ghost tour-btn" title="A short tour of the Simple mode" aria-label="Tour">？</button>
     </div>
-    <label class="lang-switch"><span class="sr-only">Language</span><select aria-label="Language" onchange="if(this.value)location.href=this.value"><option value="../index.html" lang="ja">日本語</option><option value="../en/index.html" lang="en" selected>English</option><option value="../zh-hant/index.html" lang="zh-Hant">繁體中文</option><option value="../zh-hans/index.html" lang="zh-Hans">简体中文</option><option value="../ko/index.html" lang="ko">한국어</option><option value="../id/index.html" lang="id-ID">Bahasa Indonesia</option><option value="../vi/index.html" lang="vi">Tiếng Việt</option></select></label>
+    <label class="lang-switch"><span class="sr-only">Language</span><select aria-label="Language" onchange="if(this.value)location.href=this.value"><option value="../index.html" lang="ja">日本語</option><option value="../en/index.html" lang="en" selected>English</option></select></label>
     <div class="acts">
       <label class="file" title="Open a saved project (.json)">Open<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="Save project as .json">Save</button>
@@ -795,7 +790,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v0.9.0-layer.14</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v0.9.0-layer.15</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -892,7 +887,7 @@ System fonts and fonts selected by the user are not distributed with this app an
 JIZURA Layer Studio is based on JIZURA v0.9.0 by hakoniwa:
 https://github.com/852wa/JIZURA
 The original MIT copyright and license are preserved in `LICENSE`, with a separate notice for cityedge&#x27;s modifications.
-The original community translations are retained; fork-specific guides and controls are Japanese/English.
+This edition provides Japanese and English interfaces. Other interface translations are not distributed.
 </pre></details>
     <details class="terms-oss"><summary>Mediabunny · MPL-2.0</summary><p><a href="https://registry.npmjs.org/mediabunny/-/mediabunny-1.60.0.tgz">Source code of the bundled version (1.60.0)</a></p><pre class="license-text">Mozilla Public License Version 2.0
 ==================================
@@ -1292,7 +1287,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <h3>Output characteristics</h3>
     <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. Before compression, exactly the nonblack pixels in the final front have a black matte. The matte is binary, without partial transparency. MP4 compression can slightly change colours and edges.</p>
     <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v0.9.0-layer.14</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v0.9.0-layer.15</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -4209,7 +4204,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '0.9.0-layer.14', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '0.9.0-layer.15', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -38488,7 +38483,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.9.0-layer.14' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.9.0-layer.15' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {

@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v0.9.0-layer.14**
+**Animated subtitle layers · cityedge fork · v0.9.0-layer.15**
 
 [Open English app](en/index.html) · [日本語](README.md) · [User guide](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
@@ -15,7 +15,7 @@ This is an **unofficial derivative of [JIZURA by hakoniwa](https://github.com/85
 4. Load a preview background and optional spectrum video.
 5. Export the MP4 pair. Allow multiple downloads when prompted, or use the individual save links.
 
-User guide and About / rights dialogs are available in the app. Japanese and English cover the new controls and guides. Other inherited language editions use English for new fork-specific text.
+User guide and About / rights dialogs are available in the app. The interface supports Japanese (`index.html`) and English (`en/index.html`), selectable from the top language menu. This does not restrict subtitle text languages or fonts.
 
 ## Features
 
@@ -52,6 +52,8 @@ python tools/package_release.py
 ```
 
 The bundle is generated under `dist/`. Upload the contents of its `upload/` folder to an independent repository following the [publication guide](docs/PUBLISHING.en.md). No Fork, git push or upstream synchronization is required.
+
+When updating from layer.13 / layer.14, also delete the obsolete GitHub files listed in the release folder's `DELETE_FROM_REPOSITORY.txt`. Uploading replacements does not delete old files.
 
 Source lives in `src/`; UI, translations and notices in `app/`; the MP4 library in `vendor/`. Each generated HTML includes application code and license notices. See [workflow details](docs/LAYER_WORKFLOW.en.md) and [change history](CHANGELOG.md).
 
