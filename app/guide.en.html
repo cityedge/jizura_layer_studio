@@ -1,0 +1,20 @@
+<dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
+  <form method="dialog">
+    <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio User Guide</h2>
+    <p class="terms-main">Create an animated subtitle front and binary matte to composite over another video.</p>
+    <ol class="guide-steps">
+      <li><strong>Import subtitles</strong><p>Choose a UTF-8 SRT with “Import SRT”. Start/end times, line breaks and gaps are preserved. Use “Edit SRT text, start and end” to make changes. You can also type subtitles without an SRT.</p></li>
+      <li><strong>Create effects and preview</strong><p>Use Auto-compose, then adjust individual lines. Load an image or video as a preview background to check the composite. Neither the background nor the song used for timing is exported.</p></li>
+      <li><strong>Add a spectrum video if needed</strong><p>Load a front video. Select its matching “name_matte_dark.mp4” together with it if available. Without a matte, only RGB 000000 is transparent. Default placement is 65% of frame width, with 3% left/bottom margins. Position and horizontal/vertical scales are adjustable. Subtitles appear in front; both start at time zero.</p></li>
+      <li><strong>Adjust dark exterior glow</strong><p>“Exterior bloom cleanup” is below the cut list in the left pane. Its range is 0–128, default 32; zero disables cleanup. Higher values remove more dark exterior glow. Original text, graphics and sparks are protected from this cleanup.</p></li>
+      <li><strong>Save two MP4 files</strong><p>Select aspect ratio, resolution and fps, then “Export matte + front MP4”. Allow multiple downloads if the browser asks. Individual save links remain available if either file is missing. Both videos are silent and are downloaded without ZIP compression. Keep the tab open during export.</p></li>
+      <li><strong>Composite in your video editor</strong><p>Apply the matte to the background with Darken, then apply the front with Lighten. Keep both videos aligned in time and size. If using the matte as alpha, invert it so white is transparent and black is opaque.</p></li>
+    </ol>
+    <h3>Save and restore</h3>
+    <p>Save a project JSON with the top Save button. It preserves subtitles, effects and spectrum placement, but not the actual background, spectrum or song files. Reselect those files when reopening. Save your project before switching languages.</p>
+    <h3>Output characteristics</h3>
+    <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. Before compression, exactly the nonblack pixels in the final front have a black matte. The matte is binary, without partial transparency. MP4 compression can slightly change colours and edges.</p>
+    <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
+    <div class="terms-foot"><span class="muted">cityedge fork · v@VERSION@</span><button value="close" class="primary" autofocus>Close</button></div>
+  </form>
+</dialog>
