@@ -1,5 +1,18 @@
 # Third-party notices
 
+## Mediabunny 1.60.0 (bundled, MPL-2.0)
+
+Copyright (c) 2026-present, Vanilagy and contributors.
+The unchanged browser bundle `vendor/mediabunny.min.js` is embedded in each HTML edition
+to decode spectrum frames by presentation timestamp. This library is licensed under
+the Mozilla Public License 2.0, separately from this application's MIT-licensed code.
+Full license: `vendor/mediabunny.LICENSE.txt` (also embedded in the About dialog).
+The complete upstream source distribution is included as `vendor/mediabunny-1.60.0.tgz`.
+Source distribution: https://registry.npmjs.org/mediabunny/-/mediabunny-1.60.0.tgz
+Upstream: https://github.com/Vanilagy/mediabunny
+No changes have been made to Mediabunny. Preserve its license and source availability
+notice when redistributing the standalone HTML or a packaged copy.
+
 ## mp4-muxer 5.2.2 (bundled)
 
 `vendor/mp4-muxer.min.js` is embedded in `index.html` and is used to write MP4 files.

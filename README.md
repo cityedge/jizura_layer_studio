@@ -1,7 +1,7 @@
 # JIZURA Layer Studio
-**字幕レイヤー制作ツール · cityedge fork · v0.9.0-layer.13**
+**字幕レイヤー制作ツール · cityedge fork · v0.9.0-layer.14**
 
-[アプリを開く](index.html) · [English](README.en.md) · [利用ガイド](docs/LAYER_WORKFLOW.md) · [手動公開の手順](docs/PUBLISHING.md)
+[公開アプリを開く](https://cityedge.github.io/jizura_layer_studio/) · [ローカル版](index.html) · [English](README.en.md) · [利用ガイド](docs/LAYER_WORKFLOW.md) · [手動公開の手順](docs/PUBLISHING.md)
 
 他の動画へ重ねる「黒背景の字幕フロント」と「白黒2値マット」を、同じサイズ・fps・フレーム数の2本のMP4として作るブラウザアプリです。
 
@@ -27,6 +27,7 @@
 - 暗い外周ブルームの除去を0〜128で調整。初期値32。
 - 無音のMP4ペアを直接保存。マット名はフロント名に`_matte_dark`を追加。
 - 480p・540p・720p・1360×766・900p・1080p・1440p・4K（寸法は画面比で変わります）。
+- 標準30fps。字幕は15／10枚・秒またはフル。スペアナは表示時刻によるフレーム読取。
 - プロジェクトJSONの保存・復元。
 
 背景・音声入りの完成動画、PNG出力、After Effects出力は、この派生版の提供対象ではありません。
@@ -65,6 +66,6 @@ python tools/package_release.py
 
 ## 権利とライセンス
 
-原版と本派生版は[MIT License](LICENSE)です。原版の著作権表示を維持し、改変部分の表示を追加しています。再配布時も著作権表示とライセンス本文を残してください。[第三者ライセンス](THIRD_PARTY_NOTICES.md)も参照してください。
+原版と本派生版のアプリコードは[MIT License](LICENSE)です。同梱のMediabunnyはMPL-2.0で、ライセンスと未改変のソース配布物を`vendor/`に収録しています。原版の著作権表示を維持し、改変部分の表示を追加しています。再配布時も著作権表示とライセンス本文を残してください。[第三者ライセンス](THIRD_PARTY_NOTICES.md)も参照してください。
 
 出力動画に本アプリのMITライセンス表示を付ける必要はありません。使用する歌詞・音楽・画像・動画・フォント等の権利と利用条件は、それぞれ確認してください。ソフトウェアは無保証です。

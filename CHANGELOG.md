@@ -1,3 +1,10 @@
+## 0.9.0-layer.14 — 2026-09-26
+
+- 標準30fps、コマ打ち15／10枚・秒。既存の24fps・12／8枚・秒設定は維持。
+- スペアナのMP4出力をPTSに基づくデコードへ変更。Mediabunny 1.60.0（MPL-2.0）を同梱。
+- After Effects向け書き出し・変換・CEP／ScriptUI・ビルド・専用テストを削除。字幕の演出は維持。
+- 公開URL、利用ガイド、第三者ライセンスを更新。配布フォルダとRelease ZIPの同時生成。
+
 # JIZURA Layer Studio: 0.9.0-layer.13
 
 - Prepare the independent cityedge fork for manual publication; no remote publishing or upstream synchronization.

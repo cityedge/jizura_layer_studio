@@ -10,12 +10,14 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
 read = lambda p: open(p, encoding='utf-8').read()
 VERSION = read('VERSION').strip()
-SITE_URL = os.environ.get('JIZURA_SITE_URL', '').strip().rstrip('/')
+SITE_URL = os.environ.get('JIZURA_SITE_URL', 'https://cityedge.github.io/jizura_layer_studio').strip().rstrip('/')
 if SITE_URL and not SITE_URL.startswith('https://'):
     raise ValueError('JIZURA_SITE_URL must start with https://')
 sources = sorted(glob.glob('src/*.js'))
 js = '\n'.join(read(f) for f in sources)
 mux = '/*! mp4-muxer v5.2.2 | MIT License | (c) 2023 Vanilagy | see THIRD_PARTY_NOTICES.md */\n' + read('vendor/mp4-muxer.min.js')
+demux = read('vendor/mediabunny.min.js')
+
 def build(lang):
     english = lang == 'en'
     local = lang in i18n.MODULES
@@ -65,6 +67,9 @@ def build(lang):
 {body}
 <script>
 {mux}
+</script>
+<script>
+{demux}
 </script>
 <script>
 {script}

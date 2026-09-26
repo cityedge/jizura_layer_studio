@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v0.9.0-layer.13**
+**Animated subtitle layers · cityedge fork · v0.9.0-layer.14**
 
 [Open English app](en/index.html) · [日本語](README.md) · [User guide](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
@@ -33,6 +33,8 @@ Finished background/audio video, PNG export and After Effects output are outside
 
 ## Composite, save and compatibility
 
+New projects default to 30fps and 15 drawings/s. Spectrum export selects decoded frames by presentation timestamp; see the user guide for frame correspondence and legacy project settings.
+
 Apply the matte with Darken, then the front with Lighten. Align both videos in time and size. For alpha-based compositing, white matte means transparent and black means opaque. The pre-encode matte is binary; lossy MP4 may introduce small colour/edge changes. No partial alpha is exported.
 
 Selected media stays in the browser; fonts are loaded from Google Fonts. Settings/subtitles are autosaved locally; save project JSON explicitly too. Background, spectrum and song files are not embedded: reselect them when reopening.
@@ -58,3 +60,5 @@ Source lives in `src/`; UI, translations and notices in `app/`; the MP4 library 
 The original and derivative are [MIT licensed](LICENSE). Preserve original copyright and license text when redistributing. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
 Exported videos do not require an application MIT credit. Check the rights and terms of your lyrics, music, images, videos, fonts and other material separately. The software is provided without warranty.
+
+Bundled Mediabunny 1.60.0 is separately licensed under MPL-2.0. Its unmodified source distribution and license are included in `vendor/`.
