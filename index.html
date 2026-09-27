@@ -462,9 +462,13 @@ button.small.primary { padding: 4px 12px; }
 .layer-cue { display:grid; grid-template-columns:20px minmax(0,1fr) 12px minmax(0,1fr); gap:5px; margin:12px 0; }
 .layer-cue input { width:100%; min-width:0; padding:5px; }
 .layer-cue textarea { grid-column:1/-1; width:100%; min-height:48px; padding:6px; }
+.layer-cue .cue-error, .layer-cue .cue-actions { grid-column:1/-1; }
+.cue-error { color:#f07178; font-size:11px; }
+.cue-error:empty { display:none; }
+.cue-actions { display:flex; gap:6px; justify-content:flex-end; }
+.layer-cue [aria-invalid="true"] { border-color:#f07178; }
 .srt-active #lyrics { max-height:85px; opacity:0.7; }
-.srt-active #btnTap, .srt-active #btnResetTimes, .srt-active #lineList .edit,
-.srt-active #lineList .tapfrom, .srt-active #btnSyntax, .srt-active .tl-hint { display:none !important; }
+.srt-active #btnResetTimes, .srt-active #btnSyntax { display:none !important; }
 .layer-app .ln .txt { white-space:pre-line; }
 
 .spectrum-position { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
@@ -499,6 +503,20 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 .layer-app #app.is-mobile .brand .word { display:inline; font-size:11px; }
 .layer-app #app.is-mobile .brand .mark { display:none; }
 .layer-app #app.is-mobile .brand .ver { font-size:9px; margin-left:0; }
+.filler-dialog { width: min(700px, calc(100vw - 32px)); }
+.filler-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.filler-grid label { display: flex; flex-direction: column; gap: 6px; }
+.filler-grid input, .filler-grid select { width: 100%; box-sizing: border-box; min-height: 34px; }
+.filler-dialog fieldset { border: 1px solid var(--border, #34343d); padding: 10px 14px; }
+.filler-type { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 8px 0; }
+.filler-type label { display: flex; align-items: center; gap: 8px; }
+.filler-type select { min-width: 60px; }
+.filler-preview { border-left: 2px solid var(--cyan, #00ddd0); padding: 8px 12px; background: #191b21; line-height: 1.7; }
+.filler-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
+.filler-badge { color: var(--cyan, #00ddd0); font-size: 10px; margin-right: 6px; }
+.layer-cue.is-filler > strong { color: var(--cyan, #00ddd0); }
+.layer-cue > .filler-badge { grid-column: 1 / -1; }
+@media (max-width: 480px) { .filler-grid { grid-template-columns: 1fr; } .filler-type { gap: 8px; } }
 
 </style>
 </head>
@@ -514,7 +532,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v0.9.0-layer.15</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.0.0</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -790,7 +808,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v0.9.0-layer.15</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.0.0</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1271,15 +1289,26 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.0.0 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
     <p class="terms-main">他の動画に重ねるための、字幕フロントと白黒マットを作るツールです。</p>
     <ol class="guide-steps">
       <li><strong>字幕を用意する</strong><p>「SRTを読み込む」でUTF-8のSRTを選びます。開始・終了・改行・字幕のない区間を保持します。「SRTの本文・開始・終了を編集」で修正できます。SRTを使わず字幕を直接入力することもできます。</p></li>
       <li><strong>演出と背景を確認する</strong><p>「おまかせ」で演出を作り、行ごとの設定で調整します。作業用背景に画像・動画を読み込むと、重ねた見え方を確認できます。背景と、タイミング確認用の曲は出力されません。</p></li>
-      <li><strong>必要ならスペアナを重ねる</strong><p>フロント動画を読み込みます。対応する「同名_matte_dark.mp4」があれば、2本をまとめて選択できます。マットがなければRGB 000000だけを透過します。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
+      <li><strong>必要ならスペアナを重ねる</strong><p>フロント動画を読み込むと自動合成します。合成しない場合はフロント動画の「解除」を押してください。対応する「同名_matte_dark.mp4」があれば、2本をまとめて選択できます。マットがなければRGB 000000だけを透過します。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
       <li><strong>外周の暗い光彩を調整する</strong><p>左ペインの演出リスト下にある「外周ブルームの除去」で0〜128を指定します。初期値32、0は除去なしです。大きくすると外側の暗い光彩を多く除去します。元の文字・図形・火花はこの判定で削除しません。</p></li>
       <li><strong>MP4を2本保存する</strong><p>画面比・解像度・fpsを選び、「マット＋フロント MP4を出力」を押します。ブラウザに複数ダウンロードの確認が出たら許可してください。保存されない場合は、出力後の個別保存リンクを使えます。2本とも無音で、ZIP圧縮はしません。書き出し中はタブを開いたままにしてください。</p></li>
       <li><strong>動画編集ソフトで重ねる</strong><p>背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
     </ol>
+    <p>SRT編集欄の「先頭に字幕を追加」「この後に追加」「削除」で通常字幕を個別に増減でき、Ctrl+Zで戻せます。空欄はスロットを残して描画なし。全角スペースは有効な本文で、半角スペースで区分できます。時刻が不正な間は出力を停止し、修正するとエラーは消えます。</p>
+    <p>空白文字フィラーは全角スペース2〜5個を半角スペースで3〜4区分に分けます。文字は見えず、演出によって台紙や装飾が描かれます。</p>
+    <h3>SRTは編集の出発点</h3>
+    <p>読み込んだ字幕は自由に編集できます。タイムラインの帯をクリックすると再生位置が移動します。上部の開始ハンドルのドラッグ、行一覧の開始秒の入力、タップ同期で開始を動かすと、表示時間を維持して終了も移動します。「SRTの本文・開始・終了を編集」で本文や終了だけを変更することもできます。変更は「元に戻す」／Ctrl+Zで取り消せ、プロジェクトJSONに保存できます。元のSRTファイルは変更しません。</p>
+    <h3>空白区間にフィラーを追加する</h3>
+    <p>SRT読み込み後の「フィラーを追加…」で設定ダイアログが開きます。閾値はプリ／ポストギャップを引いた残りに適用します。初期値は5秒・プリ0.3秒・ポスト0.5秒なので、5.8秒以上の間奏が対象です。前奏はポストのみ、アウトロはプリのみを確保します。終端は音源、なければスペアナ、どちらもなければ通常字幕の末尾です。</p>
+    <p>「普通」の平均長さは通常字幕の表示時間の上位50%（端数切り上げ）の平均。短めは0.75倍、長めは1.5倍で、個々の長さに変化を付けます。図形文字は通常字幕の平均文字数に合わせ、繰り返しや混在などを抽選します。歌詞は長さに関係なく全文を抽選します。各種類はチェックと1〜10の重みで選べ、初期状態は全種類オン、重みは空白3・歌詞8・時刻2・図形1です。</p>
+    <p>本文の <code>[timestamp]</code> は開始時刻（例：02 05 853）に追従します。通常字幕にも手入力できます。フィラーは編集用の仮置きで、本文を変えてもフィラーのままです。再生成すると手編集分もすべて置き換えます。通常字幕とその演出は保持します。一括削除・Ctrl+Z・JSON保存にも対応します。</p>
+    <h3>スペアナ動画を作るツール</h3>
+    <p><a href="https://github.com/cityedge/audio-spectrum-overlay-maker" target="_blank" rel="noopener noreferrer">Audio Spectrum Overlay Maker</a>は、cityedgeが開発した、本アプリに読み込むスペアナ動画を作るツールです。スペアナ素材を用意するときにご利用ください。</p>
     <h3>FPSとスペアナ</h3>
     <p>標準は30fpsです。字幕は15枚／秒（2コマ打ち）・10枚／秒（3コマ打ち）・フルから選べます。既存プロジェクトの24fpsや旧コマ打ちは保持します。スペアナは字幕のコマ打ちに影響されず、書き出し時に表示時刻でフレームを選びます。30fps素材を30fpsで素材のフレーム境界から出力すると、各フレームが順番に1回ずつ使われます。29.97fps・可変fpsや異なるfpsでは間引き・繰り返しがあります。対応しない素材はエラーを表示します。</p>
     <h3>保存と復元</h3>
@@ -1287,7 +1316,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <h3>出力の特徴</h3>
     <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。圧縮前の最終フロントで黒以外の場所だけ、マットが黒になります。マットは2値で、半透明は保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
     <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v0.9.0-layer.15</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.0.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -3050,6 +3079,13 @@ J.taggedWith = (group, mood) => J.order(group).filter(k => { const d = J.registr
 (() => {
 'use strict';
 const E = J.E;
+// Space-only captions deliberately occupy layout width. Ordinary text keeps legacy trimming.
+J.isWhitespaceText = text => typeof text === 'string' && /^[\s\u3000]+$/.test(text);
+J.stripTextSpace = text => {
+  const t = String(text ?? '');
+  return J.isWhitespaceText(t) ? t.replace(/[ \t\r\n]/g, '') || t : t.replace(/\s+/g, '');
+};
+J.trimText = text => J.isWhitespaceText(text) ? text : String(text ?? '').trim();
 
 /* ---------- main-item pipeline: enter / hold / exit + draw ---------- */
 J.mainDraw = (env, it) => {
@@ -3156,13 +3192,13 @@ J.splitLines = (text, maxPer) => {
       if (J.isSmallKana(b) || 'ーっ、。'.includes(b)) s -= 6;
       if (s > bestScore) { bestScore = s; best = k; }
     }
-    out.push(arr.slice(start, best).join('').trim()); start = best;
+    out.push(J.trimText(arr.slice(start, best).join(''))); start = best;
   }
-  out.push(arr.slice(start).join('').trim());
+  out.push(J.trimText(arr.slice(start).join('')));
   return out.join('\n');
 };
 
-const glyphCount = t => [...t.replace(/\s/g, '')].length;
+const glyphCount = t => [...J.stripTextSpace(t)].length;
 const fontsOf = (st, roles) => { const f = roles.flatMap(r => st.fonts[r] || []).filter(k => J.FONTS[k]); return f.length ? f : (st.fonts.display || ['gothic_black']); };
 J.glyphCount = glyphCount; J.fontsOf = fontsOf; J.unionBB = unionBB;
 J.centerBB = (env, bb) => bb || { x0: env.W * 0.35, x1: env.W * 0.65, y0: env.H * 0.4, y1: env.H * 0.6, cx: env.W / 2, cy: env.H / 2, boxes: [] };
@@ -4084,6 +4120,11 @@ J.segments = (text) => {
   return out;
 };
 J.chunkText = (text) => {
+  // Ideographic-space groups are intentional invisible text; ASCII spaces separate them.
+  if (J.isWhitespaceText(text)) {
+    const groups = text.split(/[ \t\r\n]+/).filter(Boolean);
+    return groups.length ? groups : [text];
+  }
   const segs = J.segments(text);
   const chunks = []; let cur = null;
   const close = () => { if (cur && cur.s.trim()) chunks.push(cur.s.trim()); cur = null; };
@@ -4204,7 +4245,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '0.9.0-layer.15', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.0.0', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4243,6 +4284,10 @@ J.plan = (project, audio) => {
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
+    if (ln.explicitEnd != null && ln.text.length === 0) {
+      plan.lines.push({ index: li, src: ln.src, text: '', start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
+      return; // A retained empty slot is silent, including decorations, HUD and timed accents.
+    }
     if (ln.interlude) {                                    // [間奏]: background, decorations and screen effects only
       plan.lines.push({ index: li, src: ln.src, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
       const bg = ov.bg && J.BG[ov.bg] ? ov.bg : pickBg(rng, st, en, fx, bgHistory); bgHistory.push(bg);
@@ -4257,11 +4302,12 @@ J.plan = (project, audio) => {
       }
       return;
     }
-    const n = [...ln.text.replace(/\s+/g, '')].length;
+    const n = J.glyphCount(ln.text);
     const visEnd = ln.explicitEnd != null ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
     plan.lines.push({ index: li, src: ln.src, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
-    const chunks = ln.manual || (plan.lang === 'en' ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
+    const spaceOnly = /^[\s\u3000]+$/.test(ln.text);
+    const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
     let nC = Math.round(D / L);
@@ -4279,7 +4325,7 @@ J.plan = (project, audio) => {
     let groups;
     const nG = Math.min(nC, chunks2.length);
     if (nG <= 1) groups = [ln.text];
-    else groups = partition(chunks2, nG).map(g => g.join(/[A-Za-z]/.test(g.join('')) ? ' ' : ''));
+    else groups = partition(chunks2, nG).map(g => g.join(spaceOnly || /[A-Za-z]/.test(g.join('')) ? ' ' : ''));
     const recap = !fixedN && nC > groups.length && groups.length >= 2;
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
@@ -4305,7 +4351,7 @@ J.plan = (project, audio) => {
       const cs = bounds[k], ce = bounds[k + 1], dur = ce - cs;
       const halves = zones ? splitHalf(u.text, plan.lang) : null;               // 中央を空ける: 「花が」｜「咲いた」
       const txt = halves ? halves[0] : u.text;
-      const nn = Math.max(...(halves || [u.text]).map(t => [...t.replace(/\s+/g, '')].length));
+      const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
       const emph = kime || ln.impact && (k === 0 || u.recap) || ln.emph.some(w => u.text.includes(w));
       const Z = zoneOf(li), LW = Z ? Z.w : W, LH = Z ? Z.h : H;       // the frame this cut is laid out in
       const UU = U && !ovAny ? U : null;                              // per-line settings always win over 統一感
@@ -4620,6 +4666,12 @@ function makeUnify(lines, C) {
    Both halves use the same layout, motion, decorations and camera (the same random draws), so it reads as one picture
    with the centre left for the character; the second half follows a beat later. */
 function splitHalf(text, lang) {
+  if (/^[\s\u3000]+$/.test(text)) {
+    const parts = J.chunkText(text), mid = Math.ceil(parts.length / 2);
+    if (parts.length > 1) return [parts.slice(0, mid).join(' '), parts.slice(mid).join(' ')];
+    const at = Math.ceil(text.length / 2);
+    return text.length > 1 ? [text.slice(0, at), text.slice(at)] : [text, text];
+  }
   const t = String(text || '').trim();
   const n = [...t.replace(/\s+/g, '')].length;
   // between words, as near the middle as possible (「花が」｜「咲いた」, "Good night," | "see you tomorrow")
@@ -4643,7 +4695,7 @@ function splitHalf(text, lang) {
 const HEAD_BAD = /[、。，．,.!?！？…・ーっッゃゅょャュョぁぃぅぇぉァィゥェォをがはにでとのへもやよね」』）)]/;
 function splitCut(cut, halves, zones, st, dur, LS) {
   const LD = J.LAYOUTS[cut.layout], seed = J.h(cut.seed, 23);
-  const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: [...text.replace(/\s+/g, '')].length, W: z.w, H: z.h, dur }, st);
+  const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: J.glyphCount(text), W: z.w, H: z.h, dur }, st);
   cut.text = halves[0]; cut.lineText = halves[0]; cut.words = J.chunkText(halves[0]); cut.zone = Object.assign({}, zones[0]);
   cut.params = LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);   // a locked line keeps its own
   const delay = Math.min(0.12, dur * 0.08);
@@ -4692,6 +4744,10 @@ function splitToCount(chunks, n) {
     let bi = -1, bl = 1;
     out.forEach((c, i) => { const l = /\s/.test(c.trim()) ? c.trim().split(/\s+/).length : [...c].length; if (l > bl) { bl = l; bi = i; } });
     if (bi < 0) break;
+    if (/^[\s\u3000]+$/.test(out[bi])) {
+      const c = out[bi], mid = Math.ceil(c.length / 2);
+      out.splice(bi, 1, c.slice(0, mid), c.slice(mid)); continue;
+    }
     const c = out[bi].trim();
     let a, b;
     if (/\s/.test(c)) { const w = c.split(/\s+/), h = Math.ceil(w.length / 2); a = w.slice(0, h).join(' '); b = w.slice(h).join(' '); }
@@ -21334,7 +21390,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 /* ---------------------------------------------------------------- helpers */
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const pad2 = n => String(n).padStart(2, '0');
 const lineNo = env => pad2(Math.max(0, env.cut.line | 0) + 1);
 const bodyF = env => (env.st.fonts.body && env.st.fonts.body[0]) || 'gothic_med';
@@ -23225,9 +23281,9 @@ const E = J.E;
 const P = 'layoutsB';
 
 /* ------------------------------------------------------------------ helpers */
-const clean = t => String(t || '').replace(/\s+/g, '');
+const clean = J.stripTextSpace;
 /* glyph slots keeping single word gaps (latin lyrics): a ' ' slot is left empty */
-const slotsOf = t => [...String(t || '').trim().replace(/[\s\u3000]+/g, ' ')];
+const slotsOf = t => [...(J.isWhitespaceText(t) ? t : String(t || '').trim().replace(/[\s\u3000]+/g, ' '))];
 /* reading in capitals — only for kana text (latin would just be echoed back) */
 const romaOf = t => { const c = clean(t); if (!/[\u3041-\u30ff]/.test(c)) return null; const r = J.romaji(c); return r ? r.toUpperCase() : null; };
 /* J.splitLines, but never leave a line of punctuation only */
@@ -25140,7 +25196,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
 const portOf = cut => cut.H > cut.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const pad2 = n => String(n).padStart(2, '0');
 const pad3 = n => String(n).padStart(3, '0');
 const lineN = env => Math.max(0, env.cut.line | 0) + 1;
@@ -28524,7 +28580,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 /* ------------------------------------------------------------------ helpers */
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const hasLatin = t => /[A-Za-z]/.test(t);
 /* text as one run: latin keeps single word spaces, Japanese drops them */
 const flat = t => (hasLatin(t) ? String(t || '').trim().replace(/\s+/g, ' ') : strip(t));
@@ -34261,9 +34317,9 @@ const SET = 'typo';
 const reg = (key, def) => J.register('layout', key, Object.assign({ set: SET }, def), P);
 
 /* ------------------------------------------------------------------ helpers */
-const clean = t => String(t || '').replace(/\s+/g, '');
+const clean = J.stripTextSpace;
 /* glyph slots keeping single word gaps (latin lyrics) */
-const slotsOf = t => [...String(t || '').trim().replace(/[\s　]+/g, ' ')];
+const slotsOf = t => [...(J.isWhitespaceText(t) ? t : String(t || '').trim().replace(/[\s　]+/g, ' '))];
 const isSp = c => c === ' ' || c === '　';
 const fontsOf = (st, roles) => J.fontsOf(st, roles);
 const monoF = env => (env.st.fonts.mono && env.st.fonts.mono[0]) || 'mono';
@@ -34632,14 +34688,15 @@ reg('tyScaleSteps', {
   },
   render(env) {
     const { W, H, sc } = env, cut = env.cut, Pm = cut.params, lt = env.lt, M = Math.min(W, H);
-    const port = W < H, txt = String(cut.text).trim();
-    let units = (cut.words || []).map(w => String(w).trim()).filter(Boolean);
-    const chars = slotsOf(txt).filter(c => !isSp(c));
+    const port = W < H, txt = J.trimText(cut.text), spaces = J.isWhitespaceText(txt);
+    let units = (cut.words || []).map(J.trimText).filter(Boolean);
+    const chars = slotsOf(txt).filter(c => spaces || !isSp(c));
     if (units.length < 2 || units.length > 7) {
       if (chars.length <= 7) units = chars;
       else { const k = Math.min(5, Math.ceil(chars.length / 3)); units = splitL(txt, Math.ceil(chars.length / k)).split('\n'); }
     }
     const k = units.length;
+    if (!k) return null;
     const f = units.map((u, i) => { const t = k > 1 ? i / (k - 1) : 1; return Math.pow(Pm.ratio, Pm.dir === 'up' ? t : 1 - t); });
     const fmax = Math.max(...f);
     const tr = 0.02, out = outK(env), lw = hair(env), ls = labelSize(env);
@@ -36213,28 +36270,75 @@ J.layerText = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
 const msg = J.layerText;
 
 J.validateCues = cues => {
-  if (!Array.isArray(cues) || !cues.length || cues.length > 20000) throw new Error(msg('字幕は1〜20,000件で指定してください。', 'Provide 1–20,000 subtitle cues.'));
+  if (!Array.isArray(cues) || cues.length > 20000) throw new Error(msg('字幕は20,000件以内で指定してください。', 'Provide at most 20,000 subtitle cues.'));
   return cues.map((c, i) => {
-    if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string' || !c.text.trim())
+    if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string')
       throw new Error(msg('字幕 ' + (i + 1) + ' の時刻または本文が不正です。', 'Invalid time or text in cue ' + (i + 1) + '.'));
-    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text };
+    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}) };
   }).sort((a, b) => a.start - b.start);
 };
 J.parseSRT = raw => {
-  const blocks = String(raw).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim().split(/\n[ \t]*\n/);
+  const blocks = String(raw).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').replace(/^\n+|\n+$/g, '').split(/\n[ \t]*\n/);
   const cues = [], clock = '(\\d{2,}):([0-5]\\d):([0-5]\\d)[,.](\\d{3})';
   const re = new RegExp('^' + clock + '\\s*-->\\s*' + clock + '\\s*$');
   for (let i = 0; i < blocks.length; i++) {
     const rows = blocks[i].split('\n');
     if (/^\d+$/.test(rows[0].trim())) rows.shift();
     const m = (rows.shift() || '').trim().match(re);
-    if (!m || !rows.join('\n').trim()) throw new Error(msg('SRTのブロック ' + (i + 1) + ' を読めません。', 'Cannot read SRT block ' + (i + 1) + '.'));
+    if (!m || !rows.join('\n').length) throw new Error(msg('SRTのブロック ' + (i + 1) + ' を読めません。', 'Cannot read SRT block ' + (i + 1) + '.'));
     const seconds = n => +m[n] * 3600 + +m[n + 1] * 60 + +m[n + 2] + +m[n + 3] / 1000;
     // SRT formatting tags are not lyric control syntax. Keep line breaks and punctuation literally.
     const text = rows.join('\n').replace(/<\/?(?:b|i|u|font)(?:\s[^>]*)?>/gi, '');
     cues.push({ id: String(i + 1), start: seconds(1), end: seconds(5), text });
   }
   return J.validateCues(cues);
+};
+
+// Imported cues are editable project data. Keep per-line effects attached when times reorder cues.
+J.editLayerCue = (project, index, patch) => {
+  const cues = project.subtitleCues;
+  if (!Array.isArray(cues) || !cues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  const ordered = cues.map((cue, i) => ({ cue: i === index ? { ...cue, ...patch } : cue, index: i }))
+    .sort((a, b) => a.cue.start - b.cue.start);
+  const valid = J.validateCues(ordered.map(item => item.cue)), overrides = project.overrides || {};
+  project.subtitleCues = valid;
+  project.lyrics = valid.map(c => c.text).join('\n\n');
+  project.overrides = Object.fromEntries(ordered.map((item, i) => [i, overrides[item.index] || {}]));
+  project.timing.lineTimes = {};
+  project.exportRange = null;
+  return ordered.findIndex(item => item.index === index);
+};
+J.moveLayerCue = (project, index, start) => {
+  const cue = project.subtitleCues[index];
+  return J.editLayerCue(project, index, { start, end: start + (cue.end - cue.start) });
+};
+J.deleteLayerCue = (project, index) => {
+  if (!Array.isArray(project.subtitleCues) || !project.subtitleCues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  const entries = project.subtitleCues.map((cue, i) => ({ cue, override: project.overrides?.[i] })).filter((_, i) => i !== index);
+  project.subtitleCues = J.validateCues(entries.map(e => e.cue));
+  project.overrides = Object.fromEntries(entries.flatMap((e, i) => e.override ? [[i, e.override]] : []));
+  project.lyrics = project.subtitleCues.map(c => c.text).join('\n\n');
+  project.timing.lineTimes = {}; project.exportRange = null;
+};
+J.addLayerCue = (project, afterIndex = null) => {
+  const cues = project.subtitleCues;
+  if (!Array.isArray(cues)) throw new Error(msg('先にSRT字幕を読み込んでください。', 'Import SRT subtitles first.'));
+  const anchor = afterIndex == null ? null : cues[afterIndex];
+  if (afterIndex != null && !anchor) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  if (!anchor && cues.some(c => c.start === 0)) throw new Error(msg('先頭の字幕が0秒から始まるため、先頭には追加できません。', 'Cannot prepend: the first cue starts at zero.'));
+  const start = anchor ? anchor.end : 0;
+  const next = cues.find(c => c.start > start);
+  const end = Math.min(start + 3, next?.start ?? Infinity);
+  const used = new Set(cues.map(c => c.id)); let id;
+  do { id = 'added-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)); } while (used.has(id));
+  const entries = cues.map((cue, i) => ({ cue, override: project.overrides?.[i] }));
+  entries.push({ cue: { id, start, end, text: '' } }); entries.sort((a, b) => a.cue.start - b.cue.start);
+  const valid = J.validateCues(entries.map(e => e.cue));
+  project.subtitleCues = valid;
+  project.overrides = Object.fromEntries(entries.flatMap((e, i) => e.override ? [[i, e.override]] : []));
+  project.lyrics = valid.map(c => c.text).join('\n\n');
+  project.timing.lineTimes = {}; project.exportRange = null;
+  return valid.findIndex(c => c.id === id);
 };
 
 
@@ -36291,7 +36395,7 @@ J.plan = (project, audio) => {
   out.cuts = out.cuts.filter(c => c.line >= 0 && c.layout !== 'interlude');
   out.cuts.forEach((c, i) => { c.index = i; });
   const media = J.layerSession;
-  if (media?.merge && media.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
+  if (media?.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
   return out;
 };
 // Separate overlapping cues into non-overlapping tracks. Reindex cuts for morph/transition lookups.
@@ -36330,9 +36434,10 @@ J.layerPixels = rgba => {
 J.layerBloomMin = 32;
 J.cleanLayerBloom = (base, result, threshold = J.layerBloomMin) => {
   threshold = J.normalizeBloomThreshold(threshold);
-  const coverage = J.layerPixels(base);
   for (let i = 0; i < result.length; i += 4) {
-    if (coverage[i + 3]) continue;
+    // Same coverage as layerPixels, including reserved black (3) and alpha rounding.
+    // A flattened channel rounds above zero iff channel * alpha >= 255 / 2.
+    if ((Math.max(base[i], base[i + 1], base[i + 2]) || 3) * base[i + 3] >= 127.5) continue;
     const brightness = Math.round(Math.max(result[i], result[i + 1], result[i + 2]) * result[i + 3] / 255);
     if (brightness < threshold) result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
   }
@@ -36351,7 +36456,9 @@ J.binaryPixels = (rgba, matte = null) => {
 };
 J.overPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
-  for (let i = 0; i < front.length; i += 4) if (front[i + 3]) out.set(front.subarray(i, i + 4), i);
+  for (let i = 0; i < front.length; i += 4) if (front[i + 3]) {
+    out[i] = front[i]; out[i + 1] = front[i + 1]; out[i + 2] = front[i + 2]; out[i + 3] = front[i + 3];
+  }
   return out;
 };
 J.pairPixels = rgba => {
@@ -36599,6 +36706,146 @@ J.DecodedSpectrumReader = class extends J.SpectrumReader {
     this.inputs.forEach(input => input.dispose());
     await Promise.allSettled(this.iterators.map(iterator => iterator.return()));
   }
+};
+})();
+
+/* Filler cues are editable placeholders; their identity is independent of their text. */
+(() => {
+'use strict';
+const tr = J.layerText, kinds = J.fillerKinds = ['spaces', 'lyrics', 'timestamp', 'symbols'];
+J.defaultFillerSettings = () => ({ threshold: 5, preGap: 0.3, postGap: 0.5, length: 'normal',
+  types: { spaces: { enabled: true, weight: 3 }, lyrics: { enabled: true, weight: 8 }, timestamp: { enabled: true, weight: 2 }, symbols: { enabled: true, weight: 1 } } });
+J.normalizeFillerSettings = value => {
+  const out = J.defaultFillerSettings();
+  for (const key of ['threshold', 'preGap', 'postGap']) if (Number.isFinite(value?.[key]))
+    out[key] = Math.max(key === 'threshold' ? 0.1 : 0, Math.min(600, value[key]));
+  if (['short', 'normal', 'long'].includes(value?.length)) out.length = value.length;
+  for (const key of kinds) {
+    const v = value?.types?.[key];
+    if (typeof v?.enabled === 'boolean') out.types[key].enabled = v.enabled;
+    if (Number.isFinite(v?.weight)) out.types[key].weight = Math.max(1, Math.min(10, Math.round(v.weight)));
+  }
+  return out;
+};
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
+J.defaultProject = () => ({ ...defaults(), fillerSettings: J.defaultFillerSettings() });
+J.upgradeLayerProject = (project, source) => {
+  upgrade(project, source); project.fillerSettings = J.normalizeFillerSettings(project.fillerSettings); return project;
+};
+J.cueTimestamp = time => {
+  const ms = Math.max(0, Math.round(time * 1000));
+  return String(Math.floor(ms / 60000)).padStart(2, '0') + ' ' + String(Math.floor(ms / 1000) % 60).padStart(2, '0') + ' ' + String(ms % 1000).padStart(3, '0');
+};
+J.resolveCueText = cue => cue.text.replace(/\[timestamp\]/g, () => J.cueTimestamp(cue.start));
+const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+const charCount = text => segmenter ? [...segmenter.segment(text.replace(/\s/g, ''))].length : [...text.replace(/\s/g, '')].length;
+J.fillerAnalysis = (project, settings, media = {}) => {
+  const normal = (project.subtitleCues || []).filter(c => !c.filler).slice().sort((a, b) => a.start - b.start);
+  if (!normal.length) throw new Error(tr('先にSRT字幕を読み込んでください。', 'Import SRT subtitles first.'));
+  const cfg = J.normalizeFillerSettings(settings), durations = normal.map(c => c.end - c.start).sort((a, b) => b - a);
+  const top = durations.slice(0, Math.ceil(durations.length / 2));
+  const baseline = top.reduce((a, b) => a + b, 0) / top.length;
+  const meanChars = normal.reduce((sum, c) => sum + charCount(J.resolveCueText(c)), 0) / normal.length;
+  const spans = [];
+  for (const c of normal) {
+    const last = spans[spans.length - 1];
+    if (last && c.start <= last.end) last.end = Math.max(last.end, c.end);
+    else spans.push({ start: c.start, end: c.end });
+  }
+  const lastEnd = spans[spans.length - 1].end;
+  const positive = n => Number.isFinite(n) && n > 0;
+  const basis = positive(media.audioDuration) ? 'audio' : positive(media.spectrumDuration) ? 'spectrum' : 'subtitles';
+  const horizon = Math.max(lastEnd, basis === 'audio' ? media.audioDuration : basis === 'spectrum' ? media.spectrumDuration : lastEnd);
+  const gaps = [];
+  const add = (start, end) => { if (end > start && end - start + 1e-9 >= cfg.threshold) gaps.push({ start, end }); };
+  add(0, spans[0].start - cfg.postGap);
+  for (let i = 1; i < spans.length; i++) add(spans[i - 1].end + cfg.preGap, spans[i].start - cfg.postGap);
+  add(lastEnd + cfg.preGap, horizon);
+  // Keep extremely short source cues from generating unmanageable numbers of placeholders.
+  const target = Math.max(0.25, baseline * ({ short: 0.75, normal: 1, long: 1.5 }[cfg.length]));
+  const countFor = gap => Math.max(1, Math.round((gap.end - gap.start) / target));
+  return { cfg, normal, baseline, meanChars, target, gaps, horizon, basis, count: gaps.reduce((n, g) => n + countFor(g), 0), countFor };
+};
+function symbolText(n, random, previous) {
+  const pool = [...'○●△▲□■◇◆×＋＃＊'];
+  const pick = () => pool[Math.floor(random() * pool.length)];
+  let pattern = Math.floor(random() * 4);
+  if (pattern === previous) pattern = (pattern + 1 + Math.floor(random() * 3)) % 4;
+  const a = pick(); let b = pick(); if (a === b) b = pool[(pool.indexOf(a) + 1) % pool.length];
+  let chars;
+  if (pattern === 0) chars = Array(n).fill(a);
+  else if (pattern === 1) chars = Array.from({ length: n }, pick);
+  else if (pattern === 2) chars = Array.from({ length: n }, (_, i) => i % 2 ? b : a);
+  else { const half = Array.from({ length: Math.ceil(n / 2) }, pick); chars = half.concat(half.slice(0, Math.floor(n / 2)).reverse()); }
+  return { text: chars.join(''), pattern };
+}
+// Pure preparation: validation failures never delete the currently edited fillers.
+J.prepareFillers = (project, settings, media, random = Math.random) => {
+  const a = J.fillerAnalysis(project, settings, media), enabled = kinds.filter(k => a.cfg.types[k].enabled);
+  if (!enabled.length) throw new Error(tr('フィラーの種類を1つ以上選んでください。', 'Select at least one filler type.'));
+  if (a.count + a.normal.length > 20000) throw new Error(tr('字幕が20,000件を超えます。長さや閾値を大きくしてください。', 'More than 20,000 cues. Increase the duration or gap threshold.'));
+  const totalWeight = enabled.reduce((n, k) => n + a.cfg.types[k].weight, 0);
+  const used = new Set(project.subtitleCues.map(c => c.id)); let serial = 0, previous = -1;
+  // Fresh identities keep look-history entries from reattaching to a later generation.
+  const prefix = 'filler-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+  const fillers = [];
+  for (const gap of a.gaps) {
+    const count = a.countFor(gap), weights = Array.from({ length: count }, () => 0.8 + random() * 0.4);
+    const sum = weights.reduce((x, y) => x + y, 0); let elapsed = 0, start = gap.start;
+    for (let i = 0; i < count; i++) {
+      elapsed += weights[i];
+      const end = i === count - 1 ? gap.end : gap.start + (gap.end - gap.start) * elapsed / sum;
+      let draw = random() * totalWeight, type = enabled[enabled.length - 1];
+      for (const k of enabled) { draw -= a.cfg.types[k].weight; if (draw < 0) { type = k; break; } }
+      let text;
+      if (type === 'spaces') text = Array.from({ length: 3 + Math.floor(random() * 2) }, () => '　'.repeat(2 + Math.floor(random() * 4))).join(' ');
+      else if (type === 'timestamp') text = '[timestamp]';
+      else if (type === 'lyrics') text = a.normal[Math.floor(random() * a.normal.length)].text;
+      else {
+        const n = Math.max(1, Math.min(120, Math.round(a.meanChars * (0.75 + random() * 0.5))));
+        const result = symbolText(n, random, previous); text = result.text; previous = result.pattern;
+      }
+      let id; do { id = prefix + '-' + (++serial); } while (used.has(id)); used.add(id);
+      fillers.push({ id, start, end, text, filler: true }); start = end;
+    }
+  }
+  return { settings: a.cfg, fillers };
+};
+J.replaceFillers = (project, prepared) => {
+  const entries = project.subtitleCues.map((cue, i) => ({ cue, override: project.overrides?.[i] }))
+    .filter(e => !e.cue.filler).concat(prepared.fillers.map(cue => ({ cue }))).sort((a, b) => a.cue.start - b.cue.start);
+  const cues = J.validateCues(entries.map(e => e.cue));
+  project.subtitleCues = cues;
+  project.overrides = Object.fromEntries(entries.flatMap((e, i) => e.override ? [[i, e.override]] : []));
+  project.lyrics = cues.map(c => c.text).join('\n\n');
+  project.fillerSettings = J.normalizeFillerSettings(prepared.settings);
+  project.timing.lineTimes = {}; project.exportRange = null;
+};
+
+// Plan normal lyrics independently: adding fillers must not shift their random seeds,
+// palette history, cut choices, transitions or timed effects. The editor sees one timeline.
+const plan = J.plan, tracks = J.layerTracks, snapshot = J.lineSnapshot;
+J.plan = (project, audio) => {
+  if (!Array.isArray(project.subtitleCues)) return plan(project, audio);
+  const entries = project.subtitleCues.map((cue, index) => ({ cue, index }));
+  const make = group => plan({ ...project, lyrics: group.map(e => e.cue.text).join('\n\n'),
+    subtitleCues: group.map(e => ({ ...e.cue, text: J.resolveCueText(e.cue) })),
+    overrides: Object.fromEntries(group.map((e, i) => [i, project.overrides?.[e.index] || {}])) }, audio);
+  const normal = entries.filter(e => !e.cue.filler), filler = entries.filter(e => e.cue.filler);
+  if (!filler.length || !normal.length) return make(entries);
+  const normalPlan = make(normal), fillerPlan = make(filler);
+  const groups = [{ plan: fillerPlan, indices: filler.map(e => e.index) }, { plan: normalPlan, indices: normal.map(e => e.index) }];
+  const out = { ...normalPlan, duration: Math.max(normalPlan.duration, fillerPlan.duration), layerGroups: groups };
+  out.lines = groups.flatMap(g => g.plan.lines.map(l => ({ ...l, index: g.indices[l.index] }))).sort((a, b) => a.index - b.index);
+  out.cuts = groups.flatMap(g => g.plan.cuts.map(c => ({ ...c, line: g.indices[c.line] }))).sort((a, b) => a.start - b.start).map((c, index) => ({ ...c, index }));
+  out.events = groups.flatMap(g => g.plan.events).sort((a, b) => a.t - b.t);
+  return out;
+};
+J.layerTracks = plan => plan.layerGroups ? plan.layerGroups.flatMap(g => tracks({ ...g.plan, bloomThreshold: plan.bloomThreshold })) : tracks(plan);
+J.lineSnapshot = (plan, index) => {
+  if (!plan.layerGroups) return snapshot(plan, index);
+  const group = plan.layerGroups.find(g => g.indices.includes(index));
+  return group ? snapshot(group.plan, group.indices.indexOf(index)) : null;
 };
 })();
 
@@ -36901,6 +37148,7 @@ function seek(t) {
 const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
+  if (TL.dragView) return TL.dragView;
   const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
   TL.off = J.clamp(TL.off, 0, Math.max(0, D - vd));
   return { D, vd, off: TL.off };
@@ -36958,7 +37206,8 @@ function drawTimeline() {
     x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, top);
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
-    x.fillStyle = on ? '#f5a50c' : '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
+    x.fillStyle = on ? '#f5a50c' : S.project.subtitleCues?.[ln.index]?.filler ? '#f07178' : '#8e8a94';
+    x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
   }
   if (TL.z > 1) {                                          // where the view sits in the whole song
     x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, h - 2 * dpr, w, 2 * dpr);
@@ -36990,6 +37239,11 @@ function tlDragTo(i, ev) {
   if (!ev.shiftKey && S.plan.beats && S.plan.beats.length) {       // snap to the nearest beat (Shift: free)
     let bt = null, bd = 0.12; for (const b of S.plan.beats) { const d = Math.abs(b - t); if (d < bd) { bd = d; bt = b; } if (b > t + 0.2) break; }
     if (bt != null) t = bt;
+  }
+  if (Array.isArray(S.project.subtitleCues)) {
+    t = +Math.max(0, t).toFixed(3);
+    TL.drag = J.moveLayerCue(S.project, i, t);
+    replan(); seek(t + 0.001); return;
   }
   const L = S.plan.lines, lo = i > 0 ? L[i - 1].start + 0.2 : 0, hi = i < L.length - 1 ? L[i + 1].start - 0.2 : S.plan.duration - 0.2;
   t = +J.clamp(t, lo, Math.max(lo, hi)).toFixed(3);
@@ -37247,10 +37501,19 @@ function renderLines() {
         ${ln.interlude ? '' : `<button class="icon ghost lock" title="この行の構成をロック" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>`}
       </span></div>`;
     const q = sel => li.querySelector(sel);
+    if (S.project.subtitleCues?.[i]?.filler) {
+      li.classList.add('is-filler');
+      const badge = document.createElement('span'); badge.className = 'filler-badge'; badge.textContent = J.layerText('フィラー', 'Filler');
+      q('.txt').prepend(badge);
+    }
     if (q('.lay')) q('.lay').value = o.layout || '';
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
     q('.time').addEventListener('change', e => {
       const v = parseFloat(e.target.value);
+      if (Array.isArray(S.project.subtitleCues)) {
+        if (!Number.isFinite(v)) { e.target.value = ln.start.toFixed(2); return; }
+        pushEdit(); J.moveLayerCue(S.project, i, Math.max(0, v)); replan(); flushSave(); return;
+      }
       pushEdit();
       if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
       if (isFinite(v)) S.project.timing.lineTimes[i] = Math.max(0, v); else delete S.project.timing.lineTimes[i];
@@ -37302,6 +37565,7 @@ function renderLines() {
 // the lyrics text is the source: a plan line knows the row it came from (ln.src); LRC time tags on that row are kept
 const LRC_PREFIX = /^\s*(?:\[\d+:\d+(?:[.:]\d+)?\])*/;
 function editLine(li, ln) {
+  if (Array.isArray(S.project.subtitleCues)) { J.editLayerCueText(ln.index); return; }
   if (ln.src == null || li.querySelector('.txt-edit')) return;
   const rows = S.project.lyrics.replace(/\r/g, '').split('\n'), row = rows[ln.src] || '';
   const pre = (row.match(LRC_PREFIX) || [''])[0], body = row.slice(pre.length).trim();
@@ -37327,7 +37591,7 @@ function editLine(li, ln) {
 /* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -37336,6 +37600,7 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   S.project.subtitleCues = o.subtitleCues || null;
+  S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
@@ -37539,7 +37804,7 @@ function randomPalette() {
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
 const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks'];
 const H = { list: [], i: -1 };
-const lookSnap = () => JSON.stringify(Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])));
+const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
   const s = lookSnap();
   if (H.i >= 0 && H.list[H.i] === s) return;
@@ -37556,7 +37821,13 @@ function histGo(d) {
   remember();                    // hand edits made since the last step become a stop of their own
   const j = H.i + d; if (j < 0 || j >= H.list.length) return;
   H.i = j;
-  Object.assign(S.project, JSON.parse(H.list[j]));
+  const look = JSON.parse(H.list[j]);
+  if (look._cueIds && S.project.subtitleCues) {
+    const old = new Map(look._cueIds.map((id, i) => [id, look.overrides?.[i] || {}]));
+    look.overrides = Object.fromEntries(S.project.subtitleCues.map((c, i) => [i, old.get(c.id) || S.project.overrides?.[i] || {}]));
+  }
+  delete look._cueIds;
+  Object.assign(S.project, look);
   fontKey = ''; syncUI(); replan(); updateHist();
   toast(`${j + 1} / ${H.list.length} 案目`);
   restartPreview();
@@ -38016,6 +38287,9 @@ function startTap(from = 0) {
   from = J.clamp(from | 0, 0, S.plan.lines.length - 1);
   pushEdit();
   S.tap = { i: from, from, done: [] };
+  if (Array.isArray(S.project.subtitleCues)) {
+    S.tap.cueOrder = S.project.subtitleCues.slice(from).map(c => c.id); S.tap.cuePos = 0;
+  }
   if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
   $('tapPanel').hidden = false; $('btnTap').setAttribute('aria-pressed', 'true');
   $('tapPanel').classList.remove('compact');
@@ -38027,6 +38301,15 @@ function startTap(from = 0) {
 }
 function tapNow() {
   if (!S.tap) return;
+  if (S.tap.cueOrder) {
+    const cue = S.project.subtitleCues[S.tap.i];
+    S.tap.done.push({ id: cue.id, start: cue.start, pos: S.tap.cuePos });
+    J.moveLayerCue(S.project, S.tap.i, +S.t.toFixed(3));
+    S.tap.cuePos++;
+    if (S.tap.cuePos >= S.tap.cueOrder.length) { stopTap(); return; }
+    S.tap.i = S.project.subtitleCues.findIndex(c => c.id === S.tap.cueOrder[S.tap.cuePos]);
+    replan(); updateTap(); return;
+  }
   const LT = S.project.timing.lineTimes, i = S.tap.i, t = +S.t.toFixed(3);
   S.tap.done.push({ i, had: LT[i] });
   LT[i] = t;
@@ -38038,6 +38321,11 @@ function tapNow() {
 }
 function tapBack() {                    // 1つ戻る: undo the last tap and jump back a little
   if (!S.tap || !S.tap.done.length) return;
+  if (S.tap.cueOrder) {
+    const d = S.tap.done.pop(), index = S.project.subtitleCues.findIndex(c => c.id === d.id);
+    S.tap.i = J.moveLayerCue(S.project, index, d.start); S.tap.cuePos = d.pos;
+    replan(); updateTap(); seek(Math.max(0, S.t - 3)); if (!S.playing) play(); return;
+  }
   const d = S.tap.done.pop(), LT = S.project.timing.lineTimes;
   if (d.had != null) LT[d.i] = d.had; else delete LT[d.i];
   S.tap.i = d.i; replan(); updateTap();
@@ -38108,23 +38396,26 @@ function bind() {
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
-  let drag = false, raf = 0;
+  let drag = false, raf = 0, pendingDrag = null;
+  const applyDrag = () => { const ev = pendingDrag; pendingDrag = null; if (ev && TL.drag >= 0) tlDragTo(TL.drag, ev); };
   tl.addEventListener('pointerdown', e => {
+    if (S.exporting || e.button !== 0) return;
     tl.setPointerCapture(e.pointerId);
     const h = S.tap || S.exporting ? -1 : tlHandleAt(e);
-    if (h >= 0) { pushEdit(); TL.drag = h; pause(); tl.style.cursor = 'ew-resize'; return; }
+    if (h >= 0) { pushEdit(); if (Array.isArray(S.project.subtitleCues)) TL.dragView = tlView(); TL.drag = h; pause(); tl.style.cursor = 'ew-resize'; return; }
     drag = true; timelineSeek(e);
   });
   tl.addEventListener('pointermove', e => {
-    if (TL.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => tlDragTo(TL.drag, ev)); return; }
+    if (TL.drag >= 0) { pendingDrag = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(applyDrag); return; }
     if (drag) { timelineSeek(e); return; }
     const hv = tlHandleAt(e); if (hv !== TL.hover) { TL.hover = hv; tl.style.cursor = hv >= 0 ? 'ew-resize' : 'pointer'; drawTimeline(); }
   });
-  const endDrag = () => { if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; };
+  const endDrag = () => { cancelAnimationFrame(raf); applyDrag(); if (TL.drag >= 0) { TL.drag = -1; TL.dragView = null; flushSave(); renderLines(); drawTimeline(); } drag = false; };
   tl.addEventListener('pointerup', endDrag); tl.addEventListener('pointercancel', endDrag);
   tl.addEventListener('pointerleave', () => { if (TL.hover >= 0 && TL.drag < 0) { TL.hover = -1; drawTimeline(); } });
   tl.addEventListener('wheel', e => {
     e.preventDefault();
+    if (TL.drag >= 0) return;
     const { vd } = tlView();
     if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tl.clientWidth * vd; tlView(); drawTimeline(); }
     else tlZoom(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0025)), tlTime(e));
@@ -38240,7 +38531,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.9.0-layer.15' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.0.0' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -38256,7 +38547,7 @@ function bind() {
     e.target.value = '';
   });
   document.addEventListener('keydown', e => {
-    if ($('termsDlg').open || $('resetDlg').open || $('guideDlg')?.open) return;
+    if ($('termsDlg').open || $('resetDlg').open || $('guideDlg')?.open || $('fillerDlg')?.open) return;
     const tag = (e.target && e.target.tagName) || '';
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) && e.target.type !== 'range' && e.target.type !== 'checkbox';
     if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
@@ -38394,7 +38685,7 @@ J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restar
 (() => {
 'use strict';
 const $ = id => document.getElementById(id), tr = J.layerText;
-const session = { background: null, front: null, matte: null, merge: false, busy: false, generation: {}, preview: 'composite' };
+const session = { background: null, front: null, matte: null, busy: false, generation: {}, preview: 'composite' };
 J.layerSession = session;
 let renderer = null, spectrumPreview = null;
 const dirty = () => { if (J.ui) J.ui.need = true; };
@@ -38413,7 +38704,7 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
   for (const m of [session.background, session.front, session.matte]) syncMedia(m, t, J.ui.playing);
-  if (session.merge && session.front && t < J.spectrumDuration(session.front, session.matte)) {
+  if (session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
@@ -38438,7 +38729,26 @@ function fileInput(id, text, accept, fn) {
   input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; try { await fn(f, Array.from(input.files)); } catch (e) { status(e.message, true); } finally { input.value = ''; } });
   label.append(input); return label;
 }
-function status(text, error = false) { const s = $('layerStatus'); s.textContent = text; s.classList.toggle('error', error); }
+const cueDrafts = new Map();
+let showingCueError = false;
+function status(text, error = false) {
+  const draftError = [...cueDrafts.values()].find(d => d.error)?.error;
+  const s = $('layerStatus'); s.textContent = draftError || text; s.classList.toggle('error', !!draftError || error);
+}
+function syncCueErrors() {
+  const error = [...cueDrafts.values()].find(d => d.error)?.error;
+  J.layerCueEditsInvalid = !!error;
+  if (error) status(error, true); else if (showingCueError) status('');
+  showingCueError = !!error;
+  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error;
+  document.querySelectorAll('.cue-actions button[id^="cue-add-"]').forEach(b => { b.disabled = session.busy || !!error; });
+  if ($('layerAddCue')) {
+    const atZero = J.ui.project.subtitleCues?.some(c => c.start === 0);
+    $('layerAddCue').disabled = session.busy || !!error || !!atZero;
+    $('layerAddCue').title = atZero ? tr('先頭の字幕が0秒から始まるため追加できません。', 'The first cue starts at zero; there is no room before it.') : tr('0秒から最初の字幕までの範囲に、最長3秒で追加します。', 'Add up to 3 seconds from zero, ending before the first cue.');
+  }
+  J.syncFillerUI?.();
+}
 function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
@@ -38453,7 +38763,7 @@ async function loadMedia(key, file, videoOnly) {
   session[key]?.dispose(); session[key] = m;
   if (m.video) { m.el.addEventListener('seeked', dirty); m.el.addEventListener('loadeddata', dirty); }
   $('layerName-' + key).textContent = file.name;
-  if (key !== 'background') { session.merge = !!session.front; J.uiApi.replan(); }
+  if (key !== 'background') J.uiApi.replan();
   status(tr('読み込みました。素材はこの作業中だけ保持します。', 'Loaded. Media is kept for this editing session only.'));
   J.syncLayerUI(); dirty();
 }
@@ -38474,7 +38784,7 @@ async function loadSpectrumPair(frontFile, matteFile) {
     media.el.addEventListener('seeked', dirty); media.el.addEventListener('loadeddata', dirty);
     $('layerName-' + key).textContent = media.name;
   }
-  session.merge = true; J.uiApi.replan(); J.syncLayerUI(); dirty();
+  J.uiApi.replan(); J.syncLayerUI(); dirty();
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
 async function selectSpectrumFront(file, selected) {
@@ -38557,7 +38867,6 @@ function clearMedia(key) {
   session.generation[key] = (session.generation[key] || 0) + 1;
   session[key]?.dispose(); session[key] = null; $('layerName-' + key).textContent = tr('未選択', 'None');
   if (key !== 'background') {
-    if (!session.front) session.merge = false;
     J.uiApi.replan();
     if (key === 'matte' && session.front) status(tr('マットを解除しました。RGB 000000だけを透明にします。', 'Matte removed. Only RGB 000000 is transparent.'));
   }
@@ -38584,9 +38893,13 @@ function offerDownloads(files, title) {
 window.addEventListener('pagehide', e => { if (!e.persisted) clearDownloads(); });
 async function exportPair() {
   if (J.ui.exporting) return;
+  // Commit the focused editor before capturing the plan; never export stale valid data.
+  document.activeElement?.blur();
+  syncCueErrors();
+  if (J.layerCueEditsInvalid) return;
   let spectrum = null;
   try {
-    if (session.merge) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
+    if (session.front) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
     J.uiApi.pause();
     const ac = new AbortController(); J.ui.exporting = ac; session.busy = true;
     for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause();
@@ -38619,39 +38932,82 @@ function cueTable() {
   if (!cues) return;
   const title = el('summary', tr('SRTの本文・開始・終了を編集', 'Edit SRT text, start and end'));
   root.append(title);
+  const addCue = afterIndex => {
+    if (J.layerCueEditsInvalid) return;
+    if (J.ui.project.subtitleCues.length >= 20000) { status(tr('字幕は20,000件まで追加できます。', 'The limit is 20,000 cues.'), true); return; }
+    J.uiApi.pushEdit(); const index = J.addLayerCue(J.ui.project, afterIndex);
+    changed(); J.editLayerCueText(index);
+    J.uiApi.toast(tr('通常字幕を追加しました。本文と時刻を編集できます（Ctrl+Zで戻す）。', 'Normal cue added. Edit its text and times (Ctrl+Z to undo).'));
+  };
+  const add = button('layerAddCue', tr('先頭に字幕を追加', 'Add subtitle at start'), () => addCue(null));
+  root.append(add, el('p', tr('空欄は描画なし。全角スペースは文字として保持し、半角スペースで区分できます。追加は最長3秒、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
+    'Empty text draws nothing. Ideographic spaces are retained; ASCII spaces separate groups. New cues last up to 3s without moving other cues. Adjust times if they overlap.'), 'note'));
   cues.forEach((cue, i) => {
     const row = el('div', null, 'layer-cue'), label = el('strong', String(i + 1));
+    row.classList.toggle('is-filler', !!cue.filler);
+    if (cue.filler) row.append(el('span', tr('フィラー', 'Filler'), 'filler-badge'));
     const start = el('input'), end = el('input'), text = el('textarea');
     [start, end].forEach(e => { e.type = 'number'; e.step = '0.001'; e.min = '0'; });
     start.value = cue.start; end.value = cue.end; text.value = cue.text; text.rows = Math.min(4, cue.text.split('\n').length + 1);
+    const draft = cueDrafts.get(cue.id);
+    if (draft) { start.value = draft.start; end.value = draft.end; text.value = draft.text; }
     start.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 開始秒', ' start seconds'));
     end.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 終了秒', ' end seconds'));
     text.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 本文', ' text'));
-    const save = () => {
-      const next = cues.map((c, n) => n === i ? { ...c, start: +start.value, end: +end.value, text: text.value } : c);
+    const feedback = el('span', null, 'cue-error'); feedback.id = 'cue-error-' + i; feedback.setAttribute('role', 'status');
+    const readDraft = event => {
+      const d = { base: JSON.stringify(cue), start: start.value, end: end.value, text: text.value, error: '' };
       try {
-        if (start.value === '' || end.value === '') throw new Error(tr('時刻を入力してください。', 'Enter both times.'));
-        const valid = J.validateCues(next);
-        J.uiApi.pushEdit(); J.ui.project.subtitleCues = valid;
-        J.ui.project.lyrics = valid.map(c => c.text).join('\n\n');
-        // Overrides refer to row indices; preserve the connection if sorting changes the order.
-        const ov = J.ui.project.overrides || {};
-        J.ui.project.overrides = Object.fromEntries(valid.map((c, n) => [n, ov[cues.findIndex(old => old.id === c.id)] || {}]));
-        J.ui.project.exportRange = null; changed();
-      } catch (e) { status(e.message, true); start.value = cue.start; end.value = cue.end; }
+        if (d.start === '' || d.end === '') throw new Error(tr('開始・終了時刻を入力してください。', 'Enter both start and end times.'));
+        if (event.target === start && Number.isFinite(+d.start)) { d.end = String(+d.start + (cue.end - cue.start)); end.value = d.end; }
+        if (!Number.isFinite(+d.start) || !Number.isFinite(+d.end) || +d.start < 0 || +d.end <= +d.start)
+          throw new Error(tr('開始は0秒以上、終了は開始より後にしてください。', 'Start must be at least zero; end must be after start.'));
+        d.next = { start: +d.start, end: +d.end, text: d.text };
+      } catch (e) { d.error = tr('字幕 ' + (i + 1) + '：', 'Cue ' + (i + 1) + ': ') + e.message; }
+      cueDrafts.set(cue.id, d); feedback.textContent = d.error;
+      for (const input of [start, end]) { input.setAttribute('aria-invalid', String(!!d.error)); input.setAttribute('aria-describedby', feedback.id); }
+      syncCueErrors(); return d;
     };
-    [start, end, text].forEach(e => e.addEventListener('change', save));
-    row.append(label, start, el('span', '→'), end, text); root.append(row);
+    const save = event => {
+      const d = readDraft(event); if (d.error) return;
+      const index = J.ui.project.subtitleCues.findIndex(c => c.id === cue.id);
+      if (JSON.stringify(d.next) !== JSON.stringify({ start: cue.start, end: cue.end, text: cue.text })) {
+        J.uiApi.pushEdit(); J.editLayerCue(J.ui.project, index, d.next);
+      }
+      cueDrafts.delete(cue.id); syncCueErrors(); changed();
+    };
+    [start, end, text].forEach(e => { e.addEventListener('input', readDraft); e.addEventListener('change', save); });
+    if (draft) { feedback.textContent = draft.error; for (const input of [start, end]) input.setAttribute('aria-invalid', String(!!draft.error)); }
+    const actions = el('div', null, 'cue-actions');
+    const insert = button('cue-add-' + i, tr('この後に追加', 'Add after'), () => addCue(J.ui.project.subtitleCues.findIndex(c => c.id === cue.id)));
+    const remove = button('cue-delete-' + i, tr('削除', 'Delete'), () => {
+      const index = J.ui.project.subtitleCues.findIndex(c => c.id === cue.id);
+      J.uiApi.pushEdit(); J.deleteLayerCue(J.ui.project, index); cueDrafts.delete(cue.id); syncCueErrors(); changed();
+      J.uiApi.toast(tr('字幕を削除しました（Ctrl+Zで戻せます）。', 'Subtitle deleted (Ctrl+Z to undo).'));
+    });
+    insert.setAttribute('aria-label', tr('字幕' + (i + 1) + 'の後に追加', 'Add after cue ' + (i + 1)));
+    remove.setAttribute('aria-label', tr('字幕' + (i + 1) + 'を削除', 'Delete cue ' + (i + 1)));
+    actions.append(insert, remove);
+    row.append(label, start, el('span', '→'), end, text, feedback, actions); root.append(row);
   });
 }
+J.editLayerCueText = index => {
+  const root = $('layerCues'); root.open = true;
+  const text = root.querySelectorAll('textarea')[index];
+  text?.scrollIntoView({ block: 'center' }); text?.focus();
+};
 let cueSignature = '';
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
+  for (const [id, draft] of cueDrafts) if (JSON.stringify(cues?.find(c => c.id === id)) !== draft.base) cueDrafts.delete(id);
+  syncCueErrors();
   document.documentElement.classList.toggle('srt-active', srt);
-  $('lyrics').readOnly = srt; $('layerSrtInfo').textContent = srt ? cues.length + tr('件のSRT字幕（開始・終了を保持）', ' SRT cues (start/end preserved)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
+  $('lyrics').readOnly = srt; $('lyrics').value = J.ui.project.lyrics;
+  $('layerSrtInfo').textContent = srt ? cues.length + tr('件の字幕（本文・時刻を編集できます）', ' cues (text and timing are editable)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
   const signature = JSON.stringify(cues);
-  if (signature !== cueSignature) { cueSignature = signature; cueTable(); }
+  if (signature !== cueSignature) { cueSignature = signature; cueTable(); syncCueErrors(); }
   J.ui.project.spectrumLayout = J.normalizeSpectrumLayout(J.ui.project.spectrumLayout);
   for (const [key, value] of Object.entries(J.ui.project.spectrumLayout)) {
     const input = $('spectrum-' + key); if (input) input.value = value;
@@ -38660,8 +39016,6 @@ J.syncLayerUI = () => {
   for (const id of ['layerBloomRange', 'layerBloomNumber']) if ($(id)) $(id).value = J.ui.project.bloomThreshold;
   const ready = !!session.front;
   $('layerName-matte').textContent = session.matte ? session.matte.name : (ready ? tr('未指定：RGB 000000を透明化', 'None: RGB 000000 is transparent') : tr('未選択（任意）', 'None (optional)'));
-  $('layerMerge').disabled = !ready; $('layerMerge').checked = ready && session.merge;
-  if (srt) document.querySelectorAll('#lineList .time').forEach(e => { e.disabled = true; });
 };
 function boot() {
   document.documentElement.classList.add('layer-app');
@@ -38680,12 +39034,10 @@ function boot() {
   $('colorOn').closest('label').querySelector('span').textContent = tr('文字色を指定する', 'Override text colors');
   document.querySelector('.col-left h2').textContent = tr('字幕', 'Subtitles');
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
-  panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
-  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
+    cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, exportRange: null });
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
@@ -38693,6 +39045,9 @@ function boot() {
   const info = el('p', '', 'note'); info.id = 'layerSrtInfo';
   const cues = el('details'); cues.id = 'layerCues';
   panel.append(inputs, info, cues);
+  J.mountFillerUI(inputs);
+  const spectrumHeading = el('h3', tr('スペアナ合成（字幕が手前・0秒で同期）', 'Spectrum composite (subtitles in front, aligned at 0s)'));
+  const mergeHelp = el('p', tr('フロント動画を読み込むと自動合成します。合成しない場合はフロント動画を「解除」してください。マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Loading a front video automatically composites it. Clear the front video to stop compositing. Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note');
   for (const [key, ja, en, accept, only] of [
     ['background', '作業用背景（画像・動画）', 'Preview background (image/video)', 'image/*,video/*', false],
     ['front', 'スペアナのフロント動画', 'Spectrum front video', 'video/*', true],
@@ -38704,6 +39059,7 @@ function boot() {
     const name = el('span', tr('未選択', 'None'), 'muted'); name.id = 'layerName-' + key;
     row.append(name, button('layerClear-' + key, tr('解除', 'Clear'), () => clearMedia(key)));
     if (key === 'background') panel.append(el('hr', null, 'layer-divider'));
+    if (key === 'front') panel.append(spectrumHeading, mergeHelp);
     panel.append(row);
     if (key === 'background') {
       // Move the existing section intact so audio/timing handlers and mobile folding stay attached.
@@ -38713,14 +39069,13 @@ function boot() {
     }
   }
   spectrumControls(panel);
-  const mergeLabel = el('label', null, 'check'), merge = el('input'); merge.type = 'checkbox'; merge.id = 'layerMerge'; merge.disabled = true;
-  merge.addEventListener('change', () => { session.merge = merge.checked; J.uiApi.replan(); dirty(); });
-  mergeLabel.append(merge, el('span', tr('スペアナと合成（字幕が手前・0秒で同期）', 'Composite spectrum (subtitles in front, aligned at 0s)')));
-  panel.append(mergeLabel, el('p', tr('マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note'));
   const select = el('select'); select.id = 'layerPreview'; select.setAttribute('aria-label', tr('プレビュー表示', 'Preview display'));
   [['composite','作業用背景＋字幕で表示','Preview background + subtitles'],['front','黒背景フロント','Front on black'],['matte','白黒マット','Binary matte']].forEach(([value, ja, en]) => { const o = el('option', tr(ja, en)); o.value = value; select.append(o); });
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
+  panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
+  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
+  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   const progress = el('progress'); progress.id = 'layerProgress'; progress.max = 1; progress.value = 0; progress.hidden = true;
   const cancel = button('layerCancel', tr('出力を中止', 'Cancel export'), () => J.ui.exporting?.abort()); cancel.hidden = true;
@@ -38731,12 +39086,95 @@ function boot() {
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
   bloomControls(left);
-  // Block old row-start dragging and tap timing for imported SRT. Use explicit cue start/end editors.
-  $('timeline').addEventListener('pointerdown', e => { if (Array.isArray(J.ui.project.subtitleCues)) e.stopImmediatePropagation(); }, true);
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+/* Bilingual modal; draft changes take effect only on Generate or Remove. */
+(() => {
+'use strict';
+const $ = id => document.getElementById(id), tr = J.layerText;
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text) e.textContent = text; if (cls) e.className = cls; return e; };
+const media = () => ({ audioDuration: J.ui.audio?.duration, spectrumDuration: J.layerSession.front ? J.spectrumDuration(J.layerSession.front, J.layerSession.matte) : undefined });
+const read = () => ({ threshold: +$('filler-threshold').value, preGap: +$('filler-preGap').value, postGap: +$('filler-postGap').value,
+  length: $('filler-length').value, types: Object.fromEntries(J.fillerKinds.map(k => [k, { enabled: $('filler-' + k).checked, weight: +$('filler-weight-' + k).value }])) });
+let form, preview, generate, remove;
+function refresh() {
+  const valid = form.checkValidity(), cfg = read();
+  const selected = Object.values(cfg.types).some(v => v.enabled);
+  generate.disabled = !valid || !selected;
+  if (!valid) { preview.textContent = tr('時間は範囲内の数値を指定してください。', 'Enter times within the allowed range.'); return; }
+  const a = J.fillerAnalysis(J.ui.project, cfg, media());
+  generate.disabled ||= a.count + a.normal.length > 20000;
+  const basis = { audio: tr('音源', 'audio'), spectrum: tr('スペアナ', 'spectrum'), subtitles: tr('通常字幕の末尾（アウトロは未確定）', 'last normal cue (outro unknown)') }[a.basis];
+  preview.textContent = tr(`普通の基準 ${a.baseline.toFixed(2)}秒 ／ 平均 ${a.meanChars.toFixed(1)}文字。対象 ${a.gaps.length}区間・${a.count}件。終端：${basis}。`,
+    `Normal duration: ${a.baseline.toFixed(2)}s · Mean text: ${a.meanChars.toFixed(1)} characters · ${a.gaps.length} gaps / ${a.count} cues. End: ${basis}.`);
+  if (!selected) preview.textContent += tr(' 種類を1つ以上選んでください。', ' Select at least one type.');
+  if (a.count + a.normal.length > 20000) preview.textContent += tr(' 字幕20,000件を超えます。長さや閾値を大きくしてください。', ' More than 20,000 cues. Increase duration or threshold.');
+  for (const k of J.fillerKinds) $('filler-weight-' + k).disabled = !cfg.types[k].enabled;
+}
+function apply(clear) {
+  try {
+    const p = J.ui.project, settings = read();
+    const prepared = clear ? { settings: p.fillerSettings, fillers: [] } : J.prepareFillers(p, settings, media());
+    J.uiApi.pushEdit(); J.replaceFillers(p, prepared);
+    $('fillerDlg').close(); J.uiApi.replan(); J.uiApi.flushSave();
+    J.uiApi.toast(clear ? tr('フィラーを削除しました（Ctrl+Zで戻せます）', 'Fillers removed (Ctrl+Z to undo)') : tr(`${prepared.fillers.length}件のフィラーを生成しました（Ctrl+Zで戻せます）`, `${prepared.fillers.length} fillers generated (Ctrl+Z to undo)`));
+  } catch (e) { preview.textContent = e.message; }
+}
+J.syncFillerUI = () => {
+  if (!$('addFillers')) return;
+  const cues = J.ui.project.subtitleCues;
+  $('addFillers').disabled = !cues?.some(c => !c.filler) || !!J.ui.tap || !!J.ui.exporting || !!J.layerCueEditsInvalid;
+  $('addFillers').textContent = cues?.some(c => c.filler) ? tr('フィラーを再生成…', 'Regenerate fillers…') : tr('フィラーを追加…', 'Add fillers…');
+};
+J.mountFillerUI = controls => {
+  const open = el('button', tr('フィラーを追加…', 'Add fillers…')); open.type = 'button'; open.id = 'addFillers'; controls.append(open);
+  const dlg = el('dialog', null, 'terms publication-dialog filler-dialog'); dlg.id = 'fillerDlg'; dlg.setAttribute('aria-labelledby', 'fillerTitle');
+  form = el('form'); form.method = 'dialog';
+  const title = el('h2', tr('空白区間にフィラーを追加', 'Add fillers to subtitle gaps')); title.id = 'fillerTitle';
+  form.append(title, el('p', tr('生成した本文は仮置きです。自由に書き換えられます。再生成すると、手動で編集したものも含め、既存のフィラーをすべて置き換えます。通常字幕とその演出は保持します。',
+    'Generated text is a placeholder you can edit freely. Regeneration replaces every existing filler, including edited ones. Normal subtitles and their effects are preserved.'), 'note'));
+  const grid = el('div', null, 'filler-grid');
+  for (const [key, ja, en, min] of [['threshold', '空白の閾値（秒）', 'Minimum usable gap (s)', 0.1], ['preGap', 'プリギャップ（秒）', 'Pre-gap (s)', 0], ['postGap', 'ポストギャップ（秒）', 'Post-gap (s)', 0]]) {
+    const label = el('label', tr(ja, en)), input = el('input'); input.id = 'filler-' + key; input.type = 'number'; input.min = min; input.max = 600; input.step = '0.1'; input.required = true; label.append(input); grid.append(label);
+  }
+  const lengthLabel = el('label', tr('フィラー1件の平均長さ', 'Average filler duration')), length = el('select'); length.id = 'filler-length';
+  for (const [value, ja, en] of [['short', '短め（0.75倍）', 'Short (×0.75)'], ['normal', '普通（1倍）', 'Normal (×1)'], ['long', '長め（1.5倍）', 'Long (×1.5)']]) { const opt = el('option', tr(ja, en)); opt.value = value; length.append(opt); }
+  lengthLabel.append(length); grid.append(lengthLabel); form.append(grid);
+  form.append(el('p', tr('プリ：通常字幕の終了から空ける時間。ポスト：次の通常字幕まで空ける時間。両方を差し引いた残りに閾値を適用します。初期値では5.8秒以上の間奏が対象です。前奏はポストのみ、アウトロはプリのみを確保します。',
+    'Pre-gap leaves space after normal subtitles; post-gap leaves space before the next normal subtitle. The threshold applies after these margins. Defaults require a 5.8s interior gap. Intros use only post-gap; outros use only pre-gap.'), 'note'));
+  form.append(el('p', tr('「普通」は通常字幕の表示時間を長い順に並べた上位50%の平均です。個々の長さには変化を付け、空白区間に収めます。',
+    'Normal uses the mean duration of the longer half of normal cues. Individual lengths vary to fit each gap.'), 'note'));
+  const types = el('fieldset'); types.append(el('legend', tr('本文の種類と抽選ウェイト', 'Text types and selection weights')));
+  for (const [key, ja, en] of [['spaces', '空白文字', 'Whitespace'], ['lyrics', '歌詞テキスト', 'Lyric text'], ['timestamp', 'タイムスタンプ', 'Timestamp'], ['symbols', '図形文字', 'Symbols']]) {
+    const row = el('div', null, 'filler-type'), label = el('label'), check = el('input'); check.type = 'checkbox'; check.id = 'filler-' + key;
+    label.append(check, document.createTextNode(tr(ja, en))); const weightLabel = el('label', tr('重み', 'Weight')), select = el('select'); select.id = 'filler-weight-' + key;
+    select.setAttribute('aria-label', tr(ja + 'の重み', en + ' weight'));
+    for (let i = 1; i <= 10; i++) { const option = el('option', String(i)); option.value = i; select.append(option); }
+    weightLabel.append(select); row.append(label, weightLabel); types.append(row);
+  }
+  form.append(types, el('p', tr('空白文字は全角スペース2〜5個のまとまりを半角スペースで3〜4区分に分けます。文字は見えず、台紙や装飾などの演出を利用できます（演出によっては何も見えません）。図形文字は通常字幕の平均文字数に合わせて抽選。歌詞は長さに関係なく抽選。[timestamp] は開始時刻に追従し、通常字幕にも手入力できます。',
+    'Whitespace uses 3–4 groups of 2–5 ideographic spaces, separated by ASCII spaces. Text is invisible; plates and decorations can still appear, depending on the effect. Symbols follow the mean lyric length. Lyrics are chosen regardless of length. [timestamp] follows the cue start and also works in normal cues.'), 'note'));
+  preview = el('p', null, 'filler-preview'); preview.id = 'fillerPreview'; preview.setAttribute('role', 'status'); form.append(preview);
+  const actions = el('div', null, 'filler-actions');
+  remove = el('button', tr('フィラーをすべて削除', 'Remove all fillers')); remove.id = 'removeFillers'; remove.type = 'button'; remove.addEventListener('click', () => apply(true));
+  const cancel = el('button', tr('キャンセル', 'Cancel')); cancel.id = 'cancelFillers'; cancel.type = 'button'; cancel.addEventListener('click', () => dlg.close());
+  generate = el('button', tr('生成する', 'Generate'), 'primary'); generate.id = 'generateFillers'; generate.type = 'submit';
+  actions.append(remove, cancel, generate); form.append(actions); dlg.append(form); document.body.append(dlg);
+  form.addEventListener('input', refresh); form.addEventListener('change', refresh);
+  form.addEventListener('submit', e => { e.preventDefault(); if (!generate.disabled) apply(false); });
+  open.addEventListener('click', () => {
+    if (J.ui.tap || J.ui.exporting) return;
+    J.uiApi.pause(); const cfg = J.normalizeFillerSettings(J.ui.project.fillerSettings);
+    for (const key of ['threshold', 'preGap', 'postGap', 'length']) $('filler-' + key).value = cfg[key];
+    for (const [key, v] of Object.entries(cfg.types)) { $('filler-' + key).checked = v.enabled; $('filler-weight-' + key).value = v.weight; }
+    remove.disabled = !J.ui.project.subtitleCues.some(c => c.filler);
+    refresh(); dlg.showModal(); dlg.scrollTop = 0; $('filler-threshold').focus();
+  });
+};
 })();
 
 </script>

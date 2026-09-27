@@ -121,6 +121,11 @@ J.segments = (text) => {
   return out;
 };
 J.chunkText = (text) => {
+  // Ideographic-space groups are intentional invisible text; ASCII spaces separate them.
+  if (J.isWhitespaceText(text)) {
+    const groups = text.split(/[ \t\r\n]+/).filter(Boolean);
+    return groups.length ? groups : [text];
+  }
   const segs = J.segments(text);
   const chunks = []; let cur = null;
   const close = () => { if (cur && cur.s.trim()) chunks.push(cur.s.trim()); cur = null; };
@@ -280,6 +285,10 @@ J.plan = (project, audio) => {
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
+    if (ln.explicitEnd != null && ln.text.length === 0) {
+      plan.lines.push({ index: li, src: ln.src, text: '', start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
+      return; // A retained empty slot is silent, including decorations, HUD and timed accents.
+    }
     if (ln.interlude) {                                    // [間奏]: background, decorations and screen effects only
       plan.lines.push({ index: li, src: ln.src, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
       const bg = ov.bg && J.BG[ov.bg] ? ov.bg : pickBg(rng, st, en, fx, bgHistory); bgHistory.push(bg);
@@ -294,11 +303,12 @@ J.plan = (project, audio) => {
       }
       return;
     }
-    const n = [...ln.text.replace(/\s+/g, '')].length;
+    const n = J.glyphCount(ln.text);
     const visEnd = ln.explicitEnd != null ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
     plan.lines.push({ index: li, src: ln.src, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
-    const chunks = ln.manual || (plan.lang === 'en' ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
+    const spaceOnly = /^[\s\u3000]+$/.test(ln.text);
+    const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
     let nC = Math.round(D / L);
@@ -316,7 +326,7 @@ J.plan = (project, audio) => {
     let groups;
     const nG = Math.min(nC, chunks2.length);
     if (nG <= 1) groups = [ln.text];
-    else groups = partition(chunks2, nG).map(g => g.join(/[A-Za-z]/.test(g.join('')) ? ' ' : ''));
+    else groups = partition(chunks2, nG).map(g => g.join(spaceOnly || /[A-Za-z]/.test(g.join('')) ? ' ' : ''));
     const recap = !fixedN && nC > groups.length && groups.length >= 2;
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
@@ -342,7 +352,7 @@ J.plan = (project, audio) => {
       const cs = bounds[k], ce = bounds[k + 1], dur = ce - cs;
       const halves = zones ? splitHalf(u.text, plan.lang) : null;               // 中央を空ける: 「花が」｜「咲いた」
       const txt = halves ? halves[0] : u.text;
-      const nn = Math.max(...(halves || [u.text]).map(t => [...t.replace(/\s+/g, '')].length));
+      const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
       const emph = kime || ln.impact && (k === 0 || u.recap) || ln.emph.some(w => u.text.includes(w));
       const Z = zoneOf(li), LW = Z ? Z.w : W, LH = Z ? Z.h : H;       // the frame this cut is laid out in
       const UU = U && !ovAny ? U : null;                              // per-line settings always win over 統一感
@@ -657,6 +667,12 @@ function makeUnify(lines, C) {
    Both halves use the same layout, motion, decorations and camera (the same random draws), so it reads as one picture
    with the centre left for the character; the second half follows a beat later. */
 function splitHalf(text, lang) {
+  if (/^[\s\u3000]+$/.test(text)) {
+    const parts = J.chunkText(text), mid = Math.ceil(parts.length / 2);
+    if (parts.length > 1) return [parts.slice(0, mid).join(' '), parts.slice(mid).join(' ')];
+    const at = Math.ceil(text.length / 2);
+    return text.length > 1 ? [text.slice(0, at), text.slice(at)] : [text, text];
+  }
   const t = String(text || '').trim();
   const n = [...t.replace(/\s+/g, '')].length;
   // between words, as near the middle as possible (「花が」｜「咲いた」, "Good night," | "see you tomorrow")
@@ -680,7 +696,7 @@ function splitHalf(text, lang) {
 const HEAD_BAD = /[、。，．,.!?！？…・ーっッゃゅょャュョぁぃぅぇぉァィゥェォをがはにでとのへもやよね」』）)]/;
 function splitCut(cut, halves, zones, st, dur, LS) {
   const LD = J.LAYOUTS[cut.layout], seed = J.h(cut.seed, 23);
-  const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: [...text.replace(/\s+/g, '')].length, W: z.w, H: z.h, dur }, st);
+  const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: J.glyphCount(text), W: z.w, H: z.h, dur }, st);
   cut.text = halves[0]; cut.lineText = halves[0]; cut.words = J.chunkText(halves[0]); cut.zone = Object.assign({}, zones[0]);
   cut.params = LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);   // a locked line keeps its own
   const delay = Math.min(0.12, dur * 0.08);
@@ -729,6 +745,10 @@ function splitToCount(chunks, n) {
     let bi = -1, bl = 1;
     out.forEach((c, i) => { const l = /\s/.test(c.trim()) ? c.trim().split(/\s+/).length : [...c].length; if (l > bl) { bl = l; bi = i; } });
     if (bi < 0) break;
+    if (/^[\s\u3000]+$/.test(out[bi])) {
+      const c = out[bi], mid = Math.ceil(c.length / 2);
+      out.splice(bi, 1, c.slice(0, mid), c.slice(mid)); continue;
+    }
     const c = out[bi].trim();
     let a, b;
     if (/\s/.test(c)) { const w = c.split(/\s+/), h = Math.ceil(w.length / 2); a = w.slice(0, h).join(' '); b = w.slice(h).join(' '); }

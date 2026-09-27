@@ -8,7 +8,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 /* ---------------------------------------------------------------- helpers */
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const pad2 = n => String(n).padStart(2, '0');
 const lineNo = env => pad2(Math.max(0, env.cut.line | 0) + 1);
 const bodyF = env => (env.st.fonts.body && env.st.fonts.body[0]) || 'gothic_med';

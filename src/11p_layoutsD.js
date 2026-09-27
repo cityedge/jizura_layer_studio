@@ -8,7 +8,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 /* ------------------------------------------------------------------ helpers */
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const hasLatin = t => /[A-Za-z]/.test(t);
 /* text as one run: latin keeps single word spaces, Japanese drops them */
 const flat = t => (hasLatin(t) ? String(t || '').trim().replace(/\s+/g, ' ') : strip(t));

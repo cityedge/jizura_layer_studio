@@ -5,9 +5,9 @@ const E = J.E;
 const P = 'layoutsB';
 
 /* ------------------------------------------------------------------ helpers */
-const clean = t => String(t || '').replace(/\s+/g, '');
+const clean = J.stripTextSpace;
 /* glyph slots keeping single word gaps (latin lyrics): a ' ' slot is left empty */
-const slotsOf = t => [...String(t || '').trim().replace(/[\s\u3000]+/g, ' ')];
+const slotsOf = t => [...(J.isWhitespaceText(t) ? t : String(t || '').trim().replace(/[\s\u3000]+/g, ' '))];
 /* reading in capitals — only for kana text (latin would just be echoed back) */
 const romaOf = t => { const c = clean(t); if (!/[\u3041-\u30ff]/.test(c)) return null; const r = J.romaji(c); return r ? r.toUpperCase() : null; };
 /* J.splitLines, but never leave a line of punctuation only */

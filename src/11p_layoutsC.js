@@ -9,7 +9,7 @@ const reg = (key, def) => J.register('layout', key, def, P);
 const U = env => Math.min(env.W, env.H);
 const isPort = env => env.H > env.W * 1.08;
 const portOf = cut => cut.H > cut.W * 1.08;
-const strip = t => String(t || '').replace(/\s+/g, '');
+const strip = J.stripTextSpace;
 const pad2 = n => String(n).padStart(2, '0');
 const pad3 = n => String(n).padStart(3, '0');
 const lineN = env => Math.max(0, env.cut.line | 0) + 1;

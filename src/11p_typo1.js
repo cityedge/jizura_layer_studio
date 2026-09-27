@@ -7,9 +7,9 @@ const SET = 'typo';
 const reg = (key, def) => J.register('layout', key, Object.assign({ set: SET }, def), P);
 
 /* ------------------------------------------------------------------ helpers */
-const clean = t => String(t || '').replace(/\s+/g, '');
+const clean = J.stripTextSpace;
 /* glyph slots keeping single word gaps (latin lyrics) */
-const slotsOf = t => [...String(t || '').trim().replace(/[\s　]+/g, ' ')];
+const slotsOf = t => [...(J.isWhitespaceText(t) ? t : String(t || '').trim().replace(/[\s　]+/g, ' '))];
 const isSp = c => c === ' ' || c === '　';
 const fontsOf = (st, roles) => J.fontsOf(st, roles);
 const monoF = env => (env.st.fonts.mono && env.st.fonts.mono[0]) || 'mono';
@@ -378,14 +378,15 @@ reg('tyScaleSteps', {
   },
   render(env) {
     const { W, H, sc } = env, cut = env.cut, Pm = cut.params, lt = env.lt, M = Math.min(W, H);
-    const port = W < H, txt = String(cut.text).trim();
-    let units = (cut.words || []).map(w => String(w).trim()).filter(Boolean);
-    const chars = slotsOf(txt).filter(c => !isSp(c));
+    const port = W < H, txt = J.trimText(cut.text), spaces = J.isWhitespaceText(txt);
+    let units = (cut.words || []).map(J.trimText).filter(Boolean);
+    const chars = slotsOf(txt).filter(c => spaces || !isSp(c));
     if (units.length < 2 || units.length > 7) {
       if (chars.length <= 7) units = chars;
       else { const k = Math.min(5, Math.ceil(chars.length / 3)); units = splitL(txt, Math.ceil(chars.length / k)).split('\n'); }
     }
     const k = units.length;
+    if (!k) return null;
     const f = units.map((u, i) => { const t = k > 1 ? i / (k - 1) : 1; return Math.pow(Pm.ratio, Pm.dir === 'up' ? t : 1 - t); });
     const fmax = Math.max(...f);
     const tr = 0.02, out = outK(env), lw = hair(env), ls = labelSize(env);

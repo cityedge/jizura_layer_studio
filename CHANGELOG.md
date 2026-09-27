@@ -1,3 +1,51 @@
+## 1.0.0 — 2026-09-27
+
+- 上部の字幕追加を先頭への追加に変更。最初の字幕が0秒開始の場合は無効化。初期フィラー重みを空白3・歌詞8・タイムスタンプ2・図形1に調整。
+- Prepend subtitles into the opening gap; disable at zero start. Set default filler weights to Whitespace 3, Lyrics 8, Timestamp 2, Symbols 1.
+
+- JIZURA Layer Studio v1.0.0として正式公開向けのバージョン・配布物を整備。
+- SRT字幕の個別追加・削除とUndoに対応。空欄を無描画として保存し、全角スペースのまとまりを半角スペースで区切った演出を利用可能に。不正な時刻の修正後にエラー表示を解除し、未反映の古いデータによる出力を防止。
+- フィラー本文に空白文字を追加。全角スペース2〜5個を3〜4区分に分け、初期重みは空白3・歌詞8・タイムスタンプ2・図形1。日英の説明・マニュアルを更新。
+- 日英の詳細ユーザーマニュアル `user_guide.md` / `user_guide.en.md` を追加。元JIZURAから残したスタイル・書体・歌詞記法・拍とタップ・手法・ロック・行／カット編集と、レイヤー専用機能を説明。
+- READMEの機能案内を拡充。アプリ内ガイドと短いワークフローから詳細版へ案内し、公開用フォルダ・ZIPにマニュアルを同梱。
+- Prepare the 1.0.0 release with bilingual manuals, individual cue add/delete/undo, silent empty cues, segmented whitespace fillers (weights 3/8/2/1), and corrected validation/export feedback.
+
+## 0.9.0-layer.21 — 2026-09-27
+
+- フィラーの初期余白をプリ0.3秒・ポスト0.5秒に変更。全種類オン、重みは図形1・歌詞10・タイムスタンプ2。保存済みの設定は維持。
+- 時刻タグを半角スペース区切りの `MM SS mmm` へ変更。タイムラインの未選択フィラー番号を赤、選択時は従来の黄色で表示。
+- Shorter default margins, lyric-heavy mixed fillers, space-separated timestamps and red inactive filler labels on the timeline.
+
+## 0.9.0-layer.20 — 2026-09-27
+
+- SRT読み込み後のフィラー生成ダイアログを追加。プリ／ポストギャップを引いた空白に閾値を適用し、初期値は5秒・余白1秒／2秒・図形文字のみ。
+- 通常字幕の長めの表示時間・平均文字数を参照。図形文字・歌詞・追従する `[timestamp]` を有効／無効と1〜10の重みで抽選。
+- フィラーの手編集・再生成・一括削除・取り消し・JSON保存に対応。通常字幕の演出は独立して生成し、挿入による変更を防止。
+- Add bilingual filler generation with usable-gap thresholds, adaptive durations, weighted text types, editable placeholders, timestamp tags, undo and project persistence; preserve normal-cue rendering.
+
+## 0.9.0-layer.19 — 2026-09-27
+
+- SRTを編集可能な初期データとして扱い、タイムラインのクリック移動・ドラッグ、行の開始秒入力、タップ同期を有効化。
+- 開始時刻の変更では表示時間を維持して終了も移動。並び替え時は行の演出設定も移動し、取り消しとJSON保存に反映。
+- Imported cues are editable: enable timeline seeking, duration-preserving retiming and tap sync; keep effect overrides attached when cues reorder.
+
+## 0.9.0-layer.18 — 2026-09-27
+
+- スペアナ合成チェックを削除。フロント動画があればプレビュー・出力に自動合成し、フロントの「解除」で停止。
+- Automatically composite a loaded spectrum front in preview and export; clear it to stop. Remove the compositing checkbox and update Japanese/English guidance.
+
+## 0.9.0-layer.17 — 2026-09-27
+
+- 日英の利用ガイド・READMEに、cityedgeのAudio Spectrum Overlay Makerをスペアナ動画の制作ツールとして案内。
+- 字幕レイヤーの説明をプレビュー表示選択の直前へ移動。スペアナ合成チェックと説明を素材選択の前へ移動。
+- Add the spectrum creation tool to Japanese/English guides and READMEs; place layer output guidance above preview selection and spectrum compositing guidance above media inputs.
+
+## 0.9.0-layer.16 — 2026-09-27
+
+- 字幕とスペアナの合成時に、画素ごとの配列ビュー生成を省いて高速化。
+- 外周ブルーム判定の中間RGBA配列を省略。黒文字の030303予約、閾値、二値マットの描画結果を維持。
+- Speed up subtitle/spectrum compositing and bloom coverage checks without changing rendered pixels or frame timing.
+
 ## 0.9.0-layer.15 — 2026-09-26
 
 - 画面・HTML・言語メニュー・配布物を日本語／英語の2言語に整理。字幕本文の言語対応は維持。

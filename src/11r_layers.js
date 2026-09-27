@@ -6,28 +6,75 @@ J.layerText = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
 const msg = J.layerText;
 
 J.validateCues = cues => {
-  if (!Array.isArray(cues) || !cues.length || cues.length > 20000) throw new Error(msg('字幕は1〜20,000件で指定してください。', 'Provide 1–20,000 subtitle cues.'));
+  if (!Array.isArray(cues) || cues.length > 20000) throw new Error(msg('字幕は20,000件以内で指定してください。', 'Provide at most 20,000 subtitle cues.'));
   return cues.map((c, i) => {
-    if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string' || !c.text.trim())
+    if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string')
       throw new Error(msg('字幕 ' + (i + 1) + ' の時刻または本文が不正です。', 'Invalid time or text in cue ' + (i + 1) + '.'));
-    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text };
+    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}) };
   }).sort((a, b) => a.start - b.start);
 };
 J.parseSRT = raw => {
-  const blocks = String(raw).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim().split(/\n[ \t]*\n/);
+  const blocks = String(raw).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').replace(/^\n+|\n+$/g, '').split(/\n[ \t]*\n/);
   const cues = [], clock = '(\\d{2,}):([0-5]\\d):([0-5]\\d)[,.](\\d{3})';
   const re = new RegExp('^' + clock + '\\s*-->\\s*' + clock + '\\s*$');
   for (let i = 0; i < blocks.length; i++) {
     const rows = blocks[i].split('\n');
     if (/^\d+$/.test(rows[0].trim())) rows.shift();
     const m = (rows.shift() || '').trim().match(re);
-    if (!m || !rows.join('\n').trim()) throw new Error(msg('SRTのブロック ' + (i + 1) + ' を読めません。', 'Cannot read SRT block ' + (i + 1) + '.'));
+    if (!m || !rows.join('\n').length) throw new Error(msg('SRTのブロック ' + (i + 1) + ' を読めません。', 'Cannot read SRT block ' + (i + 1) + '.'));
     const seconds = n => +m[n] * 3600 + +m[n + 1] * 60 + +m[n + 2] + +m[n + 3] / 1000;
     // SRT formatting tags are not lyric control syntax. Keep line breaks and punctuation literally.
     const text = rows.join('\n').replace(/<\/?(?:b|i|u|font)(?:\s[^>]*)?>/gi, '');
     cues.push({ id: String(i + 1), start: seconds(1), end: seconds(5), text });
   }
   return J.validateCues(cues);
+};
+
+// Imported cues are editable project data. Keep per-line effects attached when times reorder cues.
+J.editLayerCue = (project, index, patch) => {
+  const cues = project.subtitleCues;
+  if (!Array.isArray(cues) || !cues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  const ordered = cues.map((cue, i) => ({ cue: i === index ? { ...cue, ...patch } : cue, index: i }))
+    .sort((a, b) => a.cue.start - b.cue.start);
+  const valid = J.validateCues(ordered.map(item => item.cue)), overrides = project.overrides || {};
+  project.subtitleCues = valid;
+  project.lyrics = valid.map(c => c.text).join('\n\n');
+  project.overrides = Object.fromEntries(ordered.map((item, i) => [i, overrides[item.index] || {}]));
+  project.timing.lineTimes = {};
+  project.exportRange = null;
+  return ordered.findIndex(item => item.index === index);
+};
+J.moveLayerCue = (project, index, start) => {
+  const cue = project.subtitleCues[index];
+  return J.editLayerCue(project, index, { start, end: start + (cue.end - cue.start) });
+};
+J.deleteLayerCue = (project, index) => {
+  if (!Array.isArray(project.subtitleCues) || !project.subtitleCues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  const entries = project.subtitleCues.map((cue, i) => ({ cue, override: project.overrides?.[i] })).filter((_, i) => i !== index);
+  project.subtitleCues = J.validateCues(entries.map(e => e.cue));
+  project.overrides = Object.fromEntries(entries.flatMap((e, i) => e.override ? [[i, e.override]] : []));
+  project.lyrics = project.subtitleCues.map(c => c.text).join('\n\n');
+  project.timing.lineTimes = {}; project.exportRange = null;
+};
+J.addLayerCue = (project, afterIndex = null) => {
+  const cues = project.subtitleCues;
+  if (!Array.isArray(cues)) throw new Error(msg('先にSRT字幕を読み込んでください。', 'Import SRT subtitles first.'));
+  const anchor = afterIndex == null ? null : cues[afterIndex];
+  if (afterIndex != null && !anchor) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
+  if (!anchor && cues.some(c => c.start === 0)) throw new Error(msg('先頭の字幕が0秒から始まるため、先頭には追加できません。', 'Cannot prepend: the first cue starts at zero.'));
+  const start = anchor ? anchor.end : 0;
+  const next = cues.find(c => c.start > start);
+  const end = Math.min(start + 3, next?.start ?? Infinity);
+  const used = new Set(cues.map(c => c.id)); let id;
+  do { id = 'added-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)); } while (used.has(id));
+  const entries = cues.map((cue, i) => ({ cue, override: project.overrides?.[i] }));
+  entries.push({ cue: { id, start, end, text: '' } }); entries.sort((a, b) => a.cue.start - b.cue.start);
+  const valid = J.validateCues(entries.map(e => e.cue));
+  project.subtitleCues = valid;
+  project.overrides = Object.fromEntries(entries.flatMap((e, i) => e.override ? [[i, e.override]] : []));
+  project.lyrics = valid.map(c => c.text).join('\n\n');
+  project.timing.lineTimes = {}; project.exportRange = null;
+  return valid.findIndex(c => c.id === id);
 };
 
 
@@ -84,7 +131,7 @@ J.plan = (project, audio) => {
   out.cuts = out.cuts.filter(c => c.line >= 0 && c.layout !== 'interlude');
   out.cuts.forEach((c, i) => { c.index = i; });
   const media = J.layerSession;
-  if (media?.merge && media.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
+  if (media?.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
   return out;
 };
 // Separate overlapping cues into non-overlapping tracks. Reindex cuts for morph/transition lookups.
@@ -123,9 +170,10 @@ J.layerPixels = rgba => {
 J.layerBloomMin = 32;
 J.cleanLayerBloom = (base, result, threshold = J.layerBloomMin) => {
   threshold = J.normalizeBloomThreshold(threshold);
-  const coverage = J.layerPixels(base);
   for (let i = 0; i < result.length; i += 4) {
-    if (coverage[i + 3]) continue;
+    // Same coverage as layerPixels, including reserved black (3) and alpha rounding.
+    // A flattened channel rounds above zero iff channel * alpha >= 255 / 2.
+    if ((Math.max(base[i], base[i + 1], base[i + 2]) || 3) * base[i + 3] >= 127.5) continue;
     const brightness = Math.round(Math.max(result[i], result[i + 1], result[i + 2]) * result[i + 3] / 255);
     if (brightness < threshold) result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
   }
@@ -144,7 +192,9 @@ J.binaryPixels = (rgba, matte = null) => {
 };
 J.overPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
-  for (let i = 0; i < front.length; i += 4) if (front[i + 3]) out.set(front.subarray(i, i + 4), i);
+  for (let i = 0; i < front.length; i += 4) if (front[i + 3]) {
+    out[i] = front[i]; out[i + 1] = front[i + 1]; out[i + 2] = front[i + 2]; out[i + 3] = front[i + 3];
+  }
   return out;
 };
 J.pairPixels = rgba => {

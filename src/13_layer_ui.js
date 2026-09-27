@@ -2,7 +2,7 @@
 (() => {
 'use strict';
 const $ = id => document.getElementById(id), tr = J.layerText;
-const session = { background: null, front: null, matte: null, merge: false, busy: false, generation: {}, preview: 'composite' };
+const session = { background: null, front: null, matte: null, busy: false, generation: {}, preview: 'composite' };
 J.layerSession = session;
 let renderer = null, spectrumPreview = null;
 const dirty = () => { if (J.ui) J.ui.need = true; };
@@ -21,7 +21,7 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
   for (const m of [session.background, session.front, session.matte]) syncMedia(m, t, J.ui.playing);
-  if (session.merge && session.front && t < J.spectrumDuration(session.front, session.matte)) {
+  if (session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
@@ -46,7 +46,26 @@ function fileInput(id, text, accept, fn) {
   input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; try { await fn(f, Array.from(input.files)); } catch (e) { status(e.message, true); } finally { input.value = ''; } });
   label.append(input); return label;
 }
-function status(text, error = false) { const s = $('layerStatus'); s.textContent = text; s.classList.toggle('error', error); }
+const cueDrafts = new Map();
+let showingCueError = false;
+function status(text, error = false) {
+  const draftError = [...cueDrafts.values()].find(d => d.error)?.error;
+  const s = $('layerStatus'); s.textContent = draftError || text; s.classList.toggle('error', !!draftError || error);
+}
+function syncCueErrors() {
+  const error = [...cueDrafts.values()].find(d => d.error)?.error;
+  J.layerCueEditsInvalid = !!error;
+  if (error) status(error, true); else if (showingCueError) status('');
+  showingCueError = !!error;
+  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error;
+  document.querySelectorAll('.cue-actions button[id^="cue-add-"]').forEach(b => { b.disabled = session.busy || !!error; });
+  if ($('layerAddCue')) {
+    const atZero = J.ui.project.subtitleCues?.some(c => c.start === 0);
+    $('layerAddCue').disabled = session.busy || !!error || !!atZero;
+    $('layerAddCue').title = atZero ? tr('先頭の字幕が0秒から始まるため追加できません。', 'The first cue starts at zero; there is no room before it.') : tr('0秒から最初の字幕までの範囲に、最長3秒で追加します。', 'Add up to 3 seconds from zero, ending before the first cue.');
+  }
+  J.syncFillerUI?.();
+}
 function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
@@ -61,7 +80,7 @@ async function loadMedia(key, file, videoOnly) {
   session[key]?.dispose(); session[key] = m;
   if (m.video) { m.el.addEventListener('seeked', dirty); m.el.addEventListener('loadeddata', dirty); }
   $('layerName-' + key).textContent = file.name;
-  if (key !== 'background') { session.merge = !!session.front; J.uiApi.replan(); }
+  if (key !== 'background') J.uiApi.replan();
   status(tr('読み込みました。素材はこの作業中だけ保持します。', 'Loaded. Media is kept for this editing session only.'));
   J.syncLayerUI(); dirty();
 }
@@ -82,7 +101,7 @@ async function loadSpectrumPair(frontFile, matteFile) {
     media.el.addEventListener('seeked', dirty); media.el.addEventListener('loadeddata', dirty);
     $('layerName-' + key).textContent = media.name;
   }
-  session.merge = true; J.uiApi.replan(); J.syncLayerUI(); dirty();
+  J.uiApi.replan(); J.syncLayerUI(); dirty();
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
 async function selectSpectrumFront(file, selected) {
@@ -165,7 +184,6 @@ function clearMedia(key) {
   session.generation[key] = (session.generation[key] || 0) + 1;
   session[key]?.dispose(); session[key] = null; $('layerName-' + key).textContent = tr('未選択', 'None');
   if (key !== 'background') {
-    if (!session.front) session.merge = false;
     J.uiApi.replan();
     if (key === 'matte' && session.front) status(tr('マットを解除しました。RGB 000000だけを透明にします。', 'Matte removed. Only RGB 000000 is transparent.'));
   }
@@ -192,9 +210,13 @@ function offerDownloads(files, title) {
 window.addEventListener('pagehide', e => { if (!e.persisted) clearDownloads(); });
 async function exportPair() {
   if (J.ui.exporting) return;
+  // Commit the focused editor before capturing the plan; never export stale valid data.
+  document.activeElement?.blur();
+  syncCueErrors();
+  if (J.layerCueEditsInvalid) return;
   let spectrum = null;
   try {
-    if (session.merge) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
+    if (session.front) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
     J.uiApi.pause();
     const ac = new AbortController(); J.ui.exporting = ac; session.busy = true;
     for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause();
@@ -227,39 +249,82 @@ function cueTable() {
   if (!cues) return;
   const title = el('summary', tr('SRTの本文・開始・終了を編集', 'Edit SRT text, start and end'));
   root.append(title);
+  const addCue = afterIndex => {
+    if (J.layerCueEditsInvalid) return;
+    if (J.ui.project.subtitleCues.length >= 20000) { status(tr('字幕は20,000件まで追加できます。', 'The limit is 20,000 cues.'), true); return; }
+    J.uiApi.pushEdit(); const index = J.addLayerCue(J.ui.project, afterIndex);
+    changed(); J.editLayerCueText(index);
+    J.uiApi.toast(tr('通常字幕を追加しました。本文と時刻を編集できます（Ctrl+Zで戻す）。', 'Normal cue added. Edit its text and times (Ctrl+Z to undo).'));
+  };
+  const add = button('layerAddCue', tr('先頭に字幕を追加', 'Add subtitle at start'), () => addCue(null));
+  root.append(add, el('p', tr('空欄は描画なし。全角スペースは文字として保持し、半角スペースで区分できます。追加は最長3秒、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
+    'Empty text draws nothing. Ideographic spaces are retained; ASCII spaces separate groups. New cues last up to 3s without moving other cues. Adjust times if they overlap.'), 'note'));
   cues.forEach((cue, i) => {
     const row = el('div', null, 'layer-cue'), label = el('strong', String(i + 1));
+    row.classList.toggle('is-filler', !!cue.filler);
+    if (cue.filler) row.append(el('span', tr('フィラー', 'Filler'), 'filler-badge'));
     const start = el('input'), end = el('input'), text = el('textarea');
     [start, end].forEach(e => { e.type = 'number'; e.step = '0.001'; e.min = '0'; });
     start.value = cue.start; end.value = cue.end; text.value = cue.text; text.rows = Math.min(4, cue.text.split('\n').length + 1);
+    const draft = cueDrafts.get(cue.id);
+    if (draft) { start.value = draft.start; end.value = draft.end; text.value = draft.text; }
     start.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 開始秒', ' start seconds'));
     end.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 終了秒', ' end seconds'));
     text.setAttribute('aria-label', tr('字幕', 'Cue ') + (i + 1) + tr(' 本文', ' text'));
-    const save = () => {
-      const next = cues.map((c, n) => n === i ? { ...c, start: +start.value, end: +end.value, text: text.value } : c);
+    const feedback = el('span', null, 'cue-error'); feedback.id = 'cue-error-' + i; feedback.setAttribute('role', 'status');
+    const readDraft = event => {
+      const d = { base: JSON.stringify(cue), start: start.value, end: end.value, text: text.value, error: '' };
       try {
-        if (start.value === '' || end.value === '') throw new Error(tr('時刻を入力してください。', 'Enter both times.'));
-        const valid = J.validateCues(next);
-        J.uiApi.pushEdit(); J.ui.project.subtitleCues = valid;
-        J.ui.project.lyrics = valid.map(c => c.text).join('\n\n');
-        // Overrides refer to row indices; preserve the connection if sorting changes the order.
-        const ov = J.ui.project.overrides || {};
-        J.ui.project.overrides = Object.fromEntries(valid.map((c, n) => [n, ov[cues.findIndex(old => old.id === c.id)] || {}]));
-        J.ui.project.exportRange = null; changed();
-      } catch (e) { status(e.message, true); start.value = cue.start; end.value = cue.end; }
+        if (d.start === '' || d.end === '') throw new Error(tr('開始・終了時刻を入力してください。', 'Enter both start and end times.'));
+        if (event.target === start && Number.isFinite(+d.start)) { d.end = String(+d.start + (cue.end - cue.start)); end.value = d.end; }
+        if (!Number.isFinite(+d.start) || !Number.isFinite(+d.end) || +d.start < 0 || +d.end <= +d.start)
+          throw new Error(tr('開始は0秒以上、終了は開始より後にしてください。', 'Start must be at least zero; end must be after start.'));
+        d.next = { start: +d.start, end: +d.end, text: d.text };
+      } catch (e) { d.error = tr('字幕 ' + (i + 1) + '：', 'Cue ' + (i + 1) + ': ') + e.message; }
+      cueDrafts.set(cue.id, d); feedback.textContent = d.error;
+      for (const input of [start, end]) { input.setAttribute('aria-invalid', String(!!d.error)); input.setAttribute('aria-describedby', feedback.id); }
+      syncCueErrors(); return d;
     };
-    [start, end, text].forEach(e => e.addEventListener('change', save));
-    row.append(label, start, el('span', '→'), end, text); root.append(row);
+    const save = event => {
+      const d = readDraft(event); if (d.error) return;
+      const index = J.ui.project.subtitleCues.findIndex(c => c.id === cue.id);
+      if (JSON.stringify(d.next) !== JSON.stringify({ start: cue.start, end: cue.end, text: cue.text })) {
+        J.uiApi.pushEdit(); J.editLayerCue(J.ui.project, index, d.next);
+      }
+      cueDrafts.delete(cue.id); syncCueErrors(); changed();
+    };
+    [start, end, text].forEach(e => { e.addEventListener('input', readDraft); e.addEventListener('change', save); });
+    if (draft) { feedback.textContent = draft.error; for (const input of [start, end]) input.setAttribute('aria-invalid', String(!!draft.error)); }
+    const actions = el('div', null, 'cue-actions');
+    const insert = button('cue-add-' + i, tr('この後に追加', 'Add after'), () => addCue(J.ui.project.subtitleCues.findIndex(c => c.id === cue.id)));
+    const remove = button('cue-delete-' + i, tr('削除', 'Delete'), () => {
+      const index = J.ui.project.subtitleCues.findIndex(c => c.id === cue.id);
+      J.uiApi.pushEdit(); J.deleteLayerCue(J.ui.project, index); cueDrafts.delete(cue.id); syncCueErrors(); changed();
+      J.uiApi.toast(tr('字幕を削除しました（Ctrl+Zで戻せます）。', 'Subtitle deleted (Ctrl+Z to undo).'));
+    });
+    insert.setAttribute('aria-label', tr('字幕' + (i + 1) + 'の後に追加', 'Add after cue ' + (i + 1)));
+    remove.setAttribute('aria-label', tr('字幕' + (i + 1) + 'を削除', 'Delete cue ' + (i + 1)));
+    actions.append(insert, remove);
+    row.append(label, start, el('span', '→'), end, text, feedback, actions); root.append(row);
   });
 }
+J.editLayerCueText = index => {
+  const root = $('layerCues'); root.open = true;
+  const text = root.querySelectorAll('textarea')[index];
+  text?.scrollIntoView({ block: 'center' }); text?.focus();
+};
 let cueSignature = '';
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
+  for (const [id, draft] of cueDrafts) if (JSON.stringify(cues?.find(c => c.id === id)) !== draft.base) cueDrafts.delete(id);
+  syncCueErrors();
   document.documentElement.classList.toggle('srt-active', srt);
-  $('lyrics').readOnly = srt; $('layerSrtInfo').textContent = srt ? cues.length + tr('件のSRT字幕（開始・終了を保持）', ' SRT cues (start/end preserved)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
+  $('lyrics').readOnly = srt; $('lyrics').value = J.ui.project.lyrics;
+  $('layerSrtInfo').textContent = srt ? cues.length + tr('件の字幕（本文・時刻を編集できます）', ' cues (text and timing are editable)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
   const signature = JSON.stringify(cues);
-  if (signature !== cueSignature) { cueSignature = signature; cueTable(); }
+  if (signature !== cueSignature) { cueSignature = signature; cueTable(); syncCueErrors(); }
   J.ui.project.spectrumLayout = J.normalizeSpectrumLayout(J.ui.project.spectrumLayout);
   for (const [key, value] of Object.entries(J.ui.project.spectrumLayout)) {
     const input = $('spectrum-' + key); if (input) input.value = value;
@@ -268,8 +333,6 @@ J.syncLayerUI = () => {
   for (const id of ['layerBloomRange', 'layerBloomNumber']) if ($(id)) $(id).value = J.ui.project.bloomThreshold;
   const ready = !!session.front;
   $('layerName-matte').textContent = session.matte ? session.matte.name : (ready ? tr('未指定：RGB 000000を透明化', 'None: RGB 000000 is transparent') : tr('未選択（任意）', 'None (optional)'));
-  $('layerMerge').disabled = !ready; $('layerMerge').checked = ready && session.merge;
-  if (srt) document.querySelectorAll('#lineList .time').forEach(e => { e.disabled = true; });
 };
 function boot() {
   document.documentElement.classList.add('layer-app');
@@ -288,12 +351,10 @@ function boot() {
   $('colorOn').closest('label').querySelector('span').textContent = tr('文字色を指定する', 'Override text colors');
   document.querySelector('.col-left h2').textContent = tr('字幕', 'Subtitles');
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
-  panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
-  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
+    cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, exportRange: null });
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
@@ -301,6 +362,9 @@ function boot() {
   const info = el('p', '', 'note'); info.id = 'layerSrtInfo';
   const cues = el('details'); cues.id = 'layerCues';
   panel.append(inputs, info, cues);
+  J.mountFillerUI(inputs);
+  const spectrumHeading = el('h3', tr('スペアナ合成（字幕が手前・0秒で同期）', 'Spectrum composite (subtitles in front, aligned at 0s)'));
+  const mergeHelp = el('p', tr('フロント動画を読み込むと自動合成します。合成しない場合はフロント動画を「解除」してください。マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Loading a front video automatically composites it. Clear the front video to stop compositing. Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note');
   for (const [key, ja, en, accept, only] of [
     ['background', '作業用背景（画像・動画）', 'Preview background (image/video)', 'image/*,video/*', false],
     ['front', 'スペアナのフロント動画', 'Spectrum front video', 'video/*', true],
@@ -312,6 +376,7 @@ function boot() {
     const name = el('span', tr('未選択', 'None'), 'muted'); name.id = 'layerName-' + key;
     row.append(name, button('layerClear-' + key, tr('解除', 'Clear'), () => clearMedia(key)));
     if (key === 'background') panel.append(el('hr', null, 'layer-divider'));
+    if (key === 'front') panel.append(spectrumHeading, mergeHelp);
     panel.append(row);
     if (key === 'background') {
       // Move the existing section intact so audio/timing handlers and mobile folding stay attached.
@@ -321,14 +386,13 @@ function boot() {
     }
   }
   spectrumControls(panel);
-  const mergeLabel = el('label', null, 'check'), merge = el('input'); merge.type = 'checkbox'; merge.id = 'layerMerge'; merge.disabled = true;
-  merge.addEventListener('change', () => { session.merge = merge.checked; J.uiApi.replan(); dirty(); });
-  mergeLabel.append(merge, el('span', tr('スペアナと合成（字幕が手前・0秒で同期）', 'Composite spectrum (subtitles in front, aligned at 0s)')));
-  panel.append(mergeLabel, el('p', tr('マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note'));
   const select = el('select'); select.id = 'layerPreview'; select.setAttribute('aria-label', tr('プレビュー表示', 'Preview display'));
   [['composite','作業用背景＋字幕で表示','Preview background + subtitles'],['front','黒背景フロント','Front on black'],['matte','白黒マット','Binary matte']].forEach(([value, ja, en]) => { const o = el('option', tr(ja, en)); o.value = value; select.append(o); });
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
+  panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
+  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
+  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   const progress = el('progress'); progress.id = 'layerProgress'; progress.max = 1; progress.value = 0; progress.hidden = true;
   const cancel = button('layerCancel', tr('出力を中止', 'Cancel export'), () => J.ui.exporting?.abort()); cancel.hidden = true;
@@ -339,8 +403,6 @@ function boot() {
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
   bloomControls(left);
-  // Block old row-start dragging and tap timing for imported SRT. Use explicit cue start/end editors.
-  $('timeline').addEventListener('pointerdown', e => { if (Array.isArray(J.ui.project.subtitleCues)) e.stopImmediatePropagation(); }, true);
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }

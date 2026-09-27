@@ -1,13 +1,17 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v0.9.0-layer.15**
+**Animated subtitle layers · cityedge fork · v1.0.0**
 
-[Open English app](en/index.html) · [日本語](README.md) · [User guide](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
+[Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
 Create a subtitle front on black and a binary matte as two synchronized, silent MP4 files for compositing over another video.
 
 This is an **unofficial derivative of [JIZURA by hakoniwa](https://github.com/852wa/JIZURA)**, adapted by cityedge for subtitle layer production. The original author does not maintain this edition. Thanks to the original effect engine and community translations.
 
+Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove normal cues; Ctrl+Z undoes changes. Empty text keeps a silent slot. Ideographic spaces are valid text; ASCII spaces separate groups. Invalid times block export until corrected.
+
 ## Quick start
+
+After importing SRT, use **Add fillers…** to generate editable placeholders in intros, interludes and outros. Defaults enable all types (Whitespace 3, Lyrics 8, Timestamp 2, Symbols 1) and require at least 5 seconds after subtracting a 0.3-second pre-gap and 0.5-second post-gap. Configure types, weights, duration and margins in the dialog. Regeneration replaces edited fillers too, while preserving normal subtitles and their effects. See [Filler subtitles](docs/LAYER_WORKFLOW.en.md#filler-subtitles).
 
 1. Download the repository files and open `en/index.html` in desktop Chrome / Edge. GitHub's source viewer does not execute the app; use the published Pages URL if available.
 2. Import a UTF-8 SRT or type subtitles.
@@ -17,12 +21,33 @@ This is an **unofficial derivative of [JIZURA by hakoniwa](https://github.com/85
 
 User guide and About / rights dialogs are available in the app. The interface supports Japanese (`index.html`) and English (`en/index.html`), selectable from the top language menu. This does not restrict subtitle text languages or fonts.
 
+## Create spectrum videos
+
+[Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker) is a tool developed by cityedge for creating spectrum videos to import into this app. Use it to prepare your spectrum footage.
+
 ## Features
 
-- Preserve SRT start/end times, line breaks, gaps and overlapping cues; edit text and times.
+The retained JIZURA effects engine works alongside this edition's layer tools. The [user manual](user_guide.en.md) explains controls, workflows and limits.
+
+| Task | Features and instructions |
+|---|---|
+| Prepare text | [Editable SRT cues](user_guide.en.md#importing-and-editing-srt), [direct input, LRC and markup](user_guide.en.md#typing-subtitles-directly) |
+| Follow music | [Beat analysis, BPM and tap sync](user_guide.en.md#audio-and-timing), [timeline zoom, seek and line/cut looping](user_guide.en.md#playback-and-timeline) |
+| Explore proposals | [Auto-compose, Shuffle, partial rerolls and look history](user_guide.en.md#auto-compose-and-shuffle) |
+| Refine typography | [Styles, three font roles and local/uploaded fonts](user_guide.en.md#styles-and-fonts), [colors](user_guide.en.md#colors) |
+| Control motion | [Motion, glitch, chromatic offset, ornaments, density, texture, HUD, cadence, unity and typesetting](user_guide.en.md#effects) |
+| Choose techniques | [Ten candidate groups, sets and locks](user_guide.en.md#choosing-techniques), [individual line/cut replacement](user_guide.en.md#editing-individual-lines-and-cuts) |
+| Work over footage | [Preview background and display modes](user_guide.en.md#preview-background-and-display-modes), [center-clear layout](user_guide.en.md#leaving-the-center-clear) |
+| Fill instrumental gaps | [Editable fillers, durations, weights and timestamp tags](user_guide.en.md#filler-subtitles) |
+| Add a spectrum | [Optional matte, pair selection, position, scale and frame synchronization](user_guide.en.md#compositing-a-spectrum-video) |
+| Deliver and resume | [MP4 pairs/ranges](user_guide.en.md#exporting-mp4), [external compositing](user_guide.en.md#compositing-in-a-video-editor), [JSON projects](user_guide.en.md#saving-and-resuming) |
+
+Layer-production specifications:
+
+- Import SRT as an editable starting point. Click the timeline to seek; drag start handles, type start times or tap to retime cues while preserving their duration. Edit text and end times in the cue editor.
 - Preview-only image/video backgrounds, excluded from exports.
 - Original text colours, graphics, ornaments and transitions.
-- Spectrum front import with optional matching matte; without it, only RGB 000000 is transparent.
+- Import a spectrum front to composite automatically; clear it to stop compositing. Its matching matte is optional; without it, only RGB 000000 is transparent.
 - Spectrum defaults: 65% frame width, 3% left/bottom margins; adjustable position and independent scales.
 - Exterior bloom cleanup: 0–128, default 32.
 - Two direct silent MP4 downloads; matte filename adds `_matte_dark`.
@@ -48,6 +73,7 @@ Use Python 3.10+ (standard library only); replace `python` with your environment
 ```text
 python build.py
 node dev/layer_test.js
+node dev/filler_test.js
 python tools/package_release.py
 ```
 

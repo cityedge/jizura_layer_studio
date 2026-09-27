@@ -6,6 +6,62 @@ const context = { J: { defaultProject: () => ({fx:{}}), plan: p => p }, document
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/11r_layers.js'),'utf8'), context);
 const J = context.J, json = x => JSON.parse(JSON.stringify(x));
 
+test('retiming imported cues preserves duration and moves overrides with reordered cues', () => {
+  const p = { subtitleCues: [{id:'a',start:1,end:3,text:'A\nline'}, {id:'b',start:4,end:5,text:'B'}], timing:{lineTimes:{0:8}}, overrides:{0:{layout:'ticket',lock:true},1:{layout:'grid'}}, exportRange:{from:0,to:0} };
+  assert.equal(J.moveLayerCue(p,0,6),1);
+  assert.deepEqual(json(p.subtitleCues),[{id:'b',start:4,end:5,text:'B'},{id:'a',start:6,end:8,text:'A\nline'}]);
+  assert.deepEqual(json(p.overrides),{0:{layout:'grid'},1:{layout:'ticket',lock:true}});
+  assert.equal(p.lyrics,'B\n\nA\nline'); assert.deepEqual(json(p.timing.lineTimes),{}); assert.equal(p.exportRange,null);
+  J.editLayerCue(p,1,{end:9,text:'edited'});
+  assert.equal(p.subtitleCues[1].start,6); assert.equal(p.subtitleCues[1].end,9);
+  const snapshot=JSON.stringify(p);
+  assert.throws(()=>J.moveLayerCue(p,1,-1));
+  assert.equal(JSON.stringify(p),snapshot);
+});
+
+test('moving overlapping and subsecond cues does not rewrite other cues', () => {
+  const p = { subtitleCues:[{id:'1',start:.001,end:.002,text:'tiny'},{id:'2',start:.001,end:4,text:'overlap'}],timing:{},overrides:{} };
+  J.moveLayerCue(p,0,0);
+  assert.equal(p.subtitleCues[0].end,.001);
+  assert.deepEqual(json(p.subtitleCues[1]),{id:'2',start:.001,end:4,text:'overlap'});
+  const copied=json(p);
+  assert.throws(()=>J.editLayerCue(p,0,{end:0}));
+  assert.deepEqual(json(p),copied);
+});
+test('empty and whitespace text survive editing, serialization and SRT whitespace import', () => {
+  const p={subtitleCues:[{id:'a',start:0,end:2,text:'old',filler:true}],timing:{},overrides:{}};
+  for(const text of ['', ' ', '　　 　　　 　 　　']) {
+    J.editLayerCue(p,0,{text}); assert.equal(p.subtitleCues[0].text,text);
+    assert.equal(J.validateCues(json(p.subtitleCues))[0].text,text);
+    assert.equal(p.subtitleCues[0].filler,true);
+  }
+  assert.equal(J.parseSRT('1\n00:00:00,000 --> 00:00:02,000\n　　 　　　 　 　　\n')[0].text,'　　 　　　 　 　　');
+});
+test('individual add/delete preserve other times and overrides; the last cue can be deleted and replaced', () => {
+  const p={subtitleCues:[{id:'a',start:1,end:3,text:'A'},{id:'b',start:5,end:9,text:'B',filler:true}],timing:{},overrides:{0:{layout:'ticket'},1:{lock:true}},exportRange:{from:0,to:1}};
+  const i=J.addLayerCue(p,0); assert.equal(i,1);
+  assert.match(p.subtitleCues[i].id,/^added-/);
+  assert.deepEqual(json(p.subtitleCues[i]),{id:p.subtitleCues[i].id,start:3,end:5,text:''});
+  assert.deepEqual(json(p.overrides),{0:{layout:'ticket'},2:{lock:true}});
+  J.deleteLayerCue(p,i);assert.equal(p.subtitleCues[1].id,'b');assert.equal(p.subtitleCues[1].start,5);
+  assert.deepEqual(json(p.overrides),{0:{layout:'ticket'},1:{lock:true}});
+  J.deleteLayerCue(p,1);J.deleteLayerCue(p,0);assert.deepEqual(json(p.subtitleCues),[]);
+  assert.equal(J.addLayerCue(p),0);assert.equal(p.subtitleCues[0].end,3);assert.equal(p.exportRange,null);
+  const before=JSON.stringify(p);assert.throws(()=>J.addLayerCue(p,99));assert.throws(()=>J.deleteLayerCue(p,99));assert.equal(JSON.stringify(p),before);
+});
+test('prepend fits the opening gap, rejects zero-start atomically and keeps later cues intact', () => {
+  for(const firstStart of [.001, 1, 10]) {
+    const original={id:'a',start:firstStart,end:firstStart+4,text:'A'};
+    const p={subtitleCues:[original],timing:{},overrides:{0:{layout:'ticket'}}};
+    assert.equal(J.addLayerCue(p),0);
+    assert.deepEqual(json(p.subtitleCues.slice(1)),[original]);
+    assert.equal(p.subtitleCues[0].start,0);assert.equal(p.subtitleCues[0].end,Math.min(3,firstStart));
+    assert.deepEqual(json(p.overrides),{1:{layout:'ticket'}});
+    const before=JSON.stringify(p);assert.throws(()=>J.addLayerCue(p),/0秒/);assert.equal(JSON.stringify(p),before);
+    const i=J.addLayerCue(p,1);assert.equal(p.subtitleCues[i].start,original.end);
+  }
+});
+
 test('legacy cadence survives project migration; new default comes from planner', () => {
   const p = {fx:{koma:15}};
   J.upgradeLayerProject(p, {fx:{onTwos:true}});
@@ -170,4 +226,61 @@ test('spectrum front alone is valid, optional matte still must match', () => {
   assert.throws(()=>J.validateSpectrum(front,{...front,duration:20}));
   assert.equal(J.spectrumDuration(front,null),30);
   assert.equal(J.spectrumDuration(front,{...front,duration:29.99}),29.99);
+});
+
+test('bloom coverage matches flattened artwork for every maximum channel and alpha', () => {
+  const base = new Uint8ClampedArray(256 * 256 * 4 * 4);
+  const after = new Uint8ClampedArray(base.length);
+  let i = 0;
+  for (let c = 0; c < 256; c++) for (let a = 0; a < 256; a++) for (let channel = 0; channel < 4; channel++, i += 4) {
+    for (let k = 0; k < 3; k++) base[i + k] = channel === k || channel === 3 ? c : 0;
+    base[i + 3] = a;
+    after.set([5, 7, 11, 255], i);
+  }
+  const snapshot = base.slice(), coverage = J.layerPixels(base);
+  assert.equal(J.cleanLayerBloom(base, after, 32), after);
+  for (let p = 0; p < base.length; p += 4) {
+    const on = !!coverage[p + 3];
+    assert.equal(after[p], on ? 5 : 0);
+    assert.equal(after[p + 1], on ? 7 : 0);
+    assert.equal(after[p + 2], on ? 11 : 0);
+    assert.equal(after[p + 3], on ? 255 : 0);
+  }
+  assert.deepEqual(base, snapshot);
+});
+
+test('bloom keeps the previous coverage-based result at all supported thresholds', () => {
+  const base = new Uint8ClampedArray(4096 * 4), glow = new Uint8ClampedArray(base.length);
+  let seed = 93291;
+  const byte = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return seed >>> 24; };
+  for (let i = 0; i < base.length; i += 4) {
+    for (let k = 0; k < 4; k++) { base[i + k] = byte(); glow[i + k] = byte(); }
+    if (i % 12 === 0) base[i] = base[i + 1] = base[i + 2] = 0;
+    if (i % 20 === 0) base[i + 3] = 0;
+  }
+  const coverage = J.layerPixels(base);
+  for (let threshold = 0; threshold <= 128; threshold++) {
+    const expected = glow.slice();
+    for (let i = 0; i < expected.length; i += 4) {
+      const brightness = Math.round(Math.max(glow[i], glow[i + 1], glow[i + 2]) * glow[i + 3] / 255);
+      if (!coverage[i + 3] && brightness < threshold) expected.fill(0, i, i + 4);
+    }
+    assert.deepEqual(J.cleanLayerBloom(base, glow.slice(), threshold), expected);
+  }
+});
+
+test('compositing preserves RGBA and both inputs at every foreground alpha', () => {
+  const back = new Uint8ClampedArray(256 * 4), front = new Uint8ClampedArray(back.length);
+  for (let a = 0; a < 256; a++) {
+    back.set([5, 6, 7, 255], a * 4);
+    front.set([a, 255 - a, 3, a], a * 4);
+  }
+  const backBefore = back.slice(), frontBefore = front.slice(), out = J.overPixels(back, front);
+  for (let a = 0; a < 256; a++) {
+    const i = a * 4, expected = a ? front : back;
+    assert.deepEqual(Array.from(out.subarray(i, i + 4)), Array.from(expected.subarray(i, i + 4)));
+  }
+  assert.deepEqual(back, backBefore); assert.deepEqual(front, frontBefore);
+  out.fill(0);
+  assert.deepEqual(back, backBefore); assert.deepEqual(front, frontBefore);
 });

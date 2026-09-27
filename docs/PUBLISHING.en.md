@@ -1,5 +1,11 @@
 # Manual publication
 
+## Publishing v1.0.0
+
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.0.0.zip` to your Release. Include the new `user_guide.md` and `user_guide.en.md` at repository root; the packager includes them automatically.
+
+After publication, check the **v1.0.0** header, both interface languages, the detailed-manual links in the guide, and README navigation. This update removes no files relative to layer.21. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 
 ## Create the upload folder

@@ -297,6 +297,7 @@ function seek(t) {
 const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
+  if (TL.dragView) return TL.dragView;
   const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
   TL.off = J.clamp(TL.off, 0, Math.max(0, D - vd));
   return { D, vd, off: TL.off };
@@ -354,7 +355,8 @@ function drawTimeline() {
     x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, top);
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
-    x.fillStyle = on ? '#f5a50c' : '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
+    x.fillStyle = on ? '#f5a50c' : S.project.subtitleCues?.[ln.index]?.filler ? '#f07178' : '#8e8a94';
+    x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
   }
   if (TL.z > 1) {                                          // where the view sits in the whole song
     x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, h - 2 * dpr, w, 2 * dpr);
@@ -386,6 +388,11 @@ function tlDragTo(i, ev) {
   if (!ev.shiftKey && S.plan.beats && S.plan.beats.length) {       // snap to the nearest beat (Shift: free)
     let bt = null, bd = 0.12; for (const b of S.plan.beats) { const d = Math.abs(b - t); if (d < bd) { bd = d; bt = b; } if (b > t + 0.2) break; }
     if (bt != null) t = bt;
+  }
+  if (Array.isArray(S.project.subtitleCues)) {
+    t = +Math.max(0, t).toFixed(3);
+    TL.drag = J.moveLayerCue(S.project, i, t);
+    replan(); seek(t + 0.001); return;
   }
   const L = S.plan.lines, lo = i > 0 ? L[i - 1].start + 0.2 : 0, hi = i < L.length - 1 ? L[i + 1].start - 0.2 : S.plan.duration - 0.2;
   t = +J.clamp(t, lo, Math.max(lo, hi)).toFixed(3);
@@ -643,10 +650,19 @@ function renderLines() {
         ${ln.interlude ? '' : `<button class="icon ghost lock" title="この行の構成をロック" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>`}
       </span></div>`;
     const q = sel => li.querySelector(sel);
+    if (S.project.subtitleCues?.[i]?.filler) {
+      li.classList.add('is-filler');
+      const badge = document.createElement('span'); badge.className = 'filler-badge'; badge.textContent = J.layerText('フィラー', 'Filler');
+      q('.txt').prepend(badge);
+    }
     if (q('.lay')) q('.lay').value = o.layout || '';
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
     q('.time').addEventListener('change', e => {
       const v = parseFloat(e.target.value);
+      if (Array.isArray(S.project.subtitleCues)) {
+        if (!Number.isFinite(v)) { e.target.value = ln.start.toFixed(2); return; }
+        pushEdit(); J.moveLayerCue(S.project, i, Math.max(0, v)); replan(); flushSave(); return;
+      }
       pushEdit();
       if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
       if (isFinite(v)) S.project.timing.lineTimes[i] = Math.max(0, v); else delete S.project.timing.lineTimes[i];
@@ -698,6 +714,7 @@ function renderLines() {
 // the lyrics text is the source: a plan line knows the row it came from (ln.src); LRC time tags on that row are kept
 const LRC_PREFIX = /^\s*(?:\[\d+:\d+(?:[.:]\d+)?\])*/;
 function editLine(li, ln) {
+  if (Array.isArray(S.project.subtitleCues)) { J.editLayerCueText(ln.index); return; }
   if (ln.src == null || li.querySelector('.txt-edit')) return;
   const rows = S.project.lyrics.replace(/\r/g, '').split('\n'), row = rows[ln.src] || '';
   const pre = (row.match(LRC_PREFIX) || [''])[0], body = row.slice(pre.length).trim();
@@ -723,7 +740,7 @@ function editLine(li, ln) {
 /* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -732,6 +749,7 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   S.project.subtitleCues = o.subtitleCues || null;
+  S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
@@ -935,7 +953,7 @@ function randomPalette() {
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
 const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks'];
 const H = { list: [], i: -1 };
-const lookSnap = () => JSON.stringify(Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])));
+const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
   const s = lookSnap();
   if (H.i >= 0 && H.list[H.i] === s) return;
@@ -952,7 +970,13 @@ function histGo(d) {
   remember();                    // hand edits made since the last step become a stop of their own
   const j = H.i + d; if (j < 0 || j >= H.list.length) return;
   H.i = j;
-  Object.assign(S.project, JSON.parse(H.list[j]));
+  const look = JSON.parse(H.list[j]);
+  if (look._cueIds && S.project.subtitleCues) {
+    const old = new Map(look._cueIds.map((id, i) => [id, look.overrides?.[i] || {}]));
+    look.overrides = Object.fromEntries(S.project.subtitleCues.map((c, i) => [i, old.get(c.id) || S.project.overrides?.[i] || {}]));
+  }
+  delete look._cueIds;
+  Object.assign(S.project, look);
   fontKey = ''; syncUI(); replan(); updateHist();
   toast(`${j + 1} / ${H.list.length} 案目`);
   restartPreview();
@@ -1412,6 +1436,9 @@ function startTap(from = 0) {
   from = J.clamp(from | 0, 0, S.plan.lines.length - 1);
   pushEdit();
   S.tap = { i: from, from, done: [] };
+  if (Array.isArray(S.project.subtitleCues)) {
+    S.tap.cueOrder = S.project.subtitleCues.slice(from).map(c => c.id); S.tap.cuePos = 0;
+  }
   if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
   $('tapPanel').hidden = false; $('btnTap').setAttribute('aria-pressed', 'true');
   $('tapPanel').classList.remove('compact');
@@ -1423,6 +1450,15 @@ function startTap(from = 0) {
 }
 function tapNow() {
   if (!S.tap) return;
+  if (S.tap.cueOrder) {
+    const cue = S.project.subtitleCues[S.tap.i];
+    S.tap.done.push({ id: cue.id, start: cue.start, pos: S.tap.cuePos });
+    J.moveLayerCue(S.project, S.tap.i, +S.t.toFixed(3));
+    S.tap.cuePos++;
+    if (S.tap.cuePos >= S.tap.cueOrder.length) { stopTap(); return; }
+    S.tap.i = S.project.subtitleCues.findIndex(c => c.id === S.tap.cueOrder[S.tap.cuePos]);
+    replan(); updateTap(); return;
+  }
   const LT = S.project.timing.lineTimes, i = S.tap.i, t = +S.t.toFixed(3);
   S.tap.done.push({ i, had: LT[i] });
   LT[i] = t;
@@ -1434,6 +1470,11 @@ function tapNow() {
 }
 function tapBack() {                    // 1つ戻る: undo the last tap and jump back a little
   if (!S.tap || !S.tap.done.length) return;
+  if (S.tap.cueOrder) {
+    const d = S.tap.done.pop(), index = S.project.subtitleCues.findIndex(c => c.id === d.id);
+    S.tap.i = J.moveLayerCue(S.project, index, d.start); S.tap.cuePos = d.pos;
+    replan(); updateTap(); seek(Math.max(0, S.t - 3)); if (!S.playing) play(); return;
+  }
   const d = S.tap.done.pop(), LT = S.project.timing.lineTimes;
   if (d.had != null) LT[d.i] = d.had; else delete LT[d.i];
   S.tap.i = d.i; replan(); updateTap();
@@ -1504,23 +1545,26 @@ function bind() {
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
-  let drag = false, raf = 0;
+  let drag = false, raf = 0, pendingDrag = null;
+  const applyDrag = () => { const ev = pendingDrag; pendingDrag = null; if (ev && TL.drag >= 0) tlDragTo(TL.drag, ev); };
   tl.addEventListener('pointerdown', e => {
+    if (S.exporting || e.button !== 0) return;
     tl.setPointerCapture(e.pointerId);
     const h = S.tap || S.exporting ? -1 : tlHandleAt(e);
-    if (h >= 0) { pushEdit(); TL.drag = h; pause(); tl.style.cursor = 'ew-resize'; return; }
+    if (h >= 0) { pushEdit(); if (Array.isArray(S.project.subtitleCues)) TL.dragView = tlView(); TL.drag = h; pause(); tl.style.cursor = 'ew-resize'; return; }
     drag = true; timelineSeek(e);
   });
   tl.addEventListener('pointermove', e => {
-    if (TL.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => tlDragTo(TL.drag, ev)); return; }
+    if (TL.drag >= 0) { pendingDrag = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(applyDrag); return; }
     if (drag) { timelineSeek(e); return; }
     const hv = tlHandleAt(e); if (hv !== TL.hover) { TL.hover = hv; tl.style.cursor = hv >= 0 ? 'ew-resize' : 'pointer'; drawTimeline(); }
   });
-  const endDrag = () => { if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; };
+  const endDrag = () => { cancelAnimationFrame(raf); applyDrag(); if (TL.drag >= 0) { TL.drag = -1; TL.dragView = null; flushSave(); renderLines(); drawTimeline(); } drag = false; };
   tl.addEventListener('pointerup', endDrag); tl.addEventListener('pointercancel', endDrag);
   tl.addEventListener('pointerleave', () => { if (TL.hover >= 0 && TL.drag < 0) { TL.hover = -1; drawTimeline(); } });
   tl.addEventListener('wheel', e => {
     e.preventDefault();
+    if (TL.drag >= 0) return;
     const { vd } = tlView();
     if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tl.clientWidth * vd; tlView(); drawTimeline(); }
     else tlZoom(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0025)), tlTime(e));
@@ -1652,7 +1696,7 @@ function bind() {
     e.target.value = '';
   });
   document.addEventListener('keydown', e => {
-    if ($('termsDlg').open || $('resetDlg').open || $('guideDlg')?.open) return;
+    if ($('termsDlg').open || $('resetDlg').open || $('guideDlg')?.open || $('fillerDlg')?.open) return;
     const tag = (e.target && e.target.tagName) || '';
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) && e.target.type !== 'range' && e.target.type !== 'checkbox';
     if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }

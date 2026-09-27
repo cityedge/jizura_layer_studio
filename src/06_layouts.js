@@ -6,6 +6,13 @@
 (() => {
 'use strict';
 const E = J.E;
+// Space-only captions deliberately occupy layout width. Ordinary text keeps legacy trimming.
+J.isWhitespaceText = text => typeof text === 'string' && /^[\s\u3000]+$/.test(text);
+J.stripTextSpace = text => {
+  const t = String(text ?? '');
+  return J.isWhitespaceText(t) ? t.replace(/[ \t\r\n]/g, '') || t : t.replace(/\s+/g, '');
+};
+J.trimText = text => J.isWhitespaceText(text) ? text : String(text ?? '').trim();
 
 /* ---------- main-item pipeline: enter / hold / exit + draw ---------- */
 J.mainDraw = (env, it) => {
@@ -112,13 +119,13 @@ J.splitLines = (text, maxPer) => {
       if (J.isSmallKana(b) || 'ーっ、。'.includes(b)) s -= 6;
       if (s > bestScore) { bestScore = s; best = k; }
     }
-    out.push(arr.slice(start, best).join('').trim()); start = best;
+    out.push(J.trimText(arr.slice(start, best).join(''))); start = best;
   }
-  out.push(arr.slice(start).join('').trim());
+  out.push(J.trimText(arr.slice(start).join('')));
   return out.join('\n');
 };
 
-const glyphCount = t => [...t.replace(/\s/g, '')].length;
+const glyphCount = t => [...J.stripTextSpace(t)].length;
 const fontsOf = (st, roles) => { const f = roles.flatMap(r => st.fonts[r] || []).filter(k => J.FONTS[k]); return f.length ? f : (st.fonts.display || ['gothic_black']); };
 J.glyphCount = glyphCount; J.fontsOf = fontsOf; J.unionBB = unionBB;
 J.centerBB = (env, bb) => bb || { x0: env.W * 0.35, x1: env.W * 0.65, y0: env.H * 0.4, y1: env.H * 0.6, cx: env.W / 2, cy: env.H / 2, boxes: [] };
