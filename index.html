@@ -448,12 +448,22 @@ button.small.primary { padding: 4px 12px; }
 .layer-app .layer-panel { padding: 16px 12px; border-bottom: 1px solid var(--line); background: #171a20; }
 .layer-panel h2 { margin: 0 0 8px; }
 .layer-panel .note { line-height: 1.6; }
+.layer-app .col-left .note { font-size:11px; }
+.layer-panel > details > summary, .layer-panel .file { font-size:12px; }
+.cue-toolbar { display:flex; gap:4px; flex-wrap:wrap; margin-top:10px; }
+.cue-toolbar button { font-size:11px; padding:5px 6px; }
 .layer-controls { display:flex; gap:8px; flex-wrap:wrap; }
 .layer-media { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:12px 0; }
 .layer-media .muted { flex:1; min-width:55px; overflow-wrap:anywhere; font-size:11px; }
 .layer-media button { padding:5px 7px; }
 #layerPreview, #layerExport { width:100%; margin-top:10px; }
 #layerExport { background:var(--accent, #f5a50c); color:#171310; font-weight:700; white-space:normal; }
+#simpleExport { width:100%; margin-top:12px; white-space:normal; }
+.simple-export-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
+.simple-export-controls label { font-size:11px; display:flex; flex-direction:column; gap:5px; }
+.simple-export-controls input[type=number] { width:100%; min-width:0; }
+.simple-export-controls label.simple-audio { flex-direction:row; align-items:center; }
+#simpleExportInfo.error { color:#ff9696; }
 #layerProgress { width:100%; margin-top:12px; accent-color:#f5a50c; }
 #layerStatus { overflow-wrap:anywhere; }
 #layerStatus.error { color:#ff9696; }
@@ -474,21 +484,26 @@ button.small.primary { padding: 4px 12px; }
 .spectrum-position { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
 .spectrum-position label { display:flex; flex-direction:column; gap:4px; font-size:11px; }
 .spectrum-position input { min-width:0; width:100%; }
+.native-source, .native-colors label { display:flex; flex-direction:column; gap:4px; font-size:11px; }
+.native-source { margin-bottom:10px; }
+.native-source select { width:100%; }
+.native-colors { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0; }
+.native-colors input { width:100%; height:30px; padding:2px; }
+.native-motion { display:grid; grid-template-columns:minmax(0,1fr) 52px; gap:4px 8px; align-items:center; font-size:11px; margin:10px 0; }
+.native-motion span { grid-column:1/-1; }
+.native-motion input { width:100%; min-width:0; }
+.native-motion output { text-align:right; }
+#nativeSpectrumInfo.error { color:#ff9696; }
+.spectrum-external[hidden], .spectrum-placement[hidden], #nativeSpectrumSettings[hidden] { display:none!important; }
 
 #layerDownloads { display:flex; flex-direction:column; gap:8px; }
 #layerDownloads a { color:#70f5e5; padding:8px; border:1px solid var(--line); border-radius:4px; text-align:center; }
 #layerDownloads a:hover, #layerDownloads a:focus-visible { background:#263435; }
 
-.layer-bloom { margin-top:16px; padding-top:12px; border-top:1px solid var(--line); }
-.layer-bloom > label { display:block; margin-bottom:8px; font-size:12px; }
-.layer-bloom-inputs { display:grid; grid-template-columns:minmax(0,1fr) 70px; gap:10px; align-items:center; margin-bottom:8px; }
-.layer-bloom-inputs input { width:100%; min-width:0; }
-
 .layer-panel .layer-divider { border:0; border-top:1px solid var(--line); margin:16px 0; }
 .layer-panel > .layer-audio-section { padding:0; border:0; }
 
 .layer-app .layer-cut-list { border-bottom:0; }
-.layer-app .col-left > .layer-bloom { margin:0; padding:16px 12px; background:#171a20; }
 
 /* Publication identity and self-contained help / license notices. */
 .layer-app .brand { flex-wrap:wrap; gap:6px 10px; }
@@ -504,6 +519,8 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 .layer-app #app.is-mobile .brand .mark { display:none; }
 .layer-app #app.is-mobile .brand .ver { font-size:9px; margin-left:0; }
 .filler-dialog { width: min(700px, calc(100vw - 32px)); }
+dialog.filler-dialog p { font-size:12px; }
+.filler-dialog label, .filler-dialog legend { font-size:12px; }
 .filler-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
 .filler-grid label { display: flex; flex-direction: column; gap: 6px; }
 .filler-grid input, .filler-grid select { width: 100%; box-sizing: border-box; min-height: 34px; }
@@ -511,6 +528,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 .filler-type { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 8px 0; }
 .filler-type label { display: flex; align-items: center; gap: 8px; }
 .filler-type select { min-width: 60px; }
+#filler-customText { display:block; width:100%; box-sizing:border-box; min-height:60px; resize:vertical; }
 .filler-preview { border-left: 2px solid var(--cyan, #00ddd0); padding: 8px 12px; background: #191b21; line-height: 1.7; }
 .filler-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
 .filler-badge { color: var(--cyan, #00ddd0); font-size: 10px; margin-right: 6px; }
@@ -532,7 +550,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.0.0</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.1.0</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -808,7 +826,7 @@ dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.0.0</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.1.0</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1289,23 +1307,30 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.0.0 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.1.0 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
     <p class="terms-main">他の動画に重ねるための、字幕フロントと白黒マットを作るツールです。</p>
     <ol class="guide-steps">
       <li><strong>字幕を用意する</strong><p>「SRTを読み込む」でUTF-8のSRTを選びます。開始・終了・改行・字幕のない区間を保持します。「SRTの本文・開始・終了を編集」で修正できます。SRTを使わず字幕を直接入力することもできます。</p></li>
-      <li><strong>演出と背景を確認する</strong><p>「おまかせ」で演出を作り、行ごとの設定で調整します。作業用背景に画像・動画を読み込むと、重ねた見え方を確認できます。背景と、タイミング確認用の曲は出力されません。</p></li>
-      <li><strong>必要ならスペアナを重ねる</strong><p>フロント動画を読み込むと自動合成します。合成しない場合はフロント動画の「解除」を押してください。対応する「同名_matte_dark.mp4」があれば、2本をまとめて選択できます。マットがなければRGB 000000だけを透過します。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
-      <li><strong>外周の暗い光彩を調整する</strong><p>左ペインの演出リスト下にある「外周ブルームの除去」で0〜128を指定します。初期値32、0は除去なしです。大きくすると外側の暗い光彩を多く除去します。元の文字・図形・火花はこの判定で削除しません。</p></li>
+      <li><strong>演出と背景を確認する</strong><p>「おまかせ」で演出を作り、行ごとの設定で調整します。作業用背景に画像・動画を読み込むと、重ねた見え方を確認できます。背景と音源は、フロント／マットのペア出力には入りません。</p></li>
+      <li><strong>必要ならスペアナを重ねる</strong><p>「スペアナの入力」で「音源から生成」または「外部動画」を選びます。音源からは64本のバーを生成し、感度・拍動・戻る速さと上下の色を調整できます。色は最大高さに固定し、低いバーには下端付近の色だけを表示します。解析後はプレビューと出力で同じ動きを使います。</p><p>外部動画はフロントと「同名_matte_dark.mp4」をまとめて選択できます。マットがなければRGB 000000だけを透過します。「なし」で合成を止めます。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
+      <li><strong>外周ブルームは自動除去</strong><p>後処理で外側に追加されたブルームは、明るさに関係なく常に除去します。文字・図形・スパーク本体と、その内側の明るさの変化は保持します。調整項目はなく、旧プロジェクトのしきい値も無視します。</p></li>
       <li><strong>MP4を2本保存する</strong><p>画面比・解像度・fpsを選び、「マット＋フロント MP4を出力」を押します。ブラウザに複数ダウンロードの確認が出たら許可してください。保存されない場合は、出力後の個別保存リンクを使えます。2本とも無音で、ZIP圧縮はしません。書き出し中はタブを開いたままにしてください。</p></li>
       <li><strong>動画編集ソフトで重ねる</strong><p>背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
     </ol>
+    <p>内蔵スペアナは曲全体を粗く調べ、250〜4,000Hzを含む範囲を自動設定します。「自動音域」に結果を表示し、曲全体で固定します。音源の上限を超えず、推定できない場合は標準範囲を使います。FFTサイズと拍動処理は維持し、色・配置・感度の変更で音域は変わりません。</p>
+    <h3>おまけ機能：簡易動画MP4</h3>
+    <p>ペア出力の説明下にある「簡易動画MP4を出力」で、静止画背景→スペアナ→字幕を重ねた1本を保存できます。背景なしは黒です。背景動画が選択されている間は利用できないので、静止画に変更するか解除してください。</p>
+    <p>出力時間は素材の読み込み・変更時に字幕・スペアナ・デコード済み音源の最長へ自動更新し、手動でも修正できます。「音源を含めない」を選んでも音源長は計算対象です。素材の追加・読み替え・解除や字幕時刻の変更があれば再計算します。 終了した音源は無音、字幕・スペアナは非表示となり、静止画は指定時間まで表示します。</p>
+    <p>解像度・fps・画質・書き出し範囲は既存の設定を使います。範囲がある場合はその時間帯を切り出し、実際の映像の秒数をボタン下に表示します。音声付き出力にはAACエンコード対応が必要です。プレビュー音量は出力に反映せず、音源は元の音量で保存します。</p>
     <p>SRT編集欄の「先頭に字幕を追加」「この後に追加」「削除」で通常字幕を個別に増減でき、Ctrl+Zで戻せます。空欄はスロットを残して描画なし。全角スペースは有効な本文で、半角スペースで区分できます。時刻が不正な間は出力を停止し、修正するとエラーは消えます。</p>
     <p>空白文字フィラーは全角スペース2〜5個を半角スペースで3〜4区分に分けます。文字は見えず、演出によって台紙や装飾が描かれます。</p>
     <h3>SRTは編集の出発点</h3>
+    <p>「先頭に字幕を追加」の横の「-0.1秒」「+0.1秒」で、フィラーを含む全字幕の開始・終了を移動できます。開始は0秒より前にせず、終了だけを前へ動かす場合は表示時間が短くなります。長さが0以下になる、または未入力・不正な時刻がある場合は全件を変更せず止めます。Ctrl+Zで戻せます。元SRTや音源の拍グリッドは変更しません。</p>
     <p>読み込んだ字幕は自由に編集できます。タイムラインの帯をクリックすると再生位置が移動します。上部の開始ハンドルのドラッグ、行一覧の開始秒の入力、タップ同期で開始を動かすと、表示時間を維持して終了も移動します。「SRTの本文・開始・終了を編集」で本文や終了だけを変更することもできます。変更は「元に戻す」／Ctrl+Zで取り消せ、プロジェクトJSONに保存できます。元のSRTファイルは変更しません。</p>
     <h3>空白区間にフィラーを追加する</h3>
     <p>SRT読み込み後の「フィラーを追加…」で設定ダイアログが開きます。閾値はプリ／ポストギャップを引いた残りに適用します。初期値は5秒・プリ0.3秒・ポスト0.5秒なので、5.8秒以上の間奏が対象です。前奏はポストのみ、アウトロはプリのみを確保します。終端は音源、なければスペアナ、どちらもなければ通常字幕の末尾です。</p>
-    <p>「普通」の平均長さは通常字幕の表示時間の上位50%（端数切り上げ）の平均。短めは0.75倍、長めは1.5倍で、個々の長さに変化を付けます。図形文字は通常字幕の平均文字数に合わせ、繰り返しや混在などを抽選します。歌詞は長さに関係なく全文を抽選します。各種類はチェックと1〜10の重みで選べ、初期状態は全種類オン、重みは空白3・歌詞8・時刻2・図形1です。</p>
+    <p>「普通」の平均長さは通常字幕の表示時間の上位50%（端数切り上げ）の平均。短めは0.75倍、長めは1.5倍で、個々の長さに変化を付けます。図形文字は通常字幕の平均文字数に合わせ、繰り返しや混在などを抽選します。歌詞は長さに関係なく全文を抽選します。各種類はチェックと0〜10の重みで選べ、初期状態は全種類オン、重みは空白3・歌詞8・時刻2・図形1・指定テキスト0です。</p>
+    <p>指定テキストは任意の本文を入力し、全文をそのまま使います。初期値は空欄。オン・重み1以上で本文が空ならエラーで止まり、既存フィラーは保持されます。重み0は抽選対象外です。</p>
     <p>本文の <code>[timestamp]</code> は開始時刻（例：02 05 853）に追従します。通常字幕にも手入力できます。フィラーは編集用の仮置きで、本文を変えてもフィラーのままです。再生成すると手編集分もすべて置き換えます。通常字幕とその演出は保持します。一括削除・Ctrl+Z・JSON保存にも対応します。</p>
     <h3>スペアナ動画を作るツール</h3>
     <p><a href="https://github.com/cityedge/audio-spectrum-overlay-maker" target="_blank" rel="noopener noreferrer">Audio Spectrum Overlay Maker</a>は、cityedgeが開発した、本アプリに読み込むスペアナ動画を作るツールです。スペアナ素材を用意するときにご利用ください。</p>
@@ -1316,7 +1341,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <h3>出力の特徴</h3>
     <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。圧縮前の最終フロントで黒以外の場所だけ、マットが黒になります。マットは2値で、半透明は保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
     <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.0.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.1.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -4245,7 +4270,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.0.0', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.1.0', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -5573,7 +5598,7 @@ class Renderer {
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);
-          J.cleanLayerBloom(bloomBase.data, result.data, opt.bloomThreshold ?? plan.bloomThreshold);
+          J.cleanLayerBloom(bloomBase.data, result.data);
           ctx.putImageData(result, 0, 0);
         }
         ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; ctx.imageSmoothingEnabled = true;
@@ -5623,7 +5648,7 @@ class Renderer {
     // bloom
     const glow = (st.glow || 0.6) * 0.5 * (fx.texture ?? 0.6);
     if (!opt.fast && allowFilter && glow > 0.05 && (!opt.transparent || opt.layerComposition)) {
-      // Remove only dark exterior bloom; keep visible light and existing artwork.
+      // Keep bloom within existing artwork; no added exterior coverage.
       const bloomBase = opt.layerComposition ? ctx.getImageData(0, 0, cw, ch) : null;
       const sw = Math.round(cw / 4), sh = Math.round(ch / 4);
       const Sm = this.ensure(this.small, sw, sh), sx = Sm.getContext('2d');
@@ -5631,7 +5656,7 @@ class Renderer {
       ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = glow * 0.55; ctx.drawImage(Sm, 0, 0, cw, ch); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
       if (bloomBase) {
         const result = ctx.getImageData(0, 0, cw, ch);
-        J.cleanLayerBloom(bloomBase.data, result.data, opt.bloomThreshold ?? plan.bloomThreshold);
+        J.cleanLayerBloom(bloomBase.data, result.data);
         ctx.putImageData(result, 0, 0);
       }
     }
@@ -36312,6 +36337,13 @@ J.moveLayerCue = (project, index, start) => {
   const cue = project.subtitleCues[index];
   return J.editLayerCue(project, index, { start, end: start + (cue.end - cue.start) });
 };
+// Validate the entire shift before the editor records undo or changes any cue.
+J.prepareLayerCueShift = (cues, delta) => {
+  const valid = J.validateCues(cues);
+  if (!Number.isFinite(delta)) throw new Error(msg('移動量が不正です。', 'Invalid shift amount.'));
+  const shift = t => Math.round((t + delta) * 1e9) / 1e9;
+  return J.validateCues(valid.map(c => ({ ...c, start: Math.max(0, shift(c.start)), end: shift(c.end) })));
+};
 J.deleteLayerCue = (project, index) => {
   if (!Array.isArray(project.subtitleCues) || !project.subtitleCues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
   const entries = project.subtitleCues.map((cue, i) => ({ cue, override: project.overrides?.[i] })).filter((_, i) => i !== index);
@@ -36362,15 +36394,12 @@ J.findSpectrumMatte = (files, front) => {
   return matches.length === 1 ? matches[0] : null; // Never guess among same-name files in different folders.
 };
 
-J.normalizeBloomThreshold = value => Number.isFinite(value) ? Math.max(0, Math.min(128, Math.round(value))) : 32;
-
 const defaultProject = J.defaultProject;
 J.defaultProject = () => {
   const p = defaultProject();
   p.layerOnly = true; p.includeAudio = false; p.keyBg = 'off';
   p.spectrumLayout = J.defaultSpectrumLayout();
   p.layerEffectsVersion = 1;
-  p.bloomThreshold = 32;
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
@@ -36382,20 +36411,20 @@ J.upgradeLayerProject = (project, source) => {
     for (const key of ['decor', 'texture', 'bgSwitch', 'hud', 'flash']) project.fx[key] = defaults[key];
   }
   project.layerEffectsVersion = 1;
-  project.bloomThreshold = J.normalizeBloomThreshold(project.bloomThreshold);
+  delete project.bloomThreshold; // Legacy thresholds no longer affect rendering.
   return project;
 };
 const plan = J.plan;
 J.plan = (project, audio) => {
   const p = Object.assign({}, project, { layerOnly: true, keyBg: 'off', title: '', artist: '' });
   const out = plan(p, audio);
-  out.bloomThreshold = J.normalizeBloomThreshold(project.bloomThreshold);
   out.layerOnly = true; out.keyBg = null; out.explicitCues = Array.isArray(project.subtitleCues);
   // Keep original colours, ornaments, graphics, effects and joins. Only omit standalone cards.
   out.cuts = out.cuts.filter(c => c.line >= 0 && c.layout !== 'interlude');
   out.cuts.forEach((c, i) => { c.index = i; });
   const media = J.layerSession;
-  if (media?.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
+  const spectrumLength = J.activeSpectrumDuration ? J.activeSpectrumDuration(project, audio, media) : media?.front ? J.spectrumDuration(media.front, media.matte) : 0;
+  out.duration = Math.max(out.duration, spectrumLength);
   return out;
 };
 // Separate overlapping cues into non-overlapping tracks. Reindex cuts for morph/transition lookups.
@@ -36428,18 +36457,15 @@ J.layerPixels = rgba => {
   return out;
 };
 
-// Only remove low-energy pixels ADDED by bloom, before deriving either output.
+// Remove every exterior pixel ADDED by bloom, before deriving either output.
 // Existing ink/particles (even dark ones) are protected by the pre-bloom frame.
-// max RGB, rather than luminance, also protects saturated red/blue light.
-J.layerBloomMin = 32;
-J.cleanLayerBloom = (base, result, threshold = J.layerBloomMin) => {
-  threshold = J.normalizeBloomThreshold(threshold);
+// Keep bloom's colour/brightness changes within that existing footprint.
+J.cleanLayerBloom = (base, result) => {
   for (let i = 0; i < result.length; i += 4) {
     // Same coverage as layerPixels, including reserved black (3) and alpha rounding.
     // A flattened channel rounds above zero iff channel * alpha >= 255 / 2.
     if ((Math.max(base[i], base[i + 1], base[i + 2]) || 3) * base[i + 3] >= 127.5) continue;
-    const brightness = Math.round(Math.max(result[i], result[i + 1], result[i + 2]) * result[i + 3] / 255);
-    if (brightness < threshold) result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
+    result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
   }
   return result;
 };
@@ -36488,7 +36514,7 @@ J.LayerRenderer = class {
     const active = tracks.filter(p => p.lines.some(l => t >= l.start && t < l.end) && p.cuts.some(c => t >= c.start && t < c.end));
     for (let i = 0; i < active.length; i++) {
       this.engine.frame(this.part.getContext('2d', { willReadFrequently: true }), active[i], t, {
-        scale: this.w / plan.W, transparent: true, layerComposition: true, bloomThreshold: J.normalizeBloomThreshold(plan.bloomThreshold), noHud: i < active.length - 1, fast,
+        scale: this.w / plan.W, transparent: true, layerComposition: true, noHud: i < active.length - 1, fast,
       });
       x.drawImage(this.part, 0, 0);
     }
@@ -36571,10 +36597,9 @@ J.SpectrumReader = class {
   }
 };
 J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signal, onProgress }) => {
-  plan = Object.assign({}, plan, { bloomThreshold: J.normalizeBloomThreshold(project.bloomThreshold ?? plan.bloomThreshold) });
   const [w, h] = J.outputSize(project), fps = plan.fps;
-  if (spectrum) J.validateSpectrum(spectrum.front, spectrum.matte, fps);
-  const fullDuration = Math.max(plan.duration, spectrum ? J.spectrumDuration(spectrum.front, spectrum.matte) : 0);
+  if (spectrum && spectrum.kind !== 'generated') J.validateSpectrum(spectrum.front, spectrum.matte, fps);
+  const fullDuration = Math.max(plan.duration, J.spectrumSourceDuration(spectrum));
   const t0 = range ? range.t0 : 0, end = range ? Math.min(fullDuration, range.t1) : fullDuration;
   const total = Math.max(1, Math.ceil((end - t0) * fps - 1e-7));
   const attempts = await J.videoAttempts(w, h, fps, J.videoBitrate(w, h, fps, project.quality || 'high'));
@@ -36585,7 +36610,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     const writers = [];
     let reader = null;
     try {
-      if (spectrum) reader = await J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal);
       for (const name of ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
@@ -36625,7 +36650,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         blob: new Blob([s.target.buffer], { type: 'video/mp4' }),
       }));
       const manifest = { format: 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
-        bloomThreshold: plan.bloomThreshold, matte: 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
+        exteriorBloom: 'removed', matte: 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
       abort(signal); onProgress?.(1, msg('完了', 'Done'));
       return { files, manifest };
     } catch (e) {
@@ -36712,18 +36737,20 @@ J.DecodedSpectrumReader = class extends J.SpectrumReader {
 /* Filler cues are editable placeholders; their identity is independent of their text. */
 (() => {
 'use strict';
-const tr = J.layerText, kinds = J.fillerKinds = ['spaces', 'lyrics', 'timestamp', 'symbols'];
+const tr = J.layerText, kinds = J.fillerKinds = ['spaces', 'lyrics', 'timestamp', 'symbols', 'custom'];
 J.defaultFillerSettings = () => ({ threshold: 5, preGap: 0.3, postGap: 0.5, length: 'normal',
-  types: { spaces: { enabled: true, weight: 3 }, lyrics: { enabled: true, weight: 8 }, timestamp: { enabled: true, weight: 2 }, symbols: { enabled: true, weight: 1 } } });
+  customText: '',
+  types: { spaces: { enabled: true, weight: 3 }, lyrics: { enabled: true, weight: 8 }, timestamp: { enabled: true, weight: 2 }, symbols: { enabled: true, weight: 1 }, custom: { enabled: true, weight: 0 } } });
 J.normalizeFillerSettings = value => {
   const out = J.defaultFillerSettings();
   for (const key of ['threshold', 'preGap', 'postGap']) if (Number.isFinite(value?.[key]))
     out[key] = Math.max(key === 'threshold' ? 0.1 : 0, Math.min(600, value[key]));
   if (['short', 'normal', 'long'].includes(value?.length)) out.length = value.length;
+  if (typeof value?.customText === 'string') out.customText = value.customText;
   for (const key of kinds) {
     const v = value?.types?.[key];
     if (typeof v?.enabled === 'boolean') out.types[key].enabled = v.enabled;
-    if (Number.isFinite(v?.weight)) out.types[key].weight = Math.max(1, Math.min(10, Math.round(v.weight)));
+    if (Number.isFinite(v?.weight)) out.types[key].weight = Math.max(0, Math.min(10, Math.round(v.weight)));
   }
   return out;
 };
@@ -36781,8 +36808,9 @@ function symbolText(n, random, previous) {
 }
 // Pure preparation: validation failures never delete the currently edited fillers.
 J.prepareFillers = (project, settings, media, random = Math.random) => {
-  const a = J.fillerAnalysis(project, settings, media), enabled = kinds.filter(k => a.cfg.types[k].enabled);
-  if (!enabled.length) throw new Error(tr('フィラーの種類を1つ以上選んでください。', 'Select at least one filler type.'));
+  const a = J.fillerAnalysis(project, settings, media), enabled = kinds.filter(k => a.cfg.types[k].enabled && a.cfg.types[k].weight > 0);
+  if (enabled.includes('custom') && !a.cfg.customText.length) throw new Error(tr('指定テキストを入力するか、重みを0にしてください。', 'Enter custom text or set its weight to 0.'));
+  if (!enabled.length) throw new Error(tr('重み1以上のフィラーの種類を1つ以上選んでください。', 'Select at least one filler type with a positive weight.'));
   if (a.count + a.normal.length > 20000) throw new Error(tr('字幕が20,000件を超えます。長さや閾値を大きくしてください。', 'More than 20,000 cues. Increase the duration or gap threshold.'));
   const totalWeight = enabled.reduce((n, k) => n + a.cfg.types[k].weight, 0);
   const used = new Set(project.subtitleCues.map(c => c.id)); let serial = 0, previous = -1;
@@ -36801,6 +36829,7 @@ J.prepareFillers = (project, settings, media, random = Math.random) => {
       if (type === 'spaces') text = Array.from({ length: 3 + Math.floor(random() * 2) }, () => '　'.repeat(2 + Math.floor(random() * 4))).join(' ');
       else if (type === 'timestamp') text = '[timestamp]';
       else if (type === 'lyrics') text = a.normal[Math.floor(random() * a.normal.length)].text;
+      else if (type === 'custom') text = a.cfg.customText;
       else {
         const n = Math.max(1, Math.min(120, Math.round(a.meanChars * (0.75 + random() * 0.5))));
         const result = symbolText(n, random, previous); text = result.text; previous = result.pattern;
@@ -36841,12 +36870,333 @@ J.plan = (project, audio) => {
   out.events = groups.flatMap(g => g.plan.events).sort((a, b) => a.t - b.t);
   return out;
 };
-J.layerTracks = plan => plan.layerGroups ? plan.layerGroups.flatMap(g => tracks({ ...g.plan, bloomThreshold: plan.bloomThreshold })) : tracks(plan);
+J.layerTracks = plan => plan.layerGroups ? plan.layerGroups.flatMap(g => tracks(g.plan)) : tracks(plan);
 J.lineSnapshot = (plan, index) => {
   if (!plan.layerGroups) return snapshot(plan, index);
   const group = plan.layerGroups.find(g => g.indices.includes(index));
   return group ? snapshot(group.plan, group.indices.indexOf(index)) : null;
 };
+})();
+
+/* Optional flattened MP4 output. Layer-pair exports stay silent and background-free. */
+(() => {
+'use strict';
+const tr = J.layerText;
+J.normalizeSimpleExport = value => ({
+  duration: Number.isFinite(value?.duration) && value.duration > 0 && value.duration <= 86400 ? value.duration : null,
+  includeAudio: value?.includeAudio !== false,
+});
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
+J.defaultProject = () => ({ ...defaults(), simpleExport: J.normalizeSimpleExport() });
+J.upgradeLayerProject = (project, source) => {
+  upgrade(project, source); project.simpleExport = J.normalizeSimpleExport(project.simpleExport); return project;
+};
+J.simpleMaterialDuration = (plan, audio, front, matte) => {
+  const buffer = audio?.buffer;
+  const sound = buffer ? buffer.length / buffer.sampleRate : audio?.duration || 0;
+  const spectrum = front ? J.spectrumDuration(front, matte) : 0;
+  const ends = (plan?.lines || []).map(l => l.end);
+  return Math.max(0.001, ...ends, sound, spectrum);
+};
+J.simpleExportSpan = (duration, fps, range) => {
+  if (!Number.isFinite(duration) || duration <= 0 || duration > 86400 || !Number.isFinite(fps) || fps <= 0)
+    throw new Error(tr('出力時間は0秒より大きく、86,400秒以内で指定してください。', 'Duration must be greater than zero and at most 86,400 seconds.'));
+  const t0 = range ? Math.max(0, range.t0) : 0, end = range ? Math.min(duration, range.t1) : duration;
+  if (!Number.isFinite(t0) || !Number.isFinite(end) || end <= t0)
+    throw new Error(tr('指定した出力時間と書き出し範囲が重なりません。', 'Duration does not overlap the selected export range.'));
+  const frames = Math.max(1, Math.ceil((end - t0) * fps - 1e-7));
+  return { t0, frames, duration: frames / fps };
+};
+const abort = signal => { if (signal?.aborted) throw new DOMException('Cancelled', 'AbortError'); };
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function bounded(promise, signal) {
+  let timer, stop;
+  try {
+    abort(signal);
+    return await Promise.race([promise, new Promise((_, reject) => {
+      stop = () => reject(new DOMException('Cancelled', 'AbortError'));
+      signal?.addEventListener('abort', stop, { once: true });
+      timer = setTimeout(() => reject(new Error(tr('エンコードがタイムアウトしました。', 'Encoding timed out.'))), 30000);
+    })]);
+  } finally { clearTimeout(timer); signal?.removeEventListener('abort', stop); }
+}
+async function drain(encoder, getError, signal) {
+  const until = performance.now() + 30000;
+  while (encoder.encodeQueueSize > 4) {
+    abort(signal); if (getError()) throw getError();
+    if (performance.now() > until) throw new Error(tr('エンコーダーが応答しません。', 'Encoder stopped responding.'));
+    await tick();
+  }
+  if (getError()) throw getError();
+}
+// Resample at most five seconds at a time; long silent tails do not allocate a full-song buffer.
+async function encodeSound(buffer, mux, span, config, signal, progress) {
+  let error = null, count = 0;
+  const encoder = new AudioEncoder({ output(chunk, meta) { try { mux.addAudioChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
+  try {
+    encoder.configure(config);
+    const sr = config.sampleRate, channels = config.numberOfChannels, total = Math.round(span.duration * sr);
+    for (let offset = 0; offset < total; offset += sr * 5) {
+      abort(signal);
+      const length = Math.min(sr * 5, total - offset), sourceTime = span.t0 + offset / sr;
+      let block = null;
+      if (sourceTime < buffer.length / buffer.sampleRate) {
+        const offline = new OfflineAudioContext(channels, length, sr), source = offline.createBufferSource();
+        source.buffer = buffer; source.connect(offline.destination); source.start(0, sourceTime);
+        block = await bounded(offline.startRendering(), signal);
+      }
+      for (let j = 0; j < length; j += 4800) {
+        abort(signal);
+        const n = Math.min(4800, length - j), data = new Float32Array(n * channels);
+        if (block) for (let c = 0; c < channels; c++) data.set(block.getChannelData(c).subarray(j, j + n), c * n);
+        const ad = new AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: n, numberOfChannels: channels, timestamp: Math.round((offset + j) * 1e6 / sr), data });
+        try { encoder.encode(ad); } finally { ad.close(); }
+        await drain(encoder, () => error, signal);
+      }
+      progress?.(0.9 + 0.09 * (offset + length) / total, tr('音声をエンコード中', 'Encoding audio')); await tick();
+    }
+    await bounded(encoder.flush(), signal); if (error) throw error;
+    if (!count) throw new Error(tr('音声が出力されませんでした。', 'No encoded audio was produced.'));
+  } finally { try { encoder.close(); } catch (_) {} }
+}
+J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null, audio = null, range = null, signal, onProgress }) => {
+  if (background?.video) throw new Error(tr('簡易動画出力には背景を静止画に変更するか、解除してください。', 'Use a still background or clear the video background for simple export.'));
+  const settings = J.normalizeSimpleExport(project.simpleExport), span = J.simpleExportSpan(settings.duration, plan.fps, range);
+  const [w, h] = J.outputSize(project), fps = plan.fps;
+  let audioConfig = null;
+  if (settings.includeAudio && audio?.buffer) {
+    audioConfig = { codec: 'mp4a.40.2', sampleRate: 48000, numberOfChannels: Math.min(2, audio.buffer.numberOfChannels), bitrate: 192000 };
+    if (typeof AudioEncoder === 'undefined' || !await AudioEncoder.isConfigSupported(audioConfig).then(r => r.supported).catch(() => false))
+      throw new Error(tr('この環境ではAAC音声を出力できません。「音源を含めない」を選ぶか対応環境で出力してください。', 'AAC audio encoding is unavailable. Select “Exclude audio” or use a supported environment.'));
+  }
+  abort(signal);
+  const attempts = (await J.videoAttempts(w, h, fps, J.videoBitrate(w, h, fps, project.quality || 'high'))).filter(c => c.mux === 'avc');
+  if (!attempts.length) throw new Error(tr('H.264 MP4出力に対応していません。', 'H.264 MP4 encoding is unavailable.'));
+  const errors = [];
+  for (const codec of attempts) {
+    let reader = null, encoder = null, error = null, count = 0, audioPhase = false;
+    try {
+      abort(signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal);
+      const target = new Mp4Muxer.ArrayBufferTarget(), mux = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: w, height: h, frameRate: fps },
+        ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
+      encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
+      encoder.configure({ ...codec.cfg, latencyMode: 'quality' });
+      const render = new J.LayerRenderer(w, h), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
+      const ctx = canvas.getContext('2d'), bx = base.getContext('2d');
+      bx.fillStyle = '#000'; bx.fillRect(0, 0, w, h);
+      if (background) {
+        const ratio = Math.min(w / background.width, h / background.height), dw = background.width * ratio, dh = background.height * ratio;
+        bx.drawImage(background.el, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      }
+      for (let i = 0; i < span.frames; i++) {
+        abort(signal);
+        const t = span.t0 + i / fps;
+        let pixels = render.draw(plan, t);
+        if (reader) pixels = J.overPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels);
+        ctx.drawImage(base, 0, 0);
+        render.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
+        ctx.drawImage(render.layer, 0, 0);
+        const frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round((i + 1) * 1e6 / fps) - Math.round(i * 1e6 / fps) });
+        try { encoder.encode(frame, { keyFrame: i % (fps * 2) === 0 }); } finally { frame.close(); }
+        await drain(encoder, () => error, signal);
+        if (i % 3 === 0) { onProgress?.((audioConfig ? 0.9 : 0.99) * (i + 1) / span.frames, `${i + 1} / ${span.frames}`); await tick(); }
+      }
+      await bounded(encoder.flush(), signal); if (error) throw error;
+      if (count !== span.frames) throw new Error(tr('映像フレームが不足しています。', 'Encoded video frames are incomplete.'));
+      if (audioConfig) { audioPhase = true; await encodeSound(audio.buffer, mux, span, audioConfig, signal, onProgress); }
+      abort(signal); mux.finalize(); onProgress?.(1, tr('完了', 'Done'));
+      return { files: [{ name: 'simple_video.mp4', blob: new Blob([target.buffer], { type: 'video/mp4' }) }], ...span, audio: !!audioConfig };
+    } catch (e) {
+      if (signal?.aborted || e.name === 'AbortError') throw new DOMException('Cancelled', 'AbortError');
+      if (audioPhase) throw e;
+      errors.push(codec.label + ': ' + e.message);
+    } finally { try { encoder?.close(); } catch (_) {} await reader?.close(); }
+  }
+  throw new Error(tr('簡易動画の出力に失敗しました。', 'Simple export failed. ') + errors.join(' / '));
+};
+})();
+
+/* Audio-derived spectrum: cached offline analysis, deterministic seeking and output. */
+(() => {
+'use strict';
+const tr = J.layerText, clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+J.normalizeNativeSpectrum = value => {
+  const v = value || {}, color = c => typeof c === 'string' && /^#[\da-f]{6}$/i.test(c) ? c : '#ffffff';
+  return { top: color(v.top), bottom: color(v.bottom),
+    sensitivity: Number.isFinite(v.sensitivity) ? clamp(v.sensitivity, -12, 24) : 8,
+    pulse: Number.isFinite(v.pulse) ? clamp(v.pulse, 0, 100) : 100,
+    returnMs: Number.isFinite(v.returnMs) ? clamp(v.returnMs, 60, 600) : 140 };
+};
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
+J.defaultProject = () => ({ ...defaults(), spectrumMode: 'none', nativeSpectrum: J.normalizeNativeSpectrum() });
+J.upgradeLayerProject = (p, source) => {
+  upgrade(p, source);
+  p.spectrumMode = ['none', 'generated', 'external'].includes(source?.spectrumMode) ? source.spectrumMode : source ? 'external' : 'none';
+  p.nativeSpectrum = J.normalizeNativeSpectrum(p.nativeSpectrum); return p;
+};
+J.activeSpectrumDuration = (p, audio, media = J.layerSession) => p.spectrumMode === 'generated'
+  ? (audio?.buffer ? audio.buffer.length / audio.buffer.sampleRate : 0)
+  : p.spectrumMode !== 'none' && media?.front ? J.spectrumDuration(media.front, media.matte) : 0;
+J.nativeMotionKey = p => { const c = J.normalizeNativeSpectrum(p.nativeSpectrum); return JSON.stringify([c.sensitivity, c.pulse, c.returnMs]); };
+
+// Self-contained so exactly this implementation also runs in a Blob worker.
+function analyzePCM(samples, sampleRate, progress) {
+  const rate = 60, bars = 64, size = sampleRate > 60000 ? 4096 : 2048;
+  const frames = Math.ceil(samples.length / sampleRate * rate), raw = new Float32Array(frames * bars);
+  const real = new Float64Array(size), imag = new Float64Array(size), win = new Float64Array(size), reverse = new Uint32Array(size);
+  let sum = 0; const bits = Math.log2(size);
+  for (let i = 0; i < size; i++) {
+    win[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (size - 1)); sum += win[i];
+    let x = i, r = 0; for (let b = 0; b < bits; b++) { r = (r << 1) | (x & 1); x >>>= 1; } reverse[i] = r;
+  }
+  function fftAt(start) {
+    for (let i = 0; i < size; i++) { const j = start + i; real[reverse[i]] = (j >= 0 && j < samples.length ? samples[j] : 0) * win[i]; imag[i] = 0; }
+    for (let width = 2; width <= size; width *= 2) {
+      const half = width / 2, angle = -2 * Math.PI / width, cr = Math.cos(angle), ci = Math.sin(angle);
+      for (let base = 0; base < size; base += width) {
+        let wr = 1, wi = 0;
+        for (let j = 0; j < half; j++) {
+          const a = base + j, b = a + half, xr = wr * real[b] - wi * imag[b], xi = wr * imag[b] + wi * real[b];
+          real[b] = real[a] - xr; imag[b] = imag[a] - xi; real[a] += xr; imag[a] += xi;
+          const next = wr * cr - wi * ci; wi = wr * ci + wi * cr; wr = next;
+        }
+      }
+    }
+  }
+  // A bounded whole-song prescan chooses one range, independent of playback and
+  // motion settings. Reuse the original FFT/window; do not lengthen the attack.
+  const binHz = sampleRate / size, ceiling = Math.min(16000, sampleRate / 2);
+  const firstBin = Math.max(1, Math.ceil(20 / binHz)), lastBin = Math.floor(ceiling / binHz);
+  const power = new Float64Array(size / 2 + 1), smoothed = new Float64Array(power.length);
+  const scanFrames = samples.length < size ? 0 : Math.min(600, Math.max(1, Math.ceil(samples.length / sampleRate * 4)));
+  for (let f = 0; f < scanFrames; f++) {
+    fftAt(scanFrames === 1 ? Math.floor((samples.length - size) / 2) : Math.round(f * (samples.length - size) / (scanFrames - 1)));
+    for (let k = firstBin; k <= lastBin; k++) power[k] += (real[k] ** 2 + imag[k] ** 2) * 4 / (sum * sum * scanFrames);
+    if (f % 30 === 0) progress?.(.15 * f / scanFrames);
+  }
+  let total = 0;
+  for (let k = firstBin; k <= lastBin; k++) {
+    for (let d = -2; d <= 2; d++) if (k + d >= firstBin && k + d <= lastBin) smoothed[k] += power[k + d] * (3 - Math.abs(d)) / 9;
+    total += smoothed[k];
+  }
+  let low = 80, high = Math.min(12000, sampleRate / 2);
+  const fallback = !scanFrames || !Number.isFinite(total) || total <= 1e-12;
+  if (!fallback) {
+    let cumulative = 0, lowBin = firstBin, highBin = lastBin, foundLow = false;
+    for (let k = firstBin; k <= lastBin; k++) {
+      cumulative += smoothed[k];
+      if (!foundLow && cumulative >= total * .002) { lowBin = k; foundLow = true; }
+      if (cumulative >= total * .998) { highBin = k; break; }
+    }
+    // Outward margin/rounding avoids clipping the estimated useful spectrum.
+    // Always include 250–4000 Hz, limited only by the source Nyquist frequency.
+    low = Math.max(60, Math.min(250, Math.floor(lowBin * binHz * .9 / 10) * 10));
+    high = Math.min(ceiling, Math.max(4000, Math.ceil(highBin * binHz * 1.1 / 100) * 100));
+  }
+  // Very high sample rates still need at least 64 distinct bins. Keep the
+  // existing monotonic edge allocation and widen the upper limit if necessary.
+  high = Math.min(sampleRate / 2, Math.max(high, Math.ceil((Math.max(1, Math.floor(low / binHz)) + bars - 1) * binHz / 100) * 100));
+  const last = Math.min(size / 2 + 1, Math.floor(high * size / sampleRate) + 1);
+  const edges = new Uint32Array(bars + 1); edges[0] = Math.max(1, Math.floor(low * size / sampleRate)); edges[bars] = last;
+  for (let b = 1; b < bars; b++) edges[b] = Math.max(edges[b - 1] + 1, Math.min(last - (bars - b), Math.round(low * Math.pow(high / low, b / bars) * size / sampleRate)));
+  progress?.(.15);
+  for (let f = 0; f < frames; f++) {
+    fftAt(Math.round(f * sampleRate / rate) - size / 2);
+    for (let b = 0; b < bars; b++) {
+      let power = 0; for (let k = edges[b]; k < edges[b + 1]; k++) power += real[k] ** 2 + imag[k] ** 2;
+      const amplitude = Math.sqrt(power / Math.max(1, edges[b + 1] - edges[b])) * 2 / sum;
+      raw[f * bars + b] = 20 * Math.log10(Math.max(1e-8, amplitude));
+    }
+    if (f % 120 === 0) progress?.(.15 + .85 * f / frames);
+  }
+  return { raw, rate, bars, frames, duration: samples.length / sampleRate,
+    frequencyRange: { low, high, fallback }, fftSize: size, bandEdges: Array.from(edges), scanFrames };
+}
+J.analyzeNativePCM = analyzePCM;
+const aborted = signal => { if (signal?.aborted) throw new DOMException('Cancelled', 'AbortError'); };
+const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+J.analyzeNativeAudio = async (buffer, signal, progress) => {
+  aborted(signal);
+  const mono = new Float32Array(buffer.length), channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
+  for (let i = 0; i < mono.length; i += 262144) {
+    aborted(signal); const end = Math.min(i + 262144, mono.length);
+    for (let c = 0; c < channels.length; c++) for (let j = i; j < end; j++) mono[j] += channels[c][j] / channels.length;
+    progress?.(.05 * end / mono.length); await tick();
+  }
+  aborted(signal);
+  const script = `const analyze = ${analyzePCM.toString()}; onmessage = e => { try { const r = analyze(e.data.samples, e.data.sampleRate, p => postMessage({progress:p})); postMessage({result:r}, [r.raw.buffer]); } catch(e) { postMessage({error:e.message}); } };`;
+  const url = URL.createObjectURL(new Blob([script], { type: 'text/javascript' }));
+  let worker, stop;
+  try {
+    worker = new Worker(url);
+    return await new Promise((resolve, reject) => {
+      stop = () => reject(new DOMException('Cancelled', 'AbortError')); signal?.addEventListener('abort', stop, { once: true });
+      worker.onmessage = e => e.data.error ? reject(new Error(e.data.error)) : e.data.result ? resolve(e.data.result) : progress?.(.05 + .95 * e.data.progress);
+      worker.onerror = e => { e.preventDefault(); reject(new Error(e.message || 'Spectrum worker failed')); };
+      worker.postMessage({ samples: mono, sampleRate: buffer.sampleRate }, [mono.buffer]);
+    });
+  } finally { signal?.removeEventListener('abort', stop); worker?.terminate(); URL.revokeObjectURL(url); }
+};
+J.shapeNativeSpectrum = async (analysis, settings, signal) => {
+  const c = J.normalizeNativeSpectrum(settings), { raw, frames, bars, rate } = analysis;
+  const values = new Float32Array(raw.length), baseline = new Float32Array(bars), current = new Float32Array(bars);
+  const baseAlpha = 1 - Math.exp(-1 / (rate * .06)), release = 1 - Math.exp(-4.605 / (rate * c.returnMs / 1000)), amount = c.pulse / 100;
+  for (let f = 0; f < frames; f++) {
+    if (f % 300 === 0) { aborted(signal); await tick(); }
+    let peak = -160; for (let b = 0; b < bars; b++) peak = Math.max(peak, raw[f * bars + b] + c.sensitivity);
+    const energy = clamp((peak + 65) / 57, 0, 1), gate = energy * energy * (3 - 2 * energy);
+    for (let b = 0; b < bars; b++) {
+      const db = raw[f * bars + b] + c.sensitivity;
+      const v = Math.pow(clamp((db - (peak - 36)) / 36, 0, 1), 1.3) * gate;
+      // A fixed difference scale lets even a saturated sustained tone fall to zero.
+      const pulse = clamp((v - baseline[b]) * 1.8, 0, 1);
+      baseline[b] += (v - baseline[b]) * baseAlpha;
+      const target = (1 - amount) * v + amount * pulse;
+      current[b] = target >= current[b] ? target : current[b] + (target - current[b]) * release;
+      if (current[b] < .015) current[b] = 0;
+      values[f * bars + b] = current[b];
+    }
+  }
+  aborted(signal); return { ...analysis, raw: undefined, values };
+};
+J.nativeSpectrumLevels = (data, t) => {
+  const levels = new Float32Array(64);
+  if (!data || t < 0 || t >= data.duration) return levels;
+  const pos = t * data.rate, a = Math.min(data.frames - 1, Math.floor(pos)), b = Math.min(data.frames - 1, a + 1), mix = pos - Math.floor(pos);
+  for (let k = 0; k < 64; k++) levels[k] = data.values[a * 64 + k] * (1 - mix) + data.values[b * 64 + k] * mix;
+  return levels;
+};
+J.NativeSpectrumReader = class {
+  constructor(spectrum, w, h) { this.spectrum = spectrum; this.w = w; this.h = h; this.canvas = J.layerCanvas(w, h); this.ctx = this.canvas.getContext('2d', { willReadFrequently: true }); }
+  framePixels(t, layout, settings = this.spectrum.settings) {
+    const ctx = this.ctx, c = J.normalizeNativeSpectrum(settings), rect = J.spectrumRect(this.w, this.h, 768, 120, layout);
+    ctx.clearRect(0, 0, this.w, this.h);
+    const gradient = ctx.createLinearGradient(0, rect.y + rect.height, 0, rect.y);
+    gradient.addColorStop(0, c.bottom); gradient.addColorStop(1, c.top); ctx.fillStyle = gradient;
+    const levels = J.nativeSpectrumLevels(this.spectrum.data, t), cell = rect.width / 64;
+    for (let i = 0; i < 64; i++) if (levels[i] > 0) {
+      const height = levels[i] * rect.height;
+      ctx.fillRect(rect.x + cell * (i + .225), rect.y + rect.height - height, cell * .55, height);
+    }
+    const pixels = ctx.getImageData(0, 0, this.w, this.h).data;
+    // Preserve intentional black bars as 030303; empty pixels stay RGB=0/alpha=0.
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (!pixels[i + 3]) continue;
+      const alpha = pixels[i + 3] / 255;
+      for (let k = 0; k < 3; k++) pixels[i + k] = Math.round(pixels[i + k] * alpha);
+      if (!(pixels[i] || pixels[i + 1] || pixels[i + 2])) pixels[i] = pixels[i + 1] = pixels[i + 2] = 3;
+      pixels[i + 3] = 255;
+    }
+    return pixels;
+  }
+  async pixels(t, signal, layout) { aborted(signal); return this.framePixels(t, layout); }
+  async close() {}
+};
+J.createSpectrumReader = (spectrum, w, h, t0, fps, total, signal) => spectrum.kind === 'generated'
+  ? Promise.resolve(new J.NativeSpectrumReader(spectrum, w, h))
+  : J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+J.spectrumSourceDuration = s => s?.kind === 'generated' ? s.data.duration : s ? J.spectrumDuration(s.front, s.matte) : 0;
 })();
 
 /* ============================================================
@@ -37668,6 +38018,7 @@ function syncRangeUI() {
   document.querySelectorAll('.rngTo').forEach(el => { el.innerHTML = opts(el, '—'); el.value = R ? String(R.to) : '-1'; el.disabled = !R; });
   const r = exportRange();
   document.querySelectorAll('.rngInfo').forEach(el => { el.textContent = r ? `${J.fmtTime(r.t0)} 〜 ${J.fmtTime(r.t1)}（${(r.t1 - r.t0).toFixed(1)}秒）` : `全体（${S.plan.duration.toFixed(1)}秒）`; });
+  J.syncSimpleExportUI?.();
 }
 function bindRangeUI() {
   document.querySelectorAll('.rngFrom').forEach(el => el.addEventListener('change', () => {
@@ -38531,7 +38882,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.0.0' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.1.0' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -38582,7 +38933,7 @@ async function loadAudioFile(f, restored) {
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
-  } catch (err) { if (my !== audioSeq) return false; $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; return false; }
+  } catch (err) { if (my !== audioSeq) return false; $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; replan(); return false; }
 }
 
 /* ---------------- かんたんモードの案内ツアー ---------------- */
@@ -38703,8 +39054,15 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
-  for (const m of [session.background, session.front, session.matte]) syncMedia(m, t, J.ui.playing);
-  if (session.front && t < J.spectrumDuration(session.front, session.matte)) {
+  syncMedia(session.background, t, J.ui.playing);
+  for (const m of [session.front, session.matte]) {
+    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, J.ui.playing);
+    else if (m?.video && !m.el.paused) m.el.pause();
+  }
+  if (J.ui.project.spectrumMode === 'generated') {
+    const native = J.drawNativeSpectrumPixels(w, h, t);
+    if (native) pixels = J.overPixels(native, pixels);
+  } else if (J.ui.project.spectrumMode !== 'none' && session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
@@ -38740,14 +39098,16 @@ function syncCueErrors() {
   J.layerCueEditsInvalid = !!error;
   if (error) status(error, true); else if (showingCueError) status('');
   showingCueError = !!error;
-  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error;
+  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error || !!J.nativeSpectrumBlocked?.();
   document.querySelectorAll('.cue-actions button[id^="cue-add-"]').forEach(b => { b.disabled = session.busy || !!error; });
   if ($('layerAddCue')) {
     const atZero = J.ui.project.subtitleCues?.some(c => c.start === 0);
     $('layerAddCue').disabled = session.busy || !!error || !!atZero;
     $('layerAddCue').title = atZero ? tr('先頭の字幕が0秒から始まるため追加できません。', 'The first cue starts at zero; there is no room before it.') : tr('0秒から最初の字幕までの範囲に、最長3秒で追加します。', 'Add up to 3 seconds from zero, ending before the first cue.');
   }
+  for (const id of ['layerShiftBack', 'layerShiftForward']) if ($(id)) $(id).disabled = session.busy || !J.ui.project.subtitleCues?.length;
   J.syncFillerUI?.();
+  syncSimpleExportUI();
 }
 function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
@@ -38761,6 +39121,7 @@ async function loadMedia(key, file, videoOnly) {
   }
   if (key === 'front' && session.front) clearMedia('matte');
   session[key]?.dispose(); session[key] = m;
+  if (key === 'front') J.ui.project.spectrumMode = 'external';
   if (m.video) { m.el.addEventListener('seeked', dirty); m.el.addEventListener('loadeddata', dirty); }
   $('layerName-' + key).textContent = file.name;
   if (key !== 'background') J.uiApi.replan();
@@ -38784,6 +39145,7 @@ async function loadSpectrumPair(frontFile, matteFile) {
     media.el.addEventListener('seeked', dirty); media.el.addEventListener('loadeddata', dirty);
     $('layerName-' + key).textContent = media.name;
   }
+  J.ui.project.spectrumMode = 'external';
   J.uiApi.replan(); J.syncLayerUI(); dirty();
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
@@ -38797,7 +39159,8 @@ async function selectSpectrumFront(file, selected) {
   status(session.matte ? tr('フロントとマットで合成します。', 'Compositing with front and matte.') : tr('フロントを読み込みました。マットなし：RGB 000000だけを透明にして合成します。', 'Front loaded. No matte: only RGB 000000 is transparent.'));
 }
 function spectrumControls(panel) {
-  panel.append(el('p', tr('フロントと同名_matte_darkを2本まとめて選ぶと、自動でペアを読み込みます。', 'Select both the front and its _matte_dark file to load the pair automatically.'), 'note'));
+  panel.append(el('p', tr('フロントと同名_matte_darkを2本まとめて選ぶと、自動でペアを読み込みます。', 'Select both the front and its _matte_dark file to load the pair automatically.'), 'note spectrum-external'));
+  const placement = el('div', null, 'spectrum-placement');
   const grid = el('div', null, 'spectrum-position');
   for (const [key, ja, en, min, max] of [
     ['left', '左から（画面幅%）', 'Left (% of frame width)', -100, 100],
@@ -38816,52 +39179,13 @@ function spectrumControls(panel) {
     input.addEventListener('change', () => J.syncLayerUI());
     label.append(input); grid.append(label);
   }
-  panel.append(el('h3', tr('スペアナの位置・倍率', 'Spectrum position and scale')), grid,
-    el('p', tr('基本幅は画面の65%。横・縦100%で元の縦横比を維持。左右・上下の倍率は独立し、素材枠の左端・下端が位置の基準です。', 'Base width is 65% of the frame. Both scales at 100% preserve the source aspect ratio. Scales are independent; position anchors the left and bottom source edges.'), 'note'),
+  placement.append(el('h3', tr('スペアナの位置・倍率', 'Spectrum position and scale')), grid,
     button('spectrumReset', tr('基本位置に戻す', 'Reset position'), () => {
       J.ui.project.spectrumLayout = J.defaultSpectrumLayout(); J.uiApi.flushSave(); J.syncLayerUI(); dirty();
     }));
+  panel.append(placement);
 }
 
-
-function bloomControls(panel) {
-  const section = el('div', null, 'layer-bloom'); section.id = 'layerBloomControls';
-  const label = el('label', tr('外周ブルームの除去', 'Exterior bloom cleanup'));
-  label.htmlFor = 'layerBloomRange';
-  const row = el('div', null, 'layer-bloom-inputs');
-  const range = el('input'), number = el('input');
-  for (const input of [range, number]) {
-    input.type = input === range ? 'range' : 'number';
-    input.min = '0'; input.max = '128'; input.step = '1';
-    input.id = input === range ? 'layerBloomRange' : 'layerBloomNumber';
-    input.setAttribute('aria-label', tr('外周ブルームの除去しきい値', 'Exterior bloom cleanup threshold'));
-    input.setAttribute('aria-describedby', 'layerBloomHelp');
-    input.addEventListener('input', () => {
-      if (!Number.isFinite(input.valueAsNumber) || session.busy) return;
-      const value = J.normalizeBloomThreshold(input.valueAsNumber);
-      J.ui.project.bloomThreshold = value;
-      if (J.ui.plan) J.ui.plan.bloomThreshold = value;
-      range.value = value;
-      if (input === range) number.value = value;
-      J.uiApi.flushSave(); dirty();
-    });
-    input.addEventListener('change', () => {
-      const value = J.normalizeBloomThreshold(J.ui.project.bloomThreshold);
-      range.value = number.value = value;
-    });
-  }
-  const reset = button('layerBloomReset', tr('32に戻す', 'Reset to 32'), () => {
-    J.ui.project.bloomThreshold = 32;
-    if (J.ui.plan) J.ui.plan.bloomThreshold = 32;
-    range.value = number.value = 32;
-    J.uiApi.flushSave(); dirty();
-  });
-  row.append(range, number);
-  const help = el('p', tr('0〜128（初期値32）。0は除去なし。大きいほど外側の暗い光彩を強く除去します。文字・図形・火花は保持します。プレビューと出力に反映し、プロジェクトに保存します。',
-    '0–128 (default 32). 0 disables cleanup. Higher values remove more dim exterior glow. Text, shapes and sparks are preserved. Applies to preview and export; saved with the project.'), 'note');
-  help.id = 'layerBloomHelp';
-  section.append(label, row, reset, help); panel.append(section);
-}
 
 function clearMedia(key) {
   session.generation[key] = (session.generation[key] || 0) + 1;
@@ -38881,7 +39205,7 @@ function offerDownloads(files, title) {
   clearDownloads();
   const prefix = (title || 'jizura_layers').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
   const links = files.map(file => {
-    const a = el('a', file.name.includes('_matte_dark') ? tr('マットMP4を保存', 'Save matte MP4') : tr('フロントMP4を保存', 'Save front MP4'));
+    const a = el('a', file.name === 'simple_video.mp4' ? tr('簡易動画MP4を保存', 'Save simple video MP4') : file.name.includes('_matte_dark') ? tr('マットMP4を保存', 'Save matte MP4') : tr('フロントMP4を保存', 'Save front MP4'));
     a.href = URL.createObjectURL(file.blob); downloadUrls.push(a.href);
     a.download = prefix + '_' + file.name; a.title = a.download;
     $('layerDownloads').append(a);
@@ -38892,14 +39216,18 @@ function offerDownloads(files, title) {
 }
 window.addEventListener('pagehide', e => { if (!e.persisted) clearDownloads(); });
 async function exportPair() {
+  return exportVideo(false);
+}
+async function exportVideo(simple) {
   if (J.ui.exporting) return;
   // Commit the focused editor before capturing the plan; never export stale valid data.
   document.activeElement?.blur();
   syncCueErrors();
   if (J.layerCueEditsInvalid) return;
+  if (simple && $('simpleExport').disabled) return;
   let spectrum = null;
   try {
-    if (session.front) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
+    spectrum = J.getSpectrumForExport();
     J.uiApi.pause();
     const ac = new AbortController(); J.ui.exporting = ac; session.busy = true;
     for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause();
@@ -38915,16 +39243,73 @@ async function exportPair() {
       await J.ensureFonts(project.lyrics, J.fontsOfPlan(plan));
       const missing = J.missingUserFonts(J.fontsOfPlan(plan));
       if (missing.length) throw new Error(tr('不足しているフォントを読み直してください: ', 'Reload missing fonts: ') + missing.join(', '));
-      const pair = await J.exportLayerPair({ plan, project, spectrum, range, signal: ac.signal,
-        onProgress(p, m) { $('layerProgress').value = p; status(tr('ペア動画を生成中 ', 'Encoding pair ') + m); } });
+      const args = { plan, project, spectrum, range, signal: ac.signal,
+        onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
+      const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : await J.exportLayerPair(args);
       if (ac.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
       offerDownloads(pair.files, project.title);
-      status(tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
+      status(simple ? tr('簡易動画MP4を生成しました。保存されない場合はリンクから保存してください。', 'Simple video MP4 is ready. Use the save link if needed.') : tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
     } finally {
       controls.forEach((e, i) => { e.disabled = disabled[i]; });
       J.ui.exporting = null; session.busy = false; $('layerCancel').hidden = true; dirty(); J.syncLayerUI();
     }
   } catch (e) { status(e.name === 'AbortError' ? tr('出力を中止しました。', 'Export cancelled.') : e.message, e.name !== 'AbortError'); }
+}
+let simpleProject = null, simpleInvalidDraft = false, simpleMaterials = null;
+function syncSimpleExportUI() {
+  if (!$('simpleExport') || session.busy) return;
+  const project = J.ui.project, input = $('simpleDuration');
+  const projectChanged = simpleProject !== project;
+  if (projectChanged) { simpleProject = project; simpleInvalidDraft = false; }
+  const materials = [session.background, session.front, session.matte, J.ui.audio?.buffer, project.spectrumMode,
+    JSON.stringify((J.ui.plan?.lines || []).map(c => [c.start, c.end]))];
+  const materialsChanged = !projectChanged && simpleMaterials && materials.some((v, i) => v !== simpleMaterials[i]);
+  simpleMaterials = materials;
+  const settings = project.simpleExport = J.normalizeSimpleExport(project.simpleExport);
+  const recalculate = settings.duration == null || materialsChanged;
+  if (recalculate) {
+    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null);
+    simpleInvalidDraft = false;
+    if (materialsChanged) J.uiApi.flushSave();
+  }
+  if (projectChanged || recalculate || (!simpleInvalidDraft && document.activeElement !== input)) input.value = settings.duration;
+  $('simpleNoAudio').checked = !settings.includeAudio;
+  let span, reason = '';
+  try {
+    if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
+    span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
+  } catch (e) { reason = e.message; }
+  if (session.background?.video) reason = tr('背景動画が指定されています。簡易出力には静止画に変更するか、背景を解除してください。', 'A video background is selected. Use a still image or clear the background for simple export.');
+  if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
+  if (J.nativeSpectrumBlocked?.()) reason = tr('音源を読み込み、スペアナ解析の完了を待ってください。', 'Load audio and wait for spectrum analysis to finish.');
+  $('simpleExport').disabled = !!reason;
+  input.setAttribute('aria-invalid', String(simpleInvalidDraft));
+  const help = $('simpleExportInfo'); help.classList.toggle('error', !!reason);
+  help.textContent = reason || tr(`実際の映像：${span.duration.toFixed(3)}秒・${span.frames}フレーム（${project.fps}fps）。`, `Video: ${span.duration.toFixed(3)}s · ${span.frames} frames (${project.fps}fps).`)
+    + (span.t0 ? tr(` 開始：${span.t0.toFixed(3)}秒。`, ` Starts at ${span.t0.toFixed(3)}s.`) : '')
+    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 読み込んだ音源を含みます。', ' Includes the loaded audio.') : tr(' 音声なし。', ' No audio.'));
+}
+J.syncSimpleExportUI = syncSimpleExportUI;
+function simpleExportControls(panel) {
+  panel.append(button('simpleExport', tr('簡易動画MP4を出力', 'Export simple video MP4'), () => exportVideo(true)));
+  const controls = el('div', null, 'simple-export-controls');
+  const label = el('label', tr('出力時間（秒）', 'Duration (seconds)')), input = el('input');
+  input.id = 'simpleDuration'; input.type = 'number'; input.min = '0.001'; input.max = '86400'; input.step = 'any'; input.required = true;
+  input.setAttribute('aria-label', tr('簡易動画の出力時間（秒）', 'Simple video duration (seconds)'));
+  input.addEventListener('input', () => {
+    const value = input.valueAsNumber;
+    simpleInvalidDraft = !Number.isFinite(value) || value <= 0 || value > 86400;
+    if (!simpleInvalidDraft) { J.ui.project.simpleExport.duration = value; J.uiApi.flushSave(); }
+    syncSimpleExportUI();
+  });
+  label.append(input);
+  const audio = el('label', null, 'simple-audio'), check = el('input'); check.type = 'checkbox'; check.id = 'simpleNoAudio';
+  check.addEventListener('change', () => { J.ui.project.simpleExport.includeAudio = !check.checked; J.uiApi.flushSave(); syncSimpleExportUI(); });
+  audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
+  controls.append(label, audio); panel.append(controls);
+  const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
+  panel.append(el('p', tr('静止画＋スペアナ＋字幕を1本のMP4として、指定時間まで背景を表示した動画を出力します。解像度・fps・画質・書き出し範囲は既存設定を使用します。',
+    'Exports a still image, spectrum and subtitles as one MP4, keeping the background for the specified duration. Uses the existing resolution, fps, quality and export range.'), 'note'));
 }
 function cueTable() {
   const root = $('layerCues'), cues = J.ui.project.subtitleCues;
@@ -38940,8 +39325,27 @@ function cueTable() {
     J.uiApi.toast(tr('通常字幕を追加しました。本文と時刻を編集できます（Ctrl+Zで戻す）。', 'Normal cue added. Edit its text and times (Ctrl+Z to undo).'));
   };
   const add = button('layerAddCue', tr('先頭に字幕を追加', 'Add subtitle at start'), () => addCue(null));
-  root.append(add, el('p', tr('空欄は描画なし。全角スペースは文字として保持し、半角スペースで区分できます。追加は最長3秒、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
-    'Empty text draws nothing. Ideographic spaces are retained; ASCII spaces separate groups. New cues last up to 3s without moving other cues. Adjust times if they overlap.'), 'note'));
+  const toolbar = el('div', null, 'cue-toolbar'); toolbar.append(add);
+  for (const [id, delta] of [['layerShiftBack', -0.1], ['layerShiftForward', 0.1]]) {
+    const label = (delta > 0 ? '+' : '-') + '0.1' + tr('秒', 's');
+    const shift = button(id, label, () => {
+      document.activeElement?.blur(); syncCueErrors();
+      if (J.layerCueEditsInvalid) return;
+      try {
+        const next = J.prepareLayerCueShift(J.ui.project.subtitleCues, delta);
+        J.uiApi.pushEdit(); J.ui.project.subtitleCues = next;
+        J.ui.project.timing.lineTimes = {}; J.ui.project.exportRange = null;
+        changed(); status('');
+        J.uiApi.toast(tr('全字幕を' + label + '移動しました（Ctrl+Zで戻せます）。', 'All cues shifted ' + label + ' (Ctrl+Z to undo).'));
+      } catch (e) { status(e.message, true); showingCueError = true; }
+    });
+    shift.title = tr('全字幕の開始・終了を移動。0秒より前の開始は0秒に固定し、長さが0以下になる場合は変更しません。', 'Shift all starts and ends. Starts clamp at zero; no changes if any duration would be zero or negative.');
+    shift.setAttribute('aria-label', tr('全字幕を' + label + '移動', 'Shift all subtitles ' + label));
+    shift.addEventListener('pointerdown', e => e.preventDefault());
+    toolbar.append(shift);
+  }
+  root.append(toolbar, el('p', tr('テキストを空欄にすると描画しません。追加では3秒の字幕を追加し、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
+    'Empty text draws nothing. Adding inserts a 3-second cue without moving other cues. Adjust times if they overlap.'), 'note'));
   cues.forEach((cue, i) => {
     const row = el('div', null, 'layer-cue'), label = el('strong', String(i + 1));
     row.classList.toggle('is-filler', !!cue.filler);
@@ -38999,6 +39403,7 @@ J.editLayerCueText = index => {
 let cueSignature = '';
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  J.syncNativeSpectrumUI?.();
   J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
   for (const [id, draft] of cueDrafts) if (JSON.stringify(cues?.find(c => c.id === id)) !== draft.base) cueDrafts.delete(id);
@@ -39012,8 +39417,6 @@ J.syncLayerUI = () => {
   for (const [key, value] of Object.entries(J.ui.project.spectrumLayout)) {
     const input = $('spectrum-' + key); if (input) input.value = value;
   }
-  J.ui.project.bloomThreshold = J.normalizeBloomThreshold(J.ui.project.bloomThreshold);
-  for (const id of ['layerBloomRange', 'layerBloomNumber']) if ($(id)) $(id).value = J.ui.project.bloomThreshold;
   const ready = !!session.front;
   $('layerName-matte').textContent = session.matte ? session.matte.name : (ready ? tr('未指定：RGB 000000を透明化', 'None: RGB 000000 is transparent') : tr('未選択（任意）', 'None (optional)'));
 };
@@ -39039,6 +39442,7 @@ function boot() {
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, exportRange: null });
+    J.ui.project.simpleExport.duration = null;
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
   }));
@@ -39046,20 +39450,22 @@ function boot() {
   const cues = el('details'); cues.id = 'layerCues';
   panel.append(inputs, info, cues);
   J.mountFillerUI(inputs);
-  const spectrumHeading = el('h3', tr('スペアナ合成（字幕が手前・0秒で同期）', 'Spectrum composite (subtitles in front, aligned at 0s)'));
-  const mergeHelp = el('p', tr('フロント動画を読み込むと自動合成します。合成しない場合はフロント動画を「解除」してください。マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Loading a front video automatically composites it. Clear the front video to stop compositing. Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note');
+  const spectrumHeading = el('h3', tr('スペアナ（字幕が手前・0秒で同期）', 'Spectrum (subtitles in front, aligned at 0s)'));
+  const mergeHelp = el('p', tr('スペアナ等の動画をアルファ合成できます。マット動画は任意で、未指定ならRGB 000000を透明化します。マットを指定する場合はフロントとサイズ・長さを揃えてください。', 'Composite spectrum or other videos using alpha. The matte is optional; without it, RGB 000000 is transparent. If supplied, match the front size and duration.'), 'note');
+  mergeHelp.classList.add('spectrum-external');
   for (const [key, ja, en, accept, only] of [
     ['background', '作業用背景（画像・動画）', 'Preview background (image/video)', 'image/*,video/*', false],
     ['front', 'スペアナのフロント動画', 'Spectrum front video', 'video/*', true],
     ['matte', 'スペアナのマット動画（任意）', 'Spectrum matte video (optional)', 'video/*', true],
   ]) {
     const row = el('div', null, 'layer-media');
+    if (key !== 'background') row.classList.add('spectrum-external');
     row.append(fileInput('layerFile-' + key, tr(ja, en), accept, (f, files) => key === 'front' ? selectSpectrumFront(f, files) : loadMedia(key, f, only)));
     if (key === 'front') row.querySelector('input').multiple = true;
     const name = el('span', tr('未選択', 'None'), 'muted'); name.id = 'layerName-' + key;
     row.append(name, button('layerClear-' + key, tr('解除', 'Clear'), () => clearMedia(key)));
     if (key === 'background') panel.append(el('hr', null, 'layer-divider'));
-    if (key === 'front') panel.append(spectrumHeading, mergeHelp);
+    if (key === 'front') { panel.append(spectrumHeading); J.mountNativeSpectrumUI(panel); panel.append(mergeHelp); }
     panel.append(row);
     if (key === 'background') {
       // Move the existing section intact so audio/timing handlers and mobile folding stay attached.
@@ -39074,18 +39480,17 @@ function boot() {
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
   panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
-  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
+  panel.append(el('p', tr('黒背景のフロント動画と白黒2値のマット動画を作成します。マット＋フロントのペア出力には、音声・作業用背景は含みません。', 'Creates a front video on black and a binary matte. Matte + front pair exports exclude audio and preview backgrounds.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   const progress = el('progress'); progress.id = 'layerProgress'; progress.max = 1; progress.value = 0; progress.hidden = true;
   const cancel = button('layerCancel', tr('出力を中止', 'Cancel export'), () => J.ui.exporting?.abort()); cancel.hidden = true;
   const output = el('p', tr('フロントとマットを、2本のMP4として直接保存します。', 'Downloads front and matte directly as two MP4 files.'), 'note'); output.id = 'layerStatus'; output.setAttribute('role', 'status');
   const downloads = el('div'); downloads.id = 'layerDownloads';
   panel.append(progress, cancel, output, downloads);
+  simpleExportControls(panel);
   const left = document.querySelector('.col-left');
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
-  bloomControls(left);
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }
@@ -39097,23 +39502,24 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 'use strict';
 const $ = id => document.getElementById(id), tr = J.layerText;
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text) e.textContent = text; if (cls) e.className = cls; return e; };
-const media = () => ({ audioDuration: J.ui.audio?.duration, spectrumDuration: J.layerSession.front ? J.spectrumDuration(J.layerSession.front, J.layerSession.matte) : undefined });
+const media = () => ({ audioDuration: J.ui.audio?.duration, spectrumDuration: J.activeSpectrumDuration(J.ui.project, J.ui.audio) });
 const read = () => ({ threshold: +$('filler-threshold').value, preGap: +$('filler-preGap').value, postGap: +$('filler-postGap').value,
-  length: $('filler-length').value, types: Object.fromEntries(J.fillerKinds.map(k => [k, { enabled: $('filler-' + k).checked, weight: +$('filler-weight-' + k).value }])) });
+  length: $('filler-length').value, customText: $('filler-customText').value, types: Object.fromEntries(J.fillerKinds.map(k => [k, { enabled: $('filler-' + k).checked, weight: +$('filler-weight-' + k).value }])) });
 let form, preview, generate, remove;
 function refresh() {
   const valid = form.checkValidity(), cfg = read();
-  const selected = Object.values(cfg.types).some(v => v.enabled);
-  generate.disabled = !valid || !selected;
+  const selected = Object.values(cfg.types).some(v => v.enabled && v.weight > 0);
+  generate.disabled = !valid;
   if (!valid) { preview.textContent = tr('時間は範囲内の数値を指定してください。', 'Enter times within the allowed range.'); return; }
   const a = J.fillerAnalysis(J.ui.project, cfg, media());
   generate.disabled ||= a.count + a.normal.length > 20000;
   const basis = { audio: tr('音源', 'audio'), spectrum: tr('スペアナ', 'spectrum'), subtitles: tr('通常字幕の末尾（アウトロは未確定）', 'last normal cue (outro unknown)') }[a.basis];
   preview.textContent = tr(`普通の基準 ${a.baseline.toFixed(2)}秒 ／ 平均 ${a.meanChars.toFixed(1)}文字。対象 ${a.gaps.length}区間・${a.count}件。終端：${basis}。`,
     `Normal duration: ${a.baseline.toFixed(2)}s · Mean text: ${a.meanChars.toFixed(1)} characters · ${a.gaps.length} gaps / ${a.count} cues. End: ${basis}.`);
-  if (!selected) preview.textContent += tr(' 種類を1つ以上選んでください。', ' Select at least one type.');
+  if (!selected) preview.textContent += tr(' 重み1以上の種類を1つ以上選んでください。', ' Select at least one type with a positive weight.');
   if (a.count + a.normal.length > 20000) preview.textContent += tr(' 字幕20,000件を超えます。長さや閾値を大きくしてください。', ' More than 20,000 cues. Increase duration or threshold.');
   for (const k of J.fillerKinds) $('filler-weight-' + k).disabled = !cfg.types[k].enabled;
+  $('filler-customText').disabled = !cfg.types.custom.enabled;
 }
 function apply(clear) {
   try {
@@ -39135,8 +39541,8 @@ J.mountFillerUI = controls => {
   const dlg = el('dialog', null, 'terms publication-dialog filler-dialog'); dlg.id = 'fillerDlg'; dlg.setAttribute('aria-labelledby', 'fillerTitle');
   form = el('form'); form.method = 'dialog';
   const title = el('h2', tr('空白区間にフィラーを追加', 'Add fillers to subtitle gaps')); title.id = 'fillerTitle';
-  form.append(title, el('p', tr('生成した本文は仮置きです。自由に書き換えられます。再生成すると、手動で編集したものも含め、既存のフィラーをすべて置き換えます。通常字幕とその演出は保持します。',
-    'Generated text is a placeholder you can edit freely. Regeneration replaces every existing filler, including edited ones. Normal subtitles and their effects are preserved.'), 'note'));
+  form.append(title, el('p', tr('生成したテキストは自由に書き換えられます。再生成すると、手動で編集したものも含め、既存のフィラーをすべて置き換えます。通常字幕とその演出は保持します。',
+    'You can edit the generated text freely. Regeneration replaces every existing filler, including edited ones. Normal subtitles and their effects are preserved.'), 'note'));
   const grid = el('div', null, 'filler-grid');
   for (const [key, ja, en, min] of [['threshold', '空白の閾値（秒）', 'Minimum usable gap (s)', 0.1], ['preGap', 'プリギャップ（秒）', 'Pre-gap (s)', 0], ['postGap', 'ポストギャップ（秒）', 'Post-gap (s)', 0]]) {
     const label = el('label', tr(ja, en)), input = el('input'); input.id = 'filler-' + key; input.type = 'number'; input.min = min; input.max = 600; input.step = '0.1'; input.required = true; label.append(input); grid.append(label);
@@ -39144,20 +39550,24 @@ J.mountFillerUI = controls => {
   const lengthLabel = el('label', tr('フィラー1件の平均長さ', 'Average filler duration')), length = el('select'); length.id = 'filler-length';
   for (const [value, ja, en] of [['short', '短め（0.75倍）', 'Short (×0.75)'], ['normal', '普通（1倍）', 'Normal (×1)'], ['long', '長め（1.5倍）', 'Long (×1.5)']]) { const opt = el('option', tr(ja, en)); opt.value = value; length.append(opt); }
   lengthLabel.append(length); grid.append(lengthLabel); form.append(grid);
-  form.append(el('p', tr('プリ：通常字幕の終了から空ける時間。ポスト：次の通常字幕まで空ける時間。両方を差し引いた残りに閾値を適用します。初期値では5.8秒以上の間奏が対象です。前奏はポストのみ、アウトロはプリのみを確保します。',
-    'Pre-gap leaves space after normal subtitles; post-gap leaves space before the next normal subtitle. The threshold applies after these margins. Defaults require a 5.8s interior gap. Intros use only post-gap; outros use only pre-gap.'), 'note'));
-  form.append(el('p', tr('「普通」は通常字幕の表示時間を長い順に並べた上位50%の平均です。個々の長さには変化を付け、空白区間に収めます。',
-    'Normal uses the mean duration of the longer half of normal cues. Individual lengths vary to fit each gap.'), 'note'));
+  form.append(el('p', tr('プリ：通常字幕の終了後に空ける時間。ポスト：次の通常字幕までに空ける時間。両方を差し引いた残りに閾値を適用します。前奏はポストのみ、アウトロはプリのみを確保します。',
+    'Pre-gap follows a normal cue; post-gap precedes the next. The threshold applies after subtracting both. Intros use only post-gap; outros only pre-gap.'), 'note'));
   const types = el('fieldset'); types.append(el('legend', tr('本文の種類と抽選ウェイト', 'Text types and selection weights')));
-  for (const [key, ja, en] of [['spaces', '空白文字', 'Whitespace'], ['lyrics', '歌詞テキスト', 'Lyric text'], ['timestamp', 'タイムスタンプ', 'Timestamp'], ['symbols', '図形文字', 'Symbols']]) {
+  for (const [key, ja, en] of [['spaces', '空白文字', 'Whitespace'], ['lyrics', '歌詞テキスト', 'Lyric text'], ['timestamp', 'タイムスタンプ', 'Timestamp'], ['symbols', '図形文字', 'Symbols'], ['custom', '指定テキスト', 'Custom text']]) {
     const row = el('div', null, 'filler-type'), label = el('label'), check = el('input'); check.type = 'checkbox'; check.id = 'filler-' + key;
     label.append(check, document.createTextNode(tr(ja, en))); const weightLabel = el('label', tr('重み', 'Weight')), select = el('select'); select.id = 'filler-weight-' + key;
     select.setAttribute('aria-label', tr(ja + 'の重み', en + ' weight'));
-    for (let i = 1; i <= 10; i++) { const option = el('option', String(i)); option.value = i; select.append(option); }
+    for (let i = 0; i <= 10; i++) { const option = el('option', String(i)); option.value = i; select.append(option); }
     weightLabel.append(select); row.append(label, weightLabel); types.append(row);
   }
-  form.append(types, el('p', tr('空白文字は全角スペース2〜5個のまとまりを半角スペースで3〜4区分に分けます。文字は見えず、台紙や装飾などの演出を利用できます（演出によっては何も見えません）。図形文字は通常字幕の平均文字数に合わせて抽選。歌詞は長さに関係なく抽選。[timestamp] は開始時刻に追従し、通常字幕にも手入力できます。',
-    'Whitespace uses 3–4 groups of 2–5 ideographic spaces, separated by ASCII spaces. Text is invisible; plates and decorations can still appear, depending on the effect. Symbols follow the mean lyric length. Lyrics are chosen regardless of length. [timestamp] follows the cue start and also works in normal cues.'), 'note'));
+  const custom = el('textarea'); custom.id = 'filler-customText'; custom.rows = 2;
+  custom.setAttribute('aria-label', tr('指定テキストの本文', 'Custom filler text'));
+  custom.setAttribute('aria-describedby', 'fillerCustomHelp');
+  const customHelp = el('p', tr('指定テキストは入力した全文を使います。重み0は抽選対象外。重み1以上では本文が必要です。',
+    'Custom text uses the full text entered. Weight 0 excludes it; a positive weight requires text.'), 'note'); customHelp.id = 'fillerCustomHelp';
+  types.append(custom, customHelp);
+  form.append(types, el('p', tr('空白文字は全角スペース2〜5個のまとまりを半角スペースで3〜4区分に分けます。演出によっては何も見えません。タイムスタンプ：[timestamp] は開始時刻に追従し、通常字幕にも手入力できます。',
+    'Whitespace uses 3–4 groups of 2–5 ideographic spaces separated by ASCII spaces. Some effects show nothing. Timestamp: [timestamp] follows the start time and also works in normal cues.'), 'note'));
   preview = el('p', null, 'filler-preview'); preview.id = 'fillerPreview'; preview.setAttribute('role', 'status'); form.append(preview);
   const actions = el('div', null, 'filler-actions');
   remove = el('button', tr('フィラーをすべて削除', 'Remove all fillers')); remove.id = 'removeFillers'; remove.type = 'button'; remove.addEventListener('click', () => apply(true));
@@ -39169,12 +39579,123 @@ J.mountFillerUI = controls => {
   open.addEventListener('click', () => {
     if (J.ui.tap || J.ui.exporting) return;
     J.uiApi.pause(); const cfg = J.normalizeFillerSettings(J.ui.project.fillerSettings);
-    for (const key of ['threshold', 'preGap', 'postGap', 'length']) $('filler-' + key).value = cfg[key];
+    for (const key of ['threshold', 'preGap', 'postGap', 'length', 'customText']) $('filler-' + key).value = cfg[key];
     for (const [key, v] of Object.entries(cfg.types)) { $('filler-' + key).checked = v.enabled; $('filler-weight-' + key).value = v.weight; }
     remove.disabled = !J.ui.project.subtitleCues.some(c => c.filler);
     refresh(); dlg.showModal(); dlg.scrollTop = 0; $('filler-threshold').focus();
   });
 };
+})();
+
+/* Native/external spectrum selection and session-only analysis cache. */
+(() => {
+'use strict';
+const $ = id => document.getElementById(id), tr = J.layerText;
+const state = J.nativeSpectrumState = { buffer: null, raw: null, data: null, key: '', pending: false, error: '', progress: 0, controller: null };
+let previewReader = null;
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text) e.textContent = text; if (cls) e.className = cls; return e; };
+const ready = () => state.buffer === J.ui.audio?.buffer && state.key === J.nativeMotionKey(J.ui.project) && !!state.data && !state.pending;
+J.nativeSpectrumBlocked = () => J.ui.project.spectrumMode === 'generated' && !ready();
+function showProgress() {
+  const info = $('nativeSpectrumInfo'); if (!info) return;
+  info.textContent = !J.ui.audio?.buffer ? tr('先に音源を読み込んでください。', 'Load audio first.') : state.error || (state.pending
+    ? tr(`スペアナを解析中… ${Math.round(state.progress * 100)}%`, `Analyzing spectrum… ${Math.round(state.progress * 100)}%`)
+    : tr('64本のバー。色は最大高さを基準に固定します。', '64 bars. Colors are fixed to the maximum height.'));
+  info.classList.toggle('error', !!state.error);
+  $('nativeSpectrumRetry').hidden = !state.error;
+  const range = state.raw?.frequencyRange, label = $('nativeSpectrumRange');
+  label.hidden = !range || !J.ui.audio?.buffer || state.buffer !== J.ui.audio.buffer;
+  label.textContent = range ? tr(`自動音域：${range.low.toLocaleString('ja-JP')}〜${range.high.toLocaleString('ja-JP')}Hz`, `Auto range: ${range.low.toLocaleString('en-US')}–${range.high.toLocaleString('en-US')} Hz`)
+    + (range.fallback ? tr('（推定できないため標準範囲）', ' (default; insufficient signal)') : '') : '';
+}
+async function prepare(buffer, key) {
+  state.controller?.abort();
+  const controller = new AbortController(); state.controller = controller;
+  if (state.buffer !== buffer) { state.raw = null; state.buffer = buffer; }
+  state.key = key; state.data = null; state.pending = true; state.error = ''; state.progress = 0;
+  const settings = { ...J.ui.project.nativeSpectrum };
+  showProgress();
+  try {
+    const raw = state.raw || await J.analyzeNativeAudio(buffer, controller.signal, p => { if (state.controller === controller) { state.progress = p * .9; showProgress(); } });
+    if (controller.signal.aborted) return;
+    state.raw = raw; state.progress = .9; showProgress();
+    const data = await J.shapeNativeSpectrum(raw, settings, controller.signal);
+    if (state.controller === controller && !controller.signal.aborted) { state.data = data; state.progress = 1; }
+  } catch (e) {
+    if (e.name !== 'AbortError' && state.controller === controller) state.error = tr('スペアナ解析に失敗しました: ', 'Spectrum analysis failed: ') + e.message;
+  } finally {
+    if (state.controller === controller) { state.pending = false; J.ui.need = true; showProgress(); J.syncLayerUI(); }
+  }
+}
+J.syncNativeSpectrumUI = () => {
+  if (!$('spectrumMode')) return;
+  const p = J.ui.project, buffer = J.ui.audio?.buffer;
+  p.nativeSpectrum = J.normalizeNativeSpectrum(p.nativeSpectrum);
+  $('spectrumMode').value = p.spectrumMode;
+  $('spectrumMode').querySelector('[value="generated"]').disabled = !buffer;
+  $('nativeSpectrumSettings').hidden = p.spectrumMode !== 'generated';
+  document.querySelectorAll('.spectrum-external').forEach(e => e.hidden = p.spectrumMode !== 'external');
+  document.querySelectorAll('.spectrum-placement').forEach(e => e.hidden = p.spectrumMode === 'none');
+  for (const [key, value] of Object.entries(p.nativeSpectrum)) {
+    const input = $('native-' + key); if (document.activeElement !== input) input.value = value;
+    const output = $('native-value-' + key); if (output) output.textContent = value + (key === 'returnMs' ? 'ms' : key === 'sensitivity' ? 'dB' : '%');
+  }
+  if (!buffer || p.spectrumMode !== 'generated') {
+    if (state.pending) { state.controller?.abort(); state.controller = null; state.pending = false; state.key = ''; }
+    if (state.buffer !== buffer) { state.buffer = buffer; state.raw = state.data = null; state.key = ''; state.error = ''; }
+  } else {
+    const key = J.nativeMotionKey(p);
+    if (state.buffer !== buffer || state.key !== key || (!state.data && !state.pending && !state.error)) prepare(buffer, key);
+  }
+  showProgress();
+};
+J.getSpectrumForExport = () => {
+  const p = J.ui.project;
+  if (p.spectrumMode === 'none') return null;
+  if (p.spectrumMode === 'generated') {
+    if (!ready()) throw new Error(state.error || tr('音源を読み込み、スペアナ解析の完了を待ってください。', 'Load audio and wait for spectrum analysis to finish.'));
+    return { kind: 'generated', data: state.data, settings: { ...p.nativeSpectrum } };
+  }
+  const { front, matte } = J.layerSession;
+  if (!front) return null;
+  J.validateSpectrum(front, matte, p.fps); return { front, matte };
+};
+J.drawNativeSpectrumPixels = (w, h, t) => {
+  if (!ready()) return null;
+  if (!previewReader || previewReader.w !== w || previewReader.h !== h || previewReader.spectrum.data !== state.data)
+    previewReader = new J.NativeSpectrumReader({ data: state.data, settings: J.ui.project.nativeSpectrum }, w, h);
+  return previewReader.framePixels(t, J.ui.project.spectrumLayout, J.ui.project.nativeSpectrum);
+};
+J.mountNativeSpectrumUI = panel => {
+  const label = el('label', tr('スペアナの入力', 'Spectrum source'), 'native-source'), select = el('select'); select.id = 'spectrumMode';
+  for (const [value, ja, en] of [['none', 'なし', 'None'], ['generated', '音源から生成', 'Generate from audio'], ['external', '外部動画', 'External video']]) {
+    const option = el('option', tr(ja, en)); option.value = value; select.append(option);
+  }
+  select.addEventListener('change', () => { J.ui.project.spectrumMode = select.value; J.uiApi.replan(); J.uiApi.flushSave(); });
+  label.append(select); panel.append(label);
+  const controls = el('div'); controls.id = 'nativeSpectrumSettings';
+  const colors = el('div', null, 'native-colors');
+  for (const [key, ja, en] of [['top', '上端の色', 'Top color'], ['bottom', '下端の色', 'Bottom color']]) {
+    const row = el('label', tr(ja, en)), input = el('input'); input.type = 'color'; input.id = 'native-' + key;
+    input.addEventListener('input', () => { J.ui.project.nativeSpectrum[key] = input.value; J.ui.need = true; J.uiApi.flushSave(); });
+    row.append(input); colors.append(row);
+  }
+  controls.append(colors);
+  for (const [key, ja, en, min, max, step] of [['sensitivity', '感度', 'Sensitivity', -12, 24, 1], ['pulse', '拍動の強さ', 'Pulse strength', 0, 100, 1], ['returnMs', '戻る速さ（短いほど速い）', 'Return time (shorter is faster)', 60, 600, 10]]) {
+    const row = el('label', null, 'native-motion'), input = el('input'), value = el('output');
+    row.append(el('span', tr(ja, en)));
+    input.type = 'range'; input.id = 'native-' + key; input.min = min; input.max = max; input.step = step; value.id = 'native-value-' + key;
+    input.addEventListener('input', () => { J.ui.project.nativeSpectrum[key] = input.valueAsNumber; J.uiApi.flushSave(); J.syncLayerUI(); J.ui.need = true; });
+    row.append(input, value); controls.append(row);
+  }
+  const info = el('p', null, 'note'); info.id = 'nativeSpectrumInfo'; info.setAttribute('role', 'status');
+  const range = el('p', null, 'note'); range.id = 'nativeSpectrumRange'; range.hidden = true;
+  const retry = el('button', tr('解析を再試行', 'Retry analysis')); retry.id = 'nativeSpectrumRetry'; retry.type = 'button';
+  retry.addEventListener('click', () => { state.error = ''; state.key = ''; J.syncLayerUI(); });
+  controls.append(info, range, retry); panel.append(controls);
+};
+window.addEventListener('pagehide', () => { state.controller?.abort(); state.controller = null; state.pending = false; });
+window.addEventListener('pageshow', e => { if (e.persisted) J.syncLayerUI(); });
 })();
 
 </script>

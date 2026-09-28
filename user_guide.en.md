@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.0.0 User Manual
+# JIZURA Layer Studio v1.1.0 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.0.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.1.0. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -29,6 +29,7 @@ This manual describes the retained features of v1.0.0. Features removed from the
 - [Compositing a spectrum video](#compositing-a-spectrum-video)
 - [Exterior bloom cleanup](#exterior-bloom-cleanup)
 - [Exporting MP4](#exporting-mp4)
+- [Exporting a simple video](#exporting-a-simple-video)
 - [Compositing in a video editor](#compositing-in-a-video-editor)
 - [Saving and resuming](#saving-and-resuming)
 - [Keyboard controls](#keyboard-controls)
@@ -51,7 +52,7 @@ This manual describes the retained features of v1.0.0. Features removed from the
 | Export | Two silent MP4s with matching dimensions, fps and frame count; line-range export |
 | Preserve work | Browser autosave and downloadable project JSON |
 
-The final background, audio track and finished edit belong in an external video editor. This app does not export the preview background or audio. After Effects export, PNG sequences and ordinary background-inclusive movie export are not provided.
+The primary front/matte pair excludes background and audio for external editing. Optional simple video export combines a still background and audio into one MP4. Exporting video backgrounds, After Effects projects and PNG sequences is not supported.
 
 ## Requirements and startup
 
@@ -94,7 +95,7 @@ In your external editor, put the matte over the background using **Darken**, the
 |---|---|
 | Header | Project name, modes, interface language, Open/Save JSON, Reset, User guide, About |
 | Upper left | SRT, fillers, cue editor, preview background, audio/timing, spectrum, display mode, paired MP4 export |
-| Lower left | Subtitle text, lyric language, line/cut list, exterior bloom cleanup |
+| Lower left | Subtitle text, lyric language, line/cut list |
 | Center | Preview, playback, volume, loop, look history, Auto-compose, timeline, current cut information |
 | Right | Easy controls or detailed Style, Effects, Techniques and Export tabs |
 
@@ -155,6 +156,8 @@ For example, moving a 10–14s cue to 12s makes it 12–16s. Editing just its en
 
 After SRT import the main text area is a read-only summary; use the cue editor for changes. Importing another SRT replaces the current cues and per-line overrides. Save a JSON first if you want to retain the current version.
 
+The -0.1s and +0.1s buttons beside Add subtitle at start move all starts and ends, including fillers. Starts clamp at zero; moving only the end earlier shortens that cue. Missing/invalid times or a resulting zero/negative duration abort the whole operation without changes. Ctrl+Z undoes it. The source SRT and audio beat grid are unchanged.
+
 ## Typing subtitles directly
 
 Without SRT, type into the subtitle text area. One source line is normally one phrase. The app estimates placement using text length and timing settings; refine it with the song and tap synchronization.
@@ -185,7 +188,7 @@ In imported SRT, `/`, `*`, `|` and `!` are ordinary characters, not these contro
 
 Select an audio file. MP3, WAV, M4A, AAC, Ogg and FLAC are offered, subject to browser decoder support. The app displays duration and estimated BPM after analysis.
 
-Detected beats inform internal cut timing, and energy can affect animation. This is not speech recognition or automatic word-level lyric alignment. The song is for analysis and monitoring, and is not included in exported MP4s.
+Detected beats inform internal cut timing, and energy can affect animation. This is not speech recognition or automatic word-level lyric alignment. The song is for analysis and monitoring; pair exports are silent, while simple video export can include it.
 
 ### SRT versus beats
 
@@ -241,7 +244,7 @@ Load an image or video as the preview background. It is fitted within the frame 
 | Front on black | Colors, text and ornaments; black represents empty space |
 | Binary matte | Black occupied regions, white empty regions |
 
-Changing this selector does not change the export type: output is always the front/matte pair. The working background is never exported.
+This selector only controls preview. Pair exports exclude the background; simple video export composites the still background with spectrum and subtitles regardless of the selected preview mode.
 
 ## Auto-compose and Shuffle
 
@@ -409,8 +412,11 @@ Individual fillers vary in length to fit each eligible interval, rather than usi
 | Lyrics | Yes | 8 | A whole randomly selected normal cue |
 | Timestamp | Yes | 2 | A literal `[timestamp]` placeholder |
 | Symbols | Yes | 1 | Repeated, mixed, alternating or symmetric symbols |
+| Custom text | Yes | 0 | The full text entered by the user (empty by default) |
 
-Each weight ranges from 1–10. With all enabled, relative chances for Whitespace, Lyrics, Timestamp and Symbols are 3:8:2:1; a small sample need not match that ratio exactly. Disabled types are excluded, and all-disabled blocks generation.
+Weights range from 0–10 for every type. Default relative chances for Whitespace, Lyrics, Timestamp and Symbols are 3:8:2:1; a small sample need not match that ratio exactly. Disabled types and weight 0 are excluded. If all active weights are zero, generation reports an error and keeps existing fillers.
+
+Generating with Custom text enabled at a positive weight and an empty text field shows an error and leaves existing fillers intact. Spaces and line breaks are preserved; `[timestamp]` also works. The text, weight and checkbox are saved in project JSON. Older projects gain an empty Custom text field with weight 0.
 
 Whitespace uses plates and decorations without visible lyric glyphs. You can edit each group's length. Group count does not force an exact number of cuts: duration and cut settings still apply. Saved weights/checks are preserved; older settings gain Whitespace enabled at weight 3.
 
@@ -439,13 +445,43 @@ Safeguards: target duration at least 0.25s, symbols at most 120 characters, tota
 
 ## Compositing a spectrum video
 
+Choose **None**, **Generate from audio** or **External video** under Spectrum source. Generated and imported spectra are mutually exclusive. None hides the overlay while retaining session media and settings. Both appear behind subtitles, aligned at time zero, including subtitle-free intervals.
+
+### Generating from audio
+
+1. Load a song under Audio and timing.
+2. Select Generate from audio; it is unavailable without audio.
+3. Wait for analysis, then play or seek and adjust colors, motion and placement.
+4. Use pair export or simple video export. No separate spectrum video or matte is required.
+
+There are 64 narrow continuous bars with gaps and no peak-hold line. Reference geometry is 768×120 (6.4:1). Defaults are 65% frame width, 3% left/bottom margins and 100% horizontal/vertical scales: about 1248×195 at 1920×1080.
+
+| Control | Default and behavior |
+|---|---|
+| Top / bottom color | Both white; click to open a color picker |
+| Sensitivity | +8dB, range −12 to +24dB; higher values respond to quieter audio |
+| Pulse strength | 100%, range 0–100%; emphasizes increases and suppresses sustained sound. Zero follows the ordinary spectral level |
+| Return time | 140ms, range 60–600ms; shorter falls faster. Attack is immediate |
+
+**The gradient is fixed to the maximum height.** With red at the top and green at the bottom, short bars show green; yellow and red appear as they rise. Each bar does not stretch the whole gradient. Choose identical colors for solid bars.
+
+The actual audio spectrum drives individual bands, rather than simulated BPM pulses. Sustained tones can settle near zero at 100% pulse strength. If the motion is too sparse, raise sensitivity or lower pulse strength. Preview volume and mute do not affect analysis.
+
+Analysis runs in a browser worker and is cached for the session. Colors and placement update without reanalysis; motion changes reuse the frequency analysis. Exports are disabled while processing or after an error; failed analysis offers Retry. Preview, seeking and exports share the same 60Hz motion data, independent of subtitle cadence. The spectrum disappears after the audio ends.
+
+When generation is enabled, a coarse scan samples up to 600 windows across the whole song to estimate its frequency range. The range always includes **250–4,000 Hz**, extending outward as needed, subject to the source Nyquist limit (half its sample rate). Silent or very short material falls back to 80–12,000 Hz, with a default-range note on screen.
+
+The selected range appears under Auto range and stays fixed throughout the song. Replacing audio estimates it again; color, placement, sensitivity and pulse changes do not change it. FFT sizes and window lengths are unchanged. The existing low-band allocation follows distinct FFT bins; separate bands can still move similarly when the audio does.
+
+JSON stores source mode, colors, motion and placement, not audio or analysis data. Reload the song when reopening a generated-spectrum project; a song restored by the same browser is analyzed again. Intentional black bars use RGB 030303, empty space uses 000000, and only nonzero front pixels become black in the binary matte. Original JIZURA equalizer-like subtitle effects remain separate from this feature.
+
 ### Prepare footage
 
-[Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker), developed by cityedge, creates spectrum footage for this app. JIZURA Layer Studio does not generate the spectrum directly from audio.
+[Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker), developed by cityedge, creates more extensively configurable spectrum footage to import using External video.
 
 ### Automatic compositing
 
-Load a spectrum front to composite it automatically. There is no enable checkbox. Clear the front to stop compositing.
+Select External video and load a spectrum front to composite it automatically. Clear the front or select None to stop compositing.
 
 Select the front and its matching matte together in the front-file dialog:
 
@@ -488,13 +524,15 @@ Preview uses video playback/seeking, a different path from export frame selectio
 
 ## Exterior bloom cleanup
 
-Below the left-side line/effect list, set 0–128, default 32. Zero disables cleanup; larger values remove more dim exterior glow.
+All exterior light added by automatic post-processing bloom and the Bloom screen effect is removed regardless of brightness. There is no adjustment control. Old project thresholds are ignored and discarded on import.
 
-This removes near-invisible outer bloom from the front and builds the corresponding matte. It does not merely shrink the matte. Original black text, graphics and sparks are protected.
+This removes exterior bloom from the front and builds the corresponding matte; it does not merely shrink the matte. Original black text, graphics and flying sparks remain, along with interior brightness changes. Individual effects' neon, shadows and blur are not universally removed.
 
-Compare composite and matte views. Lower the value if useful light is lost. The setting affects preview/export and persists in JSON. It does not apply to spectrum keying.
+Preview, pair MP4 and simple MP4 exports share this behavior. It does not apply to spectrum keying.
 
 ## Exporting MP4
+
+This section describes front/matte pair export. See [Exporting a simple video](#exporting-a-simple-video) for optional flattened output.
 
 Choose output settings on the right, then use **Export matte + front MP4** on the left.
 
@@ -545,6 +583,56 @@ SRT export normally ends at the last cue, extended by a longer spectrum if loade
 
 Rendering, pixel processing, source decoding and two encodes all take time. GPU model alone does not determine speed. Resolution, fps, effects, CPU, footage and browser encoder matter. Keep the tab open and estimate using a short range first.
 
+## Exporting a simple video
+
+This supplementary feature produces one MP4 containing a still background, spectrum, subtitles and optional loaded audio. It does not export a separate matte.
+
+### Steps
+
+1. Prepare subtitles and effects; optionally load a still preview background, spectrum and song.
+2. Find the neutral-colored Export simple video MP4 button below the pair-export description in the left pane.
+3. Check the automatically calculated Duration (seconds), then adjust it manually if needed.
+4. Check Exclude audio for silent output. With no song loaded, output is silent regardless of the checkbox.
+5. Check the existing aspect, resolution, fps, quality and range settings. The actual video duration and frame count appear below the button.
+6. Export. Use the automatic download or the Save simple video MP4 link after completion. Cancel export stops processing without saving a partial file.
+
+The filename is based on the project name: `project_simple_video.mp4`.
+
+### Background and composition
+
+Composition order is still background, spectrum, then subtitles. The image fits inside the frame without changing its aspect ratio, with black padding. No image means black. Front/matte preview modes do not alter simple export's composition.
+
+**A selected video background disables simple export.** Replace it with a still or clear it. Pair export remains available.
+
+Subtitle colors, decorations, bloom cleanup and spectrum placement/matte processing use the layer pipeline. Subtitle coverage follows the binary layer mask; this does not add translucent light physically to the background.
+
+### Duration
+
+Duration is always editable. There is no automatic/manual mode switch. Loading or changing materials automatically copies the maximum of:
+
+| Material | Duration used |
+|---|---|
+| Subtitles and fillers | Latest end time |
+| Spectrum | Front duration, or the shorter paired duration when a matte is supplied |
+| Audio | Decoded sample count divided by sample rate |
+| Still background | Excluded; it has no duration |
+
+Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. MP3 uses the decoded buffer, rather than file metadata alone. Color, preview mode and audio inclusion changes preserve manual values. JSON restores the saved duration, but reloading media recalculates it.
+
+Valid input is greater than zero and at most 86,400 seconds; this input limit is not a guarantee that long exports will succeed. Invalid input blocks only simple export. Video duration rounds up to whole frames: 1.001 seconds at 30fps becomes 31 frames, approximately 1.033 seconds.
+
+A selected export range intersects the interval from zero to the specified duration. Audio is trimmed to that same window. A non-overlapping range reports an error. The existing Whole timeline label describes the layer timeline; use the simple-export status for this feature's actual output length.
+
+### End behavior and audio
+
+Shorter output trims materials. Longer output retains the still background, hides ended subtitles/spectrum and adds silence after the song. Nothing loops or fades automatically.
+
+Audio starts at timeline zero and retains its original level. Preview volume/mute does not affect export. Audio tracks within spectrum footage are ignored; only the song loaded in Audio and timing is included.
+
+Video uses H.264; audio uses AAC at 48kHz, up to two channels, 192kbps. Excluding audio or having no loaded song creates an MP4 without an audio track. Missing AAC support reports an error; select Exclude audio or use a supported environment. AAC padding may make external tools report a container duration slightly different from the video duration.
+
+Duration and audio inclusion persist in project JSON and autosave. Media binaries are not included; verify that the required sources are loaded when resuming a project.
+
 ## Compositing in a video editor
 
 ```text
@@ -566,7 +654,8 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 |---|---|
 | Cue text, start/end and filler identity | Yes |
 | Filler settings, style, effects, colors, font references, line/cut overrides and locks | Yes |
-| Aspect, resolution, fps, export range, bloom and spectrum layout | Yes |
+| Aspect, resolution, fps, export range and spectrum layout | Yes |
+| Simple video duration and audio inclusion | Yes |
 | Audio/background/spectrum media binaries | No |
 | Uploaded font binaries | No |
 | Durable undo/look history or rendered MP4 files | No |
@@ -615,10 +704,10 @@ Increase pre/post gaps, choose longer fillers to reduce their count, and reduce 
 
 | Symptom | Check or action |
 |---|---|
-| Cannot find a control | Switch to Detailed and scroll the panes. Output settings are on the right; paired export and bloom cleanup are on the left |
+| Cannot find a control | Switch to Detailed and scroll the panes. Output settings are on the right; paired export is on the left. Exterior bloom cleanup is automatic and has no control |
 | SRT will not load | Verify UTF-8, valid timestamps, nonempty text and end after start. Renaming an extension does not convert a format |
 | Correct timing but unreadable text | Reduce cut count/density and motion; try a simple layout |
-| Large dark panel covers footage | Tickets/bands are retained artwork. Replace the layout/background/ornaments; use bloom cleanup only for dim outer glow |
+| Large dark panel covers footage | Exterior post-processing bloom is removed automatically. Tickets/bands and individual shadows are retained artwork; replace their layout/background/ornaments |
 | No fillers | Import SRT, enable a type, check the usable gap after margins, and load media to establish the outro |
 | Old default values appear | Saved project settings are preserved; change them in the dialog and Generate |
 | Spectrum missing | Load a front, seek within its duration, check codec support, or reset off-screen placement. Matte alone is insufficient |
@@ -631,8 +720,8 @@ Increase pre/post gaps, choose longer fillers to reduce their count, and reduce 
 
 ## Limits and data handling
 
-- No finished audio-inclusive movie, true alpha MP4, continuous-alpha matte, PNG sequences or After Effects export.
-- No source-SRT overwrite/export, speech recognition or built-in spectrum generation.
+- No video-background movie export, true alpha MP4, continuous-alpha matte, PNG sequences or After Effects export. Simple video export supports still backgrounds.
+- No source-SRT overwrite/export or speech recognition.
 - No independent multiple-spectrum tracks or spectrum start-offset control.
 - Long/4K/60fps combinations can use substantial memory/time; all devices/codecs are not guaranteed.
 - Text and media are processed in the browser rather than uploaded by the app. Font fetching uses external network requests.

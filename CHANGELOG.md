@@ -1,3 +1,28 @@
+## 1.1.0 — 2026-09-28
+
+- 全フィラー種類の重みを0〜10に統一。重み0を抽選から除外し、生成対象がすべて0なら既存フィラーを保持してエラー表示。
+- Allow weights 0–10 for every filler type. Exclude zero-weight types and reject generation without replacing fillers when all active weights are zero.
+
+- フィラーの種類に「指定テキスト」を追加。初期値は空欄・重み0。全文を保持し、有効な重みで本文が空の場合は既存フィラーを変更せずエラー表示。
+- Add Custom text fillers, initially empty with weight 0. Preserve the full text and reject empty active custom text without replacing existing fillers.
+
+- 後処理で外側へ追加されたブルームを常に全除去。文字・図形・スパーク本体と内側の明るさの変化を保護。左ペインのしきい値設定を削除し、旧プロジェクトの値は無視・破棄。
+- Always remove exterior post-processing bloom while preserving original artwork, sparks and interior brightness. Remove the threshold UI and discard legacy threshold settings.
+
+- 内蔵スペアナの周波数範囲を曲全体の粗い予備解析で自動設定。250〜4,000Hzの安全範囲を確保し、「自動音域」を表示。FFTサイズ・帯域重複防止・音量と拍動処理を維持。
+- Automatically estimate the native spectrum range from a bounded whole-song scan, retain the 250–4,000 Hz safety band, and display the range without changing FFT sizes or motion processing.
+
+- 音源解析による64バーの内蔵スペアナを追加。「なし／音源から生成／外部動画」を切り替え、固定上下グラデーション・感度・拍動・戻る速さ・位置と倍率を調整できます。プレビュー・シーク・ペア／簡易MP4で解析済みの同じ動きを使用し、設定はJSONに保存。
+- Add a 64-band audio-derived spectrum with cached worker analysis, pulse shaping, fixed-height gradients and shared preview/export rendering. Preserve external video input, binary matte semantics and version 1.1.0.
+
+- 左ペインとフィラーダイアログの説明を縮小・簡潔化。全SRT字幕を±0.1秒移動するボタンを追加（不正時は全件変更せず停止、Undo対応）。
+
+- 静止画背景・スペアナ・字幕を1本にまとめる「簡易動画MP4を出力」を追加。読み込んだ音源を含めることも、無音で保存することもできます。
+- 出力時間は素材の読み込み・変更時に字幕・スペアナ・デコード済み音源の最長へ自動更新し、手動でも修正できます。「音源を含めない」を選んでも音源長は計算対象です。素材の追加・読み替え・解除や字幕時刻の変更があれば再計算します。
+- 簡易出力は既存の解像度・fps・画質・範囲設定を使用。背景動画が指定されている場合は簡易出力を無効にし、静止画への変更または解除を案内します。
+- 従来の無音フロント／マット出力を維持。簡易出力の設定をJSONへ保存し、日英の利用ガイド・マニュアルを更新。
+- Add optional still-background MP4 export with AAC audio or silence, duration updated when materials change, and atomic ±0.1s shifts for all SRT cues. Simplify notes and reduce their font sizes in both languages.
+
 ## 1.0.0 — 2026-09-27
 
 - 上部の字幕追加を先頭への追加に変更。最初の字幕が0秒開始の場合は無効化。初期フィラー重みを空白3・歌詞8・タイムスタンプ2・図形1に調整。

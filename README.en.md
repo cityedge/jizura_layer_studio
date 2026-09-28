@@ -1,9 +1,11 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.0.0**
+**Animated subtitle layers · cityedge fork · v1.1.0**
 
 [Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
 Create a subtitle front on black and a binary matte as two synchronized, silent MP4 files for compositing over another video.
+
+An optional [simple video export](user_guide.en.md#exporting-a-simple-video) combines a still background, spectrum, subtitles and optional audio into one MP4.
 
 This is an **unofficial derivative of [JIZURA by hakoniwa](https://github.com/852wa/JIZURA)**, adapted by cityedge for subtitle layer production. The original author does not maintain this edition. Thanks to the original effect engine and community translations.
 
@@ -11,17 +13,21 @@ Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove 
 
 ## Quick start
 
-After importing SRT, use **Add fillers…** to generate editable placeholders in intros, interludes and outros. Defaults enable all types (Whitespace 3, Lyrics 8, Timestamp 2, Symbols 1) and require at least 5 seconds after subtracting a 0.3-second pre-gap and 0.5-second post-gap. Configure types, weights, duration and margins in the dialog. Regeneration replaces edited fillers too, while preserving normal subtitles and their effects. See [Filler subtitles](docs/LAYER_WORKFLOW.en.md#filler-subtitles).
+After importing SRT, use **Add fillers…** to generate editable placeholders in intros, interludes and outros. Defaults enable all types (Whitespace 3, Lyrics 8, Timestamp 2, Symbols 1, Custom text 0). Custom text accepts user-entered text and is initially empty and require at least 5 seconds after subtracting a 0.3-second pre-gap and 0.5-second post-gap. Configure types, weights, duration and margins in the dialog. Regeneration replaces edited fillers too, while preserving normal subtitles and their effects. See [Filler subtitles](docs/LAYER_WORKFLOW.en.md#filler-subtitles).
 
 1. Download the repository files and open `en/index.html` in desktop Chrome / Edge. GitHub's source viewer does not execute the app; use the published Pages URL if available.
 2. Import a UTF-8 SRT or type subtitles.
 3. Auto-compose effects, then adjust individual lines.
-4. Load a preview background and optional spectrum video.
+4. Load a preview background and optionally generate a spectrum from audio or import spectrum footage.
 5. Export the MP4 pair. Allow multiple downloads when prompted, or use the individual save links.
 
 User guide and About / rights dialogs are available in the app. The interface supports Japanese (`index.html`) and English (`en/index.html`), selectable from the top language menu. This does not restrict subtitle text languages or fonts.
 
 ## Create spectrum videos
+
+The built-in spectrum scans the whole song to choose a frequency range including 250–4,000 Hz. Auto range shows the result, fixed throughout playback. FFT sizes, level handling and pulse processing remain unchanged.
+
+The app can also generate 64 bars from the loaded song. Choose **Generate from audio** under Spectrum source, then adjust sensitivity, pulse strength, return time and top/bottom colors. The gradient is fixed to the maximum height. Preview, pair export and simple export share the same motion. See [Built-in spectrum](user_guide.en.md#generating-from-audio).
 
 [Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker) is a tool developed by cityedge for creating spectrum videos to import into this app. Use it to prepare your spectrum footage.
 
@@ -45,16 +51,16 @@ The retained JIZURA effects engine works alongside this edition's layer tools. T
 Layer-production specifications:
 
 - Import SRT as an editable starting point. Click the timeline to seek; drag start handles, type start times or tap to retime cues while preserving their duration. Edit text and end times in the cue editor.
-- Preview-only image/video backgrounds, excluded from exports.
+- Image/video preview backgrounds, excluded from pair exports.
 - Original text colours, graphics, ornaments and transitions.
-- Import a spectrum front to composite automatically; clear it to stop compositing. Its matching matte is optional; without it, only RGB 000000 is transparent.
+- Choose None, Generate from audio or External video as the spectrum source. External footage accepts an optional matching matte; without it, only RGB 000000 is transparent.
 - Spectrum defaults: 65% frame width, 3% left/bottom margins; adjustable position and independent scales.
-- Exterior bloom cleanup: 0–128, default 32.
+- Always remove exterior bloom added by post-processing; preserve text, graphics, sparks and interior brightness changes.
 - Two direct silent MP4 downloads; matte filename adds `_matte_dark`.
 - 480p, 540p, 720p, 1360×766, 900p, 1080p, 1440p and 4K presets; actual dimensions depend on aspect ratio.
 - Project JSON save/restore.
 
-Finished background/audio video, PNG export and After Effects output are outside this edition's scope.
+Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. Video backgrounds disable simple export. PNG and After Effects output are not provided.
 
 ## Composite, save and compatibility
 
@@ -74,6 +80,7 @@ Use Python 3.10+ (standard library only); replace `python` with your environment
 python build.py
 node dev/layer_test.js
 node dev/filler_test.js
+node dev/simple_export_test.js
 python tools/package_release.py
 ```
 
