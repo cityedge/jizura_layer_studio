@@ -7,6 +7,21 @@ const J = ctx.J, json = x => JSON.parse(JSON.stringify(x));
 const cue = (start, end, text = '歌詞', id = String(start)) => ({id,start,end,text});
 const project = cues => ({subtitleCues:cues, timing:{}, overrides:{}});
 const settings = () => J.defaultFillerSettings();
+test('bulk shifts clamp starts at zero, keep fillers and tags, and validate atomically', () => {
+  const cues = [cue(0, 1, 'one', 'a'), {...cue(2, 3, '[timestamp]', 'b'), filler:true}];
+  const original = JSON.stringify(cues);
+  const shifted = J.prepareLayerCueShift(cues, -.1);
+  assert.deepEqual(json(shifted).map(c => [c.start,c.end]), [[0,.9],[1.9,2.9]]);
+  assert.equal(shifted[1].filler,true); assert.equal(shifted[1].text,'[timestamp]');
+  assert.equal(J.resolveCueText(shifted[1]),'00 01 900');
+  assert.equal(JSON.stringify(cues),original);
+  assert.deepEqual(json(J.prepareLayerCueShift(cues,.1)).map(c=>[c.start,c.end]),[[.1,1.1],[2.1,3.1]]);
+  for(const invalid of [[cue(0,0)], [cue(0,.1),cue(2,3)], [cue(0,.05)], [cue(0,1),cue(2,NaN)], [cue('',1)]]) {
+    const snapshot=JSON.stringify(invalid);assert.throws(()=>J.prepareLayerCueShift(invalid,-.1));assert.equal(JSON.stringify(invalid),snapshot);
+  }
+  let repeated=[cue(1,2)];for(let i=0;i<10;i++)repeated=J.prepareLayerCueShift(repeated,-.1);
+  assert.equal(repeated[0].start,0);assert.equal(repeated[0].end,1);
+});
 const oldMargins = () => ({...settings(), preGap:1, postGap:2});
 let seed = 45678;
 const rng = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
@@ -69,7 +84,7 @@ test('timestamp substitution follows cue start, supports literal surrounding tex
   assert.equal(c.text,'時刻 [timestamp] / [timestamp]'); assert.equal(J.cueTimestamp(59.9999),'01 00 000');
 });
 test('new defaults include all types and 5.8s gaps, but preserve saved settings', () => {
-  const cfg=settings();assert.deepEqual(json(cfg),{threshold:5,preGap:.3,postGap:.5,length:'normal',types:{spaces:{enabled:true,weight:3},lyrics:{enabled:true,weight:8},timestamp:{enabled:true,weight:2},symbols:{enabled:true,weight:1}}});
+  const cfg=settings();assert.deepEqual(json(cfg),{threshold:5,preGap:.3,postGap:.5,length:'normal',customText:'',types:{spaces:{enabled:true,weight:3},lyrics:{enabled:true,weight:8},timestamp:{enabled:true,weight:2},symbols:{enabled:true,weight:1},custom:{enabled:true,weight:0}}});
   const a=J.fillerAnalysis(project([cue(0,2),cue(7.8,9),cue(14.799,17)]),cfg);
   assert.deepEqual(json(a.gaps),[{start:2.3,end:7.3}]);
   const saved=oldMargins();saved.types.lyrics.enabled=false;assert.deepEqual(json(J.normalizeFillerSettings(saved)),json(saved));
@@ -95,4 +110,47 @@ test('invalid generation is atomic and has finite safeguards', () => {
   const cfg=settings(); for(const v of Object.values(cfg.types))v.enabled=false;
   assert.throws(()=>J.prepareFillers(project([cue(0,2)]),cfg,{},rng));
   assert.throws(()=>J.fillerAnalysis(project([]),settings()));
+});
+test('custom text starts excluded, preserves literal text and settings across serialization', () => {
+  const old = {types:{lyrics:{enabled:true,weight:8}}}, migrated = J.normalizeFillerSettings(old);
+  assert.equal(migrated.customText,'');assert.deepEqual(json(migrated.types.custom),{enabled:true,weight:0});
+  const p=project([cue(0,2),cue(20,22)]), cfg=settings();
+  for(const k of J.fillerKinds)cfg.types[k].enabled=k==='custom';
+  assert.throws(()=>J.prepareFillers(p,cfg,{},rng),/重み1以上/);
+  cfg.types.custom.weight=5;
+  for(const text of [' 任意　テキスト\n第二行 [timestamp] ', '　　 　　']){
+    cfg.customText=text;const result=J.prepareFillers(p,cfg,{},rng);
+    assert.ok(result.fillers.length>0);assert.ok(result.fillers.every(c=>c.filler && c.text===text));
+    J.replaceFillers(p,result);assert.deepEqual(json(J.normalizeFillerSettings(json(p.fillerSettings))),json(cfg));
+  }
+});
+test('empty custom text fails atomically before the lottery, even without usable gaps', () => {
+  const p=project([cue(0,2),{...cue(4,6,'edited filler'),filler:true},cue(20,22)]), before=JSON.stringify(p), cfg=settings();
+  cfg.types.custom.weight=1;
+  assert.throws(()=>J.prepareFillers(p,cfg,{},()=>0),/指定テキスト/);
+  assert.equal(JSON.stringify(p),before);
+  assert.throws(()=>J.prepareFillers(project([cue(0,2)]),cfg,{},rng),/指定テキスト/);
+  cfg.types.custom.enabled=false;assert.doesNotThrow(()=>J.prepareFillers(p,cfg,{},rng));
+  cfg.types.custom.enabled=true;cfg.types.custom.weight=0;assert.doesNotThrow(()=>J.prepareFillers(p,cfg,{},rng));
+  assert.equal(J.normalizeFillerSettings({types:{custom:{weight:-5}}}).types.custom.weight,0);
+  assert.equal(J.normalizeFillerSettings({types:{custom:{weight:99}}}).types.custom.weight,10);
+});
+test('every filler type accepts zero, a single positive weight works, and all-zero is atomic', () => {
+  const p=project([cue(0,2),{...cue(4,6,'keep me'),filler:true},cue(20,22)]), cfg=settings();
+  cfg.customText='指定した本文';
+  for(const v of Object.values(cfg.types))v.weight=0;
+  const before=JSON.stringify(p);
+  assert.throws(()=>J.prepareFillers(p,cfg,{},rng),/重み1以上/);
+  assert.equal(JSON.stringify(p),before);
+  assert.deepEqual(json(J.normalizeFillerSettings(json(cfg))),json(cfg));
+  for(const kind of J.fillerKinds){
+    cfg.types[kind].weight=1;
+    const r=J.prepareFillers(p,cfg,{},rng);assert.ok(r.fillers.length>0);
+    if(kind==='custom')assert.ok(r.fillers.every(c=>c.text===cfg.customText));
+    else if(kind==='lyrics')assert.ok(r.fillers.every(c=>c.text==='歌詞'));
+    else if(kind==='timestamp')assert.ok(r.fillers.every(c=>c.text==='[timestamp]'));
+    else if(kind==='spaces')assert.ok(r.fillers.every(c=>/^[　 ]+$/.test(c.text)));
+    else assert.ok(r.fillers.every(c=>/^[○●△▲□■◇◆×＋＃＊]+$/.test(c.text)));
+    cfg.types[kind].weight=0;
+  }
 });

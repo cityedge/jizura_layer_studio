@@ -1,18 +1,20 @@
 /* Filler cues are editable placeholders; their identity is independent of their text. */
 (() => {
 'use strict';
-const tr = J.layerText, kinds = J.fillerKinds = ['spaces', 'lyrics', 'timestamp', 'symbols'];
+const tr = J.layerText, kinds = J.fillerKinds = ['spaces', 'lyrics', 'timestamp', 'symbols', 'custom'];
 J.defaultFillerSettings = () => ({ threshold: 5, preGap: 0.3, postGap: 0.5, length: 'normal',
-  types: { spaces: { enabled: true, weight: 3 }, lyrics: { enabled: true, weight: 8 }, timestamp: { enabled: true, weight: 2 }, symbols: { enabled: true, weight: 1 } } });
+  customText: '',
+  types: { spaces: { enabled: true, weight: 3 }, lyrics: { enabled: true, weight: 8 }, timestamp: { enabled: true, weight: 2 }, symbols: { enabled: true, weight: 1 }, custom: { enabled: true, weight: 0 } } });
 J.normalizeFillerSettings = value => {
   const out = J.defaultFillerSettings();
   for (const key of ['threshold', 'preGap', 'postGap']) if (Number.isFinite(value?.[key]))
     out[key] = Math.max(key === 'threshold' ? 0.1 : 0, Math.min(600, value[key]));
   if (['short', 'normal', 'long'].includes(value?.length)) out.length = value.length;
+  if (typeof value?.customText === 'string') out.customText = value.customText;
   for (const key of kinds) {
     const v = value?.types?.[key];
     if (typeof v?.enabled === 'boolean') out.types[key].enabled = v.enabled;
-    if (Number.isFinite(v?.weight)) out.types[key].weight = Math.max(1, Math.min(10, Math.round(v.weight)));
+    if (Number.isFinite(v?.weight)) out.types[key].weight = Math.max(0, Math.min(10, Math.round(v.weight)));
   }
   return out;
 };
@@ -70,8 +72,9 @@ function symbolText(n, random, previous) {
 }
 // Pure preparation: validation failures never delete the currently edited fillers.
 J.prepareFillers = (project, settings, media, random = Math.random) => {
-  const a = J.fillerAnalysis(project, settings, media), enabled = kinds.filter(k => a.cfg.types[k].enabled);
-  if (!enabled.length) throw new Error(tr('フィラーの種類を1つ以上選んでください。', 'Select at least one filler type.'));
+  const a = J.fillerAnalysis(project, settings, media), enabled = kinds.filter(k => a.cfg.types[k].enabled && a.cfg.types[k].weight > 0);
+  if (enabled.includes('custom') && !a.cfg.customText.length) throw new Error(tr('指定テキストを入力するか、重みを0にしてください。', 'Enter custom text or set its weight to 0.'));
+  if (!enabled.length) throw new Error(tr('重み1以上のフィラーの種類を1つ以上選んでください。', 'Select at least one filler type with a positive weight.'));
   if (a.count + a.normal.length > 20000) throw new Error(tr('字幕が20,000件を超えます。長さや閾値を大きくしてください。', 'More than 20,000 cues. Increase the duration or gap threshold.'));
   const totalWeight = enabled.reduce((n, k) => n + a.cfg.types[k].weight, 0);
   const used = new Set(project.subtitleCues.map(c => c.id)); let serial = 0, previous = -1;
@@ -90,6 +93,7 @@ J.prepareFillers = (project, settings, media, random = Math.random) => {
       if (type === 'spaces') text = Array.from({ length: 3 + Math.floor(random() * 2) }, () => '　'.repeat(2 + Math.floor(random() * 4))).join(' ');
       else if (type === 'timestamp') text = '[timestamp]';
       else if (type === 'lyrics') text = a.normal[Math.floor(random() * a.normal.length)].text;
+      else if (type === 'custom') text = a.cfg.customText;
       else {
         const n = Math.max(1, Math.min(120, Math.round(a.meanChars * (0.75 + random() * 0.5))));
         const result = symbolText(n, random, previous); text = result.text; previous = result.pattern;
@@ -130,7 +134,7 @@ J.plan = (project, audio) => {
   out.events = groups.flatMap(g => g.plan.events).sort((a, b) => a.t - b.t);
   return out;
 };
-J.layerTracks = plan => plan.layerGroups ? plan.layerGroups.flatMap(g => tracks({ ...g.plan, bloomThreshold: plan.bloomThreshold })) : tracks(plan);
+J.layerTracks = plan => plan.layerGroups ? plan.layerGroups.flatMap(g => tracks(g.plan)) : tracks(plan);
 J.lineSnapshot = (plan, index) => {
   if (!plan.layerGroups) return snapshot(plan, index);
   const group = plan.layerGroups.find(g => g.indices.includes(index));

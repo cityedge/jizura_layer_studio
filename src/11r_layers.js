@@ -48,6 +48,13 @@ J.moveLayerCue = (project, index, start) => {
   const cue = project.subtitleCues[index];
   return J.editLayerCue(project, index, { start, end: start + (cue.end - cue.start) });
 };
+// Validate the entire shift before the editor records undo or changes any cue.
+J.prepareLayerCueShift = (cues, delta) => {
+  const valid = J.validateCues(cues);
+  if (!Number.isFinite(delta)) throw new Error(msg('移動量が不正です。', 'Invalid shift amount.'));
+  const shift = t => Math.round((t + delta) * 1e9) / 1e9;
+  return J.validateCues(valid.map(c => ({ ...c, start: Math.max(0, shift(c.start)), end: shift(c.end) })));
+};
 J.deleteLayerCue = (project, index) => {
   if (!Array.isArray(project.subtitleCues) || !project.subtitleCues[index]) throw new Error(msg('字幕が見つかりません。', 'Cue not found.'));
   const entries = project.subtitleCues.map((cue, i) => ({ cue, override: project.overrides?.[i] })).filter((_, i) => i !== index);
@@ -98,15 +105,12 @@ J.findSpectrumMatte = (files, front) => {
   return matches.length === 1 ? matches[0] : null; // Never guess among same-name files in different folders.
 };
 
-J.normalizeBloomThreshold = value => Number.isFinite(value) ? Math.max(0, Math.min(128, Math.round(value))) : 32;
-
 const defaultProject = J.defaultProject;
 J.defaultProject = () => {
   const p = defaultProject();
   p.layerOnly = true; p.includeAudio = false; p.keyBg = 'off';
   p.spectrumLayout = J.defaultSpectrumLayout();
   p.layerEffectsVersion = 1;
-  p.bloomThreshold = 32;
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
@@ -118,20 +122,20 @@ J.upgradeLayerProject = (project, source) => {
     for (const key of ['decor', 'texture', 'bgSwitch', 'hud', 'flash']) project.fx[key] = defaults[key];
   }
   project.layerEffectsVersion = 1;
-  project.bloomThreshold = J.normalizeBloomThreshold(project.bloomThreshold);
+  delete project.bloomThreshold; // Legacy thresholds no longer affect rendering.
   return project;
 };
 const plan = J.plan;
 J.plan = (project, audio) => {
   const p = Object.assign({}, project, { layerOnly: true, keyBg: 'off', title: '', artist: '' });
   const out = plan(p, audio);
-  out.bloomThreshold = J.normalizeBloomThreshold(project.bloomThreshold);
   out.layerOnly = true; out.keyBg = null; out.explicitCues = Array.isArray(project.subtitleCues);
   // Keep original colours, ornaments, graphics, effects and joins. Only omit standalone cards.
   out.cuts = out.cuts.filter(c => c.line >= 0 && c.layout !== 'interlude');
   out.cuts.forEach((c, i) => { c.index = i; });
   const media = J.layerSession;
-  if (media?.front) out.duration = Math.max(out.duration, J.spectrumDuration(media.front, media.matte));
+  const spectrumLength = J.activeSpectrumDuration ? J.activeSpectrumDuration(project, audio, media) : media?.front ? J.spectrumDuration(media.front, media.matte) : 0;
+  out.duration = Math.max(out.duration, spectrumLength);
   return out;
 };
 // Separate overlapping cues into non-overlapping tracks. Reindex cuts for morph/transition lookups.
@@ -164,18 +168,15 @@ J.layerPixels = rgba => {
   return out;
 };
 
-// Only remove low-energy pixels ADDED by bloom, before deriving either output.
+// Remove every exterior pixel ADDED by bloom, before deriving either output.
 // Existing ink/particles (even dark ones) are protected by the pre-bloom frame.
-// max RGB, rather than luminance, also protects saturated red/blue light.
-J.layerBloomMin = 32;
-J.cleanLayerBloom = (base, result, threshold = J.layerBloomMin) => {
-  threshold = J.normalizeBloomThreshold(threshold);
+// Keep bloom's colour/brightness changes within that existing footprint.
+J.cleanLayerBloom = (base, result) => {
   for (let i = 0; i < result.length; i += 4) {
     // Same coverage as layerPixels, including reserved black (3) and alpha rounding.
     // A flattened channel rounds above zero iff channel * alpha >= 255 / 2.
     if ((Math.max(base[i], base[i + 1], base[i + 2]) || 3) * base[i + 3] >= 127.5) continue;
-    const brightness = Math.round(Math.max(result[i], result[i + 1], result[i + 2]) * result[i + 3] / 255);
-    if (brightness < threshold) result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
+    result[i] = result[i + 1] = result[i + 2] = result[i + 3] = 0;
   }
   return result;
 };
@@ -224,7 +225,7 @@ J.LayerRenderer = class {
     const active = tracks.filter(p => p.lines.some(l => t >= l.start && t < l.end) && p.cuts.some(c => t >= c.start && t < c.end));
     for (let i = 0; i < active.length; i++) {
       this.engine.frame(this.part.getContext('2d', { willReadFrequently: true }), active[i], t, {
-        scale: this.w / plan.W, transparent: true, layerComposition: true, bloomThreshold: J.normalizeBloomThreshold(plan.bloomThreshold), noHud: i < active.length - 1, fast,
+        scale: this.w / plan.W, transparent: true, layerComposition: true, noHud: i < active.length - 1, fast,
       });
       x.drawImage(this.part, 0, 0);
     }
@@ -307,10 +308,9 @@ J.SpectrumReader = class {
   }
 };
 J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signal, onProgress }) => {
-  plan = Object.assign({}, plan, { bloomThreshold: J.normalizeBloomThreshold(project.bloomThreshold ?? plan.bloomThreshold) });
   const [w, h] = J.outputSize(project), fps = plan.fps;
-  if (spectrum) J.validateSpectrum(spectrum.front, spectrum.matte, fps);
-  const fullDuration = Math.max(plan.duration, spectrum ? J.spectrumDuration(spectrum.front, spectrum.matte) : 0);
+  if (spectrum && spectrum.kind !== 'generated') J.validateSpectrum(spectrum.front, spectrum.matte, fps);
+  const fullDuration = Math.max(plan.duration, J.spectrumSourceDuration(spectrum));
   const t0 = range ? range.t0 : 0, end = range ? Math.min(fullDuration, range.t1) : fullDuration;
   const total = Math.max(1, Math.ceil((end - t0) * fps - 1e-7));
   const attempts = await J.videoAttempts(w, h, fps, J.videoBitrate(w, h, fps, project.quality || 'high'));
@@ -321,7 +321,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     const writers = [];
     let reader = null;
     try {
-      if (spectrum) reader = await J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal);
       for (const name of ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
@@ -361,7 +361,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         blob: new Blob([s.target.buffer], { type: 'video/mp4' }),
       }));
       const manifest = { format: 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
-        bloomThreshold: plan.bloomThreshold, matte: 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
+        exteriorBloom: 'removed', matte: 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
       abort(signal); onProgress?.(1, msg('完了', 'Done'));
       return { files, manifest };
     } catch (e) {

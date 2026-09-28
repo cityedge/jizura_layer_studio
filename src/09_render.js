@@ -460,7 +460,7 @@ class Renderer {
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);
-          J.cleanLayerBloom(bloomBase.data, result.data, opt.bloomThreshold ?? plan.bloomThreshold);
+          J.cleanLayerBloom(bloomBase.data, result.data);
           ctx.putImageData(result, 0, 0);
         }
         ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; ctx.imageSmoothingEnabled = true;
@@ -510,7 +510,7 @@ class Renderer {
     // bloom
     const glow = (st.glow || 0.6) * 0.5 * (fx.texture ?? 0.6);
     if (!opt.fast && allowFilter && glow > 0.05 && (!opt.transparent || opt.layerComposition)) {
-      // Remove only dark exterior bloom; keep visible light and existing artwork.
+      // Keep bloom within existing artwork; no added exterior coverage.
       const bloomBase = opt.layerComposition ? ctx.getImageData(0, 0, cw, ch) : null;
       const sw = Math.round(cw / 4), sh = Math.round(ch / 4);
       const Sm = this.ensure(this.small, sw, sh), sx = Sm.getContext('2d');
@@ -518,7 +518,7 @@ class Renderer {
       ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = glow * 0.55; ctx.drawImage(Sm, 0, 0, cw, ch); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
       if (bloomBase) {
         const result = ctx.getImageData(0, 0, cw, ch);
-        J.cleanLayerBloom(bloomBase.data, result.data, opt.bloomThreshold ?? plan.bloomThreshold);
+        J.cleanLayerBloom(bloomBase.data, result.data);
         ctx.putImageData(result, 0, 0);
       }
     }

@@ -20,8 +20,15 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
-  for (const m of [session.background, session.front, session.matte]) syncMedia(m, t, J.ui.playing);
-  if (session.front && t < J.spectrumDuration(session.front, session.matte)) {
+  syncMedia(session.background, t, J.ui.playing);
+  for (const m of [session.front, session.matte]) {
+    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, J.ui.playing);
+    else if (m?.video && !m.el.paused) m.el.pause();
+  }
+  if (J.ui.project.spectrumMode === 'generated') {
+    const native = J.drawNativeSpectrumPixels(w, h, t);
+    if (native) pixels = J.overPixels(native, pixels);
+  } else if (J.ui.project.spectrumMode !== 'none' && session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
@@ -57,14 +64,16 @@ function syncCueErrors() {
   J.layerCueEditsInvalid = !!error;
   if (error) status(error, true); else if (showingCueError) status('');
   showingCueError = !!error;
-  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error;
+  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error || !!J.nativeSpectrumBlocked?.();
   document.querySelectorAll('.cue-actions button[id^="cue-add-"]').forEach(b => { b.disabled = session.busy || !!error; });
   if ($('layerAddCue')) {
     const atZero = J.ui.project.subtitleCues?.some(c => c.start === 0);
     $('layerAddCue').disabled = session.busy || !!error || !!atZero;
     $('layerAddCue').title = atZero ? tr('先頭の字幕が0秒から始まるため追加できません。', 'The first cue starts at zero; there is no room before it.') : tr('0秒から最初の字幕までの範囲に、最長3秒で追加します。', 'Add up to 3 seconds from zero, ending before the first cue.');
   }
+  for (const id of ['layerShiftBack', 'layerShiftForward']) if ($(id)) $(id).disabled = session.busy || !J.ui.project.subtitleCues?.length;
   J.syncFillerUI?.();
+  syncSimpleExportUI();
 }
 function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
@@ -78,6 +87,7 @@ async function loadMedia(key, file, videoOnly) {
   }
   if (key === 'front' && session.front) clearMedia('matte');
   session[key]?.dispose(); session[key] = m;
+  if (key === 'front') J.ui.project.spectrumMode = 'external';
   if (m.video) { m.el.addEventListener('seeked', dirty); m.el.addEventListener('loadeddata', dirty); }
   $('layerName-' + key).textContent = file.name;
   if (key !== 'background') J.uiApi.replan();
@@ -101,6 +111,7 @@ async function loadSpectrumPair(frontFile, matteFile) {
     media.el.addEventListener('seeked', dirty); media.el.addEventListener('loadeddata', dirty);
     $('layerName-' + key).textContent = media.name;
   }
+  J.ui.project.spectrumMode = 'external';
   J.uiApi.replan(); J.syncLayerUI(); dirty();
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
@@ -114,7 +125,8 @@ async function selectSpectrumFront(file, selected) {
   status(session.matte ? tr('フロントとマットで合成します。', 'Compositing with front and matte.') : tr('フロントを読み込みました。マットなし：RGB 000000だけを透明にして合成します。', 'Front loaded. No matte: only RGB 000000 is transparent.'));
 }
 function spectrumControls(panel) {
-  panel.append(el('p', tr('フロントと同名_matte_darkを2本まとめて選ぶと、自動でペアを読み込みます。', 'Select both the front and its _matte_dark file to load the pair automatically.'), 'note'));
+  panel.append(el('p', tr('フロントと同名_matte_darkを2本まとめて選ぶと、自動でペアを読み込みます。', 'Select both the front and its _matte_dark file to load the pair automatically.'), 'note spectrum-external'));
+  const placement = el('div', null, 'spectrum-placement');
   const grid = el('div', null, 'spectrum-position');
   for (const [key, ja, en, min, max] of [
     ['left', '左から（画面幅%）', 'Left (% of frame width)', -100, 100],
@@ -133,52 +145,13 @@ function spectrumControls(panel) {
     input.addEventListener('change', () => J.syncLayerUI());
     label.append(input); grid.append(label);
   }
-  panel.append(el('h3', tr('スペアナの位置・倍率', 'Spectrum position and scale')), grid,
-    el('p', tr('基本幅は画面の65%。横・縦100%で元の縦横比を維持。左右・上下の倍率は独立し、素材枠の左端・下端が位置の基準です。', 'Base width is 65% of the frame. Both scales at 100% preserve the source aspect ratio. Scales are independent; position anchors the left and bottom source edges.'), 'note'),
+  placement.append(el('h3', tr('スペアナの位置・倍率', 'Spectrum position and scale')), grid,
     button('spectrumReset', tr('基本位置に戻す', 'Reset position'), () => {
       J.ui.project.spectrumLayout = J.defaultSpectrumLayout(); J.uiApi.flushSave(); J.syncLayerUI(); dirty();
     }));
+  panel.append(placement);
 }
 
-
-function bloomControls(panel) {
-  const section = el('div', null, 'layer-bloom'); section.id = 'layerBloomControls';
-  const label = el('label', tr('外周ブルームの除去', 'Exterior bloom cleanup'));
-  label.htmlFor = 'layerBloomRange';
-  const row = el('div', null, 'layer-bloom-inputs');
-  const range = el('input'), number = el('input');
-  for (const input of [range, number]) {
-    input.type = input === range ? 'range' : 'number';
-    input.min = '0'; input.max = '128'; input.step = '1';
-    input.id = input === range ? 'layerBloomRange' : 'layerBloomNumber';
-    input.setAttribute('aria-label', tr('外周ブルームの除去しきい値', 'Exterior bloom cleanup threshold'));
-    input.setAttribute('aria-describedby', 'layerBloomHelp');
-    input.addEventListener('input', () => {
-      if (!Number.isFinite(input.valueAsNumber) || session.busy) return;
-      const value = J.normalizeBloomThreshold(input.valueAsNumber);
-      J.ui.project.bloomThreshold = value;
-      if (J.ui.plan) J.ui.plan.bloomThreshold = value;
-      range.value = value;
-      if (input === range) number.value = value;
-      J.uiApi.flushSave(); dirty();
-    });
-    input.addEventListener('change', () => {
-      const value = J.normalizeBloomThreshold(J.ui.project.bloomThreshold);
-      range.value = number.value = value;
-    });
-  }
-  const reset = button('layerBloomReset', tr('32に戻す', 'Reset to 32'), () => {
-    J.ui.project.bloomThreshold = 32;
-    if (J.ui.plan) J.ui.plan.bloomThreshold = 32;
-    range.value = number.value = 32;
-    J.uiApi.flushSave(); dirty();
-  });
-  row.append(range, number);
-  const help = el('p', tr('0〜128（初期値32）。0は除去なし。大きいほど外側の暗い光彩を強く除去します。文字・図形・火花は保持します。プレビューと出力に反映し、プロジェクトに保存します。',
-    '0–128 (default 32). 0 disables cleanup. Higher values remove more dim exterior glow. Text, shapes and sparks are preserved. Applies to preview and export; saved with the project.'), 'note');
-  help.id = 'layerBloomHelp';
-  section.append(label, row, reset, help); panel.append(section);
-}
 
 function clearMedia(key) {
   session.generation[key] = (session.generation[key] || 0) + 1;
@@ -198,7 +171,7 @@ function offerDownloads(files, title) {
   clearDownloads();
   const prefix = (title || 'jizura_layers').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
   const links = files.map(file => {
-    const a = el('a', file.name.includes('_matte_dark') ? tr('マットMP4を保存', 'Save matte MP4') : tr('フロントMP4を保存', 'Save front MP4'));
+    const a = el('a', file.name === 'simple_video.mp4' ? tr('簡易動画MP4を保存', 'Save simple video MP4') : file.name.includes('_matte_dark') ? tr('マットMP4を保存', 'Save matte MP4') : tr('フロントMP4を保存', 'Save front MP4'));
     a.href = URL.createObjectURL(file.blob); downloadUrls.push(a.href);
     a.download = prefix + '_' + file.name; a.title = a.download;
     $('layerDownloads').append(a);
@@ -209,14 +182,18 @@ function offerDownloads(files, title) {
 }
 window.addEventListener('pagehide', e => { if (!e.persisted) clearDownloads(); });
 async function exportPair() {
+  return exportVideo(false);
+}
+async function exportVideo(simple) {
   if (J.ui.exporting) return;
   // Commit the focused editor before capturing the plan; never export stale valid data.
   document.activeElement?.blur();
   syncCueErrors();
   if (J.layerCueEditsInvalid) return;
+  if (simple && $('simpleExport').disabled) return;
   let spectrum = null;
   try {
-    if (session.front) { J.validateSpectrum(session.front, session.matte, J.ui.project.fps); spectrum = { front: session.front, matte: session.matte }; }
+    spectrum = J.getSpectrumForExport();
     J.uiApi.pause();
     const ac = new AbortController(); J.ui.exporting = ac; session.busy = true;
     for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause();
@@ -232,16 +209,73 @@ async function exportPair() {
       await J.ensureFonts(project.lyrics, J.fontsOfPlan(plan));
       const missing = J.missingUserFonts(J.fontsOfPlan(plan));
       if (missing.length) throw new Error(tr('不足しているフォントを読み直してください: ', 'Reload missing fonts: ') + missing.join(', '));
-      const pair = await J.exportLayerPair({ plan, project, spectrum, range, signal: ac.signal,
-        onProgress(p, m) { $('layerProgress').value = p; status(tr('ペア動画を生成中 ', 'Encoding pair ') + m); } });
+      const args = { plan, project, spectrum, range, signal: ac.signal,
+        onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
+      const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : await J.exportLayerPair(args);
       if (ac.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
       offerDownloads(pair.files, project.title);
-      status(tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
+      status(simple ? tr('簡易動画MP4を生成しました。保存されない場合はリンクから保存してください。', 'Simple video MP4 is ready. Use the save link if needed.') : tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
     } finally {
       controls.forEach((e, i) => { e.disabled = disabled[i]; });
       J.ui.exporting = null; session.busy = false; $('layerCancel').hidden = true; dirty(); J.syncLayerUI();
     }
   } catch (e) { status(e.name === 'AbortError' ? tr('出力を中止しました。', 'Export cancelled.') : e.message, e.name !== 'AbortError'); }
+}
+let simpleProject = null, simpleInvalidDraft = false, simpleMaterials = null;
+function syncSimpleExportUI() {
+  if (!$('simpleExport') || session.busy) return;
+  const project = J.ui.project, input = $('simpleDuration');
+  const projectChanged = simpleProject !== project;
+  if (projectChanged) { simpleProject = project; simpleInvalidDraft = false; }
+  const materials = [session.background, session.front, session.matte, J.ui.audio?.buffer, project.spectrumMode,
+    JSON.stringify((J.ui.plan?.lines || []).map(c => [c.start, c.end]))];
+  const materialsChanged = !projectChanged && simpleMaterials && materials.some((v, i) => v !== simpleMaterials[i]);
+  simpleMaterials = materials;
+  const settings = project.simpleExport = J.normalizeSimpleExport(project.simpleExport);
+  const recalculate = settings.duration == null || materialsChanged;
+  if (recalculate) {
+    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null);
+    simpleInvalidDraft = false;
+    if (materialsChanged) J.uiApi.flushSave();
+  }
+  if (projectChanged || recalculate || (!simpleInvalidDraft && document.activeElement !== input)) input.value = settings.duration;
+  $('simpleNoAudio').checked = !settings.includeAudio;
+  let span, reason = '';
+  try {
+    if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
+    span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
+  } catch (e) { reason = e.message; }
+  if (session.background?.video) reason = tr('背景動画が指定されています。簡易出力には静止画に変更するか、背景を解除してください。', 'A video background is selected. Use a still image or clear the background for simple export.');
+  if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
+  if (J.nativeSpectrumBlocked?.()) reason = tr('音源を読み込み、スペアナ解析の完了を待ってください。', 'Load audio and wait for spectrum analysis to finish.');
+  $('simpleExport').disabled = !!reason;
+  input.setAttribute('aria-invalid', String(simpleInvalidDraft));
+  const help = $('simpleExportInfo'); help.classList.toggle('error', !!reason);
+  help.textContent = reason || tr(`実際の映像：${span.duration.toFixed(3)}秒・${span.frames}フレーム（${project.fps}fps）。`, `Video: ${span.duration.toFixed(3)}s · ${span.frames} frames (${project.fps}fps).`)
+    + (span.t0 ? tr(` 開始：${span.t0.toFixed(3)}秒。`, ` Starts at ${span.t0.toFixed(3)}s.`) : '')
+    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 読み込んだ音源を含みます。', ' Includes the loaded audio.') : tr(' 音声なし。', ' No audio.'));
+}
+J.syncSimpleExportUI = syncSimpleExportUI;
+function simpleExportControls(panel) {
+  panel.append(button('simpleExport', tr('簡易動画MP4を出力', 'Export simple video MP4'), () => exportVideo(true)));
+  const controls = el('div', null, 'simple-export-controls');
+  const label = el('label', tr('出力時間（秒）', 'Duration (seconds)')), input = el('input');
+  input.id = 'simpleDuration'; input.type = 'number'; input.min = '0.001'; input.max = '86400'; input.step = 'any'; input.required = true;
+  input.setAttribute('aria-label', tr('簡易動画の出力時間（秒）', 'Simple video duration (seconds)'));
+  input.addEventListener('input', () => {
+    const value = input.valueAsNumber;
+    simpleInvalidDraft = !Number.isFinite(value) || value <= 0 || value > 86400;
+    if (!simpleInvalidDraft) { J.ui.project.simpleExport.duration = value; J.uiApi.flushSave(); }
+    syncSimpleExportUI();
+  });
+  label.append(input);
+  const audio = el('label', null, 'simple-audio'), check = el('input'); check.type = 'checkbox'; check.id = 'simpleNoAudio';
+  check.addEventListener('change', () => { J.ui.project.simpleExport.includeAudio = !check.checked; J.uiApi.flushSave(); syncSimpleExportUI(); });
+  audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
+  controls.append(label, audio); panel.append(controls);
+  const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
+  panel.append(el('p', tr('静止画＋スペアナ＋字幕を1本のMP4として、指定時間まで背景を表示した動画を出力します。解像度・fps・画質・書き出し範囲は既存設定を使用します。',
+    'Exports a still image, spectrum and subtitles as one MP4, keeping the background for the specified duration. Uses the existing resolution, fps, quality and export range.'), 'note'));
 }
 function cueTable() {
   const root = $('layerCues'), cues = J.ui.project.subtitleCues;
@@ -257,8 +291,27 @@ function cueTable() {
     J.uiApi.toast(tr('通常字幕を追加しました。本文と時刻を編集できます（Ctrl+Zで戻す）。', 'Normal cue added. Edit its text and times (Ctrl+Z to undo).'));
   };
   const add = button('layerAddCue', tr('先頭に字幕を追加', 'Add subtitle at start'), () => addCue(null));
-  root.append(add, el('p', tr('空欄は描画なし。全角スペースは文字として保持し、半角スペースで区分できます。追加は最長3秒、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
-    'Empty text draws nothing. Ideographic spaces are retained; ASCII spaces separate groups. New cues last up to 3s without moving other cues. Adjust times if they overlap.'), 'note'));
+  const toolbar = el('div', null, 'cue-toolbar'); toolbar.append(add);
+  for (const [id, delta] of [['layerShiftBack', -0.1], ['layerShiftForward', 0.1]]) {
+    const label = (delta > 0 ? '+' : '-') + '0.1' + tr('秒', 's');
+    const shift = button(id, label, () => {
+      document.activeElement?.blur(); syncCueErrors();
+      if (J.layerCueEditsInvalid) return;
+      try {
+        const next = J.prepareLayerCueShift(J.ui.project.subtitleCues, delta);
+        J.uiApi.pushEdit(); J.ui.project.subtitleCues = next;
+        J.ui.project.timing.lineTimes = {}; J.ui.project.exportRange = null;
+        changed(); status('');
+        J.uiApi.toast(tr('全字幕を' + label + '移動しました（Ctrl+Zで戻せます）。', 'All cues shifted ' + label + ' (Ctrl+Z to undo).'));
+      } catch (e) { status(e.message, true); showingCueError = true; }
+    });
+    shift.title = tr('全字幕の開始・終了を移動。0秒より前の開始は0秒に固定し、長さが0以下になる場合は変更しません。', 'Shift all starts and ends. Starts clamp at zero; no changes if any duration would be zero or negative.');
+    shift.setAttribute('aria-label', tr('全字幕を' + label + '移動', 'Shift all subtitles ' + label));
+    shift.addEventListener('pointerdown', e => e.preventDefault());
+    toolbar.append(shift);
+  }
+  root.append(toolbar, el('p', tr('テキストを空欄にすると描画しません。追加では3秒の字幕を追加し、他の字幕の時刻は動かしません。重なる場合は時刻を調整してください。',
+    'Empty text draws nothing. Adding inserts a 3-second cue without moving other cues. Adjust times if they overlap.'), 'note'));
   cues.forEach((cue, i) => {
     const row = el('div', null, 'layer-cue'), label = el('strong', String(i + 1));
     row.classList.toggle('is-filler', !!cue.filler);
@@ -316,6 +369,7 @@ J.editLayerCueText = index => {
 let cueSignature = '';
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  J.syncNativeSpectrumUI?.();
   J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
   for (const [id, draft] of cueDrafts) if (JSON.stringify(cues?.find(c => c.id === id)) !== draft.base) cueDrafts.delete(id);
@@ -329,8 +383,6 @@ J.syncLayerUI = () => {
   for (const [key, value] of Object.entries(J.ui.project.spectrumLayout)) {
     const input = $('spectrum-' + key); if (input) input.value = value;
   }
-  J.ui.project.bloomThreshold = J.normalizeBloomThreshold(J.ui.project.bloomThreshold);
-  for (const id of ['layerBloomRange', 'layerBloomNumber']) if ($(id)) $(id).value = J.ui.project.bloomThreshold;
   const ready = !!session.front;
   $('layerName-matte').textContent = session.matte ? session.matte.name : (ready ? tr('未指定：RGB 000000を透明化', 'None: RGB 000000 is transparent') : tr('未選択（任意）', 'None (optional)'));
 };
@@ -356,6 +408,7 @@ function boot() {
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, exportRange: null });
+    J.ui.project.simpleExport.duration = null;
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
   }));
@@ -363,20 +416,22 @@ function boot() {
   const cues = el('details'); cues.id = 'layerCues';
   panel.append(inputs, info, cues);
   J.mountFillerUI(inputs);
-  const spectrumHeading = el('h3', tr('スペアナ合成（字幕が手前・0秒で同期）', 'Spectrum composite (subtitles in front, aligned at 0s)'));
-  const mergeHelp = el('p', tr('フロント動画を読み込むと自動合成します。合成しない場合はフロント動画を「解除」してください。マットは任意です。未指定ならRGB 000000だけを透明化します。指定する場合はフロントとサイズ・長さを揃えてください。基本は幅65%・左下3%余白で配置し、終了後は空白になります。素材は再起動時に選び直してください。', 'Loading a front video automatically composites it. Clear the front video to stop compositing. Matte is optional. Without it, only RGB 000000 is transparent. If supplied, match the front size and duration. Default: 65% width, 3% margins at left/bottom. Empty after the end. Reselect media after reopening.'), 'note');
+  const spectrumHeading = el('h3', tr('スペアナ（字幕が手前・0秒で同期）', 'Spectrum (subtitles in front, aligned at 0s)'));
+  const mergeHelp = el('p', tr('スペアナ等の動画をアルファ合成できます。マット動画は任意で、未指定ならRGB 000000を透明化します。マットを指定する場合はフロントとサイズ・長さを揃えてください。', 'Composite spectrum or other videos using alpha. The matte is optional; without it, RGB 000000 is transparent. If supplied, match the front size and duration.'), 'note');
+  mergeHelp.classList.add('spectrum-external');
   for (const [key, ja, en, accept, only] of [
     ['background', '作業用背景（画像・動画）', 'Preview background (image/video)', 'image/*,video/*', false],
     ['front', 'スペアナのフロント動画', 'Spectrum front video', 'video/*', true],
     ['matte', 'スペアナのマット動画（任意）', 'Spectrum matte video (optional)', 'video/*', true],
   ]) {
     const row = el('div', null, 'layer-media');
+    if (key !== 'background') row.classList.add('spectrum-external');
     row.append(fileInput('layerFile-' + key, tr(ja, en), accept, (f, files) => key === 'front' ? selectSpectrumFront(f, files) : loadMedia(key, f, only)));
     if (key === 'front') row.querySelector('input').multiple = true;
     const name = el('span', tr('未選択', 'None'), 'muted'); name.id = 'layerName-' + key;
     row.append(name, button('layerClear-' + key, tr('解除', 'Clear'), () => clearMedia(key)));
     if (key === 'background') panel.append(el('hr', null, 'layer-divider'));
-    if (key === 'front') panel.append(spectrumHeading, mergeHelp);
+    if (key === 'front') { panel.append(spectrumHeading); J.mountNativeSpectrumUI(panel); panel.append(mergeHelp); }
     panel.append(row);
     if (key === 'background') {
       // Move the existing section intact so audio/timing handlers and mobile folding stay attached.
@@ -391,18 +446,17 @@ function boot() {
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
   panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント＋白黒2値マット。音声・作業用背景は出力しません。', 'Front on black + binary matte. No audio or preview background in exports.'), 'note'));
-  panel.append(el('p', tr('文字色・装飾・図形・切替を保持します。暗い文字は作業用背景で確認してください。薄い演出は黒地での明るさとして残り、マットは2値です。', 'Preserves text colours, ornaments, graphics and transitions. Check dark text over a preview background. Soft effects retain their brightness on black; mattes stay binary.'), 'note'));
+  panel.append(el('p', tr('黒背景のフロント動画と白黒2値のマット動画を作成します。マット＋フロントのペア出力には、音声・作業用背景は含みません。', 'Creates a front video on black and a binary matte. Matte + front pair exports exclude audio and preview backgrounds.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   const progress = el('progress'); progress.id = 'layerProgress'; progress.max = 1; progress.value = 0; progress.hidden = true;
   const cancel = button('layerCancel', tr('出力を中止', 'Cancel export'), () => J.ui.exporting?.abort()); cancel.hidden = true;
   const output = el('p', tr('フロントとマットを、2本のMP4として直接保存します。', 'Downloads front and matte directly as two MP4 files.'), 'note'); output.id = 'layerStatus'; output.setAttribute('role', 'status');
   const downloads = el('div'); downloads.id = 'layerDownloads';
   panel.append(progress, cancel, output, downloads);
+  simpleExportControls(panel);
   const left = document.querySelector('.col-left');
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
-  bloomControls(left);
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }

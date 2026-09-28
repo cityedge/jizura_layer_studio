@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.0.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.1.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -16,9 +16,11 @@ Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove 
 
 Without SRT, type subtitles using the original lyric syntax. Auto-compose, adjust individual rows, or return to a previous proposal. Effect panels, ribbons, graphics, HUDs and flashes can cover the full frame. Plain base backgrounds and independent title/interlude scenes are excluded.
 
-Load an image/video as a preview background. Songs are for preview/timing only. Neither background nor audio is exported.
+Load an image/video as a preview background. Songs support preview and timing. Neither background nor audio is included in pair exports.
 
 ## Spectrum
+
+Choose None, Generate from audio or External video under Spectrum source. Load a song and select Generate from audio for 64 bars with sensitivity, pulse strength, return time and top/bottom color controls. The gradient is fixed to the maximum height, so short bars show only lower colors. Preview, seeking and MP4 export share the analyzed motion. Placement is shared with external footage; file-import instructions below apply to External video. See [Built-in spectrum](../user_guide.en.md#generating-from-audio).
 
 [Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker) is a tool developed by cityedge for creating spectrum videos to import into this app.
 
@@ -42,9 +44,9 @@ Supported containers: MP4, MOV, WebM, Matroska and Ogg; codec support depends on
 
 ## Exterior bloom cleanup
 
-Below the cut list, adjust 0–128 (default 32). Zero disables cleanup; higher values remove more dark exterior glow. Preview updates without replanning. The value is saved and locked during export.
+All added exterior bloom is removed regardless of brightness. There is no control; old project thresholds are ignored and discarded. Preview and both MP4 export paths share this behavior.
 
-Only new exterior pixels added by automatic bloom / bloom effects are examined. Original text, graphics and sparks remain. Not every dark shadow or camera blur is removed.
+Only new exterior pixels added by automatic bloom / bloom effects are removed. Original text, graphics, sparks and interior brightness changes remain. Not every dark shadow or camera blur is removed.
 
 ## Output
 
@@ -68,11 +70,19 @@ Apply the matte with Darken, then the front with Lighten. Match timing, size and
 
 ## Save and limitations
 
-Save project JSON explicitly; autosave is a convenience. Subtitles, effects, placement and bloom settings persist, but actual background, spectrum and song files do not. Reselect media after reopening; save before language switching, which reloads the page.
+Save project JSON explicitly; autosave is a convenience. Subtitles, effects and placement persist, but actual background, spectrum and song files do not. Reselect media after reopening; save before language switching, which reloads the page.
 
 Desktop Chrome / Edge is recommended. MP4 requires WebCodecs and H.264 encoding, depending on browser/OS. Long/4K exports are not thoroughly verified and use substantial memory; start with a short range. File-URL storage behavior depends on browser.
 
-Finished background/audio video, PNG and AE export are not offered. The interface supports Japanese and English; subtitle text languages and font support are preserved.
+Video-background movie export, PNG and AE export are not offered. The interface supports Japanese and English; subtitle text languages and font support are preserved.
+
+## Simple video export (optional)
+
+The neutral-colored Export simple video MP4 button below the pair description saves a single composite: still background, spectrum, subtitles. No background means black; selecting a video background disables this option.
+
+Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. Extending output holds the still, hides ended overlays and adds silence after the song.
+
+Existing resolution, fps, quality and range settings apply; duration rounds up to whole video frames. Audio is encoded as AAC at its original level, independent of preview volume. If AAC encoding is unavailable, exclude audio or use a supported environment. Settings persist in JSON. See [details](../user_guide.en.md#exporting-a-simple-video).
 
 ## Filler subtitles
 
@@ -82,7 +92,7 @@ After importing SRT, **Add fillers…** opens a settings dialog. Generated cues 
 
 - **Usable gap threshold:** applied after the pre-gap following a normal cue and the post-gap before the next. Defaults are 5s threshold, 0.3s pre-gap and 0.5s post-gap: an interior gap must be at least 5.8s. Intros use only the post-gap; outros use only the pre-gap. Overlapping normal cues form one occupied interval.
 - **Average duration:** Normal is the mean of the longer half of current normal cue durations, rounding the count up. Short uses ×0.75 and Long ×1.5. Individual durations vary while filling each eligible interval.
-- **Text types:** enable Whitespace, Lyric text, Timestamp and/or Symbols, each weighted 1–10. Defaults enable all types; weights are 3, 8, 2 and 1. Whitespace uses 3–4 groups of 2–5 ideographic spaces separated by ASCII spaces, allowing plates and decorations without visible lyric glyphs. Symbols follow the mean normal text length excluding whitespace, using repeated, mixed, alternating or symmetric patterns. Lyrics are chosen whole from normal cues regardless of length.
+- **Text types:** enable Whitespace, Lyric text, Timestamp, Symbols and/or Custom text. Weights range from 0–10. Defaults enable all types at weights 3, 8, 2, 1 and 0. Custom text starts empty and uses the full text entered. If enabled with a positive weight but no text, generation reports an error without replacing existing fillers. Whitespace uses 3–4 groups of 2–5 ideographic spaces separated by ASCII spaces, allowing plates and decorations without visible lyric glyphs. Symbols follow the mean normal text length excluding whitespace, using repeated, mixed, alternating or symmetric patterns. Lyrics are chosen whole from normal cues regardless of length.
 - **Time tags:** `[timestamp]` renders as `02 05 853` using the cue start time and follows retiming. Type it into normal or filler cues, alone or with other text. The editor and JSON retain the literal tag.
 - **End time:** uses audio duration first, then spectrum duration, otherwise the last normal cue; never shorter than the last normal cue. Load media first to fill the outro.
 

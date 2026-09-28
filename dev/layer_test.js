@@ -172,14 +172,14 @@ test('all brightness and alpha combinations match final RGB coverage', () => {
   }
 });
 
-test('bloom cleanup preserves original black ink, dim particles and visible exterior light', () => {
+test('bloom cleanup preserves black ink and dim particles but removes even bright exterior light', () => {
   const base=new Uint8ClampedArray([0,0,0,255,2,1,0,255,0,0,0,0,0,0,0,0,0,0,0,0]);
   const result=new Uint8ClampedArray([0,0,0,255,2,1,0,255,31,10,1,255,0,0,32,255,255,0,0,31]);
   J.cleanLayerBloom(base,result);
-  assert.deepEqual(Array.from(result),[0,0,0,255,2,1,0,255,0,0,0,0,0,0,32,255,0,0,0,0]);
+  assert.deepEqual(Array.from(result),[0,0,0,255,2,1,0,255,0,0,0,0,0,0,0,0,0,0,0,0]);
   const pair=J.pairPixels(J.layerPixels(result));
-  assert.deepEqual(Array.from(pair.front),[3,3,3,255,2,1,0,255,0,0,0,255,0,0,32,255,0,0,0,255]);
-  assert.deepEqual(Array.from(pair.matte),[0,0,0,255,0,0,0,255,255,255,255,255,0,0,0,255,255,255,255,255]);
+  assert.deepEqual(Array.from(pair.front),[3,3,3,255,2,1,0,255,0,0,0,255,0,0,0,255,0,0,0,255]);
+  assert.deepEqual(Array.from(pair.matte),[0,0,0,255,0,0,0,255,255,255,255,255,255,255,255,255,255,255,255,255]);
 });
 test('min-matte then max-front equals inverse-matte alpha composition', () => {
   const before=new Uint8ClampedArray([0,0,0,255,0,0,0,0,0,0,0,0]);
@@ -192,21 +192,20 @@ test('min-matte then max-front equals inverse-matte alpha composition', () => {
   }
 });
 
-test('bloom threshold defaults, rounds and clamps imported values safely', () => {
-  for(const value of [undefined,null,NaN,Infinity,'64',{},false])assert.equal(J.normalizeBloomThreshold(value),32);
-  assert.equal(J.normalizeBloomThreshold(-5),0);
-  assert.equal(J.normalizeBloomThreshold(500),128);
-  assert.equal(J.normalizeBloomThreshold(31.6),32);
-  assert.equal(J.defaultProject().bloomThreshold,32);
+test('legacy bloom settings are discarded on import and absent in new projects', () => {
+  for(const value of [undefined,null,NaN,Infinity,'64',{},false,0,32,128,255]){
+    const project={fx:{},bloomThreshold:value};J.upgradeLayerProject(project,project);
+    assert.equal(Object.hasOwn(project,'bloomThreshold'),false);
+  }
+  assert.equal(Object.hasOwn(J.defaultProject(),'bloomThreshold'),false);
 });
-test('every allowed bloom threshold protects ink and preserves the binary pair', () => {
+test('legacy threshold arguments cannot retain exterior bloom or erase protected ink', () => {
   const base=new Uint8ClampedArray([0,0,0,255,1,0,0,255,0,0,0,0]);
   for(let threshold=0;threshold<=128;threshold++)for(const value of [0,1,31,32,64,127,128,255]){
     const after=new Uint8ClampedArray([0,0,0,255,1,0,0,255,value,0,0,255]);
     const pair=J.pairPixels(J.layerPixels(J.cleanLayerBloom(base,after,threshold)));
     assert.deepEqual(Array.from(pair.front.slice(0,8)),[3,3,3,255,1,0,0,255]);
-    if(value<threshold)assert.equal(pair.front[8],0);
-    else assert.equal(pair.front[8],value||3);
+    assert.equal(pair.front[8],0);
     for(let i=0;i<pair.front.length;i+=4)assert.equal(pair.matte[i],pair.front[i]||pair.front[i+1]||pair.front[i+2]?0:255);
   }
 });
@@ -249,7 +248,7 @@ test('bloom coverage matches flattened artwork for every maximum channel and alp
   assert.deepEqual(base, snapshot);
 });
 
-test('bloom keeps the previous coverage-based result at all supported thresholds', () => {
+test('bloom retains all interior changes and clears all exterior pixels regardless of old threshold', () => {
   const base = new Uint8ClampedArray(4096 * 4), glow = new Uint8ClampedArray(base.length);
   let seed = 93291;
   const byte = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return seed >>> 24; };
@@ -262,8 +261,7 @@ test('bloom keeps the previous coverage-based result at all supported thresholds
   for (let threshold = 0; threshold <= 128; threshold++) {
     const expected = glow.slice();
     for (let i = 0; i < expected.length; i += 4) {
-      const brightness = Math.round(Math.max(glow[i], glow[i + 1], glow[i + 2]) * glow[i + 3] / 255);
-      if (!coverage[i + 3] && brightness < threshold) expected.fill(0, i, i + 4);
+      if (!coverage[i + 3]) expected.fill(0, i, i + 4);
     }
     assert.deepEqual(J.cleanLayerBloom(base, glow.slice(), threshold), expected);
   }
