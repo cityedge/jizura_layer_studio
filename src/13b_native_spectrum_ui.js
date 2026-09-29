@@ -99,6 +99,12 @@ J.mountNativeSpectrumUI = panel => {
     input.addEventListener('input', () => { J.ui.project.nativeSpectrum[key] = input.valueAsNumber; J.uiApi.flushSave(); J.syncLayerUI(); J.ui.need = true; });
     row.append(input, value); controls.append(row);
   }
+  const reset = el('button', tr('初期設定に戻す', 'Reset to defaults')); reset.id = 'nativeSpectrumReset'; reset.type = 'button';
+  reset.addEventListener('click', () => {
+    J.ui.project.nativeSpectrum = J.normalizeNativeSpectrum();
+    J.uiApi.flushSave(); J.syncLayerUI(); J.ui.need = true;
+  });
+  controls.append(reset);
   const info = el('p', null, 'note'); info.id = 'nativeSpectrumInfo'; info.setAttribute('role', 'status');
   const range = el('p', null, 'note'); range.id = 'nativeSpectrumRange'; range.hidden = true;
   const retry = el('button', tr('解析を再試行', 'Retry analysis')); retry.id = 'nativeSpectrumRetry'; retry.type = 'button';

@@ -17,6 +17,7 @@ const ICON = {
 
 const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
+let cueRerollHold = null;
 const LOOP_COPY = {
   all:  { ja: 'ループ', en: 'Loop', titleJa: '全体を繰り返し', titleEn: 'Loop the whole piece' },
   line: { ja: '行ループ', en: 'Line loop', titleJa: 'この行を繰り返し', titleEn: 'Loop this line' },
@@ -159,6 +160,9 @@ function langNote() {
   langNote.last = J.lang;
 }
 function replan() {
+  // Imports, project loading and undo can switch to explicit SRT timing mid-tap.
+  if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
+  cueRerollHold = null;
   S.plan = J.plan(S.project, audioLike());
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
@@ -284,12 +288,34 @@ function pause() {
   S.playing = false; AP.stop();
   $('btnPlay').textContent = '▶'; $('btnPlay').setAttribute('aria-label', '再生'); S.need = true;
 }
-function seek(t) {
+function seek(t, keepCueTarget = false) {
+  if (!keepCueTarget) cueRerollHold = null;
   S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
   if (S.audio) { if (S.playing) AP.play(S.audio.buffer, S.t); }
   else S.t0 = performance.now() - S.t * 1000;
   refreshLoopHold();
   S.need = true;
+}
+
+function cueRerollTarget() {
+  if (cueRerollHold?.plan === S.plan && S.t >= Math.max(0, cueRerollHold.start - 0.3) - 0.001 && S.t < cueRerollHold.start)
+    return S.plan.lines.find(l => l.index === cueRerollHold.index);
+  return J.cueAtTime(S.plan, S.t);
+}
+function rerollCue(index = null, mode = 'fine') {
+  if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
+  const ln = index == null ? cueRerollTarget() : S.plan.lines.find(l => l.index === index);
+  try {
+    const next = J.prepareCueReroll(S.project, S.plan, ln?.index, audioLike(), mode);
+    const playing = S.playing;
+    pushEdit(); remember();
+    S.project = next; replan(); commit(); flushSave();
+    cueRerollHold = { plan: S.plan, index: ln.index, start: ln.start, end: ln.end };
+    seek(playing ? Math.max(0, ln.start - 0.3) : ln.start, true);
+    refreshLoopHold(ln.start + 0.001);
+    const kind = J.cueRerollModes.find(m => m[0] === mode);
+    toast(J.layerText(`字幕 ${ln.index + 1}：${kind[1]}（Ctrl+Zで戻せます）`, `Subtitle ${ln.index + 1}: ${kind[2]} (Ctrl+Z to undo)`));
+  } catch (e) { toast(e.message); }
 }
 
 /* ---------------- timeline ---------------- */
@@ -522,6 +548,17 @@ function rerollCurrentCut(kind) {
   toast(kind === 'omakase' ? 'このカットをおまかせ' : 'このカットをシャッフル');
 }
 function updateCutInfo() {
+  const target = cueRerollTarget();
+  for (const roll of document.querySelectorAll('#cueRollButtons button')) {
+    roll.disabled = !target || !!S.exporting || !!S.tap || !!J.layerSession?.busy || !!J.layerCueEditsInvalid || !!S.project.overrides?.[target?.index]?.lock;
+  }
+  if ($('cueRollTarget')) {
+    const rule = target && S.project.overrides?.[target.index]?.cueLook;
+    const style = J.STYLES[rule?.style || S.project.style]?.name || '', mood = J.MOODS[rule?.mood || S.project.mood]?.name || '';
+    const randomLabel = target && S.project.overrides?.[target.index]?.randomDraw ? J.layerText('ランダム · ', 'Random · ') : '';
+    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}` : J.layerText('（対象なし）', ' (no cue)'));
+    if ($('cueRollTarget').textContent !== label) $('cueRollTarget').textContent = label;
+  }
   const cut = J.cutAt(S.plan, S.t);
   const idx = cut ? cut.index : -1;
   const li = cut ? cut.line : -1;
@@ -675,7 +712,7 @@ function renderLines() {
     if (q('.ncut')) q('.ncut').addEventListener('change', e => { remember(); setOv(i, { cuts: +e.target.value || undefined, single: undefined }); replan(); commit(); seek(ln.start + 0.001); });
     q('.tapfrom').addEventListener('click', () => startTap(i));
     q('.rng').addEventListener('click', e => setExportRange(i, e.shiftKey));
-    if (q('.dice')) q('.dice').addEventListener('click', () => { const cur = ov[i] || {}; setOv(i, { seed: (cur.seed | 0) + 1, lock: false, lockedSeed: undefined, lockedCuts: undefined }); replan(); seek(ln.start + 0.001); });
+    if (q('.dice')) q('.dice').addEventListener('click', () => rerollCue(i));
     if (q('.lock')) q('.lock').addEventListener('click', () => {
       const cur = ov[i] || {};
       if (cur.lock) setOv(i, { lock: false, lockedSeed: undefined, lockedCuts: undefined });
@@ -707,6 +744,7 @@ function renderLines() {
     ol.appendChild(li); S.lineEls.push(li);
   });
   $('linesInfo').textContent = `${S.plan.lines.length}行 / ${S.plan.cuts.length}カット`;
+  syncTapAvailability();
   syncRangeUI();
 }
 
@@ -740,7 +778,7 @@ function editLine(li, ln) {
 /* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -749,6 +787,7 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   S.project.subtitleCues = o.subtitleCues || null;
+  S.project.localLooks = o.localLooks || null;
   S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
@@ -763,7 +802,7 @@ function clearLyrics() {
   const snap = JSON.parse(edSnap()); snap.ov = P.overrides || {}; snap.range = P.exportRange || null;
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
-  P.lyrics = ''; delete P.subtitleCues; P.timing.lineTimes = {}; P.overrides = {}; P.exportRange = null; $('lyrics').value = '';
+  P.lyrics = ''; delete P.subtitleCues; P.timing.lineTimes = {}; P.overrides = {}; P.localLooks = null; P.exportRange = null; $('lyrics').value = '';
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
@@ -952,7 +991,7 @@ function randomPalette() {
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
@@ -1431,15 +1470,26 @@ function offerShare(boxes, blob, name) {
 }
 
 /* ---------------- tap sync ---------------- */
+function resetTapSession() {
+  S.tap = null; $('tapPanel').hidden = true; $('btnTap').setAttribute('aria-pressed', 'false');
+}
+function syncTapAvailability() {
+  const srt = Array.isArray(S.project.subtitleCues);
+  const reason = J.layerText('SRT使用中はタップ同期を使えません。時刻の編集・ドラッグ・±0.1秒で調整してください。', 'Tap sync is unavailable with SRT. Use time fields, dragging or ±0.1s to adjust timing.');
+  $('btnTap').disabled = srt;
+  $('btnTap').title = srt ? reason : J.layerText('曲を再生しながら各行の頭でタップ', 'Tap at the start of each line while the song plays');
+  $('tapUnavailable').hidden = !srt; $('tapUnavailable').textContent = reason;
+  document.querySelectorAll('#lineList .tapfrom').forEach(b => {
+    b.disabled = srt;
+    if (srt) b.title = reason;
+  });
+}
 // start from any line: playback begins a little before that line, earlier lines keep their times
 function startTap(from = 0) {
-  if (!S.plan.lines.length) return;
+  if (Array.isArray(S.project.subtitleCues) || !S.plan.lines.length) return;
   from = J.clamp(from | 0, 0, S.plan.lines.length - 1);
   pushEdit();
   S.tap = { i: from, from, done: [] };
-  if (Array.isArray(S.project.subtitleCues)) {
-    S.tap.cueOrder = S.project.subtitleCues.slice(from).map(c => c.id); S.tap.cuePos = 0;
-  }
   if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
   $('tapPanel').hidden = false; $('btnTap').setAttribute('aria-pressed', 'true');
   $('tapPanel').classList.remove('compact');
@@ -1451,15 +1501,7 @@ function startTap(from = 0) {
 }
 function tapNow() {
   if (!S.tap) return;
-  if (S.tap.cueOrder) {
-    const cue = S.project.subtitleCues[S.tap.i];
-    S.tap.done.push({ id: cue.id, start: cue.start, pos: S.tap.cuePos });
-    J.moveLayerCue(S.project, S.tap.i, +S.t.toFixed(3));
-    S.tap.cuePos++;
-    if (S.tap.cuePos >= S.tap.cueOrder.length) { stopTap(); return; }
-    S.tap.i = S.project.subtitleCues.findIndex(c => c.id === S.tap.cueOrder[S.tap.cuePos]);
-    replan(); updateTap(); return;
-  }
+  if (Array.isArray(S.project.subtitleCues)) { pause(); stopTap(); return; }
   const LT = S.project.timing.lineTimes, i = S.tap.i, t = +S.t.toFixed(3);
   S.tap.done.push({ i, had: LT[i] });
   LT[i] = t;
@@ -1471,17 +1513,13 @@ function tapNow() {
 }
 function tapBack() {                    // 1つ戻る: undo the last tap and jump back a little
   if (!S.tap || !S.tap.done.length) return;
-  if (S.tap.cueOrder) {
-    const d = S.tap.done.pop(), index = S.project.subtitleCues.findIndex(c => c.id === d.id);
-    S.tap.i = J.moveLayerCue(S.project, index, d.start); S.tap.cuePos = d.pos;
-    replan(); updateTap(); seek(Math.max(0, S.t - 3)); if (!S.playing) play(); return;
-  }
+  if (Array.isArray(S.project.subtitleCues)) { pause(); stopTap(); return; }
   const d = S.tap.done.pop(), LT = S.project.timing.lineTimes;
   if (d.had != null) LT[d.i] = d.had; else delete LT[d.i];
   S.tap.i = d.i; replan(); updateTap();
   seek(Math.max(0, S.t - 3)); if (!S.playing) play();
 }
-function stopTap() { S.tap = null; $('tapPanel').hidden = true; $('btnTap').setAttribute('aria-pressed', 'false'); replan(); flushSave(); }
+function stopTap() { resetTapSession(); replan(); flushSave(); }
 function updateTap() {
   const ln = S.plan.lines[S.tap.i];
   $('tapLine').textContent = ln ? `${S.tap.i + 1}. ${ln.interlude ? '〔間奏〕' : ln.text}` : '—';
@@ -1696,19 +1734,35 @@ function bind() {
     catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
+  J.cueRerollModes.forEach(([mode, ja, en], i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost small';
+    b.id = mode === 'fine' ? 'btnCueReroll' : 'btnCueReroll-' + mode;
+    b.textContent = `${J.cueRerollKey(mode)}${mode === 'fine' ? ' / Q' : ''} ${J.layerText(ja, en)}`;
+    b.title = J.layerText('現在の字幕だけを変更（Ctrl+Zで戻す）', 'Change only the current subtitle (Ctrl+Z to undo)');
+    b.addEventListener('click', () => rerollCue(null, mode));
+    if (mode === 'random') {
+      b.title = J.layerText('制約と過密を考慮して幅広く抽選。Qで基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. Q returns to base settings (Ctrl+Z to undo).');
+      $('cueRollButtons').prepend(b);
+    } else $('cueRollButtons').append(b);
+  });
   document.addEventListener('keydown', e => {
-    if ($('termsDlg').open || $('resetDlg').open || $('guideDlg')?.open || $('fillerDlg')?.open) return;
+    if (e.isComposing || document.querySelector('dialog[open]')) return;
     const tag = (e.target && e.target.tagName) || '';
-    const typing = /INPUT|TEXTAREA|SELECT/.test(tag) && e.target.type !== 'range' && e.target.type !== 'checkbox';
+    const typing = /INPUT|TEXTAREA|SELECT/.test(tag) || e.target?.isContentEditable;
     if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
     if (S.tap && e.code === 'Escape') { pause(); stopTap(); return; }
     if (S.tap && e.code === 'Backspace' && !typing) { e.preventDefault(); tapBack(); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !typing && !S.tap) { e.preventDefault(); edGo(e.shiftKey ? 1 : -1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY' && !typing && !S.tap) { e.preventDefault(); edGo(1); return; }
-    if (typing) return;
+    if (typing || e.ctrlKey || e.metaKey || e.altKey || S.exporting || J.layerSession?.busy || S.tap) return;
     if (e.code === 'Space') { e.preventDefault(); S.playing ? pause() : play(); }
-    else if (e.code === 'ArrowRight') seek(S.t + (e.shiftKey ? 1 : 1 / S.plan.fps));
-    else if (e.code === 'ArrowLeft') seek(S.t - (e.shiftKey ? 1 : 1 / S.plan.fps));
+    else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
+      e.preventDefault(); const direction = e.code === 'ArrowRight' ? 1 : -1;
+      seek(e.shiftKey ? J.cueJumpTime(S.plan, S.t, direction) : S.t + direction * 2);
+    }
+    else if (e.code === 'KeyA' || e.code === 'KeyD') { e.preventDefault(); seek(S.t + (e.code === 'KeyD' ? 1 : -1) * (e.shiftKey ? 1 : 1 / S.plan.fps)); }
+    else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) rerollCue(); }
+    else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });

@@ -215,7 +215,7 @@ J.LayerRenderer = class {
   constructor(w, h) {
     this.w = w; this.h = h; this.engine = new J.Renderer();
     this.raw = canvas(w, h); this.part = canvas(w, h); this.layer = canvas(w, h);
-    this.front = canvas(w, h); this.matte = canvas(w, h); this.plans = new WeakMap();
+    this.front = canvas(w, h); this.matte = null; this.plans = new WeakMap();
   }
   draw(plan, t, fast = false) {
     const x = this.raw.getContext('2d', { willReadFrequently: true });
@@ -231,10 +231,25 @@ J.LayerRenderer = class {
     }
     const pixels = J.layerPixels(x.getImageData(0, 0, this.w, this.h).data);
     this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
+    this.lastPixels = pixels;
     return pixels;
+  }
+  frontFrame(pixels, backgroundPixels = null) {
+    if (pixels !== this.lastPixels) this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
+    this.lastPixels = pixels;
+    const x = this.front.getContext('2d');
+    x.fillStyle = '#000000'; x.fillRect(0, 0, this.w, this.h);
+    if (backgroundPixels) {
+      this.spectrumLayer ||= canvas(this.w, this.h);
+      this.spectrumLayer.getContext('2d').putImageData(new ImageData(backgroundPixels, this.w, this.h), 0, 0);
+      x.drawImage(this.spectrumLayer, 0, 0);
+    }
+    x.drawImage(this.layer, 0, 0);
+    return this.front;
   }
   pair(pixels) {
     const p = J.pairPixels(pixels);
+    this.matte ||= canvas(this.w, this.h);
     this.front.getContext('2d').putImageData(new ImageData(p.front, this.w, this.h), 0, 0);
     this.matte.getContext('2d').putImageData(new ImageData(p.matte, this.w, this.h), 0, 0);
     return { front: this.front, matte: this.matte };
@@ -307,7 +322,8 @@ J.SpectrumReader = class {
     return this.framePixels(layout);
   }
 };
-J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signal, onProgress }) => {
+J.exportLayerFront = args => J.exportLayerPair({ ...args, frontOnly: true });
+J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signal, onProgress, frontOnly = false }) => {
   const [w, h] = J.outputSize(project), fps = plan.fps;
   if (spectrum && spectrum.kind !== 'generated') J.validateSpectrum(spectrum.front, spectrum.matte, fps);
   const fullDuration = Math.max(plan.duration, J.spectrumSourceDuration(spectrum));
@@ -322,7 +338,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     let reader = null;
     try {
       if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal);
-      for (const name of ['front', 'matte']) {
+      for (const name of frontOnly ? ['front'] : ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
         const state = { name, target, mux, error: null, count: 0 };
@@ -333,8 +349,9 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
       for (let i = 0; i < total; i++) {
         abort(signal);
         let pixels = render.draw(plan, t0 + i / fps);
-        if (reader) pixels = J.overPixels(await reader.pixels(t0 + i / fps, signal, project.spectrumLayout), pixels);
-        const pair = render.pair(pixels);
+        const spectrumPixels = reader ? await reader.pixels(t0 + i / fps, signal, project.spectrumLayout) : null;
+        if (spectrumPixels && !frontOnly) pixels = J.overPixels(spectrumPixels, pixels);
+        const pair = frontOnly ? { front: render.frontFrame(pixels, spectrumPixels) } : render.pair(pixels);
         for (const state of writers) {
           if (state.error) throw state.error;
           const vf = new VideoFrame(pair[state.name], { timestamp: Math.round(i * 1e6 / fps), duration: Math.round((i + 1) * 1e6 / fps) - Math.round(i * 1e6 / fps) });
@@ -360,8 +377,8 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         name: (spectrum ? 'combined_front' : 'subtitle_front') + (s.name === 'matte' ? '_matte_dark' : '') + '.mp4',
         blob: new Blob([s.target.buffer], { type: 'video/mp4' }),
       }));
-      const manifest = { format: 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
-        exteriorBloom: 'removed', matte: 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
+      const manifest = { format: frontOnly ? 'jizura-layer-front-v1' : 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
+        exteriorBloom: 'removed', matte: frontOnly ? null : 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
       abort(signal); onProgress?.(1, msg('完了', 'Done'));
       return { files, manifest };
     } catch (e) {

@@ -16,6 +16,7 @@ BODY = {
     '<button class="exp-share primary" hidden>共有して保存</button>': '<button class="exp-share primary" hidden>Share / save</button>',
     '<label class="row center-dir" hidden>縦長のとき<select class="centerDirSel" aria-label="縦長の画面での分け方"><option value="tb">上下に分ける</option><option value="lr">左右に分ける</option></select></label>': '<label class="row center-dir" hidden>On tall frames<select class="centerDirSel" aria-label="Split on tall frames"><option value="tb">Top / bottom</option><option value="lr">Left / right</option></select></label>',
     '<span>統一感</span>': '<span>Unified look</span>',
+    '>字幕を再抽選 (Q)</button>': '>Reroll subtitle (Q)</button>',
     '<span>文字整列</span>': '<span>Typesetting</span>',
     'title="保存先のファイルを先に選び、そこへ直接書き込みます。長い曲・1080p 以上でブラウザのメモリが足りずに失敗するときに使ってください（Chrome / Edge）">大きな動画用（ファイルに直接保存）</button>': 'title="Pick the file first; the video is written straight into it. Use this when long songs or 1080p and above fail because the browser runs out of memory (Chrome / Edge)">For large videos (save straight to a file)</button>',
     'title="保存先のファイルを先に選び、そこへ直接書き込みます。長い曲・1080p 以上でブラウザのメモリが足りずに失敗するときに使ってください（Chrome / Edge）">MP4（大きな動画用・ファイルに直接保存）</button>': 'title="Pick the file first; the video is written straight into it. Use this when long songs or 1080p and above fail because the browser runs out of memory (Chrome / Edge)">MP4 (large videos, save straight to a file)</button>',

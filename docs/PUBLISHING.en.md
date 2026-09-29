@@ -1,10 +1,10 @@
 # Manual publication
 
-## Publishing v1.1.0
+## Publishing v1.2.0
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.1.0.zip` to your Release. Both manuals and the new `src/11u_simple_export.js` and `dev/simple_export_test.js` are included automatically.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.2.0.zip` to your Release. Both manuals and the new `src/11w_cue_workflow.js` and `src/11x_random_draw.js` are included automatically. Use the 1.2.0 entry in `CHANGELOG.md` for your release description.
 
-After publication, check the **v1.1.0** header, both interface languages, manual links, existing pair export and simple still-background/audio export. This update removes no files relative to v1.0.0. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.2.0** header, both interface languages, manual links, subtitle draws on 0–6/Q, automatic parts, keyboard shortcuts, front-only export, pair export and simple export. Also verify that tap sync is disabled with SRT and that the built-in spectrum's Reset to defaults works. This update removes no files relative to v1.1.0. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 

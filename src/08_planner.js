@@ -45,7 +45,7 @@ J.stepDur = (fx, fps) => { const k = J.komaOf(fx); return k > 0 ? 1 / k : 1 / (f
 
 /* ---------------- lyric parsing ---------------- */
 J.parseLyrics = (raw, cues = null) => {
-  if (Array.isArray(cues)) return { meta: {}, lines: cues.map(c => ({ text: c.text, lrc: c.start, explicitEnd: c.end, cueId: c.id, note: null, impact: false, emph: [], manual: null, gapBefore: false, src: null })) };
+  if (Array.isArray(cues)) return { meta: {}, lines: cues.map((c, i) => ({ text: c.text, lrc: c.start, explicitEnd: c.end, cueId: c.id, part: c.part ?? 0, note: null, impact: false, emph: [], manual: null, gapBefore: i > 0 && c.part !== cues[i - 1].part, src: null })) };
   const lines = []; const meta = {};
   let pendingGap = false;
   const rows = String(raw || '').replace(/\r/g, '').split('\n');
@@ -279,10 +279,21 @@ J.plan = (project, audio) => {
   }
 
   // 統一感: sections, repeated lines, キメ lines and the per-section palettes (see makeUnify below)
-  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed }) : null;
+  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: project._partPalettes }) : null;
+  const globalLook = { st, fx, en, U };
   parsed.lines.forEach((ln, li) => {
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
+    const rule = ov.cueLook;
+    const local = rule && J.cueLookProject ? J.cueLookProject(project, rule) : null;
+    const st = local ? J.resolveStyle(local) : globalLook.st;
+    if (local && rule.palette?.length) st.schemes = rule.palette;
+    const fx = local ? { ...globalLook.fx, ...local.fx } : globalLook.fx;
+    const en = local ? Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, local.enabled?.[g]?.[k] !== false && (!J.randomOk || J.randomOk(project, g, k))]))])) : globalLook.en;
+    const nSchemes = st.schemes.length;
+    const U = ov.randomDraw || project._cueUnits?.[li] ? null : local ? (plan.unify ? makeUnify(parsed.lines.map((line, i) => i === li ? line : { ...line, text: '', impact: false }), { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: rule.palettes, relaxed: rule.unifyMode === 'loose' }) : null) : globalLook.U;
+    const renderLook = local ? { style: st, styleKey: local.style, fx, hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud } : null;
+    const autoSpecs = !ov.lock && J.localLookFor ? J.localLookFor(project, ln, ov, li, s, e) : null;
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
     if (ln.explicitEnd != null && ln.text.length === 0) {
@@ -306,7 +317,7 @@ J.plan = (project, audio) => {
     const n = J.glyphCount(ln.text);
     const visEnd = ln.explicitEnd != null ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
-    plan.lines.push({ index: li, src: ln.src, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
+    plan.lines.push({ index: li, src: ln.src, part: ln.part, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
     const spaceOnly = /^[\s\u3000]+$/.test(ln.text);
     const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
@@ -314,7 +325,7 @@ J.plan = (project, audio) => {
     let nC = Math.round(D / L);
     const maxC = chunks.length + (chunks.length >= 2 && D > 2.0 ? 1 : 0);
     nC = J.clamp(nC, 1, Math.max(1, maxC));
-    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
+    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
     if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
@@ -333,14 +344,18 @@ J.plan = (project, audio) => {
     // a locked line keeps its own cuts too (the cut count would otherwise follow the 細かさ slider or おまかせ)
     if (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
       units = ov.lockedCuts.map(c => ({ text: c.utext, w: [...c.utext].length + 1.6, recap: !!c.recap }));
-    const tot = units.reduce((a, u) => a + u.w, 0);
     // ロック: a locked line keeps exactly what it showed when it was locked (layouts, motion, decorations, colours,
     // accents) — rerolling other lines changes the shared "recently used" state, so the seed alone is not enough
-    const lockSpecs = ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length === units.length
-      && ov.lockedCuts.every((c, k2) => c && c.utext === units[k2].text && J.LAYOUTS[c.layout]) ? ov.lockedCuts : null;
+    if (autoSpecs?.length && autoSpecs.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
+      units = autoSpecs.map(c => ({ text: c.utext, w: c.fraction ?? ([...c.utext].length + 1.6), recap: !!c.recap }));
+    if (project._cueUnits?.[li]?.length)
+      units = project._cueUnits[li].map(c => ({ text: c.utext, w: c.fraction, recap: !!c.recap }));
+    const unitTotal = units.reduce((a, u) => a + u.w, 0);
+    const lockSpecs = autoSpecs || (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length === units.length
+      && ov.lockedCuts.every((c, k2) => c && c.utext === units[k2].text && J.LAYOUTS[c.layout]) ? ov.lockedCuts : null);
     let acc = s; const bounds = [s];
-    units.forEach((u, k) => { acc += D * u.w / tot; bounds.push(k === units.length - 1 ? visEnd : acc); });
-    for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
+    units.forEach((u, k) => { acc += D * u.w / unitTotal; bounds.push(k === units.length - 1 ? visEnd : acc); });
+    if (!autoSpecs && !project._cueUnits?.[li]) for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
     // scheme per line
     if (nSchemes > 1 && li > 0 && (U ? U.sectionStart(li) && rng.chance(0.25 + fx.bgSwitch) : rng.chance(fx.bgSwitch * (ln.impact ? 1.8 : 1)))) schemeIdx = (schemeIdx + 1 + rng.int(0, nSchemes - 2)) % nSchemes;
     const emphLine = ln.impact || ln.emph.length > 0;
@@ -355,20 +370,20 @@ J.plan = (project, audio) => {
       const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
       const emph = kime || ln.impact && (k === 0 || u.recap) || ln.emph.some(w => u.text.includes(w));
       const Z = zoneOf(li), LW = Z ? Z.w : W, LH = Z ? Z.h : H;       // the frame this cut is laid out in
-      const UU = U && !ovAny ? U : null;                              // per-line settings always win over 統一感
-      const tech = cutTechOf(ov, k);                                  // このカットだけの指定
+      const UU = U; // Explicit choices win per group; automatic groups still follow the part.
+      const tech = ov.randomDraw ? { ...Object.fromEntries(['layout', 'enter', 'exit', 'hold', 'treat', 'bg', 'cam', 'trans'].filter(g => ov[g] != null).map(g => [g, ov[g]])), ...cutTechOf(ov, k) } : cutTechOf(ov, k);
       let layout = ov.layout && J.LAYOUTS[ov.layout] ? ov.layout : pickLayout(rng, st, en, nn, dur, history, emph, u.recap, LH > LW);
-      if (UU) layout = UU.layout(li, layout, { nn, dur, emph, kime, rng, portrait: LH > LW, recap: u.recap });
+      if (UU && !ov.layout) layout = UU.layout(li, layout, { nn, dur, emph, kime, rng, portrait: LH > LW, recap: u.recap });
       let enter = ov.enter && J.ENTER[ov.enter] ? ov.enter : pickEnter(rng, st, en, layout, dur, history, emph, nn);
       let exit = ov.exit && J.EXIT[ov.exit] ? ov.exit : pickExit(rng, st, en, layout, dur, k === units.length - 1, history);
       let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fx, history);
       let weightGrow = false;
       if (UU) {
-        enter = UU.enter(li, enter, { layout, dur, emph, kime, rng, nn });
-        exit = UU.exit(li, exit, { layout, dur, kime, rng });
-        hold = UU.hold(li, hold, { kime, rng });
+        if (!ov.enter) enter = UU.enter(li, enter, { layout, dur, emph, kime, rng, nn });
+        if (!ov.exit) exit = UU.exit(li, exit, { layout, dur, kime, rng });
+        if (!ov.hold) hold = UU.hold(li, hold, { kime, rng });
         weightGrow = UU.weightGrow({ kime, nn, rng, dur });
-        if (weightGrow) enter = UU.softEnter(enter, rng);
+        if (weightGrow && !ov.enter) enter = UU.softEnter(enter, rng);
       }
       const durs = (en2, ex2) => {
         let a = J.clamp(dur * 0.36, 0.12, 0.6);
@@ -384,21 +399,22 @@ J.plan = (project, audio) => {
       };
       let [inDur, outDur] = durs(enter, exit);
       let sch = schemeIdx;
+      if (U && project._rerollSchemes?.[ln.cueId ?? ('line-' + li)] != null) sch = project._rerollSchemes[ln.cueId ?? ('line-' + li)];
       if (!U && nSchemes > 1 && k > 0 && rng.chance(0.12 * fx.bgSwitch)) sch = (schemeIdx + 1) % nSchemes;
       let LD = J.LAYOUTS[layout];
       let params = LD.plan(rng, { text: txt, n: nn, W: LW, H: LH, dur }, st);
       let decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fx, layout, history);
       let treat = ov.treat && J.TREAT[ov.treat] ? ov.treat : pickTreat(rng, st, en, fx, LD, emph, history);
-      if (UU) { decor = UU.decor(li, decor, { layout, kime, rng }); treat = UU.treat(li, treat, { kime, rng, LD }); }
+      if (UU) { if (!Array.isArray(ov.decor)) decor = UU.decor(li, decor, { layout, kime, rng }); if (!ov.treat) treat = UU.treat(li, treat, { kime, rng, LD }); }
       let treatP = J.TREAT[treat].plan ? J.TREAT[treat].plan(rng, st) : {};
       if (!ov.bg && k > 0 && !U && rng.chance(0.18 * fx.bgSwitch + 0.04)) { lineBg = pickBg(rng, st, en, fx, bgHistory); lineBgP = J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {}; }
       let bg = LD.busy && !(J.BG[lineBg] && J.BG[lineBg].subtle) ? 'none' : lineBg;
       let cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fx, LD, emph, history);
-      if (UU) cam = UU.cam(li, cam, { kime, emph, rng });
+      if (UU && !ov.cam) cam = UU.cam(li, cam, { kime, emph, rng });
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
       // 統一感: a line that comes back (サビ etc.) is shown exactly as the first time
-      const again = UU ? UU.again(li, k, txt) : null;
+      const again = UU && !ovAny && !ov.reroll ? UU.again(li, k, txt) : null;
       if (again) {
         ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP, weightGrow } = again);
         sch = again.scheme; cutSeed = again.seed; LD = J.LAYOUTS[layout];
@@ -430,6 +446,7 @@ J.plan = (project, audio) => {
         if (!tech.decor || tech.decor === 'none' || !J.DECOR[tech.decor]) decor = [];
         else decor = [decorParams(J.rng(J.h(lineSeed, k, 92)), tech.decor)];
       }
+      if (ov.randomDraw && tech.decor === undefined && Array.isArray(ov.decor)) decor = ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id));
       if (tech.treat && J.TREAT[tech.treat]) {
         treat = tech.treat;
         treatP = J.TREAT[treat].plan ? J.TREAT[treat].plan(J.rng(J.h(lineSeed, k, 93)), st) : {};
@@ -453,8 +470,11 @@ J.plan = (project, audio) => {
       const joinSaved = { enter, inDur, prevExit: prevCut && prevCut.exit, prevOut: prevCut && prevCut.outDur };
       // a locked line keeps its own exit: the next (unlocked) line may not replace it with a transition / morph
       const prevLockedOther = prevCut && prevCut.line !== li && !LS && ((project.overrides || {})[prevCut.line] || {}).lock;
-      // Explicit SRT boundaries must not replay the previous cue beyond its end.
-      const canTrans = !(project.layerOnly && Array.isArray(project.subtitleCues) && prevCut && prevCut.line !== li) && prevCut && Math.abs(prevCut.end - cs) < 0.06 && prevCut.layout !== 'interlude' && dur > 0.5 && !prevLockedOther;
+      // Cross-cue joins require matching millisecond boundaries within one automatic part.
+      const prevLine = prevCut && parsed.lines[prevCut.line];
+      const srtJoin = !Array.isArray(project.subtitleCues) || !prevCut || prevCut.line === li ||
+        (prevLine?.part === ln.part && Math.round(prevLine.explicitEnd * 1000) === Math.round(ln.lrc * 1000) && Math.round(prevCut.end * 1000) === Math.round(cs * 1000));
+      const canTrans = srtJoin && prevCut && Math.abs(prevCut.end - cs) < 0.06 && prevCut.layout !== 'interlude' && dur > 0.5 && !prevLockedOther;
       // 統一感: モーフ — the next part of the same line grows out of this one (shared characters glide, the rest melts)
       if (LS) {                                       // locked: the same join as before, when the cuts still touch
         if (canTrans && LS.morph) { morph = { dur: LS.morph.dur }; prevCut.exit = 'cut'; prevCut.outDur = 0; }
@@ -469,7 +489,7 @@ J.plan = (project, audio) => {
         }
       } else if (canTrans) {
         trans = ov.trans && J.TRANS[ov.trans] ? ov.trans : pickTrans(rng, st, en, fx, emph, history);
-        if (trans && UU) trans = UU.trans(li, trans, { rng });
+        if (trans && UU && !ov.trans) trans = UU.trans(li, trans, { rng });
         if (trans) {
           const TD = J.TRANS[trans];
           transDur = J.clamp(TD.dur || 0.35, 0.12, Math.min(0.6, dur * 0.45));
@@ -490,11 +510,16 @@ J.plan = (project, audio) => {
         transP = TD.plan ? TD.plan(J.rng(J.h(lineSeed, k, 96)), st) : {};
       }
       if (trans && canTrans) {
-        enter = 'cut'; inDur = 0.12;
+        enter = 'cut'; inDur = ov.randomDraw ? Math.min(0.12, dur * 0.08) : 0.12;
         prevCut.exit = 'cut'; prevCut.outDur = 0;
+      }
+      if (ov.randomDraw && inDur + outDur > dur * 0.88) {
+        const ratio = dur * 0.88 / (inDur + outDur); inDur *= ratio; outDur *= ratio;
       }
       const cut = makeCut({ text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur, outDur, params, decor, scheme: sch, seed: cutSeed, emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
         treat, treatP, bg, bgP: techBgP || (bg === lineBg ? lineBgP : {}), cam, camP, trans, transP, transDur, zone: Z, utext: u.text });
+      if (LS?.stagger != null) cut.stagger = LS.stagger;
+      if (LS?.renderLook || renderLook) cut.renderLook = LS?.renderLook || renderLook;
       if (kime || (LS && LS.kime)) cut.kime = true;
       if (weightGrow) cut.weightGrow = true;
       if (morph) cut.morph = morph;
@@ -539,7 +564,9 @@ J.plan = (project, audio) => {
         let extra = 0;
         for (const e of mine) if (e.type === 'chroma' || e.type === 'shake' && emph || extra++ < 1) plan.events.push(e);
       }
+      for (let j = evMark; j < plan.events.length; j++) { plan.events[j].line = li; plan.events[j].cut = k; }
     });
+    if (local && U) plan.lines[li].rulePalettes = U.palettes();
     // interlude in long gaps
     const nextStart = li < parsed.lines.length - 1 ? tm.starts[li + 1] : null;
     if (!project.layerOnly && nextStart != null && nextStart - visEnd > 1.3 && !parsed.lines[li + 1].interlude) {
@@ -557,6 +584,7 @@ J.plan = (project, audio) => {
   plan.events.sort((a, b) => a.t - b.t);
   plan.energy = audio && audio.energy ? audio.energy : null;
   plan.energyRate = audio && audio.energyRate ? audio.energyRate : 0;
+  if (U) plan.unifyPalettes = U.palettes();
   return plan;
 };
 
@@ -581,7 +609,7 @@ function makeUnify(lines, C) {
   // sections
   const sec = [], starts = new Set([0]);
   let si = 0;
-  lines.forEach((ln, i) => { if (i > 0 && (ln.gapBefore || ln.interlude || lines[i - 1].interlude)) { si++; starts.add(i); } sec.push(si); });
+  lines.forEach((ln, i) => { if (i > 0 && (ln.part != null ? ln.part !== lines[i - 1].part : ln.gapBefore || ln.interlude || lines[i - 1].interlude)) { si++; starts.add(i); } sec.push(ln.part ?? si); });
   // repeats
   const first = new Map(), repeatOf = [], count = new Map();
   lines.forEach((ln, i) => { const k = norm(ln.text); if (ln.interlude || k.length < 2) { repeatOf.push(null); return; } count.set(k, (count.get(k) || 0) + 1); if (first.has(k)) repeatOf.push(first.get(k)); else { first.set(k, i); repeatOf.push(null); } });
@@ -590,10 +618,11 @@ function makeUnify(lines, C) {
   lines.forEach((ln, i) => { if (ln.impact && !ln.interlude) kime.add(i); });
   if (!kime.size) lines.forEach((ln, i) => { if (starts.has(i) && !ln.interlude && (count.get(norm(ln.text)) || 0) >= 2) kime.add(i); });
   const ok = (g, k) => !!(k && en[g] && en[g][k] !== false && (g === 'layout' ? J.LAYOUTS[k] : g === 'enter' ? J.ENTER[k] : g === 'exit' ? J.EXIT[k] : g === 'hold' ? J.HOLD[k] : g === 'cam' ? J.CAMERA[k] : g === 'treat' ? J.TREAT[k] : g === 'trans' ? J.TRANS[k] : null));
-  const pals = new Map(), last = new Map();
+  const pals = new Map(C.palettes ? JSON.parse(JSON.stringify(C.palettes)) : []), last = new Map();
   const pal = i => { const s2 = sec[i]; if (!pals.has(s2)) pals.set(s2, { layout: [], enter: [], exit: [], hold: [], cam: [], decor: [], treat: [], trans: [] }); return pals.get(s2); };
   // keep up to max distinct picks per part; once full, mostly reuse them
   const sticky = (i, g, v, max, rng, fits = () => true, reuse = 0.85) => {
+    if (C.relaxed) { max *= 3; reuse = 0.25; }
     const P = pal(i)[g];
     if (P.length >= max && rng.chance(reuse)) { const pool = P.filter(k => ok(g, k) && fits(k)); if (pool.length) return rng.pick(pool); }
     if (!P.includes(v) && P.length < max) P.push(v);
@@ -621,6 +650,7 @@ function makeUnify(lines, C) {
   const kimePick = (g, v, rng, fits = () => true) => { const pool = KIME[g].filter(k => ok(g, k) && fits(k)); return pool.length ? rng.pick(pool) : v; };
   const specs = new Map();
   return {
+    palettes: () => JSON.parse(JSON.stringify([...pals])),
     kime,
     sectionStart: i => starts.has(i),
     layout(i, v, o) {
@@ -645,8 +675,9 @@ function makeUnify(lines, C) {
     decor(i, list, o) {
       if (o.kime) return [];
       const P = pal(i).decor;
-      if (P.length >= 2 && o.rng.chance(0.8)) { const id = o.rng.pick(P); return J.DECOR[id] ? [decorParams(o.rng, id)] : list; }
-      for (const d of list) if (!P.includes(d.id) && P.length < 2) P.push(d.id);
+      const pool = P.filter(id => J.DECOR[id] && en.decor?.[id] !== false), max = C.relaxed ? 6 : 2;
+      if (pool.length >= max && o.rng.chance(C.relaxed ? 0.25 : 0.8)) return [decorParams(o.rng, o.rng.pick(pool))];
+      for (const d of list) if (!P.includes(d.id) && P.length < max) P.push(d.id);
       return list;
     },
     treat(i, v, o) { if (o.kime) return 'none'; return sticky(i, 'treat', v, 1, o.rng, () => true, 0.75); },
@@ -710,11 +741,15 @@ function splitCut(cut, halves, zones, st, dur, LS) {
 J.lineSnapshot = (plan, li) => {
   const cuts = plan.cuts.filter(c => c.line === li && c.utext != null);
   if (!cuts.length) return null;
-  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
+  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, stagger: c.stagger, renderLook: c.renderLook, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
     params: c.params, decor: c.decor, treat: c.treat, treatP: c.treatP, bg: c.bg, bgP: c.bgP, cam: c.cam, camP: c.camP, scheme: c.scheme, seed: c.seed,
     trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [] }))));
   // each accent belongs to the cut it plays in (the ones just before a cut start belong to that cut)
   for (const e of plan.events) {
+    if (e.line != null) {
+      if (e.line === li && S[e.cut]) S[e.cut].events.push({ dt: e.t - cuts[e.cut].start, type: e.type, amp: e.amp, dur: e.dur });
+      continue;
+    }
     let k = -1;
     // [start − 0.25, next start − 0.25): an accent just before the following cut belongs to that cut
     for (let j = 0; j < cuts.length; j++) { const until = j < cuts.length - 1 ? cuts[j + 1].start - 0.25 : cuts[j].end - 0.3; if (e.t >= cuts[j].start - 0.25 && e.t < until) k = j; }

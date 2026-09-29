@@ -64,7 +64,7 @@ function syncCueErrors() {
   J.layerCueEditsInvalid = !!error;
   if (error) status(error, true); else if (showingCueError) status('');
   showingCueError = !!error;
-  if ($('layerExport')) $('layerExport').disabled = session.busy || !!error || !!J.nativeSpectrumBlocked?.();
+  for (const id of ['layerExport', 'layerExportFront']) if ($(id)) $(id).disabled = session.busy || !!error || !!J.nativeSpectrumBlocked?.();
   document.querySelectorAll('.cue-actions button[id^="cue-add-"]').forEach(b => { b.disabled = session.busy || !!error; });
   if ($('layerAddCue')) {
     const atZero = J.ui.project.subtitleCues?.some(c => c.start === 0);
@@ -184,7 +184,7 @@ window.addEventListener('pagehide', e => { if (!e.persisted) clearDownloads(); }
 async function exportPair() {
   return exportVideo(false);
 }
-async function exportVideo(simple) {
+async function exportVideo(simple, frontOnly = false) {
   if (J.ui.exporting) return;
   // Commit the focused editor before capturing the plan; never export stale valid data.
   document.activeElement?.blur();
@@ -210,11 +210,11 @@ async function exportVideo(simple) {
       const missing = J.missingUserFonts(J.fontsOfPlan(plan));
       if (missing.length) throw new Error(tr('不足しているフォントを読み直してください: ', 'Reload missing fonts: ') + missing.join(', '));
       const args = { plan, project, spectrum, range, signal: ac.signal,
-        onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
-      const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : await J.exportLayerPair(args);
+        onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : frontOnly ? tr('フロント動画を生成中 ', 'Encoding front video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
+      const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : frontOnly ? await J.exportLayerFront(args) : await J.exportLayerPair(args);
       if (ac.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
       offerDownloads(pair.files, project.title);
-      status(simple ? tr('簡易動画MP4を生成しました。保存されない場合はリンクから保存してください。', 'Simple video MP4 is ready. Use the save link if needed.') : tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
+      status(simple ? tr('簡易動画MP4を生成しました。保存されない場合はリンクから保存してください。', 'Simple video MP4 is ready. Use the save link if needed.') : frontOnly ? tr('フロントMP4を生成しました。保存されない場合はリンクから保存してください。', 'Front MP4 is ready. Use the save link if needed.') : tr('2本のMP4を生成し、ダウンロードを開始しました。保存されない場合は下のリンクから個別に保存してください。', 'Two MP4s are ready and downloads have started. If either is missing, save it using the links below.'));
     } finally {
       controls.forEach((e, i) => { e.disabled = disabled[i]; });
       J.ui.exporting = null; session.busy = false; $('layerCancel').hidden = true; dirty(); J.syncLayerUI();
@@ -375,6 +375,7 @@ J.syncLayerUI = () => {
   for (const [id, draft] of cueDrafts) if (JSON.stringify(cues?.find(c => c.id === id)) !== draft.base) cueDrafts.delete(id);
   syncCueErrors();
   document.documentElement.classList.toggle('srt-active', srt);
+  if (srt) J.ui.project.lyrics = J.subtitlePartText(cues);
   $('lyrics').readOnly = srt; $('lyrics').value = J.ui.project.lyrics;
   $('layerSrtInfo').textContent = srt ? cues.length + tr('件の字幕（本文・時刻を編集できます）', ' cues (text and timing are editable)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
   const signature = JSON.stringify(cues);
@@ -407,7 +408,7 @@ function boot() {
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
     cueDrafts.clear(); syncCueErrors();
-    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, exportRange: null });
+    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, exportRange: null });
     J.ui.project.simpleExport.duration = null;
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
@@ -448,6 +449,8 @@ function boot() {
   panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
   panel.append(el('p', tr('黒背景のフロント動画と白黒2値のマット動画を作成します。マット＋フロントのペア出力には、音声・作業用背景は含みません。', 'Creates a front video on black and a binary matte. Matte + front pair exports exclude audio and preview backgrounds.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
+  panel.append(button('layerExportFront', tr('フロントだけ MP4を出力', 'Export front MP4 only'), () => exportVideo(false, true)));
+  panel.append(el('p', tr('フロントのみはマット生成を省略します。音声・作業用背景は含みません。', 'Front-only export skips matte generation. Audio and preview backgrounds are excluded.'), 'note'));
   const progress = el('progress'); progress.id = 'layerProgress'; progress.max = 1; progress.value = 0; progress.hidden = true;
   const cancel = button('layerCancel', tr('出力を中止', 'Cancel export'), () => J.ui.exporting?.abort()); cancel.hidden = true;
   const output = el('p', tr('フロントとマットを、2本のMP4として直接保存します。', 'Downloads front and matte directly as two MP4 files.'), 'note'); output.id = 'layerStatus'; output.setAttribute('role', 'status');

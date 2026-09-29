@@ -120,14 +120,17 @@ J.replaceFillers = (project, prepared) => {
 const plan = J.plan, tracks = J.layerTracks, snapshot = J.lineSnapshot;
 J.plan = (project, audio) => {
   if (!Array.isArray(project.subtitleCues)) return plan(project, audio);
-  const entries = project.subtitleCues.map((cue, index) => ({ cue, index }));
+  const parts = J.subtitleParts ? J.subtitleParts(project.subtitleCues) : project.subtitleCues.map(() => 0);
+  const entries = project.subtitleCues.map((cue, index) => ({ cue: { ...cue, part: parts[index] }, index }));
   const make = group => plan({ ...project, lyrics: group.map(e => e.cue.text).join('\n\n'),
     subtitleCues: group.map(e => ({ ...e.cue, text: J.resolveCueText(e.cue) })),
+    _partPalettes: project._unifyPalettes?.[group[0]?.cue.filler ? 'filler' : 'normal'],
+    _cueUnits: project._cueUnits ? Object.fromEntries(group.map((e, i) => [i, project._cueUnits[e.index]])) : null,
     overrides: Object.fromEntries(group.map((e, i) => [i, project.overrides?.[e.index] || {}])) }, audio);
   const normal = entries.filter(e => !e.cue.filler), filler = entries.filter(e => e.cue.filler);
   if (!filler.length || !normal.length) return make(entries);
   const normalPlan = make(normal), fillerPlan = make(filler);
-  const groups = [{ plan: fillerPlan, indices: filler.map(e => e.index) }, { plan: normalPlan, indices: normal.map(e => e.index) }];
+  const groups = [{ kind: 'filler', plan: fillerPlan, indices: filler.map(e => e.index) }, { kind: 'normal', plan: normalPlan, indices: normal.map(e => e.index) }];
   const out = { ...normalPlan, duration: Math.max(normalPlan.duration, fillerPlan.duration), layerGroups: groups };
   out.lines = groups.flatMap(g => g.plan.lines.map(l => ({ ...l, index: g.indices[l.index] }))).sort((a, b) => a.index - b.index);
   out.cuts = groups.flatMap(g => g.plan.cuts.map(c => ({ ...c, line: g.indices[c.line] }))).sort((a, b) => a.start - b.start).map((c, index) => ({ ...c, index }));

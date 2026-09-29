@@ -40,13 +40,13 @@ J.MOODS = {
   for (const [g, map] of Object.entries(extra)) for (const [k, ms] of Object.entries(map)) ms.forEach(m => add(g, k, m));
 })();
 
-J.omakase = (project, rnd = Math.random) => {
+J.omakase = (project, rnd = Math.random, options = {}) => {
   const pick = a => a[Math.floor(rnd() * a.length) % a.length];
   const range = r => +(r[0] + (r[1] - r[0]) * rnd()).toFixed(2);
   const moodOk = k => !J.MOODS[k].set || (J.setOn && J.setOn(project, J.MOODS[k].set));
   const moods = Object.keys(J.MOODS).filter(k => k !== project.mood && moodOk(k));
   // with the ホラー switch on, おまかせ leans to the ホラー mood (it may repeat)
-  const mood = moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
+  const mood = options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
   // a set tied to a mood (ホラー) is only used in that mood
   const moodSetOk = d => !(d && d.set) || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set;
   // style: mostly one that suits the mood, sometimes anything; never the same twice in a row

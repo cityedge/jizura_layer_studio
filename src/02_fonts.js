@@ -98,6 +98,7 @@ J.fontsOfPlan = (plan) => {
   const set = new Set(['mono']);
   if (!plan) return [...set];
   for (const r of Object.values(plan.style.fonts || {})) for (const k of r) set.add(k);
+  for (const c of plan.cuts || []) for (const r of Object.values(c.renderLook?.style?.fonts || {})) for (const k of r) set.add(k);
   for (const c of plan.cuts || []) for (const v of Object.values(c.params || {})) {
     if (typeof v === 'string' && J.FONTS[v]) set.add(v);
     else if (Array.isArray(v)) v.forEach(x => { if (typeof x === 'string' && J.FONTS[x]) set.add(x); });

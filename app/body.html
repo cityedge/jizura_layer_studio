@@ -65,6 +65,7 @@
           <label class="file" title="mp3 / wav / m4a など">曲を読み込む<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" title="曲を再生しながら各行の頭でタップ">タップで同期</button>
         </div>
+        <p id="tapUnavailable" class="note" hidden></p>
         <div class="fields pro-only">
           <label class="field">BPM<input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自動"></label>
           <label class="field">開始(秒)<input id="offset" type="number" min="0" step="0.05"></label>
@@ -98,6 +99,7 @@
         <button id="btnShuffle" class="accent" title="設定はそのままで構成だけ再抽選（ロックした行は維持）">シャッフル</button>
         <button id="btnOmakase" class="primary" title="スタイル・雰囲気・演出・配色をまるごとランダムに（キー R）">おまかせ</button>
       </div>
+      <div id="cueRollBar" class="cue-roll-bar"><span id="cueRollTarget"></span><div id="cueRollButtons"></div></div>
       <div class="tl-bar">
         <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない</span>
         <span class="tl-btns">

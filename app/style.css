@@ -488,6 +488,11 @@ button.small.primary { padding: 4px 12px; }
 .layer-app .layer-cut-list { border-bottom:0; }
 
 /* Publication identity and self-contained help / license notices. */
+.cue-roll-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:8px 0; }
+#cueRollTarget { font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
+#cueRollButtons { display:flex; flex-wrap:wrap; gap:5px; }
+#cueRollButtons button { font-size:11px; padding:5px 8px; }
+#layerExportFront { width:100%; margin-top:6px; }
 .layer-app .brand { flex-wrap:wrap; gap:6px 10px; }
 .layer-app .brand .word { letter-spacing:0.02em; font-size:13px; }
 dialog.publication-dialog { width:min(720px, calc(100vw - 24px)); }

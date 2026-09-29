@@ -56,6 +56,10 @@ class Renderer {
 
   /* main entry: draw frame at time t into ctx (canvas px = design * scale) */
   frame(ctx, plan, t, opt = {}) {
+    // Local subtitle looks also apply to recursive transition frames.
+    const look = J.cutAt(plan, t)?.renderLook;
+    const baseLook = plan._baseLook || { style: plan.style, styleKey: plan.styleKey, fx: plan.fx, hud: plan.hud };
+    if (look || plan._baseLook) plan = { ...plan, ...(look || baseLook), _baseLook: baseLook };
     const W = plan.W, H = plan.H, scale = opt.scale || 1;
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style, fps = plan.fps;
@@ -202,7 +206,8 @@ class Renderer {
         const A = this.ensure(this.transA || (this.transA = mk(2, 2)), cw, ch), B = this.ensure(this.transB || (this.transB = mk(2, 2)), cw, ch);
         const bx = B.getContext('2d'); bx.setTransform(1, 0, 0, 1, 0, 0); bx.globalCompositeOperation = 'copy'; bx.drawImage(ctx.canvas, 0, 0); bx.globalCompositeOperation = 'source-over';
         this.frame(A.getContext('2d'), plan, Math.max(prev.start, prev.end - 1e-3), Object.assign({}, opt, { noTrans: true, noPost: true, noHud: true }));
-        const psc = st.schemes[prev.scheme % st.schemes.length] || st.schemes[0];
+        const pst = prev.renderLook?.style || baseLook.style;
+        const psc = pst.schemes[prev.scheme % pst.schemes.length] || pst.schemes[0];
         ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
         // Replace copied regions, including their transparent holes, during layer transitions.
         const drawImage = ctx.drawImage;

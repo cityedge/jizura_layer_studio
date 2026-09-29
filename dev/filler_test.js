@@ -2,7 +2,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), vm = require('node:vm'), path = require('node:path');
 const ctx = { J: { defaultProject: () => ({fx:{}}), plan: p => p }, document: {documentElement:{lang:'ja'}}, Intl };
-for (const name of ['11r_layers.js', '11t_fillers.js']) vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src', name), 'utf8'), ctx);
+for (const name of ['11r_layers.js', '11t_fillers.js', '11w_cue_workflow.js']) vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src', name), 'utf8'), ctx);
 const J = ctx.J, json = x => JSON.parse(JSON.stringify(x));
 const cue = (start, end, text = '歌詞', id = String(start)) => ({id,start,end,text});
 const project = cues => ({subtitleCues:cues, timing:{}, overrides:{}});
@@ -25,6 +25,19 @@ test('bulk shifts clamp starts at zero, keep fillers and tags, and validate atom
 const oldMargins = () => ({...settings(), preGap:1, postGap:2});
 let seed = 45678;
 const rng = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+test('automatic parts use 3 seconds of actual normal-cue silence, independent of fillers', () => {
+  const cues=[cue(0,10),cue(2,3),{...cue(10.3,13,'f'),filler:true},cue(13,15),cue(17.999,20),cue(23,25)];
+  assert.deepEqual(json(J.subtitleParts(cues)),[0,0,0,1,1,2]);
+  assert.equal(J.subtitlePartText([cue(0,2,'A'),cue(2,4,'B'),cue(7,9,'C')]),'A\nB\n\nC');
+  assert.deepEqual(json(J.subtitleParts([cue(0,2,''),cue(5,7,'visible')])),[0,0]);
+});
+test('cue navigation includes fillers, prefers latest overlap and handles gaps/ends', () => {
+  const p={lines:[{index:0,start:0,end:4,text:'a'},{index:1,start:3,end:7,text:'f'}, {index:2,start:10,end:12,text:'b'}]};
+  assert.equal(J.cueAtTime(p,3.5).index,1);assert.equal(J.cueAtTime(p,8),null);
+  assert.equal(J.cueJumpTime(p,3.5,-1),3);assert.equal(J.cueJumpTime(p,3.1,-1),0);
+  assert.equal(J.cueJumpTime(p,8,-1),3);assert.equal(J.cueJumpTime(p,8,1),10);
+  assert.equal(J.cueJumpTime(p,0,-1),0);assert.equal(J.cueJumpTime(p,11,1),11);
+});
 test('threshold includes exact boundary after BOTH margins, without fillers influencing gaps', () => {
   const p = project([cue(0,2),cue(10,12),cue(19.999,22),{...cue(3,9,'edited','f'),filler:true}]);
   const a = J.fillerAnalysis(p,oldMargins());
