@@ -1,5 +1,7 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.1.0**
+**Animated subtitle layers · cityedge fork · v1.2.0**
+
+Subtitle draws: **0 Random / 1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 or Q Fine-tune**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 to replace specific groups or Q to return to the retained base settings. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
 
 [Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
@@ -33,6 +35,8 @@ The app can also generate 64 bars from the loaded song. Choose **Generate from a
 
 ## Features
 
+See [new controls in v1.2.0](user_guide.en.md#new-and-changed-controls-in-v120) and the [changelog](CHANGELOG.md). The built-in spectrum's **Reset to defaults** restores white top/bottom colors, +8dB sensitivity, 100% pulse and 140ms return time.
+
 The retained JIZURA effects engine works alongside this edition's layer tools. The [user manual](user_guide.en.md) explains controls, workflows and limits.
 
 | Task | Features and instructions |
@@ -50,7 +54,7 @@ The retained JIZURA effects engine works alongside this edition's layer tools. T
 
 Layer-production specifications:
 
-- Import SRT as an editable starting point. Click the timeline to seek; drag start handles, type start times or tap to retime cues while preserving their duration. Edit text and end times in the cue editor.
+- Import SRT as an editable starting point. Click the timeline to seek; drag start handles, type start times or use ±0.1s shifts to retime cues while preserving their duration. Edit text and end times in the cue editor. Tap synchronization is available only without SRT.
 - Image/video preview backgrounds, excluded from pair exports.
 - Original text colours, graphics, ornaments and transitions.
 - Choose None, Generate from audio or External video as the spectrum source. External footage accepts an optional matching matte; without it, only RGB 000000 is transparent.

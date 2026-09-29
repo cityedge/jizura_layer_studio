@@ -1,3 +1,21 @@
+## 1.2.0 — 2026-09-29
+
+- 0キー／ボタンの「ランダム」を追加。スタイル・雰囲気の枠を外し、レイアウトの適合条件や演出密度を考慮して広く抽選。基礎設定を保持し、2〜5の部分変更、Q／6での基礎設定への復帰、Undo・JSON保存に対応。
+- Add Random on key/button 0: broad compatible combinations with restrained effect density, retained base settings, partial changes via 2–5, return to base settings via Q/6, Undo and JSON persistence.
+- SRT使用中は全体・行ごとのタップ同期を無効化。同期中のSRT読み込みでは同期と再生を終了し、時刻欄・ドラッグ・±0.1秒での調整へ案内。
+- Disable both tap-sync entry points while using SRT; importing SRT during tap sync ends the session and pauses playback. Keep time fields, dragging and ±0.1s shifts available.
+- 内蔵スペアナに「初期設定に戻す」を追加。上下の色を白、感度+8dB、拍動100%、戻る速さ140msへ戻し、位置・倍率・自動音域を維持。
+- Add Reset to defaults for the generated spectrum: white top/bottom colors, +8dB sensitivity, 100% pulse and 140ms return time, preserving placement and automatic frequency range.
+- 日英の詳細マニュアル・アプリ内ガイド・README・公開手順を公開版に合わせて更新。
+- Update both manuals, in-app guides, READMEs and publishing instructions for the release.
+
+- 字幕ガチャを6種類に拡張（1：全体、2：スタイル、3：雰囲気、4：演出、5：配色、6／Q：微調整）。字幕ごとの設定を保持して部分的に再抽選でき、Undo・JSON・プレビュー・出力に反映。
+- 「フロントだけ MP4を出力」を追加。マット生成とマット用エンコーダーを省略し、黒背景・無音のフロントを1本保存。
+- Add six local subtitle draws (1 Everything, 2 Style, 3 Mood, 4 Performance, 5 Colors, 6/Q Fine-tune), persistent local looks and front-only MP4 export without matte generation or encoding.
+- SRTの通常字幕間に3秒以上の空白がある場合の自動パート分け、読み取り専用のパート表示、時刻が一致する字幕間のつなぎを追加。
+- 字幕単位の再抽選（Q）を追加。全体ルール・手動指定・他字幕の演出を維持し、再生中は0.3秒前へ移動。UndoとJSON保存に対応。左右を2秒移動、Shift＋左右を字幕移動、A／Dを1フレーム、Shift＋A／Dを1秒移動に変更。
+- Add automatic SRT parts at 3-second normal-cue gaps, matching-boundary joins, isolated subtitle rerolls (Q) with Undo and persistence, plus cue/2-second navigation and A/D fine seeking.
+
 ## 1.1.0 — 2026-09-28
 
 - 全フィラー種類の重みを0〜10に統一。重み0を抽選から除外し、生成対象がすべて0なら既存フィラーを保持してエラー表示。

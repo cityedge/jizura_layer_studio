@@ -1,10 +1,19 @@
-# JIZURA Layer Studio v1.1.0 User Manual
+# JIZURA Layer Studio v1.2.0 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.1.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.2.0. Features removed from the original JIZURA are not presented as available operations.
+
+## New and changed controls in v1.2.0
+
+- [Subtitle draws](#automatic-parts-and-subtitle-rerolls): 0 for Random, 1–5 for specific scopes, and 6/Q for Fine-tune. This section covers partial changes after Random, returning to base settings, manual choices and Unified look.
+- [Automatic parts](#automatic-parts-and-subtitle-rerolls): a 3-second gap between normal cues starts a new part; touching cue boundaries within a part are eligible for transitions.
+- [Keyboard navigation](#keyboard-controls): arrows seek by 2 seconds, Shift-arrows by cue, A/D by one frame, and Shift-A/D by one second.
+- [Front-only export](#exporting-mp4): save one silent MP4 while skipping matte generation and encoding.
+- [Tap sync](#tap-sync): disabled while using SRT. Edit SRT timing through fields, dragging or ±0.1s shifts.
+- [Built-in spectrum](#generating-from-audio): Reset to defaults restores both colors and motion settings together.
 
 ## Contents
 
@@ -210,7 +219,7 @@ Start and line-duration controls do not batch-shift or stretch SRT cues.
 
 Start tap synchronization, listen to playback, and press TAP or Space when the displayed next line begins. Backspace or the back button undoes one tap. Finish ends the session; Escape also pauses playback. A line's tap button starts from that line.
 
-SRT taps preserve each cue's duration. Fillers are also cues and participate in the sequence. For substantial retiming, adjust normal cues first, then regenerate fillers. The tap pass can be undone using the edit undo controls.
+Tap synchronization is for direct subtitle input without SRT. With SRT, both the main and per-line tap buttons are disabled. Use time fields, timeline dragging or ±0.1s shifts instead. Importing SRT during tap synchronization ends the session and pauses playback. Use Clear lyrics to return to direct input and enable tap synchronization again. The tap pass can be undone using the edit undo controls.
 
 ## Playback and timeline
 
@@ -308,6 +317,33 @@ Effect sliders use a 0–100 strength/frequency scale. Each technique responds d
 | Cut density | Fineness of internal switching; reduce for readability |
 | Texture | Texture intensity where applicable; removed background processing may have no visible effect |
 | Background switching | Variation in behind-text graphics, not switching imported preview files |
+
+
+### Automatic parts and subtitle rerolls
+
+SRT cues start a new part after at least 3 seconds with no normal subtitle visible. Overlapping cues are considered together; fillers and completely empty cues do not define boundaries. Regenerating fillers does not change parts. Text/timing edits recalculate them. The read-only subtitle summary places blank separator lines only at part boundaries and uses labels for empty/whitespace-only cues.
+
+Unified look uses these parts to coordinate layout, motion and color. Cross-cue transitions are eligible only within a part when the previous end equals the next start at millisecond precision. Eligible boundaries do not always receive a transition.
+
+The subtitle draw buttons and number keys affect only the current subtitle. A line's dice is equivalent to Fine-tune. **0 Random** samples compatible layouts, motion, ornaments, fonts and colors without style/mood preferences. It retains base settings separately, honors effect-pack permissions and cue locks, and bypasses Unified look. Ornament counts and screen accents are limited to avoid overcrowding; Typesetting restraint still applies.
+
+| Key | Draw | Changes |
+|---|---|---|
+| 0 | Random | Broad compatible combinations with restrained density; retains base style/mood separately |
+| 1 | Everything | Style, mood, fonts, palette, performance and cut structure |
+| 2 | Style | Style, fonts and related performance; keeps mood and palette |
+| 3 | Mood | Mood, motion and ornaments; keeps style, fonts and palette |
+| 4 | Performance | Broadly redraws layout, motion, ornaments and cut structure; keeps style, mood, fonts and palette |
+| 5 | Colors | Palette only; preserves cut structure, motion, timing and screen events |
+| 6 / Q | Fine-tune | Narrow redraw within the subtitle's current style, mood, palette and technique pool |
+
+Each subtitle retains its local settings. Use Everything to explore, then Mood, Colors and Fine-tune to refine without returning to the global starting look. The global controls stay unchanged; the local style and mood appear beside the draw buttons. Unified look favors small pools for Fine-tune, loosens them for Performance and builds a new local combination for Everything. Disabled categories such as Horror stay excluded from new random choices. Broad draws retry repeated layout/motion combinations, but manual choices and short text may limit variation.
+
+All modes preserve text, cue times and locks. Everything clears that cue's manual effect choices. Style replaces layout, background graphic and treatment choices; Mood replaces entrance, exit, hold, ornaments, camera, transitions and treatment choices. Performance replaces both sets and cut structure while retaining fonts and colors. Modes 2–4 overwrite manual and per-cut choices within their scope and retain other choices. Ordinary Fine-tune retains manual choices. Other subtitles retain their artwork and effects; joins immediately around the target may change.
+
+After Random, 2–4 replace their own groups and 5 changes only colors. Q/6 removes the random composition and redraws within the retained base settings, including subsequent Style/Mood changes. Pre-random manual choices return except for groups replaced by 2–4. Ctrl-Z restores the exact preceding result. Random compositions are saved in project JSON. Random uses at most three ornaments and one extra screen-effect event per cut, reducing density further for busy layouts or strong cameras.
+
+During playback, the preview seeks to 0.3 seconds before the subtitle (clamped to zero) and keeps playing. Repeated Q presses during that lead-in keep the same target. While paused, rerolling seeks to the cue start and remains paused. Normal cues and fillers are eligible. In a gap, nothing is rerolled; overlapping cues use the latest start. The button shows the target number. Ctrl-Z restores the previous draw, and project JSON retains results. Changing global settings rebuilds the composition under those settings.
 
 ### Unity and typesetting
 
@@ -463,6 +499,8 @@ There are 64 narrow continuous bars with gaps and no peak-hold line. Reference g
 | Pulse strength | 100%, range 0–100%; emphasizes increases and suppresses sustained sound. Zero follows the ordinary spectral level |
 | Return time | 140ms, range 60–600ms; shorter falls faster. Attack is immediate |
 
+**Reset to defaults** sets both colors to white, sensitivity to +8dB, pulse strength to 100%, and return time to 140ms. Position, scale, and the automatic frequency range stay unchanged.
+
 **The gradient is fixed to the maximum height.** With red at the top and green at the bottom, short bars show green; yellow and red appear as they rise. Each bar does not stretch the whole gradient. Choose identical colors for solid bars.
 
 The actual audio spectrum drives individual bands, rather than simulated BPM pulses. Sustained tones can settle near zero at 100% pulse strength. If the motion is too sparse, raise sensitivity or lower pulse strength. Preview volume and mute do not affect analysis.
@@ -532,7 +570,9 @@ Preview, pair MP4 and simple MP4 exports share this behavior. It does not apply 
 
 ## Exporting MP4
 
-This section describes front/matte pair export. See [Exporting a simple video](#exporting-a-simple-video) for optional flattened output.
+This section describes front/matte pair export and front-only export. See [Exporting a simple video](#exporting-a-simple-video) for optional background/audio output.
+
+**Export front MP4 only** saves one silent video on black, including subtitles and the active spectrum, without the preview background or audio. It shares resolution, fps, quality and export-range settings with pair export and supports cancellation and a save link. It skips matte pixel generation and encoding and uses one encoder. Rendering still takes time, so export is not necessarily twice as fast. A separately exported matte is not guaranteed to match; use pair export when you need both.
 
 Choose output settings on the right, then use **Export matte + front MP4** on the left.
 
@@ -674,8 +714,13 @@ Text inputs and open dialogs suppress some app shortcuts.
 |---|---|
 | Space | Play/pause |
 | R | Auto-compose |
-| Left/right | Seek one output frame |
-| Shift-left/right | Seek one second |
+| 0 | Random draw for the current subtitle |
+| 1–5 | Subtitle: Everything / Style / Mood / Performance / Colors |
+| 6 / Q | Fine-tune the current subtitle |
+| Left/right | Seek back/forward 2 seconds |
+| Shift-left/right | Current cue start (previous within 0.3s of start) / next cue start |
+| A/D | Seek one output frame |
+| Shift-A/D | Seek one second |
 | Ctrl-Z | Undo subtitle/timing-related edits |
 | Ctrl-Shift-Z or Ctrl-Y | Redo those edits |
 | Shift-drag | Avoid timeline beat snapping |
