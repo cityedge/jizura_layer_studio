@@ -459,7 +459,7 @@ button.small.primary { padding: 4px 12px; }
 .cue-error:empty { display:none; }
 .cue-actions { display:flex; gap:6px; justify-content:flex-end; }
 .layer-cue [aria-invalid="true"] { border-color:#f07178; }
-.srt-active #lyrics { max-height:85px; opacity:0.7; }
+.srt-active #lyrics { min-height:140px; max-height:300px; }
 .srt-active #btnResetTimes, .srt-active #btnSyntax { display:none !important; }
 .layer-app .ln .txt { white-space:pre-line; }
 

@@ -38,6 +38,51 @@ test('cue navigation includes fillers, prefers latest overlap and handles gaps/e
   assert.equal(J.cueJumpTime(p,8,-1),3);assert.equal(J.cueJumpTime(p,8,1),10);
   assert.equal(J.cueJumpTime(p,0,-1),0);assert.equal(J.cueJumpTime(p,11,1),11);
 });
+
+test('global preview starts half a second before the first nonempty motion, including fillers and whitespace', () => {
+  assert.equal(J.firstCuePreviewTime({lines:[{start:0,text:''},{start:2,text:'intro',interlude:true},{start:20,text:'歌詞'},{start:10,text:'　 ',filler:true}]}),9.5);
+  for (const start of [0,.2,.5]) assert.equal(J.firstCuePreviewTime({lines:[{start,text:'歌詞'}]}),0);
+  assert.equal(J.firstCuePreviewTime({lines:[{start:12,text:'歌詞'}]}),11.5);
+  assert.equal(J.firstCuePreviewTime({lines:[{start:0,text:''}]}),0);
+  assert.equal(J.firstCuePreviewTime({lines:[]}),0);
+});
+
+test('manual part boundaries split touching cues and suppress automatic gaps without retiming', () => {
+  const cues = [cue(0,2,'A'), {...cue(2,4,'B'),partBefore:true}, {...cue(7,9,'C'),partBefore:false},cue(12,14,'D')];
+  const before = JSON.stringify(cues);
+  assert.deepEqual(json(J.subtitleParts(cues)),[0,1,1,2]);
+  assert.equal(J.subtitlePartText(cues),'A\n\nB\nC\n\nD');
+  assert.equal(JSON.stringify(cues),before);
+  assert.deepEqual(json(J.subtitleParts(J.validateCues(json(cues)))),[0,1,1,2]);
+  const p=project(json(cues)); J.moveLayerCue(p,1,2.5);
+  assert.equal(p.subtitleCues[1].partBefore,true);
+  assert.equal(J.prepareLayerCueShift(p.subtitleCues,.1)[2].partBefore,false);
+  J.replaceFillers(p,{settings:settings(),fillers:[{...cue(4.3,6,'F','f'),filler:true}]});
+  assert.deepEqual(json(J.subtitleParts(p.subtitleCues)),[0,1,1,1,2]);
+  p.subtitleCues.find(c=>c.id==='f').partBefore=true;
+  assert.deepEqual(json(J.subtitleParts(p.subtitleCues)),[0,1,2,2,3]);
+});
+
+test('part editor maps only cue boundaries, protecting multiline, whitespace and empty text', () => {
+  const cues=[cue(0,2,'A\nB'),cue(2,4,'　 '),{...cue(7,9,''),partBefore:true}];
+  const rows=J.subtitlePartRows(cues), original=JSON.stringify(cues);
+  assert.equal(rows[0].text,'A ↵ B');
+  assert.equal(J.partEditTarget(cues,2,2,'add'),1);
+  assert.equal(J.partEditTarget(cues,rows[0].start,rows[0].start,'add'),-1);
+  assert.equal(J.partEditTarget(cues,rows[1].start,rows[1].start,'add'),1);
+  assert.equal(J.partEditTarget(cues,rows[2].start,rows[2].start,'add'),-1);
+  const joined = cues.map(c => ({...c,partBefore:false}));
+  const last = J.subtitlePartRows(joined)[2];
+  assert.equal(J.partEditTarget(joined,last.start,last.start,'add'),2);
+  assert.equal(J.partEditTarget(cues,0,3,'add'),-1);
+  assert.equal(J.partEditTarget(cues,rows[2].start,rows[2].start,'backward'),2);
+  assert.equal(J.partEditTarget(cues,rows[2].gapStart,rows[2].gapStart,'forward'),2);
+  assert.equal(J.partEditTarget(cues,rows[2].gapStart,rows[2].start,'forward'),2);
+  assert.equal(J.partEditTarget(cues,0,rows[2].start,'forward'),-1);
+  assert.equal(J.partEditTarget(cues,rows[1].start,rows[1].start,'backward'),-1);
+  assert.equal(J.partEditTarget(cues,rows[2].end,rows[2].end,'add'),-1);
+  assert.equal(JSON.stringify(cues),original);
+});
 test('threshold includes exact boundary after BOTH margins, without fillers influencing gaps', () => {
   const p = project([cue(0,2),cue(10,12),cue(19.999,22),{...cue(3,9,'edited','f'),filler:true}]);
   const a = J.fillerAnalysis(p,oldMargins());

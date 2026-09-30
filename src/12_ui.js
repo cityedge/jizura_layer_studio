@@ -1105,7 +1105,7 @@ function lockBtn(k, anchor) {                     // lock button for effects tha
 }
 
 /* ---------------- おまかせ ---------------- */
-function restartPreview() { seek(0); if (!S.playing && S.mode !== 'pro') play(); }
+function restartPreview() { seek(J.firstCuePreviewTime(S.plan)); if (!S.playing && S.mode !== 'pro') play(); }
 function omakase() {
   if (S.exporting || S.tap) return;
   remember();
@@ -1547,7 +1547,7 @@ function syncUI() {
 
 /* ---------------- wiring ---------------- */
 function bind() {
-  $('lyrics').addEventListener('input', e => { S.project.lyrics = e.target.value; replanSoon(260); });
+  $('lyrics').addEventListener('input', e => { if (Array.isArray(S.project.subtitleCues)) return; S.project.lyrics = e.target.value; replanSoon(260); });
   $('lyricLang').addEventListener('change', e => {
     remember();
     S.project.lang = e.target.value; replan(); renderFontRoles(); commit(); flushSave();
@@ -1579,7 +1579,7 @@ function bind() {
     S.loop = LOOP_CYCLE[(i < 0 ? 0 : i + 1) % LOOP_CYCLE.length];
     syncLoopBtn(); S.need = true;
   });
-  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); });
+  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
   const sc = $('scrub');
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
@@ -1882,5 +1882,5 @@ function boot() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
 // Shared editor hooks used by the layer interface
-J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit };
+J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo };
 })();

@@ -1,10 +1,15 @@
-# JIZURA Layer Studio v1.2.0 User Manual
+# JIZURA Layer Studio v1.2.1 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.2.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.2.1. Features removed from the original JIZURA are not presented as available operations.
+
+## New and changed controls in v1.2.1
+
+- [Manual part breaks](#automatic-parts-and-subtitle-rerolls): add/remove blank separators to mark verses, choruses and other sections while protecting cue text and timing. Enter at a row's start adds a break above it and keeps the caret with the text.
+- [Preview after global changes](#auto-compose-and-shuffle): restart 0.5 seconds before the first cue, avoiding repeated waits through long intros.
 
 ## New and changed controls in v1.2.0
 
@@ -163,7 +168,7 @@ Invalid times show an error beside the cue and below export, blocking export of 
 
 For example, moving a 10–14s cue to 12s makes it 12–16s. Editing just its end to 13s then gives it a one-second duration.
 
-After SRT import the main text area is a read-only summary; use the cue editor for changes. Importing another SRT replaces the current cues and per-line overrides. Save a JSON first if you want to retain the current version.
+After SRT import the main text area allows only part-break editing; use the cue editor for text and time changes. Importing another SRT replaces the current cues, manual part boundaries and per-line overrides. Save a JSON first if you want to retain the current version.
 
 The -0.1s and +0.1s buttons beside Add subtitle at start move all starts and ends, including fillers. Starts clamp at zero; moving only the end earlier shortens that cue. Missing/invalid times or a resulting zero/negative duration abort the whole operation without changes. Ctrl+Z undoes it. The source SRT and audio beat grid are unchanged.
 
@@ -257,6 +262,8 @@ This selector only controls preview. Pair exports exclude the background; simple
 
 ## Auto-compose and Shuffle
 
+Whole-project Auto-compose, partial changes, Shuffle and look-history navigation seek to **0.5 seconds before the first cue with text, clamped to zero**. Fillers and whitespace effects count; completely empty cues are skipped. Simple/Phone modes start playback automatically; Advanced mode preserves the playing/paused state. Local subtitle draws still restart 0.3 seconds before the target when playing, or at its start when paused.
+
 **Auto-compose** changes style, mood, effects, palette and composition together. R triggers it when not editing text. Use it to explore overall direction.
 
 **Shuffle** rerolls composition using current settings. Use it when you like the general palette and mood but want a different arrangement. Locked lines retain their structure.
@@ -321,7 +328,17 @@ Effect sliders use a 0–100 strength/frequency scale. Each technique responds d
 
 ### Automatic parts and subtitle rerolls
 
-SRT cues start a new part after at least 3 seconds with no normal subtitle visible. Overlapping cues are considered together; fillers and completely empty cues do not define boundaries. Regenerating fillers does not change parts. Text/timing edits recalculate them. The read-only subtitle summary places blank separator lines only at part boundaries and uses labels for empty/whitespace-only cues.
+By default, SRT cues start a new part after at least 3 seconds with no normal subtitle visible. Overlapping cues are considered together; fillers and completely empty cues do not define automatic boundaries. Text/timing edits recalculate automatic boundaries, with manual choices taking precedence at edited boundaries.
+
+Since v1.2.1, the subtitle summary lets you **edit part breaks only**, protecting text and timing.
+
+1. Click a cue's row and press Enter or **Add part break** to insert a blank separator above it when the caret is at the start of the row, otherwise below it. No separator is added before the first cue or where one already exists. Touching cue times can still be split into separate parts.
+2. Inserting above a row keeps the caret at the moved text's start. Place the caret on a blank separator and press Backspace/Delete or **Remove part break** to join the parts. Automatic boundaries can also be removed.
+3. Use Ctrl-Z to undo and Ctrl-Shift-Z/Ctrl-Y to redo. Manual boundaries are saved in project JSON.
+
+Use the SRT cue editor to change text. The summary shows one row per cue, displaying embedded line breaks as ↵ and empty/whitespace-only text as labels. Original text remains intact; typing, pasting or deleting a selection containing text cannot change it here.
+
+A manual choice belongs to the **cue immediately after the boundary** and follows it when retimed. Deleting that cue removes the choice. Normal-cue choices survive filler regeneration; choices on fillers disappear when those fillers are deleted or regenerated. Reimporting SRT restores automatic boundaries for the new cues. Removing a part break does not shorten the actual silent interval.
 
 Unified look uses these parts to coordinate layout, motion and color. Cross-cue transitions are eligible only within a part when the previous end equals the next start at millisecond precision. Eligible boundaries do not always receive a transition.
 

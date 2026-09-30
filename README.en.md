@@ -1,5 +1,7 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.2.0**
+**Animated subtitle layers · cityedge fork · v1.2.1**
+
+Edit SRT part breaks in the subtitle summary: Enter adds a separator above the cue at its start, otherwise below, and Backspace/Delete removes a blank separator. Text and timing stay protected; Undo and JSON persistence are supported.
 
 Subtitle draws: **0 Random / 1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 or Q Fine-tune**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 to replace specific groups or Q to return to the retained base settings. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
 
@@ -35,7 +37,7 @@ The app can also generate 64 bars from the loaded song. Choose **Generate from a
 
 ## Features
 
-See [new controls in v1.2.0](user_guide.en.md#new-and-changed-controls-in-v120) and the [changelog](CHANGELOG.md). The built-in spectrum's **Reset to defaults** restores white top/bottom colors, +8dB sensitivity, 100% pulse and 140ms return time.
+See [new controls in v1.2.1](user_guide.en.md#new-and-changed-controls-in-v121) and the [changelog](CHANGELOG.md). Edit part breaks manually, and preview global look changes from 0.5 seconds before the first cue.
 
 The retained JIZURA effects engine works alongside this edition's layer tools. The [user manual](user_guide.en.md) explains controls, workflows and limits.
 

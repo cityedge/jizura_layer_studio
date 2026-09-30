@@ -9,16 +9,45 @@ J.subtitleParts = cues => {
     if (part < 0 || Math.round(c.start * 1000) - Math.round(end * 1000) >= 3000) { part++; starts.push(c.start); }
     end = Math.max(end, c.end);
   }
-  return cues.map(c => {
+  const automatic = cues.map(c => {
     let lo = 0, hi = starts.length;
     while (lo < hi) { const mid = (lo + hi) >>> 1; if (starts[mid] <= c.start) lo = mid + 1; else hi = mid; }
     return Math.max(0, lo - 1);
   });
+  const result = Array(cues.length), ordered = cues.map((cue, i) => ({ cue, i })).sort((a, b) => a.cue.start - b.cue.start);
+  let section = 0;
+  ordered.forEach(({ cue, i }, n) => {
+    if (n && (typeof cue.partBefore === 'boolean' ? cue.partBefore : automatic[i] !== automatic[ordered[n - 1].i])) section++;
+    result[i] = section;
+  });
+  return result;
 };
-J.subtitlePartText = cues => {
+// One display row per cue; embedded line breaks remain in the original SRT text.
+J.subtitlePartRows = cues => {
   const parts = J.subtitleParts(cues);
-  return cues.map((c, i) => (i ? (parts[i] !== parts[i - 1] ? '\n\n' : '\n') : '') +
-    (c.text.length ? (/^[\s\u3000]+$/.test(c.text) ? J.layerText('（空白文字）', '(Whitespace)') : c.text) : J.layerText('（文字なし）', '(Empty cue)'))).join('');
+  let offset = 0;
+  return cues.map((c, i) => {
+    const gap = i ? (parts[i] !== parts[i - 1] ? '\n\n' : '\n') : '';
+    const text = c.text.length ? (/^[\s\u3000]+$/.test(c.text) ? J.layerText('（空白文字）', '(Whitespace)') : c.text.replace(/\r\n?|\n/g, ' ↵ ')) : J.layerText('（文字なし）', '(Empty cue)');
+    const row = { index: i, gapStart: offset, start: offset + gap.length, end: offset + gap.length + text.length, gap, text };
+    offset = row.end; return row;
+  });
+};
+J.subtitlePartText = cues => J.subtitlePartRows(cues).map(r => r.gap + r.text).join('');
+// Return the next cue whose boundary is changed, without ever modifying cue text.
+J.partEditTarget = (cues, start, end, action) => {
+  const rows = J.subtitlePartRows(cues);
+  if (action === 'add') {
+    if (start !== end) return -1;
+    const row = rows.find(r => start >= r.start && start <= r.end);
+    if (!row) return -1;
+    const index = start === row.start ? row.index : row.index + 1;
+    return index > 0 && index < rows.length && rows[index].gap.length === 1 ? index : -1;
+  }
+  const boundary = rows.find(r => r.gap.length === 2 && (start === end
+    ? action === 'backward' ? start > r.gapStart && start <= r.start : start >= r.gapStart && start < r.start
+    : start >= r.gapStart && end <= r.start));
+  return boundary?.index ?? -1;
 };
 J.localLookContext = (p, audio) => JSON.stringify([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
@@ -174,6 +203,13 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     return storeCuts(cuts);
   }
   return next;
+};
+J.firstCuePreviewTime = plan => {
+  let first = Infinity;
+  for (const line of plan?.lines || []) {
+    if (!line.interlude && line.text?.length && Number.isFinite(line.start)) first = Math.min(first, line.start);
+  }
+  return Number.isFinite(first) ? Math.max(0, first - 0.5) : 0;
 };
 J.cueAtTime = (plan, time) => plan.lines.filter(l => !l.interlude && l.text.length && time >= l.start && time < l.end)
   .sort((a, b) => b.start - a.start || b.index - a.index)[0] || null;

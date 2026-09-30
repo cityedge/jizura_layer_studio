@@ -367,6 +367,66 @@ J.editLayerCueText = index => {
   text?.scrollIntoView({ block: 'center' }); text?.focus();
 };
 let cueSignature = '';
+function mountPartEditor() {
+  const input = $('lyrics'), originalLabel = input.getAttribute('aria-label');
+  const controls = el('div', null, 'cue-toolbar'); controls.id = 'partControls';
+  const help = el('p', tr('本文は変更できません。Enterで区切りを追加（行頭なら上、それ以外は下）し、空行をBackspace／Deleteで削除します。↵は字幕本文内の改行です。',
+    'Text is protected. Enter adds a break above the cue at its start, otherwise below; Backspace/Delete removes a blank separator. ↵ marks a line break within the cue.'), 'note');
+  help.id = 'partHelp';
+  const srt = () => Array.isArray(J.ui.project.subtitleCues);
+  const target = action => J.partEditTarget(J.ui.project.subtitleCues, input.selectionStart, input.selectionEnd, action);
+  const update = J.syncPartEditor = () => {
+    controls.hidden = help.hidden = !srt();
+    input.readOnly = false;
+    input.setAttribute('aria-label', srt() ? tr('字幕のパート区切り編集（本文は変更できません）', 'Subtitle part breaks (text protected)') : originalLabel);
+    if (srt()) input.setAttribute('aria-describedby', help.id); else input.removeAttribute('aria-describedby');
+    add.disabled = !srt() || session.busy || J.layerCueEditsInvalid || target('add') < 0;
+    remove.disabled = !srt() || session.busy || J.layerCueEditsInvalid || (target('backward') < 0 && target('forward') < 0);
+  };
+  const edit = action => {
+    if (!srt() || session.busy || J.ui.exporting || J.layerCueEditsInvalid) return;
+    const i = target(action); if (i < 0) return;
+    const beforeText = action === 'add' && input.selectionStart === J.subtitlePartRows(J.ui.project.subtitleCues)[i].start;
+    const scroll = input.scrollTop;
+    J.uiApi.pushEdit(); J.ui.project.subtitleCues[i].partBefore = action === 'add';
+    changed();
+    const row = J.subtitlePartRows(J.ui.project.subtitleCues)[i];
+    // Inserting above a cue keeps the caret with its text, as in a text editor.
+    const caret = action === 'add' && !beforeText ? row.start - 1 : row.start;
+    input.focus(); input.setSelectionRange(caret, caret); input.scrollTop = scroll; update();
+  };
+  const add = button('partAdd', tr('区切り追加', 'Add part break'), () => edit('add'));
+  const remove = button('partRemove', tr('区切り削除', 'Remove part break'), () => edit(target('backward') >= 0 ? 'backward' : 'forward'));
+  for (const b of [add, remove]) b.addEventListener('pointerdown', e => e.preventDefault());
+  controls.append(add, remove); input.after(controls, help);
+  input.addEventListener('keydown', e => {
+    if (!srt() || e.isComposing) return;
+    if ((e.ctrlKey || e.metaKey) && ['z', 'y'].includes(e.key.toLowerCase())) {
+      e.preventDefault(); e.stopPropagation();
+      if (!session.busy && !J.ui.exporting) J.uiApi.edGo(e.key.toLowerCase() === 'y' || e.shiftKey ? 1 : -1);
+    } else if (!e.ctrlKey && !e.metaKey && !e.altKey && ['Enter', 'Backspace', 'Delete'].includes(e.key)) {
+      e.preventDefault(); edit(e.key === 'Enter' ? 'add' : e.key === 'Backspace' ? 'backward' : 'forward');
+    }
+  });
+  input.addEventListener('beforeinput', e => {
+    if (!srt()) return;
+    e.preventDefault();
+    if (['insertLineBreak', 'insertParagraph'].includes(e.inputType)) edit('add');
+    else if (e.inputType === 'deleteContentBackward') edit('backward');
+    else if (e.inputType === 'deleteContentForward' || e.inputType === 'deleteByCut') edit('forward');
+    else if (['historyUndo', 'historyRedo'].includes(e.inputType) && !session.busy && !J.ui.exporting) J.uiApi.edGo(e.inputType === 'historyUndo' ? -1 : 1);
+  });
+  // Some IME, paste and browser editing paths emit non-cancelable input events.
+  input.addEventListener('input', () => {
+    if (!srt()) return;
+    const caret = input.selectionStart; input.value = J.subtitlePartText(J.ui.project.subtitleCues);
+    input.setSelectionRange(Math.min(caret, input.value.length), Math.min(caret, input.value.length)); update();
+  });
+  input.addEventListener('drop', e => { if (srt()) e.preventDefault(); });
+  for (const event of ['click', 'keyup', 'select', 'focus']) input.addEventListener(event, update);
+  document.addEventListener('selectionchange', () => { if (document.activeElement === input) update(); });
+  update();
+}
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
   J.syncNativeSpectrumUI?.();
@@ -376,7 +436,8 @@ J.syncLayerUI = () => {
   syncCueErrors();
   document.documentElement.classList.toggle('srt-active', srt);
   if (srt) J.ui.project.lyrics = J.subtitlePartText(cues);
-  $('lyrics').readOnly = srt; $('lyrics').value = J.ui.project.lyrics;
+  if ($('lyrics').value !== J.ui.project.lyrics) $('lyrics').value = J.ui.project.lyrics;
+  J.syncPartEditor?.();
   $('layerSrtInfo').textContent = srt ? cues.length + tr('件の字幕（本文・時刻を編集できます）', ' cues (text and timing are editable)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
   const signature = JSON.stringify(cues);
   if (signature !== cueSignature) { cueSignature = signature; cueTable(); syncCueErrors(); }
@@ -403,6 +464,7 @@ function boot() {
   $('colorOn').closest('label').previousElementSibling.textContent = tr('文字色', 'Text colors');
   $('colorOn').closest('label').querySelector('span').textContent = tr('文字色を指定する', 'Override text colors');
   document.querySelector('.col-left h2').textContent = tr('字幕', 'Subtitles');
+  mountPartEditor();
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {

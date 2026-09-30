@@ -1,3 +1,14 @@
+## 1.2.1 — 2026-09-30
+
+- 全体の構成変更後のプレビューを最初の字幕の0.5秒前（最短0秒）から開始。おまかせ・部分変更・全体シャッフル・案の履歴に適用し、フィラーと空白文字も対象に含め、空欄は除外。
+- Start previews after global look changes 0.5 seconds before the first nonempty cue, clamped to zero. Apply to Auto-compose, partial changes, global Shuffle and look history; include fillers and whitespace effects.
+
+- SRT読み込み後の「字幕」欄でパート区切りのみ編集可能に。Enterで区切りを追加（行頭なら上、それ以外は下）、空行をBackspace／Deleteで削除。マウス用ボタン、Undo／Redo、JSON保存に対応し、本文・時刻は保護。
+- 自動区切りを手動で追加・解除でき、統一感と字幕間のつなぎに反映。本文内の改行は一覧では↵で表示。
+- 行頭で区切りを追加した後は、カーソルを下へ移動した本文の先頭に保持。
+- Keep the caret at the moved text's start when inserting a part break above a cue.
+- Edit only part breaks in the SRT subtitle summary: Enter adds a break above the cue at its start, otherwise below; Backspace/Delete removes a blank separator. Include mouse controls, Undo/Redo and JSON persistence while protecting text and timing. Manual boundaries affect Unified look and cross-cue joins; embedded text line breaks display as ↵.
+
 ## 1.2.0 — 2026-09-29
 
 - 0キー／ボタンの「ランダム」を追加。スタイル・雰囲気の枠を外し、レイアウトの適合条件や演出密度を考慮して広く抽選。基礎設定を保持し、2〜5の部分変更、Q／6での基礎設定への復帰、Undo・JSON保存に対応。

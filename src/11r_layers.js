@@ -10,7 +10,8 @@ J.validateCues = cues => {
   return cues.map((c, i) => {
     if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string')
       throw new Error(msg('字幕 ' + (i + 1) + ' の時刻または本文が不正です。', 'Invalid time or text in cue ' + (i + 1) + '.'));
-    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}) };
+    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}),
+      ...(typeof c.partBefore === 'boolean' ? { partBefore: c.partBefore } : {}) };
   }).sort((a, b) => a.start - b.start);
 };
 J.parseSRT = raw => {

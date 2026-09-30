@@ -477,7 +477,7 @@ button.small.primary { padding: 4px 12px; }
 .cue-error:empty { display:none; }
 .cue-actions { display:flex; gap:6px; justify-content:flex-end; }
 .layer-cue [aria-invalid="true"] { border-color:#f07178; }
-.srt-active #lyrics { max-height:85px; opacity:0.7; }
+.srt-active #lyrics { min-height:140px; max-height:300px; }
 .srt-active #btnResetTimes, .srt-active #btnSyntax { display:none !important; }
 .layer-app .ln .txt { white-space:pre-line; }
 
@@ -555,7 +555,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.2.0</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.2.1</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -833,7 +833,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.2.0</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.2.1</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1314,7 +1314,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio User Guide</h2>
-    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.2.0 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.2.1 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
     <p class="terms-main">Create an animated subtitle front and binary matte to composite over another video.</p>
     <ol class="guide-steps">
       <li><strong>Import subtitles</strong><p>Choose a UTF-8 SRT with “Import SRT”. Start/end times, line breaks and gaps are preserved. Use “Edit SRT text, start and end” to make changes. You can also type subtitles without an SRT.</p></li>
@@ -1345,7 +1345,8 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Under Generate from audio, Reset to defaults restores white top/bottom colors, +8dB sensitivity, 100% pulse strength and 140ms return time. Placement, scale and the automatic frequency range stay unchanged.</p>
     <p>The default is 30fps. Subtitle cadence offers 15 drawings/s (on twos), 10 drawings/s (on threes), and full output fps. Saved 24fps and legacy cadences are preserved. Spectrum export selects decoded frames by presentation timestamp, independently of subtitle cadence. A constant 30fps source exported at 30fps from a source frame boundary uses each source frame once in order. 29.97fps, variable or mismatched frame rates require holds or drops. Unsupported sources report an error.</p>
     <h3>Parts and subtitle rerolls</h3>
-    <p>A silence of at least 3 seconds between normal subtitles starts a new part. Fillers do not define boundaries; the read-only text summary shows them as blank lines. Unified look follows parts. Cross-cue joins are eligible only within a part when the previous end equals the next start.</p>
+    <p>Global Auto-compose, partial changes, Shuffle and look history seek to 0.5 seconds before the first nonempty cue, clamped to zero. Fillers and whitespace effects count. Simple/Phone modes start playback automatically; Advanced mode preserves the playing/paused state.</p>
+    <p>By default, a gap of at least 3 seconds between normal subtitles starts a new part; fillers do not define automatic boundaries. In the subtitle summary, Enter / Add part break inserts a separator above the current cue at its start, otherwise below; Backspace/Delete / Remove part break on a blank separator joins parts. Text is protected; ↵ marks embedded text line breaks. Manual choices override automatic detection and support Undo and JSON. Each choice belongs to the following cue and disappears if that cue is deleted or regenerated as a filler. Unified look follows parts. Cross-cue joins are eligible only within a part when the previous end equals the next start.</p>
     <p>Subtitle draws: 0 Random, 1 Everything, 2 Style, 3 Mood, 4 Performance, 5 Colors, 6/Q Fine-tune. Random explores compatible combinations without style/mood preferences, with limits on effect density. Use 2–5 to modify parts of a random composition, or Q/6 to redraw within its retained base settings. Colors changes only the palette, preserving motion and cut structure.</p>
     <p>Text, cue times and other subtitles stay fixed except for adjacent joins. Modes 2–4 replace manual choices within their scope; ordinary Fine-tune retains them. Random bypasses Unified look while respecting effect-pack permissions. Locked cues are skipped. Playing previews restart 0.3 seconds before the cue; paused previews stay at its start. Ctrl-Z and project JSON preserve local results.</p>
     <p>Space: play/pause. Left/right: 2 seconds. Shift-left/right: cue navigation (left returns to the current start, or the previous cue when near the start). A/D: one frame. Shift-A/D: one second. R: whole-project Auto-compose. These normal shortcuts do not run in inputs or dialogs.</p>
@@ -1355,7 +1356,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Export front MP4 only saves one silent video on black, including any spectrum but excluding audio and the preview background. It skips matte pixel generation and encoding. Matching a matte exported separately later is not guaranteed; use pair export when you need a matching matte.</p>
     <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. Before compression, exactly the nonblack pixels in the final front have a black matte. The matte is binary, without partial transparency. MP4 compression can slightly change colours and edges.</p>
     <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.2.0</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.2.1</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -4285,7 +4286,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.2.0', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.2.1', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -36354,7 +36355,8 @@ J.validateCues = cues => {
   return cues.map((c, i) => {
     if (!c || !Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start || typeof c.text !== 'string')
       throw new Error(msg('字幕 ' + (i + 1) + ' の時刻または本文が不正です。', 'Invalid time or text in cue ' + (i + 1) + '.'));
-    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}) };
+    return { id: String(c.id || i + 1), start: c.start, end: c.end, text: c.text, ...(c.filler === true ? { filler: true } : {}),
+      ...(typeof c.partBefore === 'boolean' ? { partBefore: c.partBefore } : {}) };
   }).sort((a, b) => a.start - b.start);
 };
 J.parseSRT = raw => {
@@ -37285,16 +37287,45 @@ J.subtitleParts = cues => {
     if (part < 0 || Math.round(c.start * 1000) - Math.round(end * 1000) >= 3000) { part++; starts.push(c.start); }
     end = Math.max(end, c.end);
   }
-  return cues.map(c => {
+  const automatic = cues.map(c => {
     let lo = 0, hi = starts.length;
     while (lo < hi) { const mid = (lo + hi) >>> 1; if (starts[mid] <= c.start) lo = mid + 1; else hi = mid; }
     return Math.max(0, lo - 1);
   });
+  const result = Array(cues.length), ordered = cues.map((cue, i) => ({ cue, i })).sort((a, b) => a.cue.start - b.cue.start);
+  let section = 0;
+  ordered.forEach(({ cue, i }, n) => {
+    if (n && (typeof cue.partBefore === 'boolean' ? cue.partBefore : automatic[i] !== automatic[ordered[n - 1].i])) section++;
+    result[i] = section;
+  });
+  return result;
 };
-J.subtitlePartText = cues => {
+// One display row per cue; embedded line breaks remain in the original SRT text.
+J.subtitlePartRows = cues => {
   const parts = J.subtitleParts(cues);
-  return cues.map((c, i) => (i ? (parts[i] !== parts[i - 1] ? '\n\n' : '\n') : '') +
-    (c.text.length ? (/^[\s\u3000]+$/.test(c.text) ? J.layerText('（空白文字）', '(Whitespace)') : c.text) : J.layerText('（文字なし）', '(Empty cue)'))).join('');
+  let offset = 0;
+  return cues.map((c, i) => {
+    const gap = i ? (parts[i] !== parts[i - 1] ? '\n\n' : '\n') : '';
+    const text = c.text.length ? (/^[\s\u3000]+$/.test(c.text) ? J.layerText('（空白文字）', '(Whitespace)') : c.text.replace(/\r\n?|\n/g, ' ↵ ')) : J.layerText('（文字なし）', '(Empty cue)');
+    const row = { index: i, gapStart: offset, start: offset + gap.length, end: offset + gap.length + text.length, gap, text };
+    offset = row.end; return row;
+  });
+};
+J.subtitlePartText = cues => J.subtitlePartRows(cues).map(r => r.gap + r.text).join('');
+// Return the next cue whose boundary is changed, without ever modifying cue text.
+J.partEditTarget = (cues, start, end, action) => {
+  const rows = J.subtitlePartRows(cues);
+  if (action === 'add') {
+    if (start !== end) return -1;
+    const row = rows.find(r => start >= r.start && start <= r.end);
+    if (!row) return -1;
+    const index = start === row.start ? row.index : row.index + 1;
+    return index > 0 && index < rows.length && rows[index].gap.length === 1 ? index : -1;
+  }
+  const boundary = rows.find(r => r.gap.length === 2 && (start === end
+    ? action === 'backward' ? start > r.gapStart && start <= r.start : start >= r.gapStart && start < r.start
+    : start >= r.gapStart && end <= r.start));
+  return boundary?.index ?? -1;
 };
 J.localLookContext = (p, audio) => JSON.stringify([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
@@ -37450,6 +37481,13 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     return storeCuts(cuts);
   }
   return next;
+};
+J.firstCuePreviewTime = plan => {
+  let first = Infinity;
+  for (const line of plan?.lines || []) {
+    if (!line.interlude && line.text?.length && Number.isFinite(line.start)) first = Math.min(first, line.start);
+  }
+  return Number.isFinite(first) ? Math.max(0, first - 0.5) : 0;
 };
 J.cueAtTime = (plan, time) => plan.lines.filter(l => !l.interlude && l.text.length && time >= l.start && time < l.end)
   .sort((a, b) => b.start - a.start || b.index - a.index)[0] || null;
@@ -38957,7 +38995,7 @@ function lockBtn(k, anchor) {                     // lock button for effects tha
 }
 
 /* ---------------- Randomize ---------------- */
-function restartPreview() { seek(0); if (!S.playing && S.mode !== 'pro') play(); }
+function restartPreview() { seek(J.firstCuePreviewTime(S.plan)); if (!S.playing && S.mode !== 'pro') play(); }
 function omakase() {
   if (S.exporting || S.tap) return;
   remember();
@@ -39399,7 +39437,7 @@ function syncUI() {
 
 /* ---------------- wiring ---------------- */
 function bind() {
-  $('lyrics').addEventListener('input', e => { S.project.lyrics = e.target.value; replanSoon(260); });
+  $('lyrics').addEventListener('input', e => { if (Array.isArray(S.project.subtitleCues)) return; S.project.lyrics = e.target.value; replanSoon(260); });
   $('lyricLang').addEventListener('change', e => {
     remember();
     S.project.lang = e.target.value; replan(); renderFontRoles(); commit(); flushSave();
@@ -39431,7 +39469,7 @@ function bind() {
     S.loop = LOOP_CYCLE[(i < 0 ? 0 : i + 1) % LOOP_CYCLE.length];
     syncLoopBtn(); S.need = true;
   });
-  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); });
+  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
   const sc = $('scrub');
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
@@ -39571,7 +39609,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.2.0' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.2.1' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -39734,7 +39772,7 @@ function boot() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
 // Shared editor hooks used by the layer interface
-J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit };
+J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo };
 })();
 
 /* Editing-only media references never enter the serialized project. */
@@ -40106,6 +40144,66 @@ J.editLayerCueText = index => {
   text?.scrollIntoView({ block: 'center' }); text?.focus();
 };
 let cueSignature = '';
+function mountPartEditor() {
+  const input = $('lyrics'), originalLabel = input.getAttribute('aria-label');
+  const controls = el('div', null, 'cue-toolbar'); controls.id = 'partControls';
+  const help = el('p', tr('本文は変更できません。Enterで区切りを追加（行頭なら上、それ以外は下）し、空行をBackspace／Deleteで削除します。↵は字幕本文内の改行です。',
+    'Text is protected. Enter adds a break above the cue at its start, otherwise below; Backspace/Delete removes a blank separator. ↵ marks a line break within the cue.'), 'note');
+  help.id = 'partHelp';
+  const srt = () => Array.isArray(J.ui.project.subtitleCues);
+  const target = action => J.partEditTarget(J.ui.project.subtitleCues, input.selectionStart, input.selectionEnd, action);
+  const update = J.syncPartEditor = () => {
+    controls.hidden = help.hidden = !srt();
+    input.readOnly = false;
+    input.setAttribute('aria-label', srt() ? tr('字幕のパート区切り編集（本文は変更できません）', 'Subtitle part breaks (text protected)') : originalLabel);
+    if (srt()) input.setAttribute('aria-describedby', help.id); else input.removeAttribute('aria-describedby');
+    add.disabled = !srt() || session.busy || J.layerCueEditsInvalid || target('add') < 0;
+    remove.disabled = !srt() || session.busy || J.layerCueEditsInvalid || (target('backward') < 0 && target('forward') < 0);
+  };
+  const edit = action => {
+    if (!srt() || session.busy || J.ui.exporting || J.layerCueEditsInvalid) return;
+    const i = target(action); if (i < 0) return;
+    const beforeText = action === 'add' && input.selectionStart === J.subtitlePartRows(J.ui.project.subtitleCues)[i].start;
+    const scroll = input.scrollTop;
+    J.uiApi.pushEdit(); J.ui.project.subtitleCues[i].partBefore = action === 'add';
+    changed();
+    const row = J.subtitlePartRows(J.ui.project.subtitleCues)[i];
+    // Inserting above a cue keeps the caret with its text, as in a text editor.
+    const caret = action === 'add' && !beforeText ? row.start - 1 : row.start;
+    input.focus(); input.setSelectionRange(caret, caret); input.scrollTop = scroll; update();
+  };
+  const add = button('partAdd', tr('区切り追加', 'Add part break'), () => edit('add'));
+  const remove = button('partRemove', tr('区切り削除', 'Remove part break'), () => edit(target('backward') >= 0 ? 'backward' : 'forward'));
+  for (const b of [add, remove]) b.addEventListener('pointerdown', e => e.preventDefault());
+  controls.append(add, remove); input.after(controls, help);
+  input.addEventListener('keydown', e => {
+    if (!srt() || e.isComposing) return;
+    if ((e.ctrlKey || e.metaKey) && ['z', 'y'].includes(e.key.toLowerCase())) {
+      e.preventDefault(); e.stopPropagation();
+      if (!session.busy && !J.ui.exporting) J.uiApi.edGo(e.key.toLowerCase() === 'y' || e.shiftKey ? 1 : -1);
+    } else if (!e.ctrlKey && !e.metaKey && !e.altKey && ['Enter', 'Backspace', 'Delete'].includes(e.key)) {
+      e.preventDefault(); edit(e.key === 'Enter' ? 'add' : e.key === 'Backspace' ? 'backward' : 'forward');
+    }
+  });
+  input.addEventListener('beforeinput', e => {
+    if (!srt()) return;
+    e.preventDefault();
+    if (['insertLineBreak', 'insertParagraph'].includes(e.inputType)) edit('add');
+    else if (e.inputType === 'deleteContentBackward') edit('backward');
+    else if (e.inputType === 'deleteContentForward' || e.inputType === 'deleteByCut') edit('forward');
+    else if (['historyUndo', 'historyRedo'].includes(e.inputType) && !session.busy && !J.ui.exporting) J.uiApi.edGo(e.inputType === 'historyUndo' ? -1 : 1);
+  });
+  // Some IME, paste and browser editing paths emit non-cancelable input events.
+  input.addEventListener('input', () => {
+    if (!srt()) return;
+    const caret = input.selectionStart; input.value = J.subtitlePartText(J.ui.project.subtitleCues);
+    input.setSelectionRange(Math.min(caret, input.value.length), Math.min(caret, input.value.length)); update();
+  });
+  input.addEventListener('drop', e => { if (srt()) e.preventDefault(); });
+  for (const event of ['click', 'keyup', 'select', 'focus']) input.addEventListener(event, update);
+  document.addEventListener('selectionchange', () => { if (document.activeElement === input) update(); });
+  update();
+}
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
   J.syncNativeSpectrumUI?.();
@@ -40115,7 +40213,8 @@ J.syncLayerUI = () => {
   syncCueErrors();
   document.documentElement.classList.toggle('srt-active', srt);
   if (srt) J.ui.project.lyrics = J.subtitlePartText(cues);
-  $('lyrics').readOnly = srt; $('lyrics').value = J.ui.project.lyrics;
+  if ($('lyrics').value !== J.ui.project.lyrics) $('lyrics').value = J.ui.project.lyrics;
+  J.syncPartEditor?.();
   $('layerSrtInfo').textContent = srt ? cues.length + tr('件の字幕（本文・時刻を編集できます）', ' cues (text and timing are editable)') : tr('SRTを読み込むか、字幕を入力してください。', 'Import SRT or type subtitles.');
   const signature = JSON.stringify(cues);
   if (signature !== cueSignature) { cueSignature = signature; cueTable(); syncCueErrors(); }
@@ -40142,6 +40241,7 @@ function boot() {
   $('colorOn').closest('label').previousElementSibling.textContent = tr('文字色', 'Text colors');
   $('colorOn').closest('label').querySelector('span').textContent = tr('文字色を指定する', 'Override text colors');
   document.querySelector('.col-left h2').textContent = tr('字幕', 'Subtitles');
+  mountPartEditor();
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
