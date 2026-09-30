@@ -882,7 +882,7 @@ reg('subtitleBar', {
     const text = env.cut.text.trim(), lb = env.ltb;
     const cand = [sc.bg, sc.fg, sc.ink, sc.dim];
     let barC = cand[0]; cand.forEach(c => { if (J.lum(c) < J.lum(barC)) barC = c; });
-    const pic = barC === sc.bg && Math.abs(J.lum(sc.dim) - J.lum(sc.bg)) > 0.03;   // dark scheme: lift the picture area instead
+    const pic = !env.layerComposition && barC === sc.bg && Math.abs(J.lum(sc.dim) - J.lum(sc.bg)) > 0.03;   // Layer Studio leaves the picture area open in every palette.
     const bh = H * (port ? p.bar * 0.62 : p.bar);
     const e = tin(env, 0, 0.55, E.outExpo) * (1 - E.inCubic(env.pOut));
     const out = tout(env);

@@ -11,12 +11,13 @@ J.defaultProject = () => ({ ...defaults(), simpleExport: J.normalizeSimpleExport
 J.upgradeLayerProject = (project, source) => {
   upgrade(project, source); project.simpleExport = J.normalizeSimpleExport(project.simpleExport); return project;
 };
-J.simpleMaterialDuration = (plan, audio, front, matte) => {
+J.simpleMaterialDuration = (plan, audio, front, matte, background = null) => {
   const buffer = audio?.buffer;
   const sound = buffer ? buffer.length / buffer.sampleRate : audio?.duration || 0;
   const spectrum = front ? J.spectrumDuration(front, matte) : 0;
   const ends = (plan?.lines || []).map(l => l.end);
-  return Math.max(0.001, ...ends, sound, spectrum);
+  const video = background?.video ? (background.videoDuration ?? background.duration) : 0;
+  return Math.max(0.001, ...ends, sound, spectrum, Number.isFinite(video) ? video : 0);
 };
 J.simpleExportSpan = (duration, fps, range) => {
   if (!Number.isFinite(duration) || duration <= 0 || duration > 86400 || !Number.isFinite(fps) || fps <= 0)
@@ -80,7 +81,7 @@ async function encodeSound(buffer, mux, span, config, signal, progress) {
   } finally { try { encoder.close(); } catch (_) {} }
 }
 J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null, audio = null, range = null, signal, onProgress }) => {
-  if (background?.video) throw new Error(tr('簡易動画出力には背景を静止画に変更するか、解除してください。', 'Use a still background or clear the video background for simple export.'));
+  if (background?.simpleError) throw new Error(background.simpleError);
   const settings = J.normalizeSimpleExport(project.simpleExport), span = J.simpleExportSpan(settings.duration, plan.fps, range);
   const [w, h] = J.outputSize(project), fps = plan.fps;
   let audioConfig = null;
@@ -94,10 +95,11 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
   if (!attempts.length) throw new Error(tr('H.264 MP4出力に対応していません。', 'H.264 MP4 encoding is unavailable.'));
   const errors = [];
   for (const codec of attempts) {
-    let reader = null, encoder = null, error = null, count = 0, audioPhase = false;
+    let reader = null, backgroundReader = null, encoder = null, error = null, count = 0, audioPhase = false;
     try {
       abort(signal);
       if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal);
+      if (background?.video) backgroundReader = await J.VideoBackgroundReader.create(background, span, fps, signal);
       const target = new Mp4Muxer.ArrayBufferTarget(), mux = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: w, height: h, frameRate: fps },
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
       encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
@@ -105,13 +107,14 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
       const render = new J.LayerRenderer(w, h), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
       const ctx = canvas.getContext('2d'), bx = base.getContext('2d');
       bx.fillStyle = '#000'; bx.fillRect(0, 0, w, h);
-      if (background) {
+      if (background && !background.video) {
         const ratio = Math.min(w / background.width, h / background.height), dw = background.width * ratio, dh = background.height * ratio;
         bx.drawImage(background.el, (w - dw) / 2, (h - dh) / 2, dw, dh);
       }
       for (let i = 0; i < span.frames; i++) {
         abort(signal);
         const t = span.t0 + i / fps;
+        if (backgroundReader) await backgroundReader.drawNext(bx);
         let pixels = render.draw(plan, t);
         if (reader) pixels = J.overPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels);
         ctx.drawImage(base, 0, 0);
@@ -131,7 +134,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
       if (signal?.aborted || e.name === 'AbortError') throw new DOMException('Cancelled', 'AbortError');
       if (audioPhase) throw e;
       errors.push(codec.label + ': ' + e.message);
-    } finally { try { encoder?.close(); } catch (_) {} await reader?.close(); }
+    } finally { try { encoder?.close(); } catch (_) {} await Promise.allSettled([reader?.close(), backgroundReader?.close()]); }
   }
   throw new Error(tr('簡易動画の出力に失敗しました。', 'Simple export failed. ') + errors.join(' / '));
 };

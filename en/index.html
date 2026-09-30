@@ -555,7 +555,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.2.1</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.0</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -833,7 +833,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.2.1</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.0</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1314,7 +1314,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio User Guide</h2>
-    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.2.1 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.3.0 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
     <p class="terms-main">Create an animated subtitle front and binary matte to composite over another video.</p>
     <ol class="guide-steps">
       <li><strong>Import subtitles</strong><p>Choose a UTF-8 SRT with “Import SRT”. Start/end times, line breaks and gaps are preserved. Use “Edit SRT text, start and end” to make changes. You can also type subtitles without an SRT.</p></li>
@@ -1326,8 +1326,8 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     </ol>
     <p>The built-in spectrum scans the whole song and selects a range including 250–4,000 Hz, limited by the source Nyquist frequency. Auto range shows the result, fixed for the song, or a default-range note if estimation fails. FFT sizes and pulse processing are unchanged; color, placement and sensitivity changes do not change the range.</p>
     <h3>Optional simple video MP4</h3>
-    <p>Export simple video MP4, below the pair-export description, saves one flattened video: still background, then spectrum, then subtitles. No background means black. A selected video background disables this option; replace it with a still or clear it.</p>
-    <p>Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. Ended audio becomes silent, ended overlays disappear, and the still remains until the specified end.</p>
+    <p>Export simple video MP4, below the pair-export description, saves one flattened video: image/video background, then spectrum, then subtitles. No background means black. Background videos start at timeline zero and hold their final frame after ending. Only the separately loaded song is included; background audio is ignored. Both generated and external spectra can be used.</p>
+    <p>Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Background duration uses the video track's end time. Audio counts even with Exclude audio checked. Ended audio becomes silent and ended overlays disappear. Range exports keep all sources at their original timestamps. Video backgrounds require a supported decoder; unsupported media reports a reason.</p>
     <p>Existing resolution, fps, quality and export-range settings apply. A selected range trims the output; actual video duration appears below the button. Audio output requires AAC encoding support. Preview volume does not affect export; the source audio retains its original level.</p>
     <p>Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove normal cues; Ctrl+Z undoes changes. Empty text keeps a silent slot. Ideographic spaces are valid text; ASCII spaces separate groups. Invalid times block export until corrected.</p>
     <p>Whitespace fillers use 3–4 groups of 2–5 ideographic spaces, separated by ASCII spaces. Text is invisible; plates and decorations depend on the chosen effect.</p>
@@ -1356,7 +1356,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Export front MP4 only saves one silent video on black, including any spectrum but excluding audio and the preview background. It skips matte pixel generation and encoding. Matching a matte exported separately later is not guaranteed; use pair export when you need a matching matte.</p>
     <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. Before compression, exactly the nonblack pixels in the final front have a black matte. The matte is binary, without partial transparency. MP4 compression can slightly change colours and edges.</p>
     <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.2.1</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.0</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -3110,6 +3110,16 @@ J.registerAll = (group, defs, pack) => { for (const k of Object.keys(defs)) J.re
 
 /* items whose tags include a mood key (used by おまかせ) */
 J.taggedWith = (group, mood) => J.order(group).filter(k => { const d = J.registry(group)[k]; return d && d.tags && d.tags.includes(mood); });
+// Opt-in transition contract. Legacy entries keep their original timing and compositor.
+J.transitionFits = (id, previous, duration) => {
+  const d = J.TRANS[id];
+  return !!d && (!d.overlap || (duration >= d.overlap.minDuration && previous && previous.dur >= 0.45));
+};
+J.transitionDuration = (id, duration, outDuration = 0) => {
+  const d = J.TRANS[id];
+  return d?.overlap ? Math.max(0, Math.min(d.dur, duration * 0.65, duration - outDuration))
+    : J.clamp(d?.dur || 0.35, 0.12, Math.min(0.6, duration * 0.45));
+};
 })();
 
 /* ============================================================
@@ -4286,7 +4296,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.2.1', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.3.0', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4504,7 +4514,7 @@ J.plan = (project, audio) => {
         if (tech.enter && J.ENTER[tech.enter]) inDur = i2;
         if (tech.exit && J.EXIT[tech.exit]) outDur = o2;
       }
-      // cut-to-cut transition (replaces the previous cut's exit and this cut's entrance)
+      // Cut-to-cut join replaces the previous exit; opt-in overlaps can keep this entrance.
       const prevCut = plan.cuts[plan.cuts.length - 1];
       let trans = null, transP = {}, transDur = 0, morph = null;
       const joinSaved = { enter, inDur, prevExit: prevCut && prevCut.exit, prevOut: prevCut && prevCut.outDur };
@@ -4528,7 +4538,7 @@ J.plan = (project, audio) => {
           enter = 'cut'; inDur = 0.12; prevCut.exit = 'cut'; prevCut.outDur = 0;
         }
       } else if (canTrans) {
-        trans = ov.trans && J.TRANS[ov.trans] ? ov.trans : pickTrans(rng, st, en, fx, emph, history);
+        trans = ov.trans && J.TRANS[ov.trans] ? ov.trans : pickTrans(rng, st, en, fx, emph, history, prevCut, dur);
         if (trans && UU && !ov.trans) trans = UU.trans(li, trans, { rng });
         if (trans) {
           const TD = J.TRANS[trans];
@@ -4550,8 +4560,15 @@ J.plan = (project, audio) => {
         transP = TD.plan ? TD.plan(J.rng(J.h(lineSeed, k, 96)), st) : {};
       }
       if (trans && canTrans) {
-        enter = 'cut'; inDur = ov.randomDraw ? Math.min(0.12, dur * 0.08) : 0.12;
-        prevCut.exit = 'cut'; prevCut.outDur = 0;
+        if (J.TRANS[trans]?.overlap && (prevLine?.part !== ln.part || !J.transitionFits(trans, prevCut, dur))) {
+          enter = joinSaved.enter; inDur = joinSaved.inDur; prevCut.exit = joinSaved.prevExit; prevCut.outDur = joinSaved.prevOut;
+          trans = null; transP = {}; transDur = 0;
+        } else {
+          if (J.TRANS[trans]?.overlap) transDur = J.transitionDuration(trans, dur, outDur);
+          if (J.TRANS[trans]?.overlap?.incoming === 'keep') { enter = joinSaved.enter; inDur = joinSaved.inDur; }
+          else { enter = 'cut'; inDur = ov.randomDraw ? Math.min(0.12, dur * 0.08) : 0.12; }
+          prevCut.exit = 'cut'; prevCut.outDur = 0;
+        }
       }
       if (ov.randomDraw && inDur + outDur > dur * 0.88) {
         const ratio = dur * 0.88 / (inDur + outDur); inDur *= ratio; outDur *= ratio;
@@ -4963,10 +4980,10 @@ function pickCam(rng, st, en, fx, LD, emph, history) {
   });
   return cands.length ? rng.wpick(cands) : 'push';
 }
-function pickTrans(rng, st, en, fx, emph, history) {
+function pickTrans(rng, st, en, fx, emph, history, previous, duration) {
   if (!J.TRANS_ORDER.length) return null;
   if (!rng.chance(0.1 + 0.22 * (fx.motion ?? 0.7) + (emph ? 0.08 : 0))) return null;
-  const cands = J.TRANS_ORDER.filter(k => en.trans && en.trans[k] !== false && J.TRANS[k])
+  const cands = J.TRANS_ORDER.filter(k => en.trans && en.trans[k] !== false && J.TRANS[k] && J.transitionFits(k, previous, duration))
     .map(k => [k, wkey(st.bias && st.bias.trans, k, J.TRANS[k].w ?? 1) * novelty(history, 'trans', k)]);
   return cands.length ? rng.wpick(cands) : null;
 }
@@ -5041,7 +5058,7 @@ J.previewPlan = (project, group, key) => {
   const cuts = [];
   if (group === 'trans' && J.TRANS[key]) {
     const TD = J.TRANS[key];
-    const transDur = J.clamp(TD.dur || 0.35, 0.18, 0.7);
+    const transDur = TD.overlap ? J.transitionDuration(key, 1.2) : J.clamp(TD.dur || 0.35, 0.18, 0.7);
     const transP = TD.plan ? (TD.plan(rng, st) || {}) : {};
     const tA = enUI ? 'BEFORE' : '前のカット';
     const tB = enUI ? 'AFTER' : '字面';
@@ -5307,7 +5324,7 @@ class Renderer {
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
     if ((!opt.transparent || layer === 'back' || opt.layerComposition) && !key && mainCut && mainCut.bg && mainCut.bg !== 'none' && J.BG[mainCut.bg]) {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
       ctx.save();
       try { J.BG[mainCut.bg].draw(env, mainCut.bgP || {}); } catch (e) { console.warn('bg', mainCut.bg, e); }
       ctx.restore();
@@ -5354,6 +5371,7 @@ class Renderer {
       const X = LX || ctx;
       const Z = plan.centerFree && cut.zone ? cut.zone : null;
       const env = this.makeEnv(X, plan, cut, csc, {
+        layerComposition: !!opt.layerComposition,
         pass: P.pass, passColor: P.pass === 'A' ? csc.ghostA : P.pass === 'B' ? csc.ghostB : null,
         t: tp, lt, ltb: lt + P.lag, step: Math.floor(tp / clock + 1e-6), scale, allowFilter, energy, beat: beatInfo, layer, zone: Z,
         hideText: morphOn, glyphLog: P.pass === 'main' ? opt.glyphLog || null : null,
@@ -5400,7 +5418,7 @@ class Renderer {
         ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
         // Replace copied regions, including their transparent holes, during layer transitions.
         const drawImage = ctx.drawImage;
-        if (opt.layerComposition) {
+        if (opt.layerComposition && !J.TRANS[mainCut.trans].overlap) {
           ctx.clearRect(0, 0, cw, ch);
           ctx.drawImage = function (img, ...args) {
             if ((img === A || img === B) && this.globalAlpha === 1 && this.globalCompositeOperation === 'source-over') {
@@ -6352,6 +6370,10 @@ bgReg('duotoneSweep', { name: '二色スイープ', tags: ['calm', 'pop', 'graph
     const { W, H, sc } = env, cols = hues(sc), e = fadeIn(env, 0.8), k = P.k || 0.16;
     const cA = J.mix(sc.bg, cols[0], k), cB = J.mix(sc.bg, cols[1] || sc.fg, k);
     const pos = P.pos || [0.5, 1.2], cx = W * pos[0], cy = H * pos[1], a = (P.a0 || 0) + env.t * (P.spd || 0.1);
+    if (env.layerComposition) {
+      // The original conic sweep needs a filled field, not isolated spokes.
+      ctx.beginPath(); ctx.ellipse(W / 2, H / 2, W * 0.45, H * 0.45, 0, 0, TAU); ctx.clip();
+    }
     drawLow(ctx, env, 6, x => {
       let g = conic(x, a, cx, cy);
       if (g) { g.addColorStop(0, cA); g.addColorStop(0.25, cB); g.addColorStop(0.5, cA); g.addColorStop(0.75, cB); g.addColorStop(1, cA); }
@@ -6374,6 +6396,10 @@ bgReg('horizonGlow', { name: '惑星の縁', tags: ['emotional', 'calm', 'editor
     const R = Math.max(W, H) * (P.R || 1.6), cx = W * (P.cx || 0.5) + W * 0.03 * Math.sin(t * 0.08 + ((P.seed || 1) % 9));
     const cy = H * (P.top || 0.75) + R + (1 - e) * H * 0.25 + H * 0.008 * Math.sin(t * 0.25);
     const gc = dk ? glowOf(sc) : tintC(sc, 0.8), k = (P.k || 0.32) * (dk ? 1 : 0.55);
+    if (env.layerComposition) {
+      // Restore the disk, atmosphere and moving flare, trimming only the farthest halo.
+      ctx.beginPath(); ctx.arc(cx, cy, R + H * 0.42, 0, TAU); ctx.clip();
+    }
     ctx.fillStyle = dk ? J.mix(sc.bg, '#000000', 0.42) : J.mix(sc.bg, sc.fg, 0.05);
     ctx.globalAlpha = e; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
     const breathe = 0.85 + 0.15 * Math.sin(t * 0.7), top = Math.max(0, cy - R * 1.22);
@@ -6476,12 +6502,15 @@ bgReg('houndstooth', { name: '千鳥格子', tags: ['graphic', 'editorial', 'pop
 bgReg('herringbone', { name: 'ヘリンボーン', tags: ['editorial', 'calm', 'graphic'], w: 0.6,
   plan: rng => ({ seed: bs(rng), u: rng.range(0.032, 0.045), k: rng.range(0.07, 0.1), dir: rng.pick([1, -1]), rot: rng.pick([45, 45, -45]) }),
   draw(env, P, ctx) {
-    const { W, H, sc } = env, t = env.t, u = Umin(env) * (P.u || 0.038), e = fadeIn(env, 0.7), k = P.k || 0.08, rot = P.rot || 45;
-    const cA = layC(sc, k), cB = layC(sc, k * 0.45), key = `hrb|${cA}|${cB}|${u.toFixed(2)}`, Pd = 4 * u * Math.SQRT2;   // screen-space period of the 45° weave
+    const { W, H, sc } = env, t = env.t, u = Umin(env) * (P.u || 0.038) * (env.layerComposition ? 2.5 : 1), e = fadeIn(env, 0.7), k = P.k || 0.08, rot = P.rot || 45;
+    const cA = layC(sc, k), cB = layC(sc, k * 0.45), key = `hrb|${cA}|${cB}|${u.toFixed(2)}|${!!env.layerComposition}`, Pd = 4 * u * Math.SQRT2;   // screen-space period of the 45° weave
     const pl = plate(key + '|' + rot, env, Pd, Pd, (x, w, h) => {
       const tile = tileCv(key, env, 4 * u, 4 * u, (y) => {
         const g = u * 0.1;
-        const brick = (x0, y0, bw, bh, c) => { y.fillStyle = c; y.fillRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); };
+        const brick = (x0, y0, bw, bh, c) => {
+          if (env.layerComposition) { y.strokeStyle = c; y.lineWidth = Math.max(0.8, u * 0.045); y.strokeRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); }
+          else { y.fillStyle = c; y.fillRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); }
+        };
         for (let kk = -8; kk <= 8; kk++) for (let m = -4; m <= 4; m++) {
           const bx = kk + 2 * m, by = kk - 2 * m;
           if (bx > 6 || bx < -3 || by > 6 || by < -3) continue;
@@ -6493,6 +6522,7 @@ bgReg('herringbone', { name: 'ヘリンボーン', tags: ['editorial', 'calm', '
     });
     const sp = t * u * 0.6 * (P.dir || 1);          // travel along the zig-zag columns
     ctx.globalAlpha = e; blit(ctx, env, pl, rot > 0 ? Pd / 2 : wrap(sp, Pd), rot > 0 ? wrap(sp, Pd) : Pd / 2);
+    if (env.layerComposition) return;
     // slow sheen band across the weave
     const L = W + H, bx = (wrap(t * 0.1, 1.6) - 0.3) * L, bw = Umin(env) * 0.35, hc = lightOn(sc);
     const gl = ctx.createLinearGradient(bx - bw, 0, bx + bw, 0);
@@ -6561,14 +6591,15 @@ bgReg('isoCubes', { name: '立方体', tags: ['graphic', 'pop', 'calm'], w: 0.6,
   draw(env, P, ctx) {
     const { W, H, sc } = env, t = env.t, s = Umin(env) * (P.s || 0.065), r3 = Math.sqrt(3), pw = r3 * s, ph = 3 * s, e = fadeIn(env, 0.6);
     const col = layC(sc, P.k || 0.09);
-    const faces = ['top', 'left', 'right'].map((f, fi) => { const key = `iso|${f}|${col}|${s.toFixed(2)}`; return plate(key, env, pw, ph, (x, w, h) => fillTile(x, tileCv(key, env, pw, ph, (y) => {
+    const faces = ['top', 'left', 'right'].map((f, fi) => { const key = `iso|${f}|${col}|${s.toFixed(2)}|${!!env.layerComposition}`; return plate(key, env, pw, ph, (x, w, h) => fillTile(x, tileCv(key, env, pw, ph, (y) => {
       y.fillStyle = col; y.beginPath();
       for (let n2 = -2; n2 <= 3; n2++) for (let n1 = -3; n1 <= 3; n1++) {
         const cx = n1 * pw + n2 * pw / 2, cy = n2 * 1.5 * s;
         const T = [cx, cy - s], UR = [cx + pw / 2, cy - s / 2], LR = [cx + pw / 2, cy + s / 2], B = [cx, cy + s], LL = [cx - pw / 2, cy + s / 2], UL = [cx - pw / 2, cy - s / 2], C = [cx, cy];
         pathPoly(y, fi === 0 ? [T, UR, C, UL] : fi === 1 ? [UL, C, B, LL] : [UR, LR, B, C]);
       }
-      y.fill();
+      if (env.layerComposition) { y.strokeStyle = col; y.lineWidth = Math.max(0.8, s * 0.035); y.stroke(); }
+      else y.fill();
     }), pw, ph, 0, 0, w, h)); });
     // the light direction turns slowly, so the three face sets trade brightness
     const L = (P.l0 || 0) + t * (P.spd || 0.25), dirs = [-Math.PI / 2, Math.PI * 5 / 6, Math.PI / 6];
@@ -6619,7 +6650,11 @@ bgReg('triTess', { name: '三角モザイク', tags: ['graphic', 'calm', 'emotio
       }
     }
     const k = P.k || 0.085, cf = P.acc ? tintC : layC;
-    [0.35, 0.65, 1, 1.45].forEach((m, l) => { ctx.fillStyle = l === 3 && P.acc ? tintC(sc, k * m * 1.4) : cf(sc, k * m); ctx.fill(paths[l]); });
+    [0.35, 0.65, 1, 1.45].forEach((m, l) => {
+      const col = l === 3 && P.acc ? tintC(sc, k * m * 1.4) : cf(sc, k * m);
+      if (env.layerComposition) { ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, U * 0.002); ctx.stroke(paths[l]); }
+      else { ctx.fillStyle = col; ctx.fill(paths[l]); }
+    });
   } });
 
 bgReg('moire', { name: 'モアレ', tags: ['glitch', 'graphic', 'calm'], w: 0.6,
@@ -7189,6 +7224,14 @@ bgReg('vignettePulse', { name: '色の周辺光', tags: ['emotional', 'calm', 'p
     const { W, H, sc } = env, t = env.t, U = Umin(env), dk = isDark(sc.bg), e = fadeIn(env, 0.8), cols = hues(sc);
     const pulse = env.beat ? 0.62 + 0.38 * Math.exp(-env.beat.since * 4) : 0.75 + 0.25 * Math.sin(t * TAU * (P.rate || 0.45));
     const k = (P.k || 0.35) * e * pulse * (dk ? 1 : 0.8), cA = J.mix(sc.bg, cols[0], 0.7), cB = J.mix(sc.bg, cols[1] || cols[0], 0.7), R = Math.hypot(W, H) / 2;
+    if (env.layerComposition) {
+      // Keep the original pulsing light on four filled corners, with a genuinely open middle.
+      ctx.beginPath();
+      for (const [x, y] of [[0, 0], [W, 0], [W, H], [0, H]]) {
+        ctx.moveTo(x + W * 0.34, y); ctx.ellipse(x, y, W * 0.34, H * 0.43, 0, 0, TAU); ctx.closePath();
+      }
+      ctx.clip();
+    }
     drawLow(ctx, env, 6, x => {
       if (P.two !== false) {
         for (const [cx, cy, c, ph] of [[0, 0, cA, 0], [W, H, cB, 1.7]]) {
@@ -17778,6 +17821,8 @@ const slots = (it) => {
 const veilHole = (env, cx, cy, R, a, col, inner = 0.35, ry = 1) => {
   if (env.pass !== 'main' || a <= 0.002) return;
   const ctx = env.ctx, W = env.W, H = env.H;
+  // Enlarge the original beam and its open core together; retain its edge and reveal motion.
+  if (env.layerComposition) R *= 1.25;
   ctx.save();
   ctx.translate(cx, cy); ctx.scale(1, ry);
   const g = ctx.createRadialGradient(0, 0, Math.max(0.1, R * inner), 0, 0, Math.max(1, R));
@@ -17971,6 +18016,7 @@ reg('hrCctv', {
     const { W, H, sc } = env, cut = env.cut, Pm = cut.params, s = cut.seed | 0, lt = env.lt, st = env.step;
     const mono = monoF(env), port = isPort(env), out = tout(env), inA = tin(env, 0, 0.2);
     const fs = J.clamp(U(env) * 0.022, 11, 28), m = U(env) * 0.03, lw = Math.max(1, U(env) * 0.0016);
+    const mx = env.layerComposition ? W * 0.08 : m, my = env.layerComposition ? H * 0.08 : m;
     const feedBg = J.mix(darkOf(sc), '#000000', 0.35), LC = lightOf(sc), frameC = J.mix(feedBg, LC, 0.5);
     const date = fakeDate(s), time = fakeTime(s, lt);
     const osd = (x0, y0, x1, y1, n, live, bigFs) => {
@@ -17993,11 +18039,11 @@ reg('hrCctv', {
       drawNoise(env, x0, y0, x1 - x0, y1 - y0, 0.07 * inA * out, st, s + k);
       if (J.r(s, k, 5) < 0.35) env.draw({ text: 'NO SIGNAL', font: mono, size: fs * 1.1, x: (x0 + x1) / 2, y: (y0 + y1) / 2, color: J.mix(feedBg, LC, 0.6), alpha: (st % 6 < 4 ? 0.8 : 0.3) * inA * out, ghost: false, track: 0.2 });
     };
-    let bb = null, fx0 = m, fy0 = m, fx1 = W - m, fy1 = H - m;
+    let bb = null, fx0 = mx, fy0 = my, fx1 = W - mx, fy1 = H - my;
     if (Pm.v === 'quad') {
-      const g = lw * 3, cols = 2, rows = 2, cw = (W - m * 2 - g) / cols, chh = (H - m * 2 - g) / rows;
+      const g = env.layerComposition ? Math.max(lw * 3, U(env) * 0.025) : lw * 3, cols = 2, rows = 2, cw = (W - mx * 2 - g) / cols, chh = (H - my * 2 - g) / rows;
       for (let k = 0; k < 4; k++) {
-        const c = k % 2, r = Math.floor(k / 2), x0 = m + c * (cw + g), y0 = m + r * (chh + g);
+        const c = k % 2, r = Math.floor(k / 2), x0 = mx + c * (cw + g), y0 = my + r * (chh + g);
         if (k === Pm.act % 4) { fx0 = x0; fy0 = y0; fx1 = x0 + cw; fy1 = y0 + chh; env.rect(x0, y0, cw, chh, feedBg, inA, false); continue; }
         emptyFeed(x0, y0, x0 + cw, y0 + chh, k);
         osd(x0, y0, x0 + cw, y0 + chh, Pm.cam0 + k, false, fs * 0.8);
@@ -18349,7 +18395,7 @@ reg('hrStaticTv', {
     const cx = W / 2 + Pm.off * W, cy = H / 2 + th * 0.06;
     const body = J.mix(sc.bg, sc.fg, isDark(sc.bg) ? 0.13 : 0.22), edge = J.mix(body, sc.fg, 0.3), lw = Math.max(1, u * 0.0018);
     // glow of the screen into the room
-    if (env.pass === 'main') {
+    if (env.pass === 'main' && !env.layerComposition) {
       const g = ctx.createRadialGradient(cx, cy, th * 0.3, cx, cy, Math.max(W, H) * 0.7);
       g.addColorStop(0, J.rgba(lightOf(sc), (0.1 * inA * out).toFixed(3))); g.addColorStop(1, J.rgba(lightOf(sc), 0));
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -19278,6 +19324,10 @@ bgReg('hrFailingLamp', {
   draw(env, Pm, ctx) {
     const { W, H, sc } = env, t = env.t, u = U(env), lv = lamp(t, Pm.seed | 0, Pm.rate || 1), fi = E.outCubic(clamp(bgT(env) / 0.6));
     const L = lightOf(sc), dk = nightC(sc), cx = W * (Pm.x || 0.5), cy = -u * 0.1;
+    if (env.layerComposition) {
+      // Preserve the room's flickering illumination within the lamp's broad footprint.
+      ctx.beginPath(); ctx.ellipse(cx, 0, W * 0.48, H * 0.86, 0, 0, TAU); ctx.clip();
+    }
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * 0.9);
     g.addColorStop(0, J.rgba(L, ((isDark(sc.bg) ? 0.16 : 0.3) * lv * fi).toFixed(3))); g.addColorStop(0.5, J.rgba(L, ((isDark(sc.bg) ? 0.04 : 0.08) * lv * fi).toFixed(3))); g.addColorStop(1, J.rgba(L, 0));
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -19325,6 +19375,11 @@ bgReg('hrCorridor', {
       }
     }
     ctx.stroke();
+    if (env.layerComposition) {
+      // Restore the dark corridor edges, but leave a wider opening around its distant light.
+      ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.moveTo(vx + W * 0.42, vy);
+      ctx.ellipse(vx, vy, W * 0.42, H * 0.53, 0, 0, TAU); ctx.closePath(); ctx.clip('evenodd');
+    }
     const v = ctx.createRadialGradient(vx, vy, Math.min(W, H) * 0.2, vx, vy, Math.hypot(W, H) * 0.65);
     v.addColorStop(0, J.rgba(nightC(sc), 0)); v.addColorStop(1, J.rgba(nightC(sc), (0.55 * fi).toFixed(3)));
     ctx.globalAlpha = 1; ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
@@ -21461,6 +21516,64 @@ reg('decor', 'knWordTicks', {
 
 })();
 
+/* Layer-safe overlap transitions: immutable previous image + live incoming image.
+   New entries opt into source-over composition; legacy region-replacement stays intact. */
+(() => {
+'use strict';
+const register = (id, name, tags, duration, incoming, draw) => J.register('trans', id, {
+  name, tags, w: 0.8, dur: duration,
+  overlap: { minDuration: 1, incoming },
+  plan: rng => ({ direction: rng.pick([-1, 1]), phase: rng.range(0, J.TAU) }),
+  draw(ctx, A, B, p, I) {
+    ctx.save();
+    try {
+      // Explicitly own clearing; transparent holes must not erase the other image.
+      ctx.clearRect(0, 0, I.cw, I.ch);
+      if (p <= 0) { ctx.drawImage(A, 0, 0); return; }
+      if (p >= 1) { ctx.drawImage(B, 0, 0); return; }
+      const q = J.E.inOutCubic(p);
+      draw(ctx, A, B, p, q, I, I.P || {});
+    } finally { ctx.restore(); }
+  },
+}, 'kinetic');
+const incoming = (ctx, B, p) => { ctx.globalAlpha = J.smooth(0, 0.45, p); ctx.drawImage(B, 0, 0); ctx.globalAlpha = 1; };
+register('carryRetreat', '余韻を縮小', ['calm', 'emotional', 'editorial', 'graphic'], 1.1, 'keep', (ctx, A, B, p, q, I, P) => {
+  const s = 1 - q * 0.3, dir = P.direction || -1;
+  ctx.save(); ctx.globalAlpha = 1 - J.smooth(0.05, 0.95, p);
+  ctx.translate(I.cw / 2, I.ch / 2 + dir * I.ch * 0.17 * q); ctx.scale(s, s);
+  ctx.drawImage(A, -I.cw / 2, -I.ch / 2); ctx.restore();
+  incoming(ctx, B, p);
+});
+register('carrySlash', '斜めに断ち切る', ['graphic', 'pop', 'glitch'], 0.8, 'replace', (ctx, A, B, p, q, I, P) => {
+  incoming(ctx, B, p);
+  const { cw:w, ch:h } = I, dir = P.direction || 1;
+  // Two complementary diagonal polygons, moved apart along the cut normal.
+  for (const side of [-1, 1]) {
+    ctx.save(); ctx.globalAlpha = 1 - J.smooth(0.4, 1, p);
+    ctx.translate(-side * dir * w * 0.16 * q, side * h * 0.4 * q);
+    ctx.beginPath();
+    const left = h * (dir > 0 ? 0.28 : 0.72), right = h - left;
+    if (side < 0) { ctx.moveTo(0, 0); ctx.lineTo(w, 0); ctx.lineTo(w, right); ctx.lineTo(0, left); }
+    else { ctx.moveTo(0, left); ctx.lineTo(w, right); ctx.lineTo(w, h); ctx.lineTo(0, h); }
+    ctx.closePath(); ctx.clip(); ctx.drawImage(A, 0, 0); ctx.restore();
+  }
+});
+register('carryShatter', '放射状に砕ける', ['graphic', 'pop', 'glitch', 'emotional'], 0.9, 'replace', (ctx, A, B, p, q, I, P) => {
+  incoming(ctx, B, p);
+  const { cw:w, ch:h } = I, cx = w * 0.5, cy = h * 0.5, radius = Math.hypot(w,h), n = 11, phase = P.phase || 0;
+  const angles = Array.from({length:n+1}, (_,i) => phase + i * J.TAU / n + (i && i<n ? Math.sin(i*7.31+phase)*0.13 : 0));
+  for(let i=0;i<n;i++) {
+    const a=angles[i], b=angles[i+1], mid=(a+b)/2;
+    ctx.save(); ctx.globalAlpha = 1-J.smooth(0.25,1,p);
+    ctx.translate(cx+Math.cos(mid)*w*0.32*q,cy+Math.sin(mid)*h*0.4*q);
+    ctx.rotate(Math.sin(i*3.7+phase)*0.16*q); ctx.translate(-cx,-cy);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*radius,cy+Math.sin(a)*radius); ctx.lineTo(cx+Math.cos(b)*radius,cy+Math.sin(b)*radius); ctx.closePath(); ctx.clip();
+    ctx.drawImage(A,0,0); ctx.restore();
+  }
+});
+J.reviewTransitions = ['carryRetreat', 'carrySlash', 'carryShatter'];
+})();
+
 /* JIZURA pack: layoutsA — 28 compositional layouts: telops, editorial typesetting, graphic devices and UI mock-ups */
 (() => {
 'use strict';
@@ -22345,7 +22458,7 @@ reg('subtitleBar', {
     const text = env.cut.text.trim(), lb = env.ltb;
     const cand = [sc.bg, sc.fg, sc.ink, sc.dim];
     let barC = cand[0]; cand.forEach(c => { if (J.lum(c) < J.lum(barC)) barC = c; });
-    const pic = barC === sc.bg && Math.abs(J.lum(sc.dim) - J.lum(sc.bg)) > 0.03;   // dark scheme: lift the picture area instead
+    const pic = !env.layerComposition && barC === sc.bg && Math.abs(J.lum(sc.dim) - J.lum(sc.bg)) > 0.03;   // Layer Studio leaves the picture area open in every palette.
     const bh = H * (port ? p.bar * 0.62 : p.bar);
     const e = tin(env, 0, 0.55, E.outExpo) * (1 - E.inCubic(env.pOut));
     const out = tout(env);
@@ -30589,7 +30702,12 @@ reg('shadowPlay', {
       // floor plane
       const fa = tin(env, 0, 0.5, E.outCubic) * out;
       const floorC = J.mix(sc.bg, sc.fg, dark ? 0.13 : 0.07);
-      env.rect(0, yb, W, (H - yb) * fa + 2, floorC, fa, false);
+      const clipFloor = () => {
+        ctx.beginPath(); ctx.moveTo(W * 0.18, yb); ctx.lineTo(W * 0.82, yb);
+        ctx.lineTo(W * 0.92, H); ctx.lineTo(W * 0.08, H); ctx.closePath(); ctx.clip();
+      };
+      ctx.save(); if (env.layerComposition) clipFloor();
+      env.rect(0, yb, W, (H - yb) * fa + 2, floorC, fa, false); ctx.restore();
       env.line([[W * 0.5 - W * 0.5 * fa, yb], [W * 0.5 + W * 0.5 * fa, yb]], sc.sub, Math.max(1, u * 0.002), 0.6, false);
       // the sun crosses the sky; the cast shadow sweeps like a sundial
       const phi = (J.lerp(74, 38, E.inOutSine(k)) * (0.85 + 0.15 * Pm.sweep) * Pm.dir) * J.DEG;
@@ -30613,6 +30731,7 @@ reg('shadowPlay', {
         // the far end of the shadow fades into the floor
         const g = ctx.createLinearGradient(0, yb, 0, yb + m.h * d * 1.15 + size * 0.1);
         g.addColorStop(0, J.rgba(floorC, 0)); g.addColorStop(0.35, J.rgba(floorC, 0)); g.addColorStop(1, J.rgba(floorC, 0.7));
+        if (env.layerComposition) clipFloor();
         ctx.fillStyle = g; ctx.fillRect(0, yb, W, H - yb);
         ctx.restore();
       }
@@ -30628,7 +30747,16 @@ reg('shadowPlay', {
     if (env.pass === 'main' && la > 0) {
       const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.max(W, H) * 0.75);
       g.addColorStop(0, J.rgba(dark ? sc.accent : lightOf(sc), (dark ? 0.2 : 0.35) * flick * la)); g.addColorStop(0.5, J.rgba(dark ? sc.accent : lightOf(sc), (dark ? 0.07 : 0.12) * la)); g.addColorStop(1, J.rgba(sc.bg, 0));
-      ctx.save(); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
+      ctx.save();
+      if (env.layerComposition) {
+        // A filled fan links lamp, lyric and cast shadow; the lower sides stay open.
+        const m = J.measure(Object.assign({ text, font: Pm.font, size }, o));
+        const top = -H * 0.2, tip = ly + u * 0.03, f = (tip - top) / Math.max(H * 0.1, tip - ty);
+        const left = tx - m.w / 2 - size * 0.65, right = tx + m.w / 2 + size * 0.65;
+        ctx.beginPath(); ctx.moveTo(lx, tip); ctx.lineTo(lx + (left - lx) * f, top);
+        ctx.lineTo(lx + (right - lx) * f, top); ctx.closePath(); ctx.clip();
+      }
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
     }
     const mS = [kS, 0, 0, kS, lx * (1 - kS), ly * (1 - kS)];
     const base = Object.assign({ text, font: Pm.font, size, x: tx, y: ty, mi: 0 }, o);
@@ -32241,6 +32369,11 @@ bgReg('gradientSweep', { name: 'グラデ', tags: ['calm', 'emotional', 'pop'], 
   draw(env, P, ctx) {
     const { W, H, sc } = env, ang = (P.a0 || 0) + env.t * 0.12, dx = Math.cos(ang), dy = Math.sin(ang), L = Math.hypot(W, H) / 2;
     const tint = J.mix(sc.bg, sc[P.c] || sc.accent, P.k || 0.2), p = 0.5 + 0.32 * Math.sin(env.t * (P.spd || 0.35));
+    if (env.layerComposition) {
+      // Retain the original travelling gradient on a filled diagonal third of the frame.
+      ctx.beginPath(); ctx.moveTo(W * 0.48, 0); ctx.lineTo(W * (0.48 + 1 / 3), 0);
+      ctx.lineTo(W * 0.52, H); ctx.lineTo(W * (0.52 - 1 / 3), H); ctx.closePath(); ctx.clip();
+    }
     const g = ctx.createLinearGradient(W / 2 - dx * L, H / 2 - dy * L, W / 2 + dx * L, H / 2 + dy * L);
     g.addColorStop(0, J.rgba(tint, 0)); g.addColorStop(p, J.rgba(tint, 1)); g.addColorStop(1, J.rgba(tint, 0));
     ctx.globalAlpha = E.outCubic(clamp(bgT(env) / 0.6)); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -32254,7 +32387,8 @@ bgReg('spotlight', { name: 'スポットライト', tags: ['emotional', 'calm', 
     const e = E.outCubic(clamp(bgT(env) / 0.6)), lc = dk ? sc.fg : '#FFFFFF', k = (P.k || 0.12) * e;
     const g1 = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.7);
     g1.addColorStop(0, 'rgba(0,0,0,0)'); g1.addColorStop(1, `rgba(0,0,0,${((dk ? 0.35 : 0.14) * e).toFixed(3)})`);
-    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+    // Keep the light itself, as in the original paper palette; omit only the surrounding darkness.
+    if (!env.layerComposition) { ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H); }
     const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
     g2.addColorStop(0, J.rgba(lc, k)); g2.addColorStop(0.6, J.rgba(lc, k * 0.5)); g2.addColorStop(1, J.rgba(lc, 0));
     ctx.fillStyle = g2; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
@@ -36808,6 +36942,97 @@ J.DecodedSpectrumReader = class extends J.SpectrumReader {
 };
 })();
 
+/* Background export uses decoded presentation timestamps, never preview seeks.
+   Only the current output canvas is retained after the final video frame. */
+(() => {
+'use strict';
+const tr = J.layerText, cancelled = () => new DOMException('Cancelled', 'AbortError');
+J.VideoBackgroundReader = class {
+  static async open(media, signal) {
+    const reader = new J.VideoBackgroundReader();
+    reader.signal = signal;
+    reader.onAbort = () => reader.disposeInput();
+    try {
+      if (signal?.aborted) throw cancelled();
+      if (typeof Mediabunny === 'undefined' || typeof VideoDecoder === 'undefined')
+        throw new Error(tr('背景動画の出力にはVideoDecoder対応のChrome / Edgeが必要です。', 'Video backgrounds require Chrome / Edge with VideoDecoder.'));
+      reader.input = new Mediabunny.Input({ source: new Mediabunny.BlobSource(media.file), formats: [Mediabunny.MP4, Mediabunny.QTFF, Mediabunny.WEBM, Mediabunny.MATROSKA, Mediabunny.OGG] });
+      signal?.addEventListener('abort', reader.onAbort, { once: true });
+      reader.track = await reader.wait(reader.input.getPrimaryVideoTrack());
+      if (!reader.track || !await reader.wait(reader.track.canDecode()))
+        throw new Error(tr('背景動画の映像コーデックをデコードできません: ', 'Cannot decode the background video codec: ') + media.name);
+      const last = await reader.wait(new Mediabunny.EncodedPacketSink(reader.track).getPacket(Infinity, { metadataOnly: true }));
+      reader.duration = await reader.wait(reader.track.computeDuration());
+      if (!last || !Number.isFinite(last.timestamp) || !Number.isFinite(reader.duration) || reader.duration <= 0)
+        throw new Error(tr('背景動画の映像の長さを取得できません。', 'Cannot determine the background video track duration.'));
+      reader.lastTimestamp = last.timestamp;
+      return reader;
+    } catch (e) { await reader.close(); if (signal?.aborted) throw cancelled(); throw e; }
+  }
+  static async create(media, span, fps, signal) {
+    const reader = await this.open(media, signal);
+    try {
+      function* times() {
+        for (let i = 0; i < span.frames; i++) {
+          const t = span.t0 + i / fps + 0.000001;
+          yield t;
+          if (t >= reader.lastTimestamp) break;
+        }
+      }
+      reader.iterator = new Mediabunny.VideoSampleSink(reader.track).samplesAtTimestamps(times());
+      return reader;
+    } catch (e) { await reader.close(); throw e; }
+  }
+  disposeInput() {
+    if (this.disposed) return;
+    this.disposed = true; this.input?.dispose();
+  }
+  async wait(promise) {
+    let timer, stop;
+    try {
+      if (this.signal?.aborted) throw cancelled();
+      return await Promise.race([promise, new Promise((_, reject) => {
+        stop = () => reject(cancelled());
+        this.signal?.addEventListener('abort', stop, { once: true });
+        timer = setTimeout(() => {
+          this.disposeInput();
+          reject(new Error(tr('背景動画の読み出しがタイムアウトしました。', 'Background video decoding timed out.')));
+        }, 30000);
+      })]);
+    } finally { clearTimeout(timer); this.signal?.removeEventListener('abort', stop); }
+  }
+  async drawNext(ctx) {
+    if (this.signal?.aborted) throw cancelled();
+    if (this.held) return;
+    const result = await this.wait(this.iterator.next().then(result => {
+      if (this.disposed || this.signal?.aborted) { result.value?.close(); throw cancelled(); }
+      return result;
+    }));
+    if (result.done) throw new Error(tr('背景動画のフレームが不足しています。', 'Background video frames ended unexpectedly.'));
+    const sample = result.value;
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+    if (!sample) return; // Preserve a positive track offset as leading black.
+    try {
+      const scale = Math.min(w / sample.displayWidth, h / sample.displayHeight);
+      const dw = sample.displayWidth * scale, dh = sample.displayHeight * scale;
+      sample.draw(ctx, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      this.lastDrawnTimestamp = sample.timestamp;
+      this.held = sample.timestamp >= this.lastTimestamp - 0.000001;
+    } finally { sample.close(); }
+  }
+  async close() {
+    this.signal?.removeEventListener('abort', this.onAbort);
+    this.disposeInput();
+    if (this.iterator) await Promise.allSettled([this.iterator.return()]);
+  }
+};
+J.probeBackgroundVideo = async media => {
+  const reader = await J.VideoBackgroundReader.open(media);
+  try { return reader.duration; } finally { await reader.close(); }
+};
+})();
+
 /* Filler cues are editable placeholders; their identity is independent of their text. */
 (() => {
 'use strict';
@@ -36968,12 +37193,13 @@ J.defaultProject = () => ({ ...defaults(), simpleExport: J.normalizeSimpleExport
 J.upgradeLayerProject = (project, source) => {
   upgrade(project, source); project.simpleExport = J.normalizeSimpleExport(project.simpleExport); return project;
 };
-J.simpleMaterialDuration = (plan, audio, front, matte) => {
+J.simpleMaterialDuration = (plan, audio, front, matte, background = null) => {
   const buffer = audio?.buffer;
   const sound = buffer ? buffer.length / buffer.sampleRate : audio?.duration || 0;
   const spectrum = front ? J.spectrumDuration(front, matte) : 0;
   const ends = (plan?.lines || []).map(l => l.end);
-  return Math.max(0.001, ...ends, sound, spectrum);
+  const video = background?.video ? (background.videoDuration ?? background.duration) : 0;
+  return Math.max(0.001, ...ends, sound, spectrum, Number.isFinite(video) ? video : 0);
 };
 J.simpleExportSpan = (duration, fps, range) => {
   if (!Number.isFinite(duration) || duration <= 0 || duration > 86400 || !Number.isFinite(fps) || fps <= 0)
@@ -37037,7 +37263,7 @@ async function encodeSound(buffer, mux, span, config, signal, progress) {
   } finally { try { encoder.close(); } catch (_) {} }
 }
 J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null, audio = null, range = null, signal, onProgress }) => {
-  if (background?.video) throw new Error(tr('簡易動画出力には背景を静止画に変更するか、解除してください。', 'Use a still background or clear the video background for simple export.'));
+  if (background?.simpleError) throw new Error(background.simpleError);
   const settings = J.normalizeSimpleExport(project.simpleExport), span = J.simpleExportSpan(settings.duration, plan.fps, range);
   const [w, h] = J.outputSize(project), fps = plan.fps;
   let audioConfig = null;
@@ -37051,10 +37277,11 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
   if (!attempts.length) throw new Error(tr('H.264 MP4出力に対応していません。', 'H.264 MP4 encoding is unavailable.'));
   const errors = [];
   for (const codec of attempts) {
-    let reader = null, encoder = null, error = null, count = 0, audioPhase = false;
+    let reader = null, backgroundReader = null, encoder = null, error = null, count = 0, audioPhase = false;
     try {
       abort(signal);
       if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal);
+      if (background?.video) backgroundReader = await J.VideoBackgroundReader.create(background, span, fps, signal);
       const target = new Mp4Muxer.ArrayBufferTarget(), mux = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: w, height: h, frameRate: fps },
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
       encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
@@ -37062,13 +37289,14 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
       const render = new J.LayerRenderer(w, h), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
       const ctx = canvas.getContext('2d'), bx = base.getContext('2d');
       bx.fillStyle = '#000'; bx.fillRect(0, 0, w, h);
-      if (background) {
+      if (background && !background.video) {
         const ratio = Math.min(w / background.width, h / background.height), dw = background.width * ratio, dh = background.height * ratio;
         bx.drawImage(background.el, (w - dw) / 2, (h - dh) / 2, dw, dh);
       }
       for (let i = 0; i < span.frames; i++) {
         abort(signal);
         const t = span.t0 + i / fps;
+        if (backgroundReader) await backgroundReader.drawNext(bx);
         let pixels = render.draw(plan, t);
         if (reader) pixels = J.overPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels);
         ctx.drawImage(base, 0, 0);
@@ -37088,7 +37316,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
       if (signal?.aborted || e.name === 'AbortError') throw new DOMException('Cancelled', 'AbortError');
       if (audioPhase) throw e;
       errors.push(codec.label + ': ' + e.message);
-    } finally { try { encoder?.close(); } catch (_) {} await reader?.close(); }
+    } finally { try { encoder?.close(); } catch (_) {} await Promise.allSettled([reader?.close(), backgroundReader?.close()]); }
   }
   throw new Error(tr('簡易動画の出力に失敗しました。', 'Simple export failed. ') + errors.join(' / '));
 };
@@ -37360,6 +37588,89 @@ const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
 J.cueLookProject = (p, rule) => ({ ...p, ...Object.fromEntries(ruleKeys.filter(k => rule[k] != null).map(k => [k, rule[k]])) });
 const targetPlan = (plan, index) => plan.layerGroups?.find(g => g.indices.includes(index))?.plan || plan;
+// Hidden review draw: change one eligible join, preserve the rest of the composition.
+J.prepareTransitionReview = (p, current, index, audio) => {
+  const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
+  if (!ln || !ln.text.length || ln.interlude) throw new Error(J.layerText('この位置に再抽選できる字幕はありません。', 'There is no subtitle to reroll here.'));
+  if (ov.lock) throw new Error(J.layerText('この字幕はロック中です。', 'This subtitle is locked.'));
+  const group = current.layerGroups?.find(g => g.indices.includes(index));
+  const base = group?.plan || current, localIndex = group ? group.indices.indexOf(index) : index;
+  const own = base.cuts.filter(c => c.line === localIndex && c.utext != null);
+  const eligible = own.find(c => {
+    const prev = base.cuts[base.cuts.indexOf(c) - 1];
+    if (!prev || prev.layout === 'interlude' || Math.abs(prev.end - c.start) >= 0.06) return false;
+    if (prev.line !== localIndex) {
+      const previousIndex = group ? group.indices[prev.line] : prev.line;
+      const before = current.lines.find(l => l.index === previousIndex);
+      if (p.overrides?.[previousIndex]?.lock || before?.part !== ln.part) return false;
+      if (Array.isArray(p.subtitleCues) && (Math.round(before.end * 1000) !== Math.round(ln.start * 1000) || Math.round(prev.end * 1000) !== Math.round(c.start * 1000))) return false;
+    }
+    return J.reviewTransitions.some(id => J.transitionFits(id, prev, c.dur));
+  });
+  if (!eligible) throw new Error(J.layerText('この字幕には新しいつなぎを試せる境界がありません。同じパート内で直前の字幕と接し、カットが1秒以上ある字幕で試してください。', 'No eligible join here. Try a cut of at least one second, touching the previous subtitle in the same part.'));
+  const next = clone(p);
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
+  const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, 319));
+  const id = rng.pick(J.reviewTransitions.filter(id => id !== eligible.trans));
+  const slot = own.indexOf(eligible), key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
+  target.cutTech ||= {};
+  target.cutTech[slot] = { ...target.cutTech[slot], trans: id };
+  const entry = next.localLooks.lines[key];
+  Object.assign(entry.cuts[slot], { trans: id, transP: J.TRANS[id].plan(rng), transDur: J.transitionDuration(id, eligible.dur, eligible.outDur), morph: null });
+  if (target.randomDraw) target.randomDraw.cuts = clone(entry.cuts);
+  entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, target);
+  return { project: next, start: eligible.start, id };
+};
+// Historical screening: >=50% maximum coverage in the noir/paper audit, before
+// the visibility revisions. Keep revised effects in the pool for comparison.
+J.coverageReviewPools = {
+  layout: 'huge hrFlashlight hrDoorGap hrCctv hrStaticTv knPadGrid subtitleBar splitScreen filmstrip zoomRepeat magazine newspaper cassette stampSheet postcard letterPaper chochin stationSign noren omikuji kakejiku shoji warningLabel karuta magnets wordSearch shadowPlay kaleido wall zipper glitchGrid mosaicTiles contour'.split(' '),
+  bg: 'auroraRibbons meshBlobs duotoneSweep horizonGlow seigaiha asanoha houndstooth herringbone argyle tartan chevron isoCubes hexGrid triTess moire squareTunnel spiralArms skyline sunsetSun cloudLayers vignettePulse marble paperCut hrFailingLamp hrCorridor hrDeadTrees sunburst halftoneFade bigStripes splitV splitH splitDiag gradientSweep spotlight checker'.split(' ')
+};
+J.prepareCoverageReview = (p, current, index, audio, group) => {
+  const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
+  if (!ln || !ln.text.length || ln.interlude) throw new Error(J.layerText('この位置に再抽選できる字幕はありません。', 'There is no subtitle to reroll here.'));
+  if (ov.lock) throw new Error(J.layerText('この字幕はロック中です。', 'This subtitle is locked.'));
+  if (!J.coverageReviewPools[group]) throw new Error('Unknown coverage review group');
+  const own = current.cuts.filter(c => c.line === index && c.utext != null), base = targetPlan(current, index);
+  const registry = group === 'layout' ? J.LAYOUTS : J.BG;
+  const pool = J.coverageReviewPools[group].filter(id => registry[id] && !registry[id].special &&
+    (group !== 'layout' || own.every(c => !registry[id].fits || registry[id].fits(Math.max(J.glyphCount(c.text), J.glyphCount(c.companion?.text || ''))))));
+  if (!own.length || !pool.length) throw new Error(J.layerText('この字幕に適合するレビュー候補がありません。', 'No compatible review candidates for this subtitle.'));
+  const next = clone(p);
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
+  const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, group === 'layout' ? 421 : 422));
+  const alternatives = pool.filter(id => id !== own[0][group]);
+  const id = rng.pick(alternatives.length ? alternatives : pool);
+  target[group] = id;
+  if (group === 'layout') delete target.cutLayouts;
+  for (const slots of [target.cutTech, target.cutQuiet]) for (const slot of Object.values(slots || {})) delete slot[group];
+  const key = p.subtitleCues?.[index]?.id ?? ('line-' + index), entry = next.localLooks.lines[key];
+  entry.cuts.forEach((cut, i) => {
+    const src = own[i], st = cut.renderLook?.style || base.style, def = registry[id];
+    cut[group] = id;
+    if (group === 'bg') cut.bgP = def.plan ? def.plan(rng, st) : {};
+    else {
+      const params = c => def.plan(rng, { text: c.text, n: J.glyphCount(c.text), W: c.zone?.w || base.W, H: c.zone?.h || base.H, dur: src.dur }, st);
+      cut.params = params(src); cut.twinParams = src.companion ? params(src.companion) : null;
+      cut.morph = null;
+      // Keep a new layout's explicit technique restrictions, including manual overrides.
+      if (def.treat === false || def.treat === 'safe' && !J.TREAT[cut.treat]?.safe) {
+        cut.treat = 'none'; cut.treatP = {}; (target.cutTech ||= {})[i] = { ...target.cutTech[i], treat: 'none' };
+      }
+      if (def.cam === false) {
+        cut.cam = 'push'; cut.camP = {}; (target.cutTech ||= {})[i] = { ...target.cutTech[i], cam: 'push' };
+      }
+    }
+  });
+  if (target.randomDraw) target.randomDraw.cuts = clone(entry.cuts);
+  entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, target);
+  return { project: next, start: ln.start, id, group };
+};
 const clearGroups = (ov, groups) => {
   for (const key of groups) delete ov[key];
   if (groups.includes('layout')) { delete ov.cutLayouts; }
@@ -37522,7 +37833,7 @@ const durations = c => {
   if (c.inDur + c.outDur > dur * 0.88) {
     const ratio = dur * 0.88 / (c.inDur + c.outDur); c.inDur *= ratio; c.outDur *= ratio;
   }
-  c.transDur = Math.max(0, Math.min(c.transDur || 0, dur * 0.4));
+  c.transDur = Math.max(0, Math.min(c.transDur || 0, J.TRANS[c.trans]?.overlap ? J.transitionDuration(c.trans, dur, c.outDur) : dur * 0.4));
   c.events = (c.events || []).filter(e => e.dt >= 0 && e.dt < dur)
     .map(e => ({ ...e, dur: Math.min(e.dur, dur - e.dt) }));
   return c;
@@ -37597,8 +37908,8 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     c.trans = null; c.transP = {}; c.transDur = 0; c.morph = null;
     // Only internal touching cuts: never bridge SRT gaps or change adjacent cues.
     if (i > 0 && dur >= 0.6 && cuts[i - 1].fraction >= 0.6 && rng.chance(0.25)) {
-      c.trans = pick(rng, allowed(p, 'trans'), null);
-      if (c.trans) { c.transP = planParams(J.TRANS[c.trans], rng, null, st); c.transDur = Math.min(J.TRANS[c.trans].dur || 0.35, dur * 0.3, cuts[i - 1].fraction * 0.3); }
+      c.trans = pick(rng, allowed(p, 'trans').filter(k => J.transitionFits(k, { dur: cuts[i - 1].fraction }, dur)), null);
+      if (c.trans) { c.transP = planParams(J.TRANS[c.trans], rng, null, st); c.transDur = J.TRANS[c.trans].overlap ? J.transitionDuration(c.trans, dur, c.outDur) : Math.min(J.TRANS[c.trans].dur || 0.35, dur * 0.3, cuts[i - 1].fraction * 0.3); }
     }
     c.events = [];
     if (dur > 0.5 && rng.chance(busy || strong || busyBack ? 0.15 : 0.4)) {
@@ -37826,6 +38137,7 @@ J.mergeCueDrawCuts = (oldCuts, freshCuts, mode) => {
       crtOff: 'CRT powers off'
     },
     trans: {
+      carryRetreat: 'Retreating echo', carrySlash: 'Diagonal split', carryShatter: 'Radial shatter',
       wipe: 'Edge wipe', diagonalWipe: 'Diagonal band wipe',
       irisOpen: 'Iris opens', pushSlide: 'Push',
       doorsOpen: 'Double doors', checker: 'Checkerboard',
@@ -38196,14 +38508,18 @@ function rerollCue(index = null, mode = 'fine') {
   if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
   const ln = index == null ? cueRerollTarget() : S.plan.lines.find(l => l.index === index);
   try {
-    const next = J.prepareCueReroll(S.project, S.plan, ln?.index, audioLike(), mode);
+    const review = mode === 'reviewLayout' || mode === 'reviewBackground'
+      ? J.prepareCoverageReview(S.project, S.plan, ln?.index, audioLike(), mode === 'reviewLayout' ? 'layout' : 'bg') : null;
+    const next = review ? review.project : J.prepareCueReroll(S.project, S.plan, ln?.index, audioLike(), mode);
     const playing = S.playing;
     pushEdit(); remember();
     S.project = next; replan(); commit(); flushSave();
     cueRerollHold = { plan: S.plan, index: ln.index, start: ln.start, end: ln.end };
-    seek(playing ? Math.max(0, ln.start - 0.3) : ln.start, true);
-    refreshLoopHold(ln.start + 0.001);
-    const kind = J.cueRerollModes.find(m => m[0] === mode);
+    const start = review ? review.start : ln.start;
+    seek(playing ? Math.max(0, start - 0.3) : start, true);
+    refreshLoopHold(start + 0.001);
+    const reviewName = review && `${review.group === 'layout' ? J.layerText('Layout', 'Layout') : J.layerText('Background', 'Background')}: ${J.registry(review.group)[review.id].name} (${review.id})`;
+    const kind = review ? ['review', reviewName, reviewName] : J.cueRerollModes.find(m => m[0] === mode);
     toast(J.layerText(`字幕 ${ln.index + 1}：${kind[1]}（Ctrl+Zで戻せます）`, `Subtitle ${ln.index + 1}: ${kind[2]} (Ctrl+Z to undo)`));
   } catch (e) { toast(e.message); }
 }
@@ -39148,7 +39464,7 @@ function paintTechCanvas(cv, g, k, t) {
   const plan = getPreviewPlan(g, k);
   const ctx = cv.getContext('2d');
   try {
-    previewR.frame(ctx, plan, t, { scale: cv.width / plan.W, fast: true, noHud: true, noGhost: g !== 'fx' });
+    previewR.frame(ctx, plan, t, { scale: cv.width / plan.W, layerComposition: true, fast: true, noHud: true, noGhost: g !== 'fx' });
   } catch (e) {
     ctx.fillStyle = '#131316'; ctx.fillRect(0, 0, cv.width, cv.height);
   }
@@ -39609,7 +39925,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.2.1' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.0' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -39652,6 +39968,8 @@ function bind() {
     }
     else if (e.code === 'KeyA' || e.code === 'KeyD') { e.preventDefault(); seek(S.t + (e.code === 'KeyD' ? 1 : -1) * (e.shiftKey ? 1 : 1 / S.plan.fps)); }
     else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) rerollCue(); }
+    else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
+    else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
@@ -39857,6 +40175,10 @@ async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
   status(tr('読み込み中…', 'Loading…'));
   const m = await J.loadLayerMedia(file, videoOnly);
+  if (key === 'background' && m.video) {
+    try { m.videoDuration = await J.probeBackgroundVideo(m); }
+    catch (e) { m.simpleError = tr('背景動画を簡易出力できません: ', 'Cannot export this video background: ') + e.message; }
+  }
   if (session.generation[key] !== n) { m.dispose(); return; }
   if ((key === 'matte' || key === 'front' && !session.front) && session[key === 'front' ? 'matte' : 'front']) {
     try { J.validateSpectrum(key === 'front' ? m : session.front, key === 'matte' ? m : session.matte, J.ui.project.fps); }
@@ -40011,7 +40333,7 @@ function syncSimpleExportUI() {
   const settings = project.simpleExport = J.normalizeSimpleExport(project.simpleExport);
   const recalculate = settings.duration == null || materialsChanged;
   if (recalculate) {
-    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null);
+    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null, session.background);
     simpleInvalidDraft = false;
     if (materialsChanged) J.uiApi.flushSave();
   }
@@ -40022,7 +40344,7 @@ function syncSimpleExportUI() {
     if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
     span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
   } catch (e) { reason = e.message; }
-  if (session.background?.video) reason = tr('背景動画が指定されています。簡易出力には静止画に変更するか、背景を解除してください。', 'A video background is selected. Use a still image or clear the background for simple export.');
+  if (session.background?.simpleError) reason = session.background.simpleError;
   if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
   if (J.nativeSpectrumBlocked?.()) reason = tr('音源を読み込み、スペアナ解析の完了を待ってください。', 'Load audio and wait for spectrum analysis to finish.');
   $('simpleExport').disabled = !!reason;
@@ -40051,8 +40373,8 @@ function simpleExportControls(panel) {
   audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
   controls.append(label, audio); panel.append(controls);
   const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
-  panel.append(el('p', tr('静止画＋スペアナ＋字幕を1本のMP4として、指定時間まで背景を表示した動画を出力します。解像度・fps・画質・書き出し範囲は既存設定を使用します。',
-    'Exports a still image, spectrum and subtitles as one MP4, keeping the background for the specified duration. Uses the existing resolution, fps, quality and export range.'), 'note'));
+  panel.append(el('p', tr('画像・動画背景＋スペアナ＋字幕を1本のMP4にします。背景動画は0秒から再生し、終了後は最終フレームを保持。背景の音声は使わず、読み込んだ音源だけを使用します。',
+    'Exports an image/video background, spectrum and subtitles as one MP4. Background video starts at zero and holds its final frame. Only separately loaded audio is used, not the background soundtrack.'), 'note'));
 }
 function cueTable() {
   const root = $('layerCues'), cues = J.ui.project.subtitleCues;

@@ -565,6 +565,11 @@ bgReg('gradientSweep', { name: 'グラデ', tags: ['calm', 'emotional', 'pop'], 
   draw(env, P, ctx) {
     const { W, H, sc } = env, ang = (P.a0 || 0) + env.t * 0.12, dx = Math.cos(ang), dy = Math.sin(ang), L = Math.hypot(W, H) / 2;
     const tint = J.mix(sc.bg, sc[P.c] || sc.accent, P.k || 0.2), p = 0.5 + 0.32 * Math.sin(env.t * (P.spd || 0.35));
+    if (env.layerComposition) {
+      // Retain the original travelling gradient on a filled diagonal third of the frame.
+      ctx.beginPath(); ctx.moveTo(W * 0.48, 0); ctx.lineTo(W * (0.48 + 1 / 3), 0);
+      ctx.lineTo(W * 0.52, H); ctx.lineTo(W * (0.52 - 1 / 3), H); ctx.closePath(); ctx.clip();
+    }
     const g = ctx.createLinearGradient(W / 2 - dx * L, H / 2 - dy * L, W / 2 + dx * L, H / 2 + dy * L);
     g.addColorStop(0, J.rgba(tint, 0)); g.addColorStop(p, J.rgba(tint, 1)); g.addColorStop(1, J.rgba(tint, 0));
     ctx.globalAlpha = E.outCubic(clamp(bgT(env) / 0.6)); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -578,7 +583,8 @@ bgReg('spotlight', { name: 'スポットライト', tags: ['emotional', 'calm', 
     const e = E.outCubic(clamp(bgT(env) / 0.6)), lc = dk ? sc.fg : '#FFFFFF', k = (P.k || 0.12) * e;
     const g1 = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.7);
     g1.addColorStop(0, 'rgba(0,0,0,0)'); g1.addColorStop(1, `rgba(0,0,0,${((dk ? 0.35 : 0.14) * e).toFixed(3)})`);
-    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+    // Keep the light itself, as in the original paper palette; omit only the surrounding darkness.
+    if (!env.layerComposition) { ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H); }
     const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
     g2.addColorStop(0, J.rgba(lc, k)); g2.addColorStop(0.6, J.rgba(lc, k * 0.5)); g2.addColorStop(1, J.rgba(lc, 0));
     ctx.fillStyle = g2; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);

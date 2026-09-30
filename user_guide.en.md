@@ -1,10 +1,18 @@
-# JIZURA Layer Studio v1.2.1 User Manual
+# JIZURA Layer Studio v1.3.0 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.2.1. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.3.0. Features removed from the original JIZURA are not presented as available operations.
+
+## New and changed controls in v1.3.0
+
+- Three kinetic transitions carry the outgoing cut's final image into the next: Retreating echo, Diagonal split and Radial shatter. They are available to automatic draws and manual technique selection. Cuts must touch within the same part; the incoming cut needs at least one second and the outgoing cut at least 0.45 seconds. Background media and spectra remain intact, and cue end times do not change. Effects that already disappear near their end may leave little to carry over.
+- Hidden development keys O/P review historically high-coverage layouts/backgrounds on the current cue, using different pools from normal rerolls. See the [review-key guide](docs/DEBUG_REVIEW.md#english).
+- Selected effects now leave more of your image/video visible outside their drawing regions. Gradients and lighting retain filled fields; Shadow Play preserves the illumination connecting its light source, text and shadow. Subtitle Bar leaves its picture area open in every palette, and Static TV retains its body without the surrounding room glow. Some background patterns use outlines. Flashlight has a larger hole, and CCTV monitors have outer margins. Existing projects use the revised drawing too. Foreground boards such as Ticket, and the Shoji, Zipper and Door Gap layouts, remain unchanged.
+- [Simple video export](#exporting-a-simple-video) now accepts video as well as image backgrounds, with either generated or external spectra.
+- Background videos start at timeline zero and hold their final frame after ending. Their video-track end time also contributes to automatic output duration. Background audio is ignored; only the separately loaded song is included.
 
 ## New and changed controls in v1.2.1
 
@@ -66,7 +74,7 @@ This manual describes the retained features of v1.2.1. Features removed from the
 | Export | Two silent MP4s with matching dimensions, fps and frame count; line-range export |
 | Preserve work | Browser autosave and downloadable project JSON |
 
-The primary front/matte pair excludes background and audio for external editing. Optional simple video export combines a still background and audio into one MP4. Exporting video backgrounds, After Effects projects and PNG sequences is not supported.
+The primary front/matte pair excludes background and audio for external editing. Optional simple video export combines an image/video background, overlays and audio into one MP4. After Effects projects and PNG sequences are not supported.
 
 ## Requirements and startup
 
@@ -258,7 +266,7 @@ Load an image or video as the preview background. It is fitted within the frame 
 | Front on black | Colors, text and ornaments; black represents empty space |
 | Binary matte | Black occupied regions, white empty regions |
 
-This selector only controls preview. Pair exports exclude the background; simple video export composites the still background with spectrum and subtitles regardless of the selected preview mode.
+This selector only controls preview. Pair exports exclude the background; simple video export composites the image/video background with spectrum and subtitles regardless of the selected preview mode.
 
 ## Auto-compose and Shuffle
 
@@ -341,6 +349,14 @@ Use the SRT cue editor to change text. The summary shows one row per cue, displa
 A manual choice belongs to the **cue immediately after the boundary** and follows it when retimed. Deleting that cue removes the choice. Normal-cue choices survive filler regeneration; choices on fillers disappear when those fillers are deleted or regenerated. Reimporting SRT restores automatic boundaries for the new cues. Removing a part break does not shorten the actual silent interval.
 
 Unified look uses these parts to coordinate layout, motion and color. Cross-cue transitions are eligible only within a part when the previous end equals the next start at millisecond precision. Eligible boundaries do not always receive a transition.
+
+### Transitions that retain the previous subtitle
+
+The Kinetic set includes **Retreating echo**, **Diagonal split** and **Radial shatter**. They retain the outgoing cut's final image at the start of the incoming cut, then shrink, split or fragment it. Background media and the spectrum are unaffected.
+
+Automatic choices require touching cuts within the same part, with an outgoing cut of at least 0.45 seconds and an incoming cut of at least one second. Separate SRT cues must also have matching end/start times. Auto-compose and Random can select these effects; manual selection is also available. Cue times and cut lengths stay unchanged.
+
+Retreating echo retains the incoming cut's normal entrance; the other two replace it. Their maximum duration is 0.8–1.1 seconds, shortened to fit the incoming cut and finish before its exit. The outgoing image is still: its original animation does not continue playing.
 
 The subtitle draw buttons and number keys affect only the current subtitle. A line's dice is equivalent to Fine-tune. **0 Random** samples compatible layouts, motion, ornaments, fonts and colors without style/mood preferences. It retains base settings separately, honors effect-pack permissions and cue locks, and bypasses Unified look. Ornament counts and screen accents are limited to avoid overcrowding; Typesetting restraint still applies.
 
@@ -425,7 +441,7 @@ Changing one cut is different from filtering all automatic candidates in the Tec
 
 The cut-information area also has Shuffle and Auto-compose buttons for that cut only. Distinguish them from the whole-project buttons beside playback.
 
-Transitions across separate SRT cues are restricted to preserve their boundaries and empty intervals. Transitions within a cue remain available.
+Separate SRT cues are eligible for transitions only within the same part with matching end/start times, preserving silent intervals. Transitions within a cue remain available.
 
 ## Leaving the center clear
 
@@ -642,11 +658,11 @@ Rendering, pixel processing, source decoding and two encodes all take time. GPU 
 
 ## Exporting a simple video
 
-This supplementary feature produces one MP4 containing a still background, spectrum, subtitles and optional loaded audio. It does not export a separate matte.
+This supplementary feature produces one MP4 containing an image/video background, spectrum, subtitles and optional loaded audio. It does not export a separate matte.
 
 ### Steps
 
-1. Prepare subtitles and effects; optionally load a still preview background, spectrum and song.
+1. Prepare subtitles and effects; optionally load an image or video preview background, spectrum and song.
 2. Find the neutral-colored Export simple video MP4 button below the pair-export description in the left pane.
 3. Check the automatically calculated Duration (seconds), then adjust it manually if needed.
 4. Check Exclude audio for silent output. With no song loaded, output is silent regardless of the checkbox.
@@ -657,9 +673,13 @@ The filename is based on the project name: `project_simple_video.mp4`.
 
 ### Background and composition
 
-Composition order is still background, spectrum, then subtitles. The image fits inside the frame without changing its aspect ratio, with black padding. No image means black. Front/matte preview modes do not alter simple export's composition.
+Composition order is background, spectrum, then subtitles. Both images and videos fit inside the frame without changing their aspect ratio, with black padding. No background means black. Front/matte preview modes do not alter simple export's composition.
 
-**A selected video background disables simple export.** Replace it with a still or clear it. Pair export remains available.
+**Video backgrounds start at timeline zero and hold their final frame after ending.** They do not loop. Generated and external spectra, including external mattes, can be used. Pair and front-only exports continue to exclude the background.
+
+Export decodes the video and selects the frame corresponding to each output timestamp. Constant 30fps footage exported at 30fps from a source frame boundary uses each source frame once, in order. Other rates, 29.97fps and variable-rate footage involve frame holds or drops. This does not guarantee pixel-identical output after scaling, compositing and MP4 compression.
+
+Decoding depends on browser codec support. Loading checks support; unsupported footage disables only simple export and displays a reason. H.264 MP4 is a good starting format. Video backgrounds with external spectrum footage require multiple decoders and may cost more than still backgrounds or generated spectra.
 
 Subtitle colors, decorations, bloom cleanup and spectrum placement/matte processing use the layer pipeline. Subtitle coverage follows the binary layer mask; this does not add translucent light physically to the background.
 
@@ -672,19 +692,20 @@ Duration is always editable. There is no automatic/manual mode switch. Loading o
 | Subtitles and fillers | Latest end time |
 | Spectrum | Front duration, or the shorter paired duration when a matte is supplied |
 | Audio | Decoded sample count divided by sample rate |
+| Video background | Video-track end time; a longer embedded audio track does not extend it |
 | Still background | Excluded; it has no duration |
 
-Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. MP3 uses the decoded buffer, rather than file metadata alone. Color, preview mode and audio inclusion changes preserve manual values. JSON restores the saved duration, but reloading media recalculates it.
+Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. MP3 uses the decoded buffer, rather than file metadata alone. Color, preview mode and audio inclusion changes preserve manual values. JSON restores the saved duration, but reloading media recalculates it.
 
 Valid input is greater than zero and at most 86,400 seconds; this input limit is not a guarantee that long exports will succeed. Invalid input blocks only simple export. Video duration rounds up to whole frames: 1.001 seconds at 30fps becomes 31 frames, approximately 1.033 seconds.
 
-A selected export range intersects the interval from zero to the specified duration. Audio is trimmed to that same window. A non-overlapping range reports an error. The existing Whole timeline label describes the layer timeline; use the simple-export status for this feature's actual output length.
+A selected export range intersects the interval from zero to the specified duration. Background video, spectrum and audio use the same source-time window; exporting from 10 seconds does not restart the background at zero. A non-overlapping range reports an error. The existing Whole timeline label describes the layer timeline; use the simple-export status for this feature's actual output length.
 
 ### End behavior and audio
 
-Shorter output trims materials. Longer output retains the still background, hides ended subtitles/spectrum and adds silence after the song. Nothing loops or fades automatically.
+Shorter output trims materials. Longer output retains the still image or the video's final frame, hides ended subtitles/spectrum and adds silence after the song. Nothing loops or fades automatically.
 
-Audio starts at timeline zero and retains its original level. Preview volume/mute does not affect export. Audio tracks within spectrum footage are ignored; only the song loaded in Audio and timing is included.
+Audio starts at timeline zero and retains its original level. Preview volume/mute does not affect export. Audio tracks within background and spectrum footage are ignored; only the song loaded in Audio and timing is included.
 
 Video uses H.264; audio uses AAC at 48kHz, up to two channels, 192kbps. Excluding audio or having no loaded song creates an MP4 without an audio track. Missing AAC support reports an error; select Exclude audio or use a supported environment. AAC padding may make external tools report a container duration slightly different from the video duration.
 
@@ -782,7 +803,7 @@ Increase pre/post gaps, choose longer fillers to reduce their count, and reduce 
 
 ## Limits and data handling
 
-- No video-background movie export, true alpha MP4, continuous-alpha matte, PNG sequences or After Effects export. Simple video export supports still backgrounds.
+- No true alpha MP4, continuous-alpha matte, PNG sequences or After Effects export. Simple video export supports images and videos, but does not import background soundtracks or edit multiple background clips.
 - No source-SRT overwrite/export or speech recognition.
 - No independent multiple-spectrum tracks or spectrum start-offset control.
 - Long/4K/60fps combinations can use substantial memory/time; all devices/codecs are not guaranteed.

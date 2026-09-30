@@ -118,7 +118,7 @@ class Renderer {
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
     if ((!opt.transparent || layer === 'back' || opt.layerComposition) && !key && mainCut && mainCut.bg && mainCut.bg !== 'none' && J.BG[mainCut.bg]) {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
       ctx.save();
       try { J.BG[mainCut.bg].draw(env, mainCut.bgP || {}); } catch (e) { console.warn('bg', mainCut.bg, e); }
       ctx.restore();
@@ -165,6 +165,7 @@ class Renderer {
       const X = LX || ctx;
       const Z = plan.centerFree && cut.zone ? cut.zone : null;
       const env = this.makeEnv(X, plan, cut, csc, {
+        layerComposition: !!opt.layerComposition,
         pass: P.pass, passColor: P.pass === 'A' ? csc.ghostA : P.pass === 'B' ? csc.ghostB : null,
         t: tp, lt, ltb: lt + P.lag, step: Math.floor(tp / clock + 1e-6), scale, allowFilter, energy, beat: beatInfo, layer, zone: Z,
         hideText: morphOn, glyphLog: P.pass === 'main' ? opt.glyphLog || null : null,
@@ -211,7 +212,7 @@ class Renderer {
         ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
         // Replace copied regions, including their transparent holes, during layer transitions.
         const drawImage = ctx.drawImage;
-        if (opt.layerComposition) {
+        if (opt.layerComposition && !J.TRANS[mainCut.trans].overlap) {
           ctx.clearRect(0, 0, cw, ch);
           ctx.drawImage = function (img, ...args) {
             if ((img === A || img === B) && this.globalAlpha === 1 && this.globalCompositeOperation === 'source-over') {

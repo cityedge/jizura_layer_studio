@@ -1,10 +1,10 @@
 # Manual publication
 
-## Publishing v1.2.1
+## Publishing v1.3.0
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.2.1.zip` to your Release. Use the 1.2.1 entry in `CHANGELOG.md` for the release description. Both manuals, source files and licenses are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.3.0.zip` to your Release. Use the 1.3.0 entry in `CHANGELOG.md` for the release description. Both manuals, source files and licenses are included.
 
-After publication, check the **v1.2.1** header, both interface languages and manual links. Verify manual part-break editing (Enter at a row start inserts above it and keeps the caret with the text), Undo/JSON persistence, and previews starting 0.5 seconds before the first cue after global look changes. This update removes no files relative to v1.2.0. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.3.0** header, both interface languages and manual links. Verify simple MP4 export with a video background, revised drawing regions, new transitions, Undo and JSON persistence. This update removes no files relative to v1.2.1. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 

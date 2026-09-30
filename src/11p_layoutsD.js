@@ -1936,7 +1936,12 @@ reg('shadowPlay', {
       // floor plane
       const fa = tin(env, 0, 0.5, E.outCubic) * out;
       const floorC = J.mix(sc.bg, sc.fg, dark ? 0.13 : 0.07);
-      env.rect(0, yb, W, (H - yb) * fa + 2, floorC, fa, false);
+      const clipFloor = () => {
+        ctx.beginPath(); ctx.moveTo(W * 0.18, yb); ctx.lineTo(W * 0.82, yb);
+        ctx.lineTo(W * 0.92, H); ctx.lineTo(W * 0.08, H); ctx.closePath(); ctx.clip();
+      };
+      ctx.save(); if (env.layerComposition) clipFloor();
+      env.rect(0, yb, W, (H - yb) * fa + 2, floorC, fa, false); ctx.restore();
       env.line([[W * 0.5 - W * 0.5 * fa, yb], [W * 0.5 + W * 0.5 * fa, yb]], sc.sub, Math.max(1, u * 0.002), 0.6, false);
       // the sun crosses the sky; the cast shadow sweeps like a sundial
       const phi = (J.lerp(74, 38, E.inOutSine(k)) * (0.85 + 0.15 * Pm.sweep) * Pm.dir) * J.DEG;
@@ -1960,6 +1965,7 @@ reg('shadowPlay', {
         // the far end of the shadow fades into the floor
         const g = ctx.createLinearGradient(0, yb, 0, yb + m.h * d * 1.15 + size * 0.1);
         g.addColorStop(0, J.rgba(floorC, 0)); g.addColorStop(0.35, J.rgba(floorC, 0)); g.addColorStop(1, J.rgba(floorC, 0.7));
+        if (env.layerComposition) clipFloor();
         ctx.fillStyle = g; ctx.fillRect(0, yb, W, H - yb);
         ctx.restore();
       }
@@ -1975,7 +1981,16 @@ reg('shadowPlay', {
     if (env.pass === 'main' && la > 0) {
       const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.max(W, H) * 0.75);
       g.addColorStop(0, J.rgba(dark ? sc.accent : lightOf(sc), (dark ? 0.2 : 0.35) * flick * la)); g.addColorStop(0.5, J.rgba(dark ? sc.accent : lightOf(sc), (dark ? 0.07 : 0.12) * la)); g.addColorStop(1, J.rgba(sc.bg, 0));
-      ctx.save(); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
+      ctx.save();
+      if (env.layerComposition) {
+        // A filled fan links lamp, lyric and cast shadow; the lower sides stay open.
+        const m = J.measure(Object.assign({ text, font: Pm.font, size }, o));
+        const top = -H * 0.2, tip = ly + u * 0.03, f = (tip - top) / Math.max(H * 0.1, tip - ty);
+        const left = tx - m.w / 2 - size * 0.65, right = tx + m.w / 2 + size * 0.65;
+        ctx.beginPath(); ctx.moveTo(lx, tip); ctx.lineTo(lx + (left - lx) * f, top);
+        ctx.lineTo(lx + (right - lx) * f, top); ctx.closePath(); ctx.clip();
+      }
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
     }
     const mS = [kS, 0, 0, kS, lx * (1 - kS), ly * (1 - kS)];
     const base = Object.assign({ text, font: Pm.font, size, x: tx, y: ty, mi: 0 }, o);

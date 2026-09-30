@@ -464,7 +464,7 @@ J.plan = (project, audio) => {
         if (tech.enter && J.ENTER[tech.enter]) inDur = i2;
         if (tech.exit && J.EXIT[tech.exit]) outDur = o2;
       }
-      // cut-to-cut transition (replaces the previous cut's exit and this cut's entrance)
+      // Cut-to-cut join replaces the previous exit; opt-in overlaps can keep this entrance.
       const prevCut = plan.cuts[plan.cuts.length - 1];
       let trans = null, transP = {}, transDur = 0, morph = null;
       const joinSaved = { enter, inDur, prevExit: prevCut && prevCut.exit, prevOut: prevCut && prevCut.outDur };
@@ -488,7 +488,7 @@ J.plan = (project, audio) => {
           enter = 'cut'; inDur = 0.12; prevCut.exit = 'cut'; prevCut.outDur = 0;
         }
       } else if (canTrans) {
-        trans = ov.trans && J.TRANS[ov.trans] ? ov.trans : pickTrans(rng, st, en, fx, emph, history);
+        trans = ov.trans && J.TRANS[ov.trans] ? ov.trans : pickTrans(rng, st, en, fx, emph, history, prevCut, dur);
         if (trans && UU && !ov.trans) trans = UU.trans(li, trans, { rng });
         if (trans) {
           const TD = J.TRANS[trans];
@@ -510,8 +510,15 @@ J.plan = (project, audio) => {
         transP = TD.plan ? TD.plan(J.rng(J.h(lineSeed, k, 96)), st) : {};
       }
       if (trans && canTrans) {
-        enter = 'cut'; inDur = ov.randomDraw ? Math.min(0.12, dur * 0.08) : 0.12;
-        prevCut.exit = 'cut'; prevCut.outDur = 0;
+        if (J.TRANS[trans]?.overlap && (prevLine?.part !== ln.part || !J.transitionFits(trans, prevCut, dur))) {
+          enter = joinSaved.enter; inDur = joinSaved.inDur; prevCut.exit = joinSaved.prevExit; prevCut.outDur = joinSaved.prevOut;
+          trans = null; transP = {}; transDur = 0;
+        } else {
+          if (J.TRANS[trans]?.overlap) transDur = J.transitionDuration(trans, dur, outDur);
+          if (J.TRANS[trans]?.overlap?.incoming === 'keep') { enter = joinSaved.enter; inDur = joinSaved.inDur; }
+          else { enter = 'cut'; inDur = ov.randomDraw ? Math.min(0.12, dur * 0.08) : 0.12; }
+          prevCut.exit = 'cut'; prevCut.outDur = 0;
+        }
       }
       if (ov.randomDraw && inDur + outDur > dur * 0.88) {
         const ratio = dur * 0.88 / (inDur + outDur); inDur *= ratio; outDur *= ratio;
@@ -923,10 +930,10 @@ function pickCam(rng, st, en, fx, LD, emph, history) {
   });
   return cands.length ? rng.wpick(cands) : 'push';
 }
-function pickTrans(rng, st, en, fx, emph, history) {
+function pickTrans(rng, st, en, fx, emph, history, previous, duration) {
   if (!J.TRANS_ORDER.length) return null;
   if (!rng.chance(0.1 + 0.22 * (fx.motion ?? 0.7) + (emph ? 0.08 : 0))) return null;
-  const cands = J.TRANS_ORDER.filter(k => en.trans && en.trans[k] !== false && J.TRANS[k])
+  const cands = J.TRANS_ORDER.filter(k => en.trans && en.trans[k] !== false && J.TRANS[k] && J.transitionFits(k, previous, duration))
     .map(k => [k, wkey(st.bias && st.bias.trans, k, J.TRANS[k].w ?? 1) * novelty(history, 'trans', k)]);
   return cands.length ? rng.wpick(cands) : null;
 }
@@ -1001,7 +1008,7 @@ J.previewPlan = (project, group, key) => {
   const cuts = [];
   if (group === 'trans' && J.TRANS[key]) {
     const TD = J.TRANS[key];
-    const transDur = J.clamp(TD.dur || 0.35, 0.18, 0.7);
+    const transDur = TD.overlap ? J.transitionDuration(key, 1.2) : J.clamp(TD.dur || 0.35, 0.18, 0.7);
     const transP = TD.plan ? (TD.plan(rng, st) || {}) : {};
     const tA = enUI ? 'BEFORE' : '前のカット';
     const tB = enUI ? 'AFTER' : '字面';

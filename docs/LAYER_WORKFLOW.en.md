@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.2.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.3.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -8,7 +8,7 @@ This is the short workflow for v1.2.0. See the [detailed user manual](../user_gu
 
 Import a UTF-8 SRT as an editable starting point. Start/end times, line breaks, gaps and overlaps are loaded initially; the source SRT file is never modified. Characters like `/`, `*`, `|`, `!` are literal in SRT.
 
-Click the timeline band to seek. Drag an upper row-start handle, type a start time in the line list, or use tap sync to retime a cue. Its end moves by the same amount, preserving duration. Per-line effect settings follow cues when their time order changes.
+Click the timeline band to seek. Drag an upper row-start handle or type a start time in the line list to retime a cue. Tap sync is available only without SRT. Its end moves by the same amount, preserving duration. Per-line effect settings follow cues when their time order changes.
 
 Use “Edit SRT text, start and end” to edit text or times; changing only the end changes duration. The row edit button or a double-click on its text opens this editor too. Undo / Ctrl+Z restores edits, and project JSON preserves them when saved and reopened.
 
@@ -74,13 +74,15 @@ Save project JSON explicitly; autosave is a convenience. Subtitles, effects and 
 
 Desktop Chrome / Edge is recommended. MP4 requires WebCodecs and H.264 encoding, depending on browser/OS. Long/4K exports are not thoroughly verified and use substantial memory; start with a short range. File-URL storage behavior depends on browser.
 
-Video-background movie export, PNG and AE export are not offered. The interface supports Japanese and English; subtitle text languages and font support are preserved.
+PNG and AE export are not offered. The interface supports Japanese and English; subtitle text languages and font support are preserved.
 
 ## Simple video export (optional)
 
-The neutral-colored Export simple video MP4 button below the pair description saves a single composite: still background, spectrum, subtitles. No background means black; selecting a video background disables this option.
+The neutral-colored Export simple video MP4 button below the pair description saves a single composite: image/video background, spectrum, subtitles. No background means black. Video backgrounds start at timeline zero and hold their final frame after ending. Both generated and external spectra can be used. Background audio is ignored.
 
-Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. Extending output holds the still, hides ended overlays and adds silence after the song.
+Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Background duration uses the video track's end time. Audio counts even with Exclude audio checked. Extending output holds the background, hides ended overlays and adds silence after the song.
+
+Background frames are decoded and selected by output timestamps. Constant 30fps footage exported at 30fps from a frame boundary uses every source frame in order; other rates involve holds or drops. Range exports keep the original source timestamps. Unsupported codecs report a reason and block simple export.
 
 Existing resolution, fps, quality and range settings apply; duration rounds up to whole video frames. Audio is encoded as AAC at its original level, independent of preview volume. If AAC encoding is unavailable, exclude audio or use a supported environment. Settings persist in JSON. See [details](../user_guide.en.md#exporting-a-simple-video).
 

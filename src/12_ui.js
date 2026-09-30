@@ -306,14 +306,18 @@ function rerollCue(index = null, mode = 'fine') {
   if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
   const ln = index == null ? cueRerollTarget() : S.plan.lines.find(l => l.index === index);
   try {
-    const next = J.prepareCueReroll(S.project, S.plan, ln?.index, audioLike(), mode);
+    const review = mode === 'reviewLayout' || mode === 'reviewBackground'
+      ? J.prepareCoverageReview(S.project, S.plan, ln?.index, audioLike(), mode === 'reviewLayout' ? 'layout' : 'bg') : null;
+    const next = review ? review.project : J.prepareCueReroll(S.project, S.plan, ln?.index, audioLike(), mode);
     const playing = S.playing;
     pushEdit(); remember();
     S.project = next; replan(); commit(); flushSave();
     cueRerollHold = { plan: S.plan, index: ln.index, start: ln.start, end: ln.end };
-    seek(playing ? Math.max(0, ln.start - 0.3) : ln.start, true);
-    refreshLoopHold(ln.start + 0.001);
-    const kind = J.cueRerollModes.find(m => m[0] === mode);
+    const start = review ? review.start : ln.start;
+    seek(playing ? Math.max(0, start - 0.3) : start, true);
+    refreshLoopHold(start + 0.001);
+    const reviewName = review && `${review.group === 'layout' ? J.layerText('レイアウト', 'Layout') : J.layerText('背景', 'Background')}: ${J.registry(review.group)[review.id].name} (${review.id})`;
+    const kind = review ? ['review', reviewName, reviewName] : J.cueRerollModes.find(m => m[0] === mode);
     toast(J.layerText(`字幕 ${ln.index + 1}：${kind[1]}（Ctrl+Zで戻せます）`, `Subtitle ${ln.index + 1}: ${kind[2]} (Ctrl+Z to undo)`));
   } catch (e) { toast(e.message); }
 }
@@ -1258,7 +1262,7 @@ function paintTechCanvas(cv, g, k, t) {
   const plan = getPreviewPlan(g, k);
   const ctx = cv.getContext('2d');
   try {
-    previewR.frame(ctx, plan, t, { scale: cv.width / plan.W, fast: true, noHud: true, noGhost: g !== 'fx' });
+    previewR.frame(ctx, plan, t, { scale: cv.width / plan.W, layerComposition: true, fast: true, noHud: true, noGhost: g !== 'fx' });
   } catch (e) {
     ctx.fillStyle = '#131316'; ctx.fillRect(0, 0, cv.width, cv.height);
   }
@@ -1762,6 +1766,8 @@ function bind() {
     }
     else if (e.code === 'KeyA' || e.code === 'KeyD') { e.preventDefault(); seek(S.t + (e.code === 'KeyD' ? 1 : -1) * (e.shiftKey ? 1 : 1 / S.plan.fps)); }
     else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) rerollCue(); }
+    else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
+    else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });

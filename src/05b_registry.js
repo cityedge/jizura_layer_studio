@@ -70,4 +70,14 @@ J.registerAll = (group, defs, pack) => { for (const k of Object.keys(defs)) J.re
 
 /* items whose tags include a mood key (used by おまかせ) */
 J.taggedWith = (group, mood) => J.order(group).filter(k => { const d = J.registry(group)[k]; return d && d.tags && d.tags.includes(mood); });
+// Opt-in transition contract. Legacy entries keep their original timing and compositor.
+J.transitionFits = (id, previous, duration) => {
+  const d = J.TRANS[id];
+  return !!d && (!d.overlap || (duration >= d.overlap.minDuration && previous && previous.dur >= 0.45));
+};
+J.transitionDuration = (id, duration, outDuration = 0) => {
+  const d = J.TRANS[id];
+  return d?.overlap ? Math.max(0, Math.min(d.dur, duration * 0.65, duration - outDuration))
+    : J.clamp(d?.dur || 0.35, 0.12, Math.min(0.6, duration * 0.45));
+};
 })();

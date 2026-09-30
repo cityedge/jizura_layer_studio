@@ -54,6 +54,8 @@ const slots = (it) => {
 const veilHole = (env, cx, cy, R, a, col, inner = 0.35, ry = 1) => {
   if (env.pass !== 'main' || a <= 0.002) return;
   const ctx = env.ctx, W = env.W, H = env.H;
+  // Enlarge the original beam and its open core together; retain its edge and reveal motion.
+  if (env.layerComposition) R *= 1.25;
   ctx.save();
   ctx.translate(cx, cy); ctx.scale(1, ry);
   const g = ctx.createRadialGradient(0, 0, Math.max(0.1, R * inner), 0, 0, Math.max(1, R));
@@ -247,6 +249,7 @@ reg('hrCctv', {
     const { W, H, sc } = env, cut = env.cut, Pm = cut.params, s = cut.seed | 0, lt = env.lt, st = env.step;
     const mono = monoF(env), port = isPort(env), out = tout(env), inA = tin(env, 0, 0.2);
     const fs = J.clamp(U(env) * 0.022, 11, 28), m = U(env) * 0.03, lw = Math.max(1, U(env) * 0.0016);
+    const mx = env.layerComposition ? W * 0.08 : m, my = env.layerComposition ? H * 0.08 : m;
     const feedBg = J.mix(darkOf(sc), '#000000', 0.35), LC = lightOf(sc), frameC = J.mix(feedBg, LC, 0.5);
     const date = fakeDate(s), time = fakeTime(s, lt);
     const osd = (x0, y0, x1, y1, n, live, bigFs) => {
@@ -269,11 +272,11 @@ reg('hrCctv', {
       drawNoise(env, x0, y0, x1 - x0, y1 - y0, 0.07 * inA * out, st, s + k);
       if (J.r(s, k, 5) < 0.35) env.draw({ text: 'NO SIGNAL', font: mono, size: fs * 1.1, x: (x0 + x1) / 2, y: (y0 + y1) / 2, color: J.mix(feedBg, LC, 0.6), alpha: (st % 6 < 4 ? 0.8 : 0.3) * inA * out, ghost: false, track: 0.2 });
     };
-    let bb = null, fx0 = m, fy0 = m, fx1 = W - m, fy1 = H - m;
+    let bb = null, fx0 = mx, fy0 = my, fx1 = W - mx, fy1 = H - my;
     if (Pm.v === 'quad') {
-      const g = lw * 3, cols = 2, rows = 2, cw = (W - m * 2 - g) / cols, chh = (H - m * 2 - g) / rows;
+      const g = env.layerComposition ? Math.max(lw * 3, U(env) * 0.025) : lw * 3, cols = 2, rows = 2, cw = (W - mx * 2 - g) / cols, chh = (H - my * 2 - g) / rows;
       for (let k = 0; k < 4; k++) {
-        const c = k % 2, r = Math.floor(k / 2), x0 = m + c * (cw + g), y0 = m + r * (chh + g);
+        const c = k % 2, r = Math.floor(k / 2), x0 = mx + c * (cw + g), y0 = my + r * (chh + g);
         if (k === Pm.act % 4) { fx0 = x0; fy0 = y0; fx1 = x0 + cw; fy1 = y0 + chh; env.rect(x0, y0, cw, chh, feedBg, inA, false); continue; }
         emptyFeed(x0, y0, x0 + cw, y0 + chh, k);
         osd(x0, y0, x0 + cw, y0 + chh, Pm.cam0 + k, false, fs * 0.8);
@@ -625,7 +628,7 @@ reg('hrStaticTv', {
     const cx = W / 2 + Pm.off * W, cy = H / 2 + th * 0.06;
     const body = J.mix(sc.bg, sc.fg, isDark(sc.bg) ? 0.13 : 0.22), edge = J.mix(body, sc.fg, 0.3), lw = Math.max(1, u * 0.0018);
     // glow of the screen into the room
-    if (env.pass === 'main') {
+    if (env.pass === 'main' && !env.layerComposition) {
       const g = ctx.createRadialGradient(cx, cy, th * 0.3, cx, cy, Math.max(W, H) * 0.7);
       g.addColorStop(0, J.rgba(lightOf(sc), (0.1 * inA * out).toFixed(3))); g.addColorStop(1, J.rgba(lightOf(sc), 0));
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);

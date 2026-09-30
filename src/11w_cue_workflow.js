@@ -82,6 +82,89 @@ const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
 J.cueLookProject = (p, rule) => ({ ...p, ...Object.fromEntries(ruleKeys.filter(k => rule[k] != null).map(k => [k, rule[k]])) });
 const targetPlan = (plan, index) => plan.layerGroups?.find(g => g.indices.includes(index))?.plan || plan;
+// Hidden review draw: change one eligible join, preserve the rest of the composition.
+J.prepareTransitionReview = (p, current, index, audio) => {
+  const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
+  if (!ln || !ln.text.length || ln.interlude) throw new Error(J.layerText('この位置に再抽選できる字幕はありません。', 'There is no subtitle to reroll here.'));
+  if (ov.lock) throw new Error(J.layerText('この字幕はロック中です。', 'This subtitle is locked.'));
+  const group = current.layerGroups?.find(g => g.indices.includes(index));
+  const base = group?.plan || current, localIndex = group ? group.indices.indexOf(index) : index;
+  const own = base.cuts.filter(c => c.line === localIndex && c.utext != null);
+  const eligible = own.find(c => {
+    const prev = base.cuts[base.cuts.indexOf(c) - 1];
+    if (!prev || prev.layout === 'interlude' || Math.abs(prev.end - c.start) >= 0.06) return false;
+    if (prev.line !== localIndex) {
+      const previousIndex = group ? group.indices[prev.line] : prev.line;
+      const before = current.lines.find(l => l.index === previousIndex);
+      if (p.overrides?.[previousIndex]?.lock || before?.part !== ln.part) return false;
+      if (Array.isArray(p.subtitleCues) && (Math.round(before.end * 1000) !== Math.round(ln.start * 1000) || Math.round(prev.end * 1000) !== Math.round(c.start * 1000))) return false;
+    }
+    return J.reviewTransitions.some(id => J.transitionFits(id, prev, c.dur));
+  });
+  if (!eligible) throw new Error(J.layerText('この字幕には新しいつなぎを試せる境界がありません。同じパート内で直前の字幕と接し、カットが1秒以上ある字幕で試してください。', 'No eligible join here. Try a cut of at least one second, touching the previous subtitle in the same part.'));
+  const next = clone(p);
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
+  const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, 319));
+  const id = rng.pick(J.reviewTransitions.filter(id => id !== eligible.trans));
+  const slot = own.indexOf(eligible), key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
+  target.cutTech ||= {};
+  target.cutTech[slot] = { ...target.cutTech[slot], trans: id };
+  const entry = next.localLooks.lines[key];
+  Object.assign(entry.cuts[slot], { trans: id, transP: J.TRANS[id].plan(rng), transDur: J.transitionDuration(id, eligible.dur, eligible.outDur), morph: null });
+  if (target.randomDraw) target.randomDraw.cuts = clone(entry.cuts);
+  entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, target);
+  return { project: next, start: eligible.start, id };
+};
+// Historical screening: >=50% maximum coverage in the noir/paper audit, before
+// the visibility revisions. Keep revised effects in the pool for comparison.
+J.coverageReviewPools = {
+  layout: 'huge hrFlashlight hrDoorGap hrCctv hrStaticTv knPadGrid subtitleBar splitScreen filmstrip zoomRepeat magazine newspaper cassette stampSheet postcard letterPaper chochin stationSign noren omikuji kakejiku shoji warningLabel karuta magnets wordSearch shadowPlay kaleido wall zipper glitchGrid mosaicTiles contour'.split(' '),
+  bg: 'auroraRibbons meshBlobs duotoneSweep horizonGlow seigaiha asanoha houndstooth herringbone argyle tartan chevron isoCubes hexGrid triTess moire squareTunnel spiralArms skyline sunsetSun cloudLayers vignettePulse marble paperCut hrFailingLamp hrCorridor hrDeadTrees sunburst halftoneFade bigStripes splitV splitH splitDiag gradientSweep spotlight checker'.split(' ')
+};
+J.prepareCoverageReview = (p, current, index, audio, group) => {
+  const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
+  if (!ln || !ln.text.length || ln.interlude) throw new Error(J.layerText('この位置に再抽選できる字幕はありません。', 'There is no subtitle to reroll here.'));
+  if (ov.lock) throw new Error(J.layerText('この字幕はロック中です。', 'This subtitle is locked.'));
+  if (!J.coverageReviewPools[group]) throw new Error('Unknown coverage review group');
+  const own = current.cuts.filter(c => c.line === index && c.utext != null), base = targetPlan(current, index);
+  const registry = group === 'layout' ? J.LAYOUTS : J.BG;
+  const pool = J.coverageReviewPools[group].filter(id => registry[id] && !registry[id].special &&
+    (group !== 'layout' || own.every(c => !registry[id].fits || registry[id].fits(Math.max(J.glyphCount(c.text), J.glyphCount(c.companion?.text || ''))))));
+  if (!own.length || !pool.length) throw new Error(J.layerText('この字幕に適合するレビュー候補がありません。', 'No compatible review candidates for this subtitle.'));
+  const next = clone(p);
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
+  const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, group === 'layout' ? 421 : 422));
+  const alternatives = pool.filter(id => id !== own[0][group]);
+  const id = rng.pick(alternatives.length ? alternatives : pool);
+  target[group] = id;
+  if (group === 'layout') delete target.cutLayouts;
+  for (const slots of [target.cutTech, target.cutQuiet]) for (const slot of Object.values(slots || {})) delete slot[group];
+  const key = p.subtitleCues?.[index]?.id ?? ('line-' + index), entry = next.localLooks.lines[key];
+  entry.cuts.forEach((cut, i) => {
+    const src = own[i], st = cut.renderLook?.style || base.style, def = registry[id];
+    cut[group] = id;
+    if (group === 'bg') cut.bgP = def.plan ? def.plan(rng, st) : {};
+    else {
+      const params = c => def.plan(rng, { text: c.text, n: J.glyphCount(c.text), W: c.zone?.w || base.W, H: c.zone?.h || base.H, dur: src.dur }, st);
+      cut.params = params(src); cut.twinParams = src.companion ? params(src.companion) : null;
+      cut.morph = null;
+      // Keep a new layout's explicit technique restrictions, including manual overrides.
+      if (def.treat === false || def.treat === 'safe' && !J.TREAT[cut.treat]?.safe) {
+        cut.treat = 'none'; cut.treatP = {}; (target.cutTech ||= {})[i] = { ...target.cutTech[i], treat: 'none' };
+      }
+      if (def.cam === false) {
+        cut.cam = 'push'; cut.camP = {}; (target.cutTech ||= {})[i] = { ...target.cutTech[i], cam: 'push' };
+      }
+    }
+  });
+  if (target.randomDraw) target.randomDraw.cuts = clone(entry.cuts);
+  entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, target);
+  return { project: next, start: ln.start, id, group };
+};
 const clearGroups = (ov, groups) => {
   for (const key of groups) delete ov[key];
   if (groups.includes('layout')) { delete ov.cutLayouts; }

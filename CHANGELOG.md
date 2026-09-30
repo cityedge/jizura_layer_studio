@@ -1,3 +1,19 @@
+## 1.3.0 — 2026-10-01
+
+- 隠しデバッグキーを変更：Oは高被覆レイアウト33種、Pは高被覆背景35種を現在の字幕へ抽選。修正前の描画調査で最大被覆率50％以上だった候補を使用し、通常の採用チェックを迂回。文字数適合・ロック・Undo・JSON保存に対応。現在の被覆率を測定する機能ではありません。
+- Change hidden debug keys: O draws from 33 high-coverage layouts, P from 35 backgrounds for the current cue, bypassing normal inclusion switches. Pools use the pre-revision audit's maximum coverage of at least 50%, not a live measurement. Preserve text compatibility, locks, Undo and JSON persistence. See `docs/DEBUG_REVIEW.md`.
+
+- 背景を広く覆っていた13種類の背景・レイアウトを調整。光・グラデーション・影絵は演出に必要な面を残して外側を抜き、背景模様は輪郭化。グラデは中央の斜め約1/3、二色スイープは広い楕円、周辺光は四隅、影絵は光源と文字・影を結ぶ扇形に元の描画を残す。惑星の面・大気光、照明の点滅、廊下の明暗も維持。字幕帯の中央・テレビの周辺光を除去。懐中電灯の照射半径を25％拡大し、監視モニターに外側8％の余白を追加。半透明化や画素の色による一括削除ではなく、描画領域を変更。プレビュー・出力・演出見本に反映。
+- Adapt 13 broad background/layout fills while preserving their filled light fields: a diagonal central third for Gradient, a broad ellipse for Duotone Sweep, filled corners for Vignette Pulse, and a fan connecting Shadow Play's lamp, text and shadow. Retain the planetary disk/atmosphere, flickering illumination and corridor shading; outline background patterns and remove Subtitle Bar's picture backing and Static TV's room glow. Enlarge the flashlight radius by 25% and inset CCTV monitors by 8%. Bound drawing regions rather than introducing translucency or color-based pixel removal; apply to previews, exports and technique samples.
+
+- 前のカットの最終画像を次の冒頭へ残すつなぎを追加：余韻を縮小、斜めに断ち切る、放射状に砕ける。既存方式を維持し、同一パート・接続時刻・長さを確認して自動抽選。Undo／JSON保存に対応。
+- Add Retreating echo, Diagonal split and Radial shatter transitions using the outgoing cut's final image. Keep legacy transitions; constrain automatic choices by part, touching boundaries and cut duration, with Undo and JSON persistence.
+- 簡易MP4出力が動画背景に対応。表示時刻に基づく順次デコードで字幕・内部生成／外部動画のスペアナと合成し、範囲出力でも元の時刻を維持。
+- 背景動画は0秒から同期し、終端後は最後のフレームを保持。背景動画内の音声は除外し、別途読み込んだ曲だけを使用。
+- 出力時間の自動計算に背景の映像トラック終了時刻を追加。非対応コーデックは理由を表示し、キャンセル・失敗時にデコーダーを解放。
+- 日英のアプリ内ガイド・README・詳細マニュアルを更新。
+- Add timestamp-decoded video backgrounds to simple MP4 export, alongside generated or external spectra. Preserve source times for range exports, hold the final frame, ignore background soundtracks, and include video-track duration in automatic length calculation. Keep pair/front-only exports background-free. Update Japanese and English documentation.
+
 ## 1.2.1 — 2026-09-30
 
 - 全体の構成変更後のプレビューを最初の字幕の0.5秒前（最短0秒）から開始。おまかせ・部分変更・全体シャッフル・案の履歴に適用し、フィラーと空白文字も対象に含め、空欄は除外。

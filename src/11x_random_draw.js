@@ -20,7 +20,7 @@ const durations = c => {
   if (c.inDur + c.outDur > dur * 0.88) {
     const ratio = dur * 0.88 / (c.inDur + c.outDur); c.inDur *= ratio; c.outDur *= ratio;
   }
-  c.transDur = Math.max(0, Math.min(c.transDur || 0, dur * 0.4));
+  c.transDur = Math.max(0, Math.min(c.transDur || 0, J.TRANS[c.trans]?.overlap ? J.transitionDuration(c.trans, dur, c.outDur) : dur * 0.4));
   c.events = (c.events || []).filter(e => e.dt >= 0 && e.dt < dur)
     .map(e => ({ ...e, dur: Math.min(e.dur, dur - e.dt) }));
   return c;
@@ -95,8 +95,8 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     c.trans = null; c.transP = {}; c.transDur = 0; c.morph = null;
     // Only internal touching cuts: never bridge SRT gaps or change adjacent cues.
     if (i > 0 && dur >= 0.6 && cuts[i - 1].fraction >= 0.6 && rng.chance(0.25)) {
-      c.trans = pick(rng, allowed(p, 'trans'), null);
-      if (c.trans) { c.transP = planParams(J.TRANS[c.trans], rng, null, st); c.transDur = Math.min(J.TRANS[c.trans].dur || 0.35, dur * 0.3, cuts[i - 1].fraction * 0.3); }
+      c.trans = pick(rng, allowed(p, 'trans').filter(k => J.transitionFits(k, { dur: cuts[i - 1].fraction }, dur)), null);
+      if (c.trans) { c.transP = planParams(J.TRANS[c.trans], rng, null, st); c.transDur = J.TRANS[c.trans].overlap ? J.transitionDuration(c.trans, dur, c.outDur) : Math.min(J.TRANS[c.trans].dur || 0.35, dur * 0.3, cuts[i - 1].fraction * 0.3); }
     }
     c.events = [];
     if (dur > 0.5 && rng.chance(busy || strong || busyBack ? 0.15 : 0.4)) {

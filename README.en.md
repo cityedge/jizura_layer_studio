@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.2.1**
+**Animated subtitle layers · cityedge fork · v1.3.0**
 
 Edit SRT part breaks in the subtitle summary: Enter adds a separator above the cue at its start, otherwise below, and Backspace/Delete removes a blank separator. Text and timing stay protected; Undo and JSON persistence are supported.
 
@@ -9,7 +9,7 @@ Subtitle draws: **0 Random / 1 Everything / 2 Style / 3 Mood / 4 Performance / 5
 
 Create a subtitle front on black and a binary matte as two synchronized, silent MP4 files for compositing over another video.
 
-An optional [simple video export](user_guide.en.md#exporting-a-simple-video) combines a still background, spectrum, subtitles and optional audio into one MP4.
+An optional [simple video export](user_guide.en.md#exporting-a-simple-video) combines an image or video background, spectrum, subtitles and optional audio into one MP4.
 
 This is an **unofficial derivative of [JIZURA by hakoniwa](https://github.com/852wa/JIZURA)**, adapted by cityedge for subtitle layer production. The original author does not maintain this edition. Thanks to the original effect engine and community translations.
 
@@ -37,7 +37,7 @@ The app can also generate 64 bars from the loaded song. Choose **Generate from a
 
 ## Features
 
-See [new controls in v1.2.1](user_guide.en.md#new-and-changed-controls-in-v121) and the [changelog](CHANGELOG.md). Edit part breaks manually, and preview global look changes from 0.5 seconds before the first cue.
+v1.3.0 adds video backgrounds to simple export, three transitions carrying the outgoing cut into the next, and bounded drawing regions for selected effects that obscured the background. See [what changed](user_guide.en.md#new-and-changed-controls-in-v130) and the [changelog](CHANGELOG.md).
 
 The retained JIZURA effects engine works alongside this edition's layer tools. The [user manual](user_guide.en.md) explains controls, workflows and limits.
 
@@ -66,7 +66,7 @@ Layer-production specifications:
 - 480p, 540p, 720p, 1360×766, 900p, 1080p, 1440p and 4K presets; actual dimensions depend on aspect ratio.
 - Project JSON save/restore.
 
-Duration automatically follows the longest subtitle, spectrum or decoded audio when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Loading, replacing or clearing media and changing subtitle times recalculate it. Video backgrounds disable simple export. PNG and After Effects output are not provided.
+Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Background videos start at timeline zero and hold their final frame after ending. Their audio is ignored; only the separately loaded song is included. Both generated and external spectra can be used with video backgrounds. PNG and After Effects output are not provided.
 
 ## Composite, save and compatibility
 

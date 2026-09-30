@@ -8,6 +8,10 @@ test('material duration uses latest subtitle/filler, paired spectrum and decoded
  assert.equal(J.simpleMaterialDuration(plan,null,{duration:10},{duration:8}),8);
  assert.equal(J.simpleMaterialDuration(plan,null,null,{duration:20}),3);
  assert.equal(J.simpleMaterialDuration({lines:[]},null,null,null),.001);
+ assert.equal(J.simpleMaterialDuration(plan,null,null,null,{video:true,duration:30,videoDuration:12}),12);
+ assert.equal(J.simpleMaterialDuration(plan,null,null,null,{video:true,duration:8}),8);
+ assert.equal(J.simpleMaterialDuration(plan,null,null,null,{video:false,duration:Infinity}),3);
+ assert.equal(J.simpleMaterialDuration(plan,{buffer:{length:48000*15,sampleRate:48000}},null,null,{video:true,videoDuration:12}),15);
 });
 test('frame duration rounds up, supports ranges and rejects non-overlap/invalid input',()=>{
  assert.deepEqual(json(J.simpleExportSpan(1.001,30)),{t0:0,frames:31,duration:31/30});

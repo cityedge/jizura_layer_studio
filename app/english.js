@@ -179,6 +179,7 @@
       crtOff: 'CRT powers off'
     },
     trans: {
+      carryRetreat: 'Retreating echo', carrySlash: 'Diagonal split', carryShatter: 'Radial shatter',
       wipe: 'Edge wipe', diagonalWipe: 'Diagonal band wipe',
       irisOpen: 'Iris opens', pushSlide: 'Push',
       doorsOpen: 'Double doors', checker: 'Checkerboard',

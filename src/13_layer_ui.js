@@ -80,6 +80,10 @@ async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
   status(tr('読み込み中…', 'Loading…'));
   const m = await J.loadLayerMedia(file, videoOnly);
+  if (key === 'background' && m.video) {
+    try { m.videoDuration = await J.probeBackgroundVideo(m); }
+    catch (e) { m.simpleError = tr('背景動画を簡易出力できません: ', 'Cannot export this video background: ') + e.message; }
+  }
   if (session.generation[key] !== n) { m.dispose(); return; }
   if ((key === 'matte' || key === 'front' && !session.front) && session[key === 'front' ? 'matte' : 'front']) {
     try { J.validateSpectrum(key === 'front' ? m : session.front, key === 'matte' ? m : session.matte, J.ui.project.fps); }
@@ -234,7 +238,7 @@ function syncSimpleExportUI() {
   const settings = project.simpleExport = J.normalizeSimpleExport(project.simpleExport);
   const recalculate = settings.duration == null || materialsChanged;
   if (recalculate) {
-    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null);
+    settings.duration = J.simpleMaterialDuration(J.ui.plan, J.ui.audio, project.spectrumMode === 'external' ? session.front : null, project.spectrumMode === 'external' ? session.matte : null, session.background);
     simpleInvalidDraft = false;
     if (materialsChanged) J.uiApi.flushSave();
   }
@@ -245,7 +249,7 @@ function syncSimpleExportUI() {
     if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
     span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
   } catch (e) { reason = e.message; }
-  if (session.background?.video) reason = tr('背景動画が指定されています。簡易出力には静止画に変更するか、背景を解除してください。', 'A video background is selected. Use a still image or clear the background for simple export.');
+  if (session.background?.simpleError) reason = session.background.simpleError;
   if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
   if (J.nativeSpectrumBlocked?.()) reason = tr('音源を読み込み、スペアナ解析の完了を待ってください。', 'Load audio and wait for spectrum analysis to finish.');
   $('simpleExport').disabled = !!reason;
@@ -274,8 +278,8 @@ function simpleExportControls(panel) {
   audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
   controls.append(label, audio); panel.append(controls);
   const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
-  panel.append(el('p', tr('静止画＋スペアナ＋字幕を1本のMP4として、指定時間まで背景を表示した動画を出力します。解像度・fps・画質・書き出し範囲は既存設定を使用します。',
-    'Exports a still image, spectrum and subtitles as one MP4, keeping the background for the specified duration. Uses the existing resolution, fps, quality and export range.'), 'note'));
+  panel.append(el('p', tr('画像・動画背景＋スペアナ＋字幕を1本のMP4にします。背景動画は0秒から再生し、終了後は最終フレームを保持。背景の音声は使わず、読み込んだ音源だけを使用します。',
+    'Exports an image/video background, spectrum and subtitles as one MP4. Background video starts at zero and holds its final frame. Only separately loaded audio is used, not the background soundtrack.'), 'note'));
 }
 function cueTable() {
   const root = $('layerCues'), cues = J.ui.project.subtitleCues;

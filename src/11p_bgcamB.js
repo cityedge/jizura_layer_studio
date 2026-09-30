@@ -186,6 +186,10 @@ bgReg('duotoneSweep', { name: '二色スイープ', tags: ['calm', 'pop', 'graph
     const { W, H, sc } = env, cols = hues(sc), e = fadeIn(env, 0.8), k = P.k || 0.16;
     const cA = J.mix(sc.bg, cols[0], k), cB = J.mix(sc.bg, cols[1] || sc.fg, k);
     const pos = P.pos || [0.5, 1.2], cx = W * pos[0], cy = H * pos[1], a = (P.a0 || 0) + env.t * (P.spd || 0.1);
+    if (env.layerComposition) {
+      // The original conic sweep needs a filled field, not isolated spokes.
+      ctx.beginPath(); ctx.ellipse(W / 2, H / 2, W * 0.45, H * 0.45, 0, 0, TAU); ctx.clip();
+    }
     drawLow(ctx, env, 6, x => {
       let g = conic(x, a, cx, cy);
       if (g) { g.addColorStop(0, cA); g.addColorStop(0.25, cB); g.addColorStop(0.5, cA); g.addColorStop(0.75, cB); g.addColorStop(1, cA); }
@@ -208,6 +212,10 @@ bgReg('horizonGlow', { name: '惑星の縁', tags: ['emotional', 'calm', 'editor
     const R = Math.max(W, H) * (P.R || 1.6), cx = W * (P.cx || 0.5) + W * 0.03 * Math.sin(t * 0.08 + ((P.seed || 1) % 9));
     const cy = H * (P.top || 0.75) + R + (1 - e) * H * 0.25 + H * 0.008 * Math.sin(t * 0.25);
     const gc = dk ? glowOf(sc) : tintC(sc, 0.8), k = (P.k || 0.32) * (dk ? 1 : 0.55);
+    if (env.layerComposition) {
+      // Restore the disk, atmosphere and moving flare, trimming only the farthest halo.
+      ctx.beginPath(); ctx.arc(cx, cy, R + H * 0.42, 0, TAU); ctx.clip();
+    }
     ctx.fillStyle = dk ? J.mix(sc.bg, '#000000', 0.42) : J.mix(sc.bg, sc.fg, 0.05);
     ctx.globalAlpha = e; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
     const breathe = 0.85 + 0.15 * Math.sin(t * 0.7), top = Math.max(0, cy - R * 1.22);
@@ -310,12 +318,15 @@ bgReg('houndstooth', { name: '千鳥格子', tags: ['graphic', 'editorial', 'pop
 bgReg('herringbone', { name: 'ヘリンボーン', tags: ['editorial', 'calm', 'graphic'], w: 0.6,
   plan: rng => ({ seed: bs(rng), u: rng.range(0.032, 0.045), k: rng.range(0.07, 0.1), dir: rng.pick([1, -1]), rot: rng.pick([45, 45, -45]) }),
   draw(env, P, ctx) {
-    const { W, H, sc } = env, t = env.t, u = Umin(env) * (P.u || 0.038), e = fadeIn(env, 0.7), k = P.k || 0.08, rot = P.rot || 45;
-    const cA = layC(sc, k), cB = layC(sc, k * 0.45), key = `hrb|${cA}|${cB}|${u.toFixed(2)}`, Pd = 4 * u * Math.SQRT2;   // screen-space period of the 45° weave
+    const { W, H, sc } = env, t = env.t, u = Umin(env) * (P.u || 0.038) * (env.layerComposition ? 2.5 : 1), e = fadeIn(env, 0.7), k = P.k || 0.08, rot = P.rot || 45;
+    const cA = layC(sc, k), cB = layC(sc, k * 0.45), key = `hrb|${cA}|${cB}|${u.toFixed(2)}|${!!env.layerComposition}`, Pd = 4 * u * Math.SQRT2;   // screen-space period of the 45° weave
     const pl = plate(key + '|' + rot, env, Pd, Pd, (x, w, h) => {
       const tile = tileCv(key, env, 4 * u, 4 * u, (y) => {
         const g = u * 0.1;
-        const brick = (x0, y0, bw, bh, c) => { y.fillStyle = c; y.fillRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); };
+        const brick = (x0, y0, bw, bh, c) => {
+          if (env.layerComposition) { y.strokeStyle = c; y.lineWidth = Math.max(0.8, u * 0.045); y.strokeRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); }
+          else { y.fillStyle = c; y.fillRect(x0 * u + g, y0 * u + g, bw * u - 2 * g, bh * u - 2 * g); }
+        };
         for (let kk = -8; kk <= 8; kk++) for (let m = -4; m <= 4; m++) {
           const bx = kk + 2 * m, by = kk - 2 * m;
           if (bx > 6 || bx < -3 || by > 6 || by < -3) continue;
@@ -327,6 +338,7 @@ bgReg('herringbone', { name: 'ヘリンボーン', tags: ['editorial', 'calm', '
     });
     const sp = t * u * 0.6 * (P.dir || 1);          // travel along the zig-zag columns
     ctx.globalAlpha = e; blit(ctx, env, pl, rot > 0 ? Pd / 2 : wrap(sp, Pd), rot > 0 ? wrap(sp, Pd) : Pd / 2);
+    if (env.layerComposition) return;
     // slow sheen band across the weave
     const L = W + H, bx = (wrap(t * 0.1, 1.6) - 0.3) * L, bw = Umin(env) * 0.35, hc = lightOn(sc);
     const gl = ctx.createLinearGradient(bx - bw, 0, bx + bw, 0);
@@ -395,14 +407,15 @@ bgReg('isoCubes', { name: '立方体', tags: ['graphic', 'pop', 'calm'], w: 0.6,
   draw(env, P, ctx) {
     const { W, H, sc } = env, t = env.t, s = Umin(env) * (P.s || 0.065), r3 = Math.sqrt(3), pw = r3 * s, ph = 3 * s, e = fadeIn(env, 0.6);
     const col = layC(sc, P.k || 0.09);
-    const faces = ['top', 'left', 'right'].map((f, fi) => { const key = `iso|${f}|${col}|${s.toFixed(2)}`; return plate(key, env, pw, ph, (x, w, h) => fillTile(x, tileCv(key, env, pw, ph, (y) => {
+    const faces = ['top', 'left', 'right'].map((f, fi) => { const key = `iso|${f}|${col}|${s.toFixed(2)}|${!!env.layerComposition}`; return plate(key, env, pw, ph, (x, w, h) => fillTile(x, tileCv(key, env, pw, ph, (y) => {
       y.fillStyle = col; y.beginPath();
       for (let n2 = -2; n2 <= 3; n2++) for (let n1 = -3; n1 <= 3; n1++) {
         const cx = n1 * pw + n2 * pw / 2, cy = n2 * 1.5 * s;
         const T = [cx, cy - s], UR = [cx + pw / 2, cy - s / 2], LR = [cx + pw / 2, cy + s / 2], B = [cx, cy + s], LL = [cx - pw / 2, cy + s / 2], UL = [cx - pw / 2, cy - s / 2], C = [cx, cy];
         pathPoly(y, fi === 0 ? [T, UR, C, UL] : fi === 1 ? [UL, C, B, LL] : [UR, LR, B, C]);
       }
-      y.fill();
+      if (env.layerComposition) { y.strokeStyle = col; y.lineWidth = Math.max(0.8, s * 0.035); y.stroke(); }
+      else y.fill();
     }), pw, ph, 0, 0, w, h)); });
     // the light direction turns slowly, so the three face sets trade brightness
     const L = (P.l0 || 0) + t * (P.spd || 0.25), dirs = [-Math.PI / 2, Math.PI * 5 / 6, Math.PI / 6];
@@ -453,7 +466,11 @@ bgReg('triTess', { name: '三角モザイク', tags: ['graphic', 'calm', 'emotio
       }
     }
     const k = P.k || 0.085, cf = P.acc ? tintC : layC;
-    [0.35, 0.65, 1, 1.45].forEach((m, l) => { ctx.fillStyle = l === 3 && P.acc ? tintC(sc, k * m * 1.4) : cf(sc, k * m); ctx.fill(paths[l]); });
+    [0.35, 0.65, 1, 1.45].forEach((m, l) => {
+      const col = l === 3 && P.acc ? tintC(sc, k * m * 1.4) : cf(sc, k * m);
+      if (env.layerComposition) { ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, U * 0.002); ctx.stroke(paths[l]); }
+      else { ctx.fillStyle = col; ctx.fill(paths[l]); }
+    });
   } });
 
 bgReg('moire', { name: 'モアレ', tags: ['glitch', 'graphic', 'calm'], w: 0.6,
@@ -1023,6 +1040,14 @@ bgReg('vignettePulse', { name: '色の周辺光', tags: ['emotional', 'calm', 'p
     const { W, H, sc } = env, t = env.t, U = Umin(env), dk = isDark(sc.bg), e = fadeIn(env, 0.8), cols = hues(sc);
     const pulse = env.beat ? 0.62 + 0.38 * Math.exp(-env.beat.since * 4) : 0.75 + 0.25 * Math.sin(t * TAU * (P.rate || 0.45));
     const k = (P.k || 0.35) * e * pulse * (dk ? 1 : 0.8), cA = J.mix(sc.bg, cols[0], 0.7), cB = J.mix(sc.bg, cols[1] || cols[0], 0.7), R = Math.hypot(W, H) / 2;
+    if (env.layerComposition) {
+      // Keep the original pulsing light on four filled corners, with a genuinely open middle.
+      ctx.beginPath();
+      for (const [x, y] of [[0, 0], [W, 0], [W, H], [0, H]]) {
+        ctx.moveTo(x + W * 0.34, y); ctx.ellipse(x, y, W * 0.34, H * 0.43, 0, 0, TAU); ctx.closePath();
+      }
+      ctx.clip();
+    }
     drawLow(ctx, env, 6, x => {
       if (P.two !== false) {
         for (const [cx, cy, c, ph] of [[0, 0, cA, 0], [W, H, cB, 1.7]]) {

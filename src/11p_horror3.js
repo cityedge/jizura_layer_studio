@@ -249,6 +249,10 @@ bgReg('hrFailingLamp', {
   draw(env, Pm, ctx) {
     const { W, H, sc } = env, t = env.t, u = U(env), lv = lamp(t, Pm.seed | 0, Pm.rate || 1), fi = E.outCubic(clamp(bgT(env) / 0.6));
     const L = lightOf(sc), dk = nightC(sc), cx = W * (Pm.x || 0.5), cy = -u * 0.1;
+    if (env.layerComposition) {
+      // Preserve the room's flickering illumination within the lamp's broad footprint.
+      ctx.beginPath(); ctx.ellipse(cx, 0, W * 0.48, H * 0.86, 0, 0, TAU); ctx.clip();
+    }
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * 0.9);
     g.addColorStop(0, J.rgba(L, ((isDark(sc.bg) ? 0.16 : 0.3) * lv * fi).toFixed(3))); g.addColorStop(0.5, J.rgba(L, ((isDark(sc.bg) ? 0.04 : 0.08) * lv * fi).toFixed(3))); g.addColorStop(1, J.rgba(L, 0));
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -296,6 +300,11 @@ bgReg('hrCorridor', {
       }
     }
     ctx.stroke();
+    if (env.layerComposition) {
+      // Restore the dark corridor edges, but leave a wider opening around its distant light.
+      ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.moveTo(vx + W * 0.42, vy);
+      ctx.ellipse(vx, vy, W * 0.42, H * 0.53, 0, 0, TAU); ctx.closePath(); ctx.clip('evenodd');
+    }
     const v = ctx.createRadialGradient(vx, vy, Math.min(W, H) * 0.2, vx, vy, Math.hypot(W, H) * 0.65);
     v.addColorStop(0, J.rgba(nightC(sc), 0)); v.addColorStop(1, J.rgba(nightC(sc), (0.55 * fi).toFixed(3)));
     ctx.globalAlpha = 1; ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
