@@ -1,3 +1,20 @@
+## 1.3.1 — 2026-10-01
+
+- プレビュー速度の末尾に「旧1×」を追加。解析済み音声を元のWeb Audio方式で1倍再生し、通常プレーヤーの読み込み・再生失敗や開始待ちのタイムアウト時にも同じ位置から自動切替。手動切替、音量・消音、シーク・ループに対応。旧方式でも失敗した場合は通知して停止。
+- Add Legacy 1× to preview speeds, using decoded audio through Web Audio. Fall back at the current position after standard-player loading/playback failure or a startup timeout. Support manual switching, volume/mute, seeking and looping; stop with a message if legacy playback also fails.
+- マウスで通常画面の選択・チェック・スライダー等を操作した後にプレビューへフォーカスを戻す処理を追加。左ペインの追加項目も対象にし、文字・数値入力、ダイアログ、キーボード操作、明示的なフォーカス移動は保護。プレビュー速度に正確な2/3倍を追加。
+- Return focus to the preview after pointer-operated main-editor controls, including added left-pane settings. Preserve text/number editing, dialogs, keyboard operation and deliberate autofocus. Add an exact 2/3× preview speed.
+- プレビュー速度に1倍・0.8倍・2/3倍・0.5倍を追加。ブラウザの音程維持再生を使用し、字幕・背景動画・スペアナを同じ時刻で再生。速度はセッション内のみ保持し、MP4出力・保存済みタイミングには反映しません。タップ同期中は1倍に固定。
+- Add pitch-preserving preview speeds of 1×, 0.8×, 2/3× and 0.5×, with synchronized subtitles, background video and spectrum. Speed is session-only and does not alter MP4 exports or saved timing. Tap sync uses 1×.
+- 字幕ガチャのボタンを物理キーに合わせた1〜6・9・0の順に配置し、「0 ランダム」を右端へ移動。
+- Order subtitle-draw buttons as 1–6, 9, 0, placing Random at the right end to match the number row.
+- 字幕ガチャのQショートカットを廃止し、微調整は6に統一。画面のボタン・ツールチップ・日英ガイドも数字キー表記へ変更。
+- Remove the Q shortcut for subtitle draws; use 6 for Fine-tune. Update buttons, tooltips and Japanese/English guides to numeric shortcuts.
+- 字幕ガチャ「9：全体のテイスト」を追加。最後に全体へ適用したスタイル・雰囲気・配色・書体・演出候補・統一感を基準に、対象字幕の個別指定を解除して再抽選。基準をJSONへ保存し、旧JSONは全体設定を使用。ロック・Undo・再生中の0.3秒前への移動に対応。
+- Add 9 / Global taste: clear the current cue's local choices and redraw using the latest global style, mood, colors, fonts, technique pool and Unified look. Persist the baseline in JSON, infer it from global settings for older projects, and retain locks, Undo and playback lead-in.
+- JSON再読込時の候補ON項目の補完・プロパティ順序の違いで、保存した字幕ガチャ結果が無効になる問題を修正。1.3.0以前の保存済み比較情報も意味的に比較します。
+- Preserve saved cue draws when JSON import expands enabled candidate entries or reorders properties; compare legacy context records semantically too.
+
 ## 1.3.0 — 2026-10-01
 
 - 隠しデバッグキーを変更：Oは高被覆レイアウト33種、Pは高被覆背景35種を現在の字幕へ抽選。修正前の描画調査で最大被覆率50％以上だった候補を使用し、通常の採用チェックを迂回。文字数適合・ロック・Undo・JSON保存に対応。現在の被覆率を測定する機能ではありません。

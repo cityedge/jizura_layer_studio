@@ -49,21 +49,34 @@ J.partEditTarget = (cues, start, end, action) => {
     : start >= r.gapStart && end <= r.start));
   return boundary?.index ?? -1;
 };
-J.localLookContext = (p, audio) => JSON.stringify([
+const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
+  ? Object.fromEntries(Object.keys(value).sort().map(k => [k, canonical(value[k])])) : value;
+// Missing candidate entries and explicit true both mean enabled. Import expands
+// sparse pools, so neither expansion nor object insertion order invalidates a draw.
+const poolContext = enabled => Object.fromEntries(Object.entries(enabled || {}).map(([g, items]) =>
+  [g, Object.fromEntries(Object.entries(items || {}).filter(([, value]) => value === false))]).filter(([, items]) => Object.keys(items).length));
+const normalizeLookContext = values => {
+  if (!Array.isArray(values)) return values;
+  const result = values.slice(); result[4] = poolContext(result[4]); return result;
+};
+const savedLookContext = context => {
+  try { return JSON.stringify(canonical(normalizeLookContext(JSON.parse(context)))); } catch { return null; }
+};
+J.localLookContext = (p, audio) => JSON.stringify(canonical(normalizeLookContext([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
   p.timing?.bpm, p.timing?.offset, p.timing?.snap, p.timing?.lineScale, audio?.duration, audio?.beats,
-]);
+])));
 const cueKey = (text, start, end, part, ov) => JSON.stringify([text, start, end, part, ov]);
 J.localLookFor = (p, ln, ov, index, start, end) => {
   const saved = p.localLooks;
-  const entry = saved?.context === p._localLookContext && saved.lines?.[ln.cueId ?? ('line-' + index)];
+  const entry = saved && p._savedLocalLookContext === p._localLookContext && saved.lines?.[ln.cueId ?? ('line-' + index)];
   if (entry?.key === cueKey(ln.text, start, end, ln.part, ov)) return entry.cuts;
   if (ov.randomDraw?.text === ln.text && Array.isArray(ov.randomDraw.cuts))
     return J.fitRandomCueCuts(ov.randomDraw.cuts, end - start);
   return null;
 };
 const plan = J.plan;
-J.plan = (p, audio) => plan({ ...p, _localLookContext: J.localLookContext(p, audio) }, audio);
+J.plan = (p, audio) => plan({ ...p, _localLookContext: J.localLookContext(p, audio), _savedLocalLookContext: savedLookContext(p.localLooks?.context) }, audio);
 J.captureLocalLooks = (p, current, audio) => {
   const lines = {};
   current.lines.forEach(ln => {
@@ -75,11 +88,23 @@ J.captureLocalLooks = (p, current, audio) => {
 J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
+  ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
-J.cueRerollKey = mode => mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
+J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
 const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
+const globalKeys = [...ruleKeys, 'seed', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'unify', 'typeset'];
+// Local overrides are deliberately absent from the signature. Global controls,
+// including manual edits and history navigation, establish the latest baseline.
+J.globalLookBaseline = (p, current) => {
+  const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
+  const context = JSON.stringify(canonical({ ...values, enabled: poolContext(values.enabled) }));
+  if (p.globalLook?.context === context && p.globalLook.values && p.globalLook.palettes) return clone(p.globalLook);
+  const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes || []]))
+    : { normal: current.unifyPalettes || [], filler: current.unifyPalettes || [] };
+  return { context, values, palettes: clone(palettes) };
+};
 J.cueLookProject = (p, rule) => ({ ...p, ...Object.fromEntries(ruleKeys.filter(k => rule[k] != null).map(k => [k, rule[k]])) });
 const targetPlan = (plan, index) => plan.layerGroups?.find(g => g.indices.includes(index))?.plan || plan;
 // Hidden review draw: change one eligible join, preserve the rest of the composition.
@@ -202,6 +227,22 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.localLooks.lines[key] = { key: cueKey(ln.text, ln.start, ln.end, ln.part, target), cuts };
     return next;
   };
+  if (mode === 'global') {
+    const baseline = J.globalLookBaseline(p, current);
+    next.globalLook = baseline;
+    // A fresh draw in the global framework: discard local look, explicit techniques,
+    // forced cut counts and full-random snapshots; retain cue text and timestamps.
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+    const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
+    const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
+    const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
+    const cuts = J.lineSnapshot(fresh, index);
+    if (!cuts?.length) throw new Error(J.layerText('この字幕を再抽選できません。', 'This subtitle cannot be rerolled.'));
+    for (const c of cuts) c.renderLook = clone(look);
+    // Subsequent Q/6 now uses this global base, instead of the abandoned local taste.
+    target.cueLook = { ...ruleFrom(draft), palette: clone(source.style.schemes), palettes: clone(source.unifyPalettes || []), unifyMode: 'local' };
+    return storeCuts(cuts);
+  }
   if (mode === 'random') {
     const restore = clone(baseOverride(ov));
     const cuts = J.makeRandomCue(next, current, index, audio, random);

@@ -1,6 +1,6 @@
 # 塗り面積のレビュー / Fill coverage review
 
-開発用の隠しキーです。通常のガチャ（0〜6／Q）は変更していません。
+開発用の隠しキーです。通常のガチャ（0〜6）は変更していません。
 
 | キー | 現在の字幕に適用する候補 |
 | --- | --- |
@@ -19,6 +19,6 @@
 
 Hidden development keys: **O** selects one of 33 historically high-coverage layouts; **P** selects one of 35 backgrounds, replacing the transition-review shortcut. The chosen type is applied to all cuts of the current cue. O keeps its backgrounds; P keeps its layouts, which may obscure the background. Layout-specific treatment and camera restrictions still apply.
 
-Other cues, text, timing and cut structure are preserved. Seek to the cue start when paused, or 0.3 seconds before it while playing. Locked cues, empty timeline positions, text entry, dialogs and exports are protected. Undo and project JSON persistence are supported. Normal 0–6/Q draws are unchanged.
+Other cues, text, timing and cut structure are preserved. Seek to the cue start when paused, or 0.3 seconds before it while playing. Locked cues, empty timeline positions, text entry, dialogs and exports are protected. Undo and project JSON persistence are supported. Normal 0–6 draws are unchanged.
 
 These fixed pools come from the pre-revision audit: maximum coverage >=50% across noir/paper samples at 0.3, 0.8, 1.3, 1.8 and 2.15 seconds in 16:9. Sample text contributes to the measurement. Revised effects and large foreground props remain included. This is not live pixel analysis or a coverage guarantee for arbitrary palettes/text. Normal inclusion switches are bypassed; text compatibility is retained and immediate repeats are avoided where alternatives exist.

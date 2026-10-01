@@ -1,10 +1,14 @@
-# JIZURA Layer Studio v1.3.0 User Manual
+# JIZURA Layer Studio v1.3.1 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.3.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.3.1. Features removed from the original JIZURA are not presented as available operations.
+
+## New in v1.3.1
+
+- **9 / Global taste** redraws the current cue using the latest globally applied settings. See the subtitle-draw section below.
 
 ## New and changed controls in v1.3.0
 
@@ -21,7 +25,7 @@ This manual describes the retained features of v1.3.0. Features removed from the
 
 ## New and changed controls in v1.2.0
 
-- [Subtitle draws](#automatic-parts-and-subtitle-rerolls): 0 for Random, 1–5 for specific scopes, and 6/Q for Fine-tune. This section covers partial changes after Random, returning to base settings, manual choices and Unified look.
+- [Subtitle draws](#automatic-parts-and-subtitle-rerolls): 0 for Random, 1–5 for specific scopes, and 6 for Fine-tune. This section covers partial changes after Random, returning to base settings, manual choices and Unified look.
 - [Automatic parts](#automatic-parts-and-subtitle-rerolls): a 3-second gap between normal cues starts a new part; touching cue boundaries within a part are eligible for transitions.
 - [Keyboard navigation](#keyboard-controls): arrows seek by 2 seconds, Shift-arrows by cue, A/D by one frame, and Shift-A/D by one second.
 - [Front-only export](#exporting-mp4): save one silent MP4 while skipping matte generation and encoding.
@@ -238,6 +242,14 @@ Tap synchronization is for direct subtitle input without SRT. With SRT, both the
 
 Play/pause, seek with the slider, toggle looping, and adjust preview volume or mute. Volume affects monitoring only.
 
+Use Speed to choose 1×, 0.8×, 2/3× or 0.5×. 2/3× is approximately 0.667×. Audio keeps its pitch while subtitles, background video and spectrum follow the same timeline. Switch during playback, seek, loop, or draw a new cue without resetting the selected speed. Pitch correction can slightly change the sound's texture.
+
+Finishing a mouse adjustment to a dropdown, checkbox or slider in the main editor returns focus to the preview, so number-key and Space shortcuts work immediately. Text/time/number fields, dialogs, and settings operated with Tab or arrow keys keep focus. Clicking the preview image or timeline also returns to shortcut operation after editing text.
+
+Speed affects preview only: MP4 speed, duration and audio, cue times, and beat analysis remain unchanged. It is not saved in project JSON and resets to 1× when reopening the page. Starting tap sync returns to 1× and disables speed changes for that session.
+
+Legacy 1×, at the bottom of the menu, plays decoded audio through the original Web Audio path at normal speed. Select it manually if standard playback behaves poorly. Switching during playback retains the current position, with a possible brief audio gap. A standard-player loading/playback failure, or a 10-second startup timeout, automatically switches to Legacy 1× and displays a message. This also changes slow playback to normal speed. If legacy playback fails too, playback stops. Select a regular speed to return to the standard player. Tap sync retains the legacy engine if selected.
+
 The loop button cycles through whole piece → line → cut → off. Line looping repeats that line's cut interval; cut looping repeats the current cut. Use these while refining one moment.
 
 | Timeline action | Result |
@@ -368,15 +380,20 @@ The subtitle draw buttons and number keys affect only the current subtitle. A li
 | 3 | Mood | Mood, motion and ornaments; keeps style, fonts and palette |
 | 4 | Performance | Broadly redraws layout, motion, ornaments and cut structure; keeps style, mood, fonts and palette |
 | 5 | Colors | Palette only; preserves cut structure, motion, timing and screen events |
-| 6 / Q | Fine-tune | Narrow redraw within the subtitle's current style, mood, palette and technique pool |
+| 6 | Fine-tune | Narrow redraw within the subtitle's current style, mood, palette and technique pool |
+| 9 | Global taste | Clear local choices and redraw effects/cut structure in the latest global framework |
+
+9 creates a new draw using the global style, mood, fonts, palette, technique pool and Unified look; it does not restore the exact original animation. It clears local taste, manual techniques and forced cut counts. 6 uses the cue's own retained base; 9 returns to the global base, which subsequent 6 draws also use.
+
+Global Auto-compose, partial changes, Shuffle and manual edits to global settings update the baseline; cue-level draws do not. The baseline is saved in JSON. Older projects use their existing global settings, not an unavailable earlier history. Other cues, text, timing and locks remain intact. Ctrl-Z undoes the draw.
 
 Each subtitle retains its local settings. Use Everything to explore, then Mood, Colors and Fine-tune to refine without returning to the global starting look. The global controls stay unchanged; the local style and mood appear beside the draw buttons. Unified look favors small pools for Fine-tune, loosens them for Performance and builds a new local combination for Everything. Disabled categories such as Horror stay excluded from new random choices. Broad draws retry repeated layout/motion combinations, but manual choices and short text may limit variation.
 
 All modes preserve text, cue times and locks. Everything clears that cue's manual effect choices. Style replaces layout, background graphic and treatment choices; Mood replaces entrance, exit, hold, ornaments, camera, transitions and treatment choices. Performance replaces both sets and cut structure while retaining fonts and colors. Modes 2–4 overwrite manual and per-cut choices within their scope and retain other choices. Ordinary Fine-tune retains manual choices. Other subtitles retain their artwork and effects; joins immediately around the target may change.
 
-After Random, 2–4 replace their own groups and 5 changes only colors. Q/6 removes the random composition and redraws within the retained base settings, including subsequent Style/Mood changes. Pre-random manual choices return except for groups replaced by 2–4. Ctrl-Z restores the exact preceding result. Random compositions are saved in project JSON. Random uses at most three ornaments and one extra screen-effect event per cut, reducing density further for busy layouts or strong cameras.
+After Random, 2–4 replace their own groups and 5 changes only colors. 6 removes the random composition and redraws within the retained base settings, including subsequent Style/Mood changes. Pre-random manual choices return except for groups replaced by 2–4. Ctrl-Z restores the exact preceding result. Random compositions are saved in project JSON. Random uses at most three ornaments and one extra screen-effect event per cut, reducing density further for busy layouts or strong cameras.
 
-During playback, the preview seeks to 0.3 seconds before the subtitle (clamped to zero) and keeps playing. Repeated Q presses during that lead-in keep the same target. While paused, rerolling seeks to the cue start and remains paused. Normal cues and fillers are eligible. In a gap, nothing is rerolled; overlapping cues use the latest start. The button shows the target number. Ctrl-Z restores the previous draw, and project JSON retains results. Changing global settings rebuilds the composition under those settings.
+During playback, the preview seeks to 0.3 seconds before the subtitle (clamped to zero) and keeps playing. Repeated 6 presses during that lead-in keep the same target. While paused, rerolling seeks to the cue start and remains paused. Normal cues and fillers are eligible. In a gap, nothing is rerolled; overlapping cues use the latest start. The button shows the target number. Ctrl-Z restores the previous draw, and project JSON retains results. Changing global settings rebuilds the composition under those settings.
 
 ### Unity and typesetting
 
@@ -754,7 +771,8 @@ Text inputs and open dialogs suppress some app shortcuts.
 | R | Auto-compose |
 | 0 | Random draw for the current subtitle |
 | 1–5 | Subtitle: Everything / Style / Mood / Performance / Colors |
-| 6 / Q | Fine-tune the current subtitle |
+| 6 | Fine-tune the current subtitle |
+| 9 | Redraw the current subtitle using the latest global taste |
 | Left/right | Seek back/forward 2 seconds |
 | Shift-left/right | Current cue start (previous within 0.3s of start) / next cue start |
 | A/D | Seek one output frame |

@@ -156,6 +156,10 @@ button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px;
 .overlay-msg { position: absolute; left: 12px; bottom: 12px; background: rgba(12,12,14,0.85); border: 1px solid var(--line2); padding: 6px 10px; border-radius: var(--r); font-size: 12px; }
 .transport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .transport .vol { display: inline-flex; align-items: center; gap: 4px; }
+.transport .preview-speed { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+.transport .preview-speed select { width: 90px; padding: 4px; font-size: 11px; }
+#app.is-mobile .preview-speed > span { display: none; }
+#app.is-mobile .preview-speed select { width: 82px; }
 .transport .vol input[type=range] { flex: 0 0 80px; width: 80px; }
 #btnLoop[data-mode="line"], #btnLoop[data-mode="cut"] { color: var(--amber); }
 #btnLoop[aria-pressed="false"] { opacity: 0.55; }
@@ -555,7 +559,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.0</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.1</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -833,7 +837,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.0</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.1</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1314,7 +1318,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.3.0 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.3.1 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
     <p class="terms-main">他の動画に重ねるための、字幕フロントと白黒マットを作るツールです。</p>
     <ol class="guide-steps">
       <li><strong>字幕を用意する</strong><p>「SRTを読み込む」でUTF-8のSRTを選びます。開始・終了・改行・字幕のない区間を保持します。「SRTの本文・開始・終了を編集」で修正できます。SRTを使わず字幕を直接入力することもできます。</p></li>
@@ -1324,6 +1328,9 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
       <li><strong>MP4を2本保存する</strong><p>画面比・解像度・fpsを選び、「マット＋フロント MP4を出力」を押します。ブラウザに複数ダウンロードの確認が出たら許可してください。保存されない場合は、出力後の個別保存リンクを使えます。2本とも無音で、ZIP圧縮はしません。書き出し中はタブを開いたままにしてください。</p></li>
       <li><strong>動画編集ソフトで重ねる</strong><p>背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
     </ol>
+    <p>プレビューの「速度」で1倍・0.8倍・2/3倍・0.5倍を選べます。曲の音程を維持し、字幕・背景動画・スペアナも同じ速度で再生します。MP4出力や字幕時刻には影響せず、速度はJSONに保存しません。音程補正で音の質感が多少変わる場合があります。タップ同期中は1倍固定です。</p>
+    <p>通常画面のプルダウン・チェック・スライダーをマウスで変更すると、操作後に数字キーなどのショートカットへ戻れます。文字・数値入力、ダイアログ、キーボードでの設定操作はフォーカスを維持します。プレビュー画面やタイムラインのクリックでも入力欄から戻れます。</p>
+    <p>音声が不調な場合は、速度メニュー末尾の「旧1×」で元のWeb Audio方式を使えます。通常の読み込み・再生失敗や10秒の再生開始待ちでも、同じ位置から旧1倍再生へ自動切替し、通知します。旧方式でも失敗したら停止します。通常の速度項目を選べば元に戻せます。MP4出力には影響しません。</p>
     <p>内蔵スペアナは曲全体を粗く調べ、250〜4,000Hzを含む範囲を自動設定します。「自動音域」に結果を表示し、曲全体で固定します。音源の上限を超えず、推定できない場合は標準範囲を使います。FFTサイズと拍動処理は維持し、色・配置・感度の変更で音域は変わりません。</p>
     <h3>おまけ機能：簡易動画MP4</h3>
     <p>ペア出力の説明下にある「簡易動画MP4を出力」で、静止画／動画背景→スペアナ→字幕を重ねた1本を保存できます。背景なしは黒です。背景動画は0秒から同期し、終端後は最後のフレームを保持します。音声は別途読み込んだ曲だけを使い、背景動画の音声は含めません。内部生成・外部動画のどちらのスペアナも併用できます。</p>
@@ -1348,7 +1355,8 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>全体のおまかせ・ここだけ変える・シャッフル・案の履歴は、最初の字幕の0.5秒前（最短0秒）へ移動します。フィラー・空白文字も含み、完全な空欄は除外します。かんたん・スマホモードでは自動再生し、詳細モードでは再生／停止状態を維持します。</p>
     <p>「字幕」欄では本文を保護したまま区切りだけ編集できます。字幕の行でEnter／「区切り追加」を押すと行頭なら上、それ以外なら下に区切りを追加し、空行でBackspace・Delete／「区切り削除」を押すと結合します。手動指定は自動判定より優先し、Ctrl+ZとJSON保存に対応します。↵は字幕本文内の改行です。区切り指定は直後の字幕に付属し、その字幕の削除やフィラーの再生成では一緒に消えます。</p>
     <p>通常字幕の無字幕時間が3秒以上ならパートを自動で区切ります。フィラーは判定から除き、「字幕」欄の空行で境界を確認できます。統一感はパート単位で働き、字幕間のつなぎは同じパートで前の終了と次の開始が一致する場合だけ候補になります。</p>
-    <p>中央の字幕ガチャは、0：ランダム、1：全体変更、2：スタイル変更、3：雰囲気変更、4：演出変更、5：配色変更、6／Q：微調整です。ボタンでも操作できます。0はスタイル・雰囲気の枠を外し、適合条件と過密を避ける制限の中で抽選します。0の後も2〜5で部分変更でき、Q／6で保持した基礎設定へ復帰して抽選します。5は色だけを変更し、カット構成や動きを保持します。</p>
+    <p>中央の字幕ガチャは、0：ランダム、1：全体変更、2：スタイル変更、3：雰囲気変更、4：演出変更、5：配色変更、6：微調整、9：全体のテイストです。ボタンでも操作できます。0はスタイル・雰囲気の枠を外し、適合条件と過密を避ける制限の中で抽選します。0の後も2〜5で部分変更でき、6で保持した基礎設定へ復帰して抽選します。5は色だけを変更し、カット構成や動きを保持します。</p>
+    <p>9は字幕の個別テイスト・手動演出・カット数指定を解除し、最後に全体へ適用したスタイル・雰囲気・配色・書体・候補・統一感で再抽選します。元と同じ演出の復元ではありません。全体設定の変更で基準を更新し、字幕ガチャでは更新しません。基準はJSONに保存し、旧JSONでは残っている全体設定を使います。</p>
     <p>本文・開始／終了・他字幕は保持し、前後のつなぎだけ変わる場合があります。2〜4は担当範囲の手動指定も置き換え、対象外の指定は維持します。通常の6は手動指定を維持します。0は統一感による候補制限を外しますが、追加分・ホラーなどの使用許可は守ります。ロック中は対象外。再生中は0.3秒前から再生し直し、停止中は字幕の頭で停止します。Ctrl＋ZとJSON保存に対応します。</p>
     <p>Space：再生／停止。左右：2秒移動。Shift＋左右：字幕移動（左は現在の字幕の頭、開始直後なら前の字幕）。A／D：1フレーム移動。Shift＋A／D：1秒移動。R：全体のおまかせ。入力欄・ダイアログ内ではこれらの通常操作を行いません。</p>
     <h3>保存と復元</h3>
@@ -1357,7 +1365,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>「フロントだけ MP4を出力」は黒背景の無音MP4を1本保存します。スペアナは含み、音源と作業用背景は含みません。マットの画素生成・エンコードを省略します。後から別に作ったペアのマットとの一致は保証しないため、対応マットが必要ならペアで出力してください。</p>
     <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。圧縮前の最終フロントで黒以外の場所だけ、マットが黒になります。マットは2値で、半透明は保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
     <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.1</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -4297,7 +4305,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.3.0', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.3.1', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -37556,21 +37564,34 @@ J.partEditTarget = (cues, start, end, action) => {
     : start >= r.gapStart && end <= r.start));
   return boundary?.index ?? -1;
 };
-J.localLookContext = (p, audio) => JSON.stringify([
+const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
+  ? Object.fromEntries(Object.keys(value).sort().map(k => [k, canonical(value[k])])) : value;
+// Missing candidate entries and explicit true both mean enabled. Import expands
+// sparse pools, so neither expansion nor object insertion order invalidates a draw.
+const poolContext = enabled => Object.fromEntries(Object.entries(enabled || {}).map(([g, items]) =>
+  [g, Object.fromEntries(Object.entries(items || {}).filter(([, value]) => value === false))]).filter(([, items]) => Object.keys(items).length));
+const normalizeLookContext = values => {
+  if (!Array.isArray(values)) return values;
+  const result = values.slice(); result[4] = poolContext(result[4]); return result;
+};
+const savedLookContext = context => {
+  try { return JSON.stringify(canonical(normalizeLookContext(JSON.parse(context)))); } catch { return null; }
+};
+J.localLookContext = (p, audio) => JSON.stringify(canonical(normalizeLookContext([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
   p.timing?.bpm, p.timing?.offset, p.timing?.snap, p.timing?.lineScale, audio?.duration, audio?.beats,
-]);
+])));
 const cueKey = (text, start, end, part, ov) => JSON.stringify([text, start, end, part, ov]);
 J.localLookFor = (p, ln, ov, index, start, end) => {
   const saved = p.localLooks;
-  const entry = saved?.context === p._localLookContext && saved.lines?.[ln.cueId ?? ('line-' + index)];
+  const entry = saved && p._savedLocalLookContext === p._localLookContext && saved.lines?.[ln.cueId ?? ('line-' + index)];
   if (entry?.key === cueKey(ln.text, start, end, ln.part, ov)) return entry.cuts;
   if (ov.randomDraw?.text === ln.text && Array.isArray(ov.randomDraw.cuts))
     return J.fitRandomCueCuts(ov.randomDraw.cuts, end - start);
   return null;
 };
 const plan = J.plan;
-J.plan = (p, audio) => plan({ ...p, _localLookContext: J.localLookContext(p, audio) }, audio);
+J.plan = (p, audio) => plan({ ...p, _localLookContext: J.localLookContext(p, audio), _savedLocalLookContext: savedLookContext(p.localLooks?.context) }, audio);
 J.captureLocalLooks = (p, current, audio) => {
   const lines = {};
   current.lines.forEach(ln => {
@@ -37582,11 +37603,23 @@ J.captureLocalLooks = (p, current, audio) => {
 J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
+  ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
-J.cueRerollKey = mode => mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
+J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
 const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
+const globalKeys = [...ruleKeys, 'seed', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'unify', 'typeset'];
+// Local overrides are deliberately absent from the signature. Global controls,
+// including manual edits and history navigation, establish the latest baseline.
+J.globalLookBaseline = (p, current) => {
+  const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
+  const context = JSON.stringify(canonical({ ...values, enabled: poolContext(values.enabled) }));
+  if (p.globalLook?.context === context && p.globalLook.values && p.globalLook.palettes) return clone(p.globalLook);
+  const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes || []]))
+    : { normal: current.unifyPalettes || [], filler: current.unifyPalettes || [] };
+  return { context, values, palettes: clone(palettes) };
+};
 J.cueLookProject = (p, rule) => ({ ...p, ...Object.fromEntries(ruleKeys.filter(k => rule[k] != null).map(k => [k, rule[k]])) });
 const targetPlan = (plan, index) => plan.layerGroups?.find(g => g.indices.includes(index))?.plan || plan;
 // Hidden review draw: change one eligible join, preserve the rest of the composition.
@@ -37709,6 +37742,22 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.localLooks.lines[key] = { key: cueKey(ln.text, ln.start, ln.end, ln.part, target), cuts };
     return next;
   };
+  if (mode === 'global') {
+    const baseline = J.globalLookBaseline(p, current);
+    next.globalLook = baseline;
+    // A fresh draw in the global framework: discard local look, explicit techniques,
+    // forced cut counts and full-random snapshots; retain cue text and timestamps.
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+    const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
+    const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
+    const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
+    const cuts = J.lineSnapshot(fresh, index);
+    if (!cuts?.length) throw new Error(J.layerText('この字幕を再抽選できません。', 'This subtitle cannot be rerolled.'));
+    for (const c of cuts) c.renderLook = clone(look);
+    // Subsequent Q/6 now uses this global base, instead of the abandoned local taste.
+    target.cueLook = { ...ruleFrom(draft), palette: clone(source.style.schemes), palettes: clone(source.unifyPalettes || []), unifyMode: 'local' };
+    return storeCuts(cuts);
+  }
   if (mode === 'random') {
     const restore = clone(baseOverride(ov));
     const cuts = J.makeRandomCue(next, current, index, audio, random);
@@ -37957,6 +38006,131 @@ J.mergeCueDrawCuts = (oldCuts, freshCuts, mode) => {
 };
 })();
 
+/* Preview-only players: pitch-preserving media, plus decoded-PCM legacy 1x fallback. */
+J.PreviewAudio = class {
+  constructor(onError, onFallback) {
+    this.onError = onError; this.onFallback = onFallback;
+    this.media = null; this.url = null; this.serial = 0;
+    this.mode = 'media'; this.buffer = null; this.ctx = null; this.gain = null; this.src = null;
+    this.rate = 1; this.vol = 0.8; this.muted = false;
+    this.running = false; this.pending = false; this.offset = 0; this.tail = null;
+  }
+  load(file, buffer = null) {
+    this.clear(); this.buffer = buffer;
+    try { this.loadMedia(file); }
+    catch (_) { this.cancelReady?.(); this.ready = Promise.resolve(false); }
+  }
+  loadMedia(file) {
+    const media = this.media = document.createElement('audio');
+    media.preload = 'auto'; media.preservesPitch = true; this.applyVol();
+    this.ready = new Promise(resolve => {
+      const finish = ok => {
+        media.removeEventListener('loadedmetadata', loaded); media.removeEventListener('error', failed);
+        if (this.cancelReady === cancel) this.cancelReady = null;
+        resolve(ok);
+      };
+      const loaded = () => finish(true), failed = () => finish(false), cancel = () => finish(false);
+      this.cancelReady = cancel;
+      media.addEventListener('loadedmetadata', loaded); media.addEventListener('error', failed);
+    });
+    media.addEventListener('ended', () => {
+      if (this.media !== media || !this.running || this.mode !== 'media') return;
+      this.pending = false; this.tail = { t: media.duration, at: performance.now() };
+    });
+    media.addEventListener('error', () => {
+      if (this.media === media && this.running && this.mode === 'media') this.fail(this.serial);
+    });
+    this.url = URL.createObjectURL(file); media.src = this.url; media.load();
+  }
+  async play(offset, rate = this.rate, mode = this.mode) {
+    this.stop();
+    const token = this.serial, media = this.media;
+    this.mode = mode; this.offset = Math.max(0, offset); this.rate = mode === 'legacy' ? 1 : rate;
+    this.running = true; this.pending = true;
+    // Some restricted players never settle play()/metadata promises. Do not hang forever.
+    this.startTimer = setTimeout(() => { if (token === this.serial && this.pending) this.fail(token); }, 10000);
+    try {
+      if (mode === 'legacy') { await this.playLegacy(token); return; }
+      if (!media || !await this.ready) throw new Error('Preview audio unavailable');
+      if (token !== this.serial) return;
+      media.playbackRate = this.rate; media.preservesPitch = true;
+      if (this.offset >= media.duration) {
+        this.started(); this.tail = { t: this.offset, at: performance.now() }; return;
+      }
+      media.currentTime = this.offset;
+      await media.play();
+      if (token === this.serial) this.started();
+    } catch (err) { if (token === this.serial) this.fail(token); }
+  }
+  async playLegacy(token) {
+    if (!this.buffer) throw new Error('No decoded preview audio');
+    if (!this.ctx || this.ctx.state === 'closed') {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.gain = null;
+    }
+    if (this.ctx.state !== 'running') await this.ctx.resume();
+    if (token !== this.serial) return;
+    if (this.ctx.state !== 'running') throw new Error('Preview audio context unavailable');
+    if (!this.gain) { this.gain = this.ctx.createGain(); this.gain.connect(this.ctx.destination); }
+    this.applyVol();
+    const now = this.ctx.currentTime;
+    this.legacyStart = now - this.offset;
+    if (this.offset < this.buffer.duration) {
+      const src = this.src = this.ctx.createBufferSource(); src.buffer = this.buffer; src.connect(this.gain);
+      src.start(now, this.offset);
+    }
+    this.started();
+  }
+  started() { this.pending = false; clearTimeout(this.startTimer); this.startTimer = null; }
+  fail(token) {
+    if (token !== this.serial || !this.running) return;
+    const offset = this.time(), fallback = this.mode === 'media' && !!this.buffer;
+    this.stop();
+    if (fallback) {
+      this.mode = 'legacy'; this.rate = 1;
+      this.onFallback?.(offset);
+      this.play(offset, 1, 'legacy');
+    } else this.onError?.();
+  }
+  get seeking() { return this.mode === 'media' && !!this.media?.seeking; }
+  time() {
+    if (!this.running || this.pending) return this.offset;
+    if (this.mode === 'legacy') return Math.max(0, this.ctx.currentTime - this.legacyStart);
+    if (this.tail) return this.tail.t + (performance.now() - this.tail.at) * this.rate / 1000;
+    return this.media?.currentTime ?? this.offset;
+  }
+  setRate(rate) {
+    const t = this.time();
+    if (this.tail) this.tail = { t, at: performance.now() };
+    this.rate = this.mode === 'legacy' ? 1 : rate;
+    if (this.mode === 'media' && this.media) { this.media.playbackRate = rate; this.media.preservesPitch = true; }
+  }
+  stop() {
+    this.offset = this.time(); this.serial++; this.running = false; this.pending = false;
+    clearTimeout(this.startTimer); this.startTimer = null;
+    if (this.src) { try { this.src.stop(); } catch (_) {} try { this.src.disconnect(); } catch (_) {} this.src = null; }
+    this.tail = null; this.media?.pause();
+  }
+  clear() {
+    this.stop(); this.cancelReady?.();
+    const old = this.media; this.media = null;
+    if (old) { try { old.removeAttribute('src'); old.load(); } catch (_) {} }
+    if (this.url) URL.revokeObjectURL(this.url);
+    this.url = null; this.offset = 0; this.buffer = null;
+  }
+  setVol(v, muted) {
+    if (v != null) this.vol = Math.max(0, Math.min(1, v));
+    if (muted != null) this.muted = !!muted;
+    this.applyVol();
+  }
+  applyVol() {
+    if (this.media) { this.media.volume = this.vol * this.vol; this.media.muted = this.muted; }
+    if (this.gain) {
+      const v = this.muted ? 0 : this.vol * this.vol;
+      try { this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.015); } catch (_) { this.gain.gain.value = v; }
+    }
+  }
+};
+
 /* ============================================================
    JIZURA — editor UI
    ============================================================ */
@@ -37974,7 +38148,7 @@ const ICON = {
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
 let cueRerollHold = null;
 const LOOP_COPY = {
@@ -38027,24 +38201,45 @@ function syncLoopBtn() {
   refreshLoopHold();
 }
 
-/* WebAudio player (works inside sandboxed pages where blob media may be blocked) */
-const AP = {
-  ctx: null, src: null, startAt: 0, gain: null, vol: 0.8, muted: false,
-  play(buffer, offset) {
-    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    this.stop();
-    if (!this.gain) { this.gain = this.ctx.createGain(); this.gain.connect(this.ctx.destination); this.applyVol(); }
-    const s = this.ctx.createBufferSource(); s.buffer = buffer; s.connect(this.gain);
-    const off = Math.max(0, Math.min(offset, buffer.duration - 0.01));
-    s.start(0, off); this.src = s; this.startAt = this.ctx.currentTime - off;
-  },
-  stop() { if (this.src) { try { this.src.stop(); } catch (e) {} try { this.src.disconnect(); } catch (e) {} this.src = null; } },
-  time() { return this.ctx ? this.ctx.currentTime - this.startAt : 0; },
-  /* preview volume only (exports keep the original level) */
-  setVol(v, muted) { if (v != null) this.vol = Math.max(0, Math.min(1, v)); if (muted != null) this.muted = !!muted; this.applyVol(); },
-  applyVol() { if (!this.gain) return; const v = this.muted ? 0 : this.vol * this.vol; try { this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.015); } catch (e) { this.gain.gain.value = v; } },
-};
+const AP = new J.PreviewAudio(() => {
+  pause();
+  toast(J.layerText('プレビュー音声を再生できませんでした。再生ボタンで再試行するか、音源を読み込み直してください。', 'Preview audio could not play. Press Play to retry or reload the audio file.'));
+}, offset => {
+  S.previewEngine = 'legacy'; S.previewRate = 1; S.t = offset;
+  S.t0 = performance.now() - offset * 1000; S.need = true;
+  if ($('previewRate')) $('previewRate').value = 'legacy';
+  toast(J.layerText('通常の音声再生に失敗したため、旧1×に切り替えました。', 'Standard audio playback failed. Switched to Legacy 1×.'));
+});
+J.previewAudio = AP;
+J.previewRunning = () => S.playing && (!S.audio || (!AP.pending && !AP.seeking));
+function playbackTime(now = performance.now()) {
+  return Math.max(0, S.audio ? AP.time() : (now - S.t0) * S.previewRate / 1000);
+}
+function setPreviewRate(value) {
+  const mode = value === 'legacy' ? 'legacy' : 'media', rate = mode === 'legacy' ? 1 : Number(value);
+  if (![1, 0.8, 2 / 3, 0.5].includes(rate) || S.exporting || S.tap) return;
+  if (S.playing) S.t = playbackTime();
+  const switched = S.previewEngine !== mode;
+  S.previewEngine = mode; S.previewRate = rate;
+  if (switched) {
+    AP.stop(); AP.mode = mode; AP.setRate(rate);
+    if (S.playing && S.audio) AP.play(S.t, rate, mode);
+  } else AP.setRate(rate);
+  S.t0 = performance.now() - S.t * 1000 / rate;
+  if ($('previewRate')) $('previewRate').value = mode === 'legacy' ? 'legacy' : String(rate);
+  S.need = true;
+}
+function initPreviewSpeed() {
+  const label = document.createElement('label'); label.className = 'preview-speed';
+  const caption = document.createElement('span'); caption.textContent = J.layerText('速度', 'Speed');
+  const select = document.createElement('select'); select.id = 'previewRate';
+  select.title = J.layerText('プレビュー速度（音程を維持・出力には影響しません）', 'Preview speed (preserves pitch; does not affect exports)');
+  select.setAttribute('aria-label', J.layerText('プレビュー速度', 'Preview speed'));
+  for (const rate of [1, 0.8, 2 / 3, 0.5]) select.add(new Option(rate === 2 / 3 ? '2/3×' : rate + '×', String(rate)));
+  select.add(new Option(J.layerText('旧1×', 'Legacy 1×'), 'legacy'));
+  select.addEventListener('change', () => { setPreviewRate(select.value); select.value = S.previewEngine === 'legacy' ? 'legacy' : String(S.previewRate); });
+  label.append(caption, select); $('btnLoop').after(label);
+}
 /* プレビュー音量: remembered per browser */
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
@@ -38123,6 +38318,7 @@ function replan() {
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
   S.plan = J.plan(S.project, audioLike());
+  S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
   langNote();
@@ -38221,7 +38417,7 @@ function tick(now) {
   if (S.exporting) return;
   if (S.playing) {
     // rAF timestamps can precede the moment play()/seek() stamped t0 → clamp so t never goes negative
-    let t = Math.max(0, S.audio ? AP.time() : (now - S.t0) / 1000);
+    let t = playbackTime(now);
     const range = activeLoopRange();
     if (t >= range.end - 1e-3) {
       if (S.loop && !S.tap) { seek(range.start); t = range.start; }
@@ -38239,19 +38435,21 @@ function updateTimeUI() {
 }
 function play() {
   refreshLoopHold();
-  if (S.audio) AP.play(S.audio.buffer, S.t);
-  else S.t0 = performance.now() - S.t * 1000;
+  if (S.audio) AP.play(S.t, S.previewRate, S.previewEngine);
+  else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   S.playing = true; $('btnPlay').textContent = '❚❚'; $('btnPlay').setAttribute('aria-label', '一時停止');
 }
 function pause() {
+  if (S.playing) S.t = playbackTime();
   S.playing = false; AP.stop();
+  J.pausePreviewMedia?.();
   $('btnPlay').textContent = '▶'; $('btnPlay').setAttribute('aria-label', '再生'); S.need = true;
 }
 function seek(t, keepCueTarget = false) {
   if (!keepCueTarget) cueRerollHold = null;
   S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
-  if (S.audio) { if (S.playing) AP.play(S.audio.buffer, S.t); }
-  else S.t0 = performance.now() - S.t * 1000;
+  if (S.audio) { if (S.playing) AP.play(S.t, S.previewRate, S.previewEngine); }
+  else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   refreshLoopHold();
   S.need = true;
 }
@@ -38776,7 +38974,7 @@ async function resetAll() {
   if (S.tap) stopTap();
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
-  S.audio = null; if ($('audioFile')) $('audioFile').value = '';
+  S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
   if (J.forgetSong) await J.forgetSong();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
@@ -38954,7 +39152,7 @@ function randomPalette() {
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
@@ -39435,6 +39633,7 @@ function offerShare(boxes, blob, name) {
 /* ---------------- tap sync ---------------- */
 function resetTapSession() {
   S.tap = null; $('tapPanel').hidden = true; $('btnTap').setAttribute('aria-pressed', 'false');
+  if ($('previewRate')) $('previewRate').disabled = false;
 }
 function syncTapAvailability() {
   const srt = Array.isArray(S.project.subtitleCues);
@@ -39450,6 +39649,8 @@ function syncTapAvailability() {
 // start from any line: playback begins a little before that line, earlier lines keep their times
 function startTap(from = 0) {
   if (Array.isArray(S.project.subtitleCues) || !S.plan.lines.length) return;
+  setPreviewRate(S.previewEngine === 'legacy' ? 'legacy' : 1);
+  if ($('previewRate')) $('previewRate').disabled = true;
   from = J.clamp(from | 0, 0, S.plan.lines.length - 1);
   pushEdit();
   S.tap = { i: from, from, done: [] };
@@ -39682,7 +39883,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.0' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.1' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -39700,16 +39901,17 @@ function bind() {
   J.cueRerollModes.forEach(([mode, ja, en], i) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost small';
     b.id = mode === 'fine' ? 'btnCueReroll' : 'btnCueReroll-' + mode;
-    b.textContent = `${J.cueRerollKey(mode)}${mode === 'fine' ? ' / Q' : ''} ${J.layerText(ja, en)}`;
+    b.textContent = `${J.cueRerollKey(mode)} ${J.layerText(ja, en)}`;
     b.title = J.layerText('現在の字幕だけを変更（Ctrl+Zで戻す）', 'Change only the current subtitle (Ctrl+Z to undo)');
+    if (mode === 'global') b.title = J.layerText('字幕の個別指定を解除し、最後の全体設定で再抽選（ロック中は変更しません）', 'Clear this cue’s local choices and redraw using the latest global settings (locked cues stay unchanged)');
     b.addEventListener('click', () => rerollCue(null, mode));
     if (mode === 'random') {
-      b.title = J.layerText('制約と過密を考慮して幅広く抽選。Qで基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. Q returns to base settings (Ctrl+Z to undo).');
-      $('cueRollButtons').prepend(b);
-    } else $('cueRollButtons').append(b);
+      b.title = J.layerText('制約と過密を考慮して幅広く抽選。6で基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. 6 returns to base settings (Ctrl+Z to undo).');
+    }
+    $('cueRollButtons').append(b);
   });
   document.addEventListener('keydown', e => {
-    if (e.isComposing || document.querySelector('dialog[open]')) return;
+    if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return;
     const tag = (e.target && e.target.tagName) || '';
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) || e.target?.isContentEditable;
     if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
@@ -39718,15 +39920,16 @@ function bind() {
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !typing && !S.tap) { e.preventDefault(); edGo(e.shiftKey ? 1 : -1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY' && !typing && !S.tap) { e.preventDefault(); edGo(1); return; }
     if (typing || e.ctrlKey || e.metaKey || e.altKey || S.exporting || J.layerSession?.busy || S.tap) return;
+    if (e.code === 'Space' && e.target?.closest('button,summary,a[href],[role="button"]')) return;
     if (e.code === 'Space') { e.preventDefault(); S.playing ? pause() : play(); }
     else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
       e.preventDefault(); const direction = e.code === 'ArrowRight' ? 1 : -1;
       seek(e.shiftKey ? J.cueJumpTime(S.plan, S.t, direction) : S.t + direction * 2);
     }
     else if (e.code === 'KeyA' || e.code === 'KeyD') { e.preventDefault(); seek(S.t + (e.code === 'KeyD' ? 1 : -1) * (e.shiftKey ? 1 : 1 / S.plan.fps)); }
-    else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) rerollCue(); }
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
+    else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
     else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
@@ -39744,14 +39947,14 @@ async function loadAudioFile(f, restored) {
     pause();
     const a = await J.analyzeAudio(f);
     if (my !== audioSeq) return false;
-    S.audio = a;
+    pause(); AP.load(f, a.buffer); S.audio = a;
     $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）` + (restored ? '・前回の曲' : '');
     S.project.audioName = f.name;
     if (!restored && J.saveSong) J.saveSong(f);             // kept in this browser: a reload does not drop the song from exports
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
-  } catch (err) { if (my !== audioSeq) return false; $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; replan(); return false; }
+  } catch (err) { if (my !== audioSeq) return false; pause(); AP.clear(); $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; replan(); return false; }
 }
 
 /* ---------------- かんたんモードの案内ツアー ---------------- */
@@ -39828,7 +40031,7 @@ async function restoreFonts() {
 /* ---------------- boot ---------------- */
 function boot() {
   S.project = loadLocal();
-  bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
   restoreFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
@@ -39856,11 +40059,14 @@ J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restar
 const $ = id => document.getElementById(id), tr = J.layerText;
 const session = { background: null, front: null, matte: null, busy: false, generation: {}, preview: 'composite' };
 J.layerSession = session;
+J.pausePreviewMedia = () => { for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause(); };
 let renderer = null, spectrumPreview = null;
 const dirty = () => { if (J.ui) J.ui.need = true; };
 function syncMedia(m, t, playing) {
   if (!m?.video) return;
   const v = m.el, target = Math.max(0, Math.min(t, m.duration - 0.001));
+  const rate = J.ui.previewRate || 1;
+  if (v.playbackRate !== rate) v.playbackRate = rate;
   if (!v.seeking && Math.abs(v.currentTime - target) > (playing ? 0.15 : 0.0005)) v.currentTime = target;
   if (playing && t < m.duration) { if (v.paused) v.play().catch(() => {}); } else v.pause();
 }
@@ -39872,9 +40078,10 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
-  syncMedia(session.background, t, J.ui.playing);
+  const playing = J.previewRunning();
+  syncMedia(session.background, t, playing);
   for (const m of [session.front, session.matte]) {
-    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, J.ui.playing);
+    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, playing);
     else if (m?.video && !m.el.paused) m.el.pause();
   }
   if (J.ui.project.spectrumMode === 'generated') {
@@ -40589,6 +40796,63 @@ J.mountNativeSpectrumUI = panel => {
 };
 window.addEventListener('pagehide', () => { state.controller?.abort(); state.controller = null; state.pending = false; });
 window.addEventListener('pageshow', e => { if (e.persisted) J.syncLayerUI(); });
+})();
+
+/* Finish pointer-operated controls without stealing keyboard/text editing focus. */
+(() => {
+'use strict';
+function boot() {
+  const app = document.getElementById('app'), preview = document.getElementById('viewport');
+  if (!app || !preview) return;
+  preview.tabIndex = -1;
+  preview.setAttribute('role', 'region');
+  preview.setAttribute('aria-label', J.layerText('映像プレビュー・キーボード操作', 'Video preview and keyboard controls'));
+  let pointerControl = null, interaction = 0;
+  const modalOpen = () => !!document.querySelector('dialog[open]')
+    || Array.from(document.querySelectorAll('[role="dialog"][aria-modal="true"]')).some(el => el.getClientRects().length > 0);
+  const blocked = el => !el || !app.contains(el) || el.closest('dialog,[role="dialog"]')
+    || modalOpen() || J.ui?.tap;
+  const controlAt = target => {
+    if (!(target instanceof Element)) return null;
+    return target.closest('input,select,textarea,button,summary') || target.closest('label')?.control || null;
+  };
+  const returnToPreview = control => {
+    if (blocked(control)) return;
+    const stamp = interaction;
+    // Let change/click handlers finish validation, opening dialogs, and deliberate autofocus.
+    setTimeout(() => {
+      if (stamp !== interaction || blocked(control)) return;
+      const active = document.activeElement;
+      if (active === control || active === document.body) {
+        preview.focus({ preventScroll: true }); pointerControl = null;
+      }
+    }, 0);
+  };
+  document.addEventListener('pointerdown', e => {
+    interaction++; pointerControl = e.button === 0 ? controlAt(e.target) : null;
+    if (blocked(pointerControl)) pointerControl = null;
+  }, true);
+  document.addEventListener('keydown', () => { interaction++; pointerControl = null; }, true);
+  document.addEventListener('pointercancel', () => { interaction++; pointerControl = null; }, true);
+  document.addEventListener('pointerup', () => {
+    if (pointerControl?.matches('input[type="range"]')) returnToPreview(pointerControl);
+  });
+  document.addEventListener('change', e => {
+    const c = controlAt(e.target);
+    if (c === pointerControl && c?.matches('select,input[type="checkbox"],input[type="radio"],input[type="color"],input[type="file"]')) returnToPreview(c);
+  });
+  document.addEventListener('cancel', e => {
+    if (e.target === pointerControl && e.target.matches('input[type="file"]')) returnToPreview(e.target);
+  }, true);
+  document.addEventListener('click', e => {
+    const c = controlAt(e.target);
+    if (e.detail > 0 && c === pointerControl && c?.matches('button,summary,input[type="button"],input[type="submit"]')) returnToPreview(c);
+    // Explicitly clicking the image/timeline also ends text-field focus. Avoid overlay controls.
+    if (e.detail > 0 && e.target instanceof Element && (e.target === preview || e.target.matches('#view,#timeline')) && !blocked(preview))
+      preview.focus({ preventScroll: true });
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 
 </script>

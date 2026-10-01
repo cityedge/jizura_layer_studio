@@ -15,7 +15,7 @@ const ICON = {
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
 let cueRerollHold = null;
 const LOOP_COPY = {
@@ -68,24 +68,45 @@ function syncLoopBtn() {
   refreshLoopHold();
 }
 
-/* WebAudio player (works inside sandboxed pages where blob media may be blocked) */
-const AP = {
-  ctx: null, src: null, startAt: 0, gain: null, vol: 0.8, muted: false,
-  play(buffer, offset) {
-    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    this.stop();
-    if (!this.gain) { this.gain = this.ctx.createGain(); this.gain.connect(this.ctx.destination); this.applyVol(); }
-    const s = this.ctx.createBufferSource(); s.buffer = buffer; s.connect(this.gain);
-    const off = Math.max(0, Math.min(offset, buffer.duration - 0.01));
-    s.start(0, off); this.src = s; this.startAt = this.ctx.currentTime - off;
-  },
-  stop() { if (this.src) { try { this.src.stop(); } catch (e) {} try { this.src.disconnect(); } catch (e) {} this.src = null; } },
-  time() { return this.ctx ? this.ctx.currentTime - this.startAt : 0; },
-  /* preview volume only (exports keep the original level) */
-  setVol(v, muted) { if (v != null) this.vol = Math.max(0, Math.min(1, v)); if (muted != null) this.muted = !!muted; this.applyVol(); },
-  applyVol() { if (!this.gain) return; const v = this.muted ? 0 : this.vol * this.vol; try { this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.015); } catch (e) { this.gain.gain.value = v; } },
-};
+const AP = new J.PreviewAudio(() => {
+  pause();
+  toast(J.layerText('プレビュー音声を再生できませんでした。再生ボタンで再試行するか、音源を読み込み直してください。', 'Preview audio could not play. Press Play to retry or reload the audio file.'));
+}, offset => {
+  S.previewEngine = 'legacy'; S.previewRate = 1; S.t = offset;
+  S.t0 = performance.now() - offset * 1000; S.need = true;
+  if ($('previewRate')) $('previewRate').value = 'legacy';
+  toast(J.layerText('通常の音声再生に失敗したため、旧1×に切り替えました。', 'Standard audio playback failed. Switched to Legacy 1×.'));
+});
+J.previewAudio = AP;
+J.previewRunning = () => S.playing && (!S.audio || (!AP.pending && !AP.seeking));
+function playbackTime(now = performance.now()) {
+  return Math.max(0, S.audio ? AP.time() : (now - S.t0) * S.previewRate / 1000);
+}
+function setPreviewRate(value) {
+  const mode = value === 'legacy' ? 'legacy' : 'media', rate = mode === 'legacy' ? 1 : Number(value);
+  if (![1, 0.8, 2 / 3, 0.5].includes(rate) || S.exporting || S.tap) return;
+  if (S.playing) S.t = playbackTime();
+  const switched = S.previewEngine !== mode;
+  S.previewEngine = mode; S.previewRate = rate;
+  if (switched) {
+    AP.stop(); AP.mode = mode; AP.setRate(rate);
+    if (S.playing && S.audio) AP.play(S.t, rate, mode);
+  } else AP.setRate(rate);
+  S.t0 = performance.now() - S.t * 1000 / rate;
+  if ($('previewRate')) $('previewRate').value = mode === 'legacy' ? 'legacy' : String(rate);
+  S.need = true;
+}
+function initPreviewSpeed() {
+  const label = document.createElement('label'); label.className = 'preview-speed';
+  const caption = document.createElement('span'); caption.textContent = J.layerText('速度', 'Speed');
+  const select = document.createElement('select'); select.id = 'previewRate';
+  select.title = J.layerText('プレビュー速度（音程を維持・出力には影響しません）', 'Preview speed (preserves pitch; does not affect exports)');
+  select.setAttribute('aria-label', J.layerText('プレビュー速度', 'Preview speed'));
+  for (const rate of [1, 0.8, 2 / 3, 0.5]) select.add(new Option(rate === 2 / 3 ? '2/3×' : rate + '×', String(rate)));
+  select.add(new Option(J.layerText('旧1×', 'Legacy 1×'), 'legacy'));
+  select.addEventListener('change', () => { setPreviewRate(select.value); select.value = S.previewEngine === 'legacy' ? 'legacy' : String(S.previewRate); });
+  label.append(caption, select); $('btnLoop').after(label);
+}
 /* プレビュー音量: remembered per browser */
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
@@ -164,6 +185,7 @@ function replan() {
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
   S.plan = J.plan(S.project, audioLike());
+  S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
   langNote();
@@ -262,7 +284,7 @@ function tick(now) {
   if (S.exporting) return;
   if (S.playing) {
     // rAF timestamps can precede the moment play()/seek() stamped t0 → clamp so t never goes negative
-    let t = Math.max(0, S.audio ? AP.time() : (now - S.t0) / 1000);
+    let t = playbackTime(now);
     const range = activeLoopRange();
     if (t >= range.end - 1e-3) {
       if (S.loop && !S.tap) { seek(range.start); t = range.start; }
@@ -280,19 +302,21 @@ function updateTimeUI() {
 }
 function play() {
   refreshLoopHold();
-  if (S.audio) AP.play(S.audio.buffer, S.t);
-  else S.t0 = performance.now() - S.t * 1000;
+  if (S.audio) AP.play(S.t, S.previewRate, S.previewEngine);
+  else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   S.playing = true; $('btnPlay').textContent = '❚❚'; $('btnPlay').setAttribute('aria-label', '一時停止');
 }
 function pause() {
+  if (S.playing) S.t = playbackTime();
   S.playing = false; AP.stop();
+  J.pausePreviewMedia?.();
   $('btnPlay').textContent = '▶'; $('btnPlay').setAttribute('aria-label', '再生'); S.need = true;
 }
 function seek(t, keepCueTarget = false) {
   if (!keepCueTarget) cueRerollHold = null;
   S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
-  if (S.audio) { if (S.playing) AP.play(S.audio.buffer, S.t); }
-  else S.t0 = performance.now() - S.t * 1000;
+  if (S.audio) { if (S.playing) AP.play(S.t, S.previewRate, S.previewEngine); }
+  else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   refreshLoopHold();
   S.need = true;
 }
@@ -817,7 +841,7 @@ async function resetAll() {
   if (S.tap) stopTap();
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
-  S.audio = null; if ($('audioFile')) $('audioFile').value = '';
+  S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
   if (J.forgetSong) await J.forgetSong();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
@@ -995,7 +1019,7 @@ function randomPalette() {
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
@@ -1476,6 +1500,7 @@ function offerShare(boxes, blob, name) {
 /* ---------------- tap sync ---------------- */
 function resetTapSession() {
   S.tap = null; $('tapPanel').hidden = true; $('btnTap').setAttribute('aria-pressed', 'false');
+  if ($('previewRate')) $('previewRate').disabled = false;
 }
 function syncTapAvailability() {
   const srt = Array.isArray(S.project.subtitleCues);
@@ -1491,6 +1516,8 @@ function syncTapAvailability() {
 // start from any line: playback begins a little before that line, earlier lines keep their times
 function startTap(from = 0) {
   if (Array.isArray(S.project.subtitleCues) || !S.plan.lines.length) return;
+  setPreviewRate(S.previewEngine === 'legacy' ? 'legacy' : 1);
+  if ($('previewRate')) $('previewRate').disabled = true;
   from = J.clamp(from | 0, 0, S.plan.lines.length - 1);
   pushEdit();
   S.tap = { i: from, from, done: [] };
@@ -1741,16 +1768,17 @@ function bind() {
   J.cueRerollModes.forEach(([mode, ja, en], i) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost small';
     b.id = mode === 'fine' ? 'btnCueReroll' : 'btnCueReroll-' + mode;
-    b.textContent = `${J.cueRerollKey(mode)}${mode === 'fine' ? ' / Q' : ''} ${J.layerText(ja, en)}`;
+    b.textContent = `${J.cueRerollKey(mode)} ${J.layerText(ja, en)}`;
     b.title = J.layerText('現在の字幕だけを変更（Ctrl+Zで戻す）', 'Change only the current subtitle (Ctrl+Z to undo)');
+    if (mode === 'global') b.title = J.layerText('字幕の個別指定を解除し、最後の全体設定で再抽選（ロック中は変更しません）', 'Clear this cue’s local choices and redraw using the latest global settings (locked cues stay unchanged)');
     b.addEventListener('click', () => rerollCue(null, mode));
     if (mode === 'random') {
-      b.title = J.layerText('制約と過密を考慮して幅広く抽選。Qで基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. Q returns to base settings (Ctrl+Z to undo).');
-      $('cueRollButtons').prepend(b);
-    } else $('cueRollButtons').append(b);
+      b.title = J.layerText('制約と過密を考慮して幅広く抽選。6で基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. 6 returns to base settings (Ctrl+Z to undo).');
+    }
+    $('cueRollButtons').append(b);
   });
   document.addEventListener('keydown', e => {
-    if (e.isComposing || document.querySelector('dialog[open]')) return;
+    if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return;
     const tag = (e.target && e.target.tagName) || '';
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) || e.target?.isContentEditable;
     if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
@@ -1759,15 +1787,16 @@ function bind() {
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !typing && !S.tap) { e.preventDefault(); edGo(e.shiftKey ? 1 : -1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY' && !typing && !S.tap) { e.preventDefault(); edGo(1); return; }
     if (typing || e.ctrlKey || e.metaKey || e.altKey || S.exporting || J.layerSession?.busy || S.tap) return;
+    if (e.code === 'Space' && e.target?.closest('button,summary,a[href],[role="button"]')) return;
     if (e.code === 'Space') { e.preventDefault(); S.playing ? pause() : play(); }
     else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
       e.preventDefault(); const direction = e.code === 'ArrowRight' ? 1 : -1;
       seek(e.shiftKey ? J.cueJumpTime(S.plan, S.t, direction) : S.t + direction * 2);
     }
     else if (e.code === 'KeyA' || e.code === 'KeyD') { e.preventDefault(); seek(S.t + (e.code === 'KeyD' ? 1 : -1) * (e.shiftKey ? 1 : 1 / S.plan.fps)); }
-    else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) rerollCue(); }
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
+    else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
     else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
@@ -1785,14 +1814,14 @@ async function loadAudioFile(f, restored) {
     pause();
     const a = await J.analyzeAudio(f);
     if (my !== audioSeq) return false;
-    S.audio = a;
+    pause(); AP.load(f, a.buffer); S.audio = a;
     $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）` + (restored ? '・前回の曲' : '');
     S.project.audioName = f.name;
     if (!restored && J.saveSong) J.saveSong(f);             // kept in this browser: a reload does not drop the song from exports
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
-  } catch (err) { if (my !== audioSeq) return false; $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; replan(); return false; }
+  } catch (err) { if (my !== audioSeq) return false; pause(); AP.clear(); $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; replan(); return false; }
 }
 
 /* ---------------- かんたんモードの案内ツアー ---------------- */
@@ -1869,7 +1898,7 @@ async function restoreFonts() {
 /* ---------------- boot ---------------- */
 function boot() {
   S.project = loadLocal();
-  bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
   restoreFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';

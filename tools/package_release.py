@@ -13,7 +13,7 @@ FILES = [
     '.gitignore', 'index.html', 'VERSION', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
     'README.md', 'README.en.md', 'user_guide.md', 'user_guide.en.md', 'tools/obsolete_files.txt',
     'CHANGELOG.md', 'build.py', 'tools/package_release.py', 'dev/layer_test.js', 'dev/filler_test.js', 'dev/simple_export_test.js', 'dev/native_spectrum_test.js',
-    'dev/transition_test.js', 'dev/coverage_review_test.js',
+    'dev/transition_test.js', 'dev/coverage_review_test.js', 'dev/global_taste_test.js', 'dev/preview_audio_test.js',
 ]
 PATTERNS = ['src/*.js', 'app/*.py', 'app/*.js', 'app/*.html', 'app/*.css',
             'vendor/*.js', 'vendor/*.txt', 'vendor/*.tgz', 'docs/*.md']

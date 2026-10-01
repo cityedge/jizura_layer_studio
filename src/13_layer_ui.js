@@ -4,11 +4,14 @@
 const $ = id => document.getElementById(id), tr = J.layerText;
 const session = { background: null, front: null, matte: null, busy: false, generation: {}, preview: 'composite' };
 J.layerSession = session;
+J.pausePreviewMedia = () => { for (const m of [session.background, session.front, session.matte]) if (m?.video) m.el.pause(); };
 let renderer = null, spectrumPreview = null;
 const dirty = () => { if (J.ui) J.ui.need = true; };
 function syncMedia(m, t, playing) {
   if (!m?.video) return;
   const v = m.el, target = Math.max(0, Math.min(t, m.duration - 0.001));
+  const rate = J.ui.previewRate || 1;
+  if (v.playbackRate !== rate) v.playbackRate = rate;
   if (!v.seeking && Math.abs(v.currentTime - target) > (playing ? 0.15 : 0.0005)) v.currentTime = target;
   if (playing && t < m.duration) { if (v.paused) v.play().catch(() => {}); } else v.pause();
 }
@@ -20,9 +23,10 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
   if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
   let pixels = renderer.draw(plan, t, opt.fast);
-  syncMedia(session.background, t, J.ui.playing);
+  const playing = J.previewRunning();
+  syncMedia(session.background, t, playing);
   for (const m of [session.front, session.matte]) {
-    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, J.ui.playing);
+    if (J.ui.project.spectrumMode === 'external') syncMedia(m, t, playing);
     else if (m?.video && !m.el.paused) m.el.pause();
   }
   if (J.ui.project.spectrumMode === 'generated') {
