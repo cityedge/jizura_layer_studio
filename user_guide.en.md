@@ -1,10 +1,16 @@
-# JIZURA Layer Studio v1.3.1 User Manual
+# JIZURA Layer Studio v1.3.2 User Manual
 
 JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.3.1. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.3.2. Features removed from the original JIZURA are not presented as available operations.
+
+## Changes in v1.3.2
+
+- Preserve single-letter English word boundaries (for example, Had a and and I).
+- Stop storing audio and uploaded font binaries. Additional fonts must be installed on the PC and selected by family name. Old media caches are deleted at startup.
+- Show a resume reminder after opening JSON. Subtitles and fillers are restored without reimporting SRT; reload audio, background and external spectrum media separately.
 
 ## New in v1.3.1
 
@@ -92,7 +98,7 @@ Open the [English app](https://cityedge.github.io/jizura_layer_studio/en/) in de
 2. Open `en/index.html` in Chrome or Edge. `index.html` at the root opens Japanese.
 3. Keep the directory structure intact for language navigation and documentation.
 
-End users do not need Python, Node.js or ffmpeg to run this browser app. The app can run locally, but built-in fonts may be fetched from Google Fonts. Without a connection, check fallback appearance or use a local/uploaded font.
+End users do not need Python, Node.js or ffmpeg to run this browser app. The app can run locally, but built-in fonts may be fetched from Google Fonts. Without a connection, check fallback appearance or use a PC-installed font.
 
 ### Two language settings
 
@@ -312,11 +318,13 @@ Style-thumbnail backgrounds do not become the layer's empty-space color. Empty o
 
 Choose the style default to let the style decide. These are roles used by layouts, rather than word-processor formatting of an arbitrary selected character.
 
-### Local and uploaded fonts
+### Installed PC fonts
 
-Enter an installed PC font's family name and add it, or load a `.ttf`, `.otf`, `.woff` or `.woff2` file. Adding a font selects it for the display role; assign other roles separately as needed.
+Install additional fonts on your PC first. In Detailed mode, enter the family name and choose Add. This selects the display font; assign other roles as needed. Japanese family names are supported.
 
-Local family resolution depends on the PC and browser. Uploaded font binaries are not embedded in project JSON. The same browser may restore them from storage, but another PC or cleared storage requires reloading them. Reload the original font file if export reports a missing font.
+Project JSON and browser project autosave retain names and selections only, never font binaries. Install the same fonts on other PCs. An unavailable or misspelled family may render with a browser fallback.
+
+Direct font-file import has been removed. Legacy uploaded fonts preview with fallback; export is blocked while those fonts are used. Install the font on your PC and select its actual family name, or choose a built-in font. On startup, this version deletes old audio and uploaded-font binaries from browser storage.
 
 ## Colors
 
@@ -561,7 +569,7 @@ When generation is enabled, a coarse scan samples up to 600 windows across the w
 
 The selected range appears under Auto range and stays fixed throughout the song. Replacing audio estimates it again; color, placement, sensitivity and pulse changes do not change it. FFT sizes and window lengths are unchanged. The existing low-band allocation follows distinct FFT bins; separate bands can still move similarly when the audio does.
 
-JSON stores source mode, colors, motion and placement, not audio or analysis data. Reload the song when reopening a generated-spectrum project; a song restored by the same browser is analyzed again. Intentional black bars use RGB 030303, empty space uses 000000, and only nonzero front pixels become black in the binary matte. Original JIZURA equalizer-like subtitle effects remain separate from this feature.
+JSON stores source mode, colors, motion and placement, not audio or analysis data. Reload the song when reopening a generated-spectrum project. Audio is not cached or automatically restored. Intentional black bars use RGB 030303, empty space uses 000000, and only nonzero front pixels become black in the binary matte. Original JIZURA equalizer-like subtitle effects remain separate from this feature.
 
 ### Prepare footage
 
@@ -752,10 +760,10 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Aspect, resolution, fps, export range and spectrum layout | Yes |
 | Simple video duration and audio inclusion | Yes |
 | Audio/background/spectrum media binaries | No |
-| Uploaded font binaries | No |
+| PC font binaries | No |
 | Durable undo/look history or rendered MP4 files | No |
 
-Reselect background and spectrum when reopening. Song/font data may be restored from the same browser's storage, but another PC needs the source files separately.
+Reload audio, background and external spectrum media when reopening. Audio/font binaries are not cached or restored by the app; install additional fonts on the PC. Opening JSON displays a reminder. Subtitles and fillers are already restored: importing SRT again replaces them. Media already loaded in the session remains selected when opening JSON, so check that it belongs to the project.
 
 Autosave depends on origin, browser/profile and local-file location. Clearing browser data or using private mode can remove it. Save important work as JSON.
 

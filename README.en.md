@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.3.1**
+**Animated subtitle layers · cityedge fork · v1.3.2**
 
 New subtitle draw: **9 / Global taste** clears local choices and redraws the current cue within the latest globally applied settings.
 
@@ -48,7 +48,7 @@ The retained JIZURA effects engine works alongside this edition's layer tools. T
 | Prepare text | [Editable SRT cues](user_guide.en.md#importing-and-editing-srt), [direct input, LRC and markup](user_guide.en.md#typing-subtitles-directly) |
 | Follow music | [Beat analysis, BPM and tap sync](user_guide.en.md#audio-and-timing), [timeline zoom, seek and line/cut looping](user_guide.en.md#playback-and-timeline) |
 | Explore proposals | [Auto-compose, Shuffle, partial rerolls and look history](user_guide.en.md#auto-compose-and-shuffle) |
-| Refine typography | [Styles, three font roles and local/uploaded fonts](user_guide.en.md#styles-and-fonts), [colors](user_guide.en.md#colors) |
+| Refine typography | [Styles, three font roles and installed PC fonts](user_guide.en.md#styles-and-fonts), [colors](user_guide.en.md#colors) |
 | Control motion | [Motion, glitch, chromatic offset, ornaments, density, texture, HUD, cadence, unity and typesetting](user_guide.en.md#effects) |
 | Choose techniques | [Ten candidate groups, sets and locks](user_guide.en.md#choosing-techniques), [individual line/cut replacement](user_guide.en.md#editing-individual-lines-and-cuts) |
 | Work over footage | [Preview background and display modes](user_guide.en.md#preview-background-and-display-modes), [center-clear layout](user_guide.en.md#leaving-the-center-clear) |

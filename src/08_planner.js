@@ -153,7 +153,7 @@ J.chunkText = (text) => {
     else out.push(c);
   }
   for (let i = out.length - 1; i > 0; i--) {
-    if ([...out[i]].length === 1 && !J.isKanji(out[i])) { out[i - 1] += out[i]; out.splice(i, 1); }
+    if ([...out[i]].length === 1 && (J.isHira(out[i]) || J.isKata(out[i]))) { out[i - 1] += out[i]; out.splice(i, 1); }
   }
   return out.length ? out : [text];
 };

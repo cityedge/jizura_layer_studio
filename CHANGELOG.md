@@ -1,3 +1,13 @@
+## 1.3.2 — 2026-10-01
+
+- フォントファイルの読み込み・保存を廃止。追加書体はPCの書体名指定に統一し、日本語名のJSON復元を修正。音源のブラウザ保存・自動復元も廃止し、旧素材キャッシュを起動時に削除。字幕・設定の自動保存は維持。
+- Remove font-file imports and binary storage; use installed PC family names and preserve Japanese names across JSON reloads. Remove audio caching/restoration and clean up legacy media caches at startup. Keep project autosave.
+- JSON読込後に再開手順のダイアログを表示。字幕・フィラーは復元済みでSRTは再読込不要、音源・背景・外部スペアナは別途必要であることを案内。
+- Show a resume dialog after opening JSON: subtitles and fillers are restored without reimporting SRT; audio, background and external spectrum media must be supplied separately.
+
+- 英語の1文字単語が前の語と連結される問題（`Had a` → `Hada`、`and I` → `andI`）を修正。単独文字の結合をかなに限定し、英単語・数字・図形の区切りを保持。
+- Fix single-letter English words merging into the preceding word (`Had a` → `Hada`, `and I` → `andI`). Limit single-character merging to kana, preserving boundaries for English words, numbers and symbols.
+
 ## 1.3.1 — 2026-10-01
 
 - プレビュー速度の末尾に「旧1×」を追加。解析済み音声を元のWeb Audio方式で1倍再生し、通常プレーヤーの読み込み・再生失敗や開始待ちのタイムアウト時にも同じ位置から自動切替。手動切替、音量・消音、シーク・ループに対応。旧方式でも失敗した場合は通知して停止。

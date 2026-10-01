@@ -90,37 +90,32 @@ J.audioWav = (buffer, duration, offset = 0) => {
   return new Blob([ab], { type: 'audio/wav' });
 };
 
-/* the last song, kept in this browser (IndexedDB) so a reload does not silently drop the audio from exports */
-const IDB = { db: null };
-IDB.open = () => IDB.db || (IDB.db = new Promise((res, rej) => {
-  if (typeof indexedDB === 'undefined') return rej(new Error('no IndexedDB'));
-  const r = indexedDB.open('jizura', 1);
-  r.onupgradeneeded = () => { r.result.createObjectStore('files'); };
-  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
-}));
-J.saveSong = async (file) => {
+/* Remove only this app's obsolete media cache. No new media is persisted. */
+J.clearLegacyMediaCache = async () => {
+  if (typeof indexedDB === 'undefined') return false;
+  let db;
   try {
-    const db = await IDB.open(), data = await file.arrayBuffer();
-    await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put({ name: file.name, type: file.type, data }, 'song'); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('jizura');
+      // Do not create a database for new users.
+      request.onupgradeneeded = () => request.transaction.abort();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    if (!db.objectStoreNames.contains('files')) return true;
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('files', 'readwrite'), store = tx.objectStore('files');
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result; if (!cursor) return;
+        if (cursor.key === 'song' || (typeof cursor.key === 'string' && cursor.key.startsWith('font:'))) cursor.delete();
+        cursor.continue();
+      };
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error);
+    });
     return true;
   } catch (e) { return false; }
-};
-J.loadSong = async () => {
-  try {
-    const db = await IDB.open();
-    const rec = await new Promise((res, rej) => { const tx = db.transaction('files', 'readonly'); const q = tx.objectStore('files').get('song'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
-    if (!rec || !rec.data) return null;
-    return new File([rec.data], rec.name || 'song', { type: rec.type || '' });
-  } catch (e) { return null; }
-};
-J.saveFontData = async (key, data) => {
-  try { const db = await IDB.open(); await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put({ data }, 'font:' + key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); return true; } catch (e) { return false; }
-};
-J.loadFontData = async (key) => {
-  try { const db = await IDB.open(); const rec = await new Promise((res, rej) => { const tx = db.transaction('files', 'readonly'); const q = tx.objectStore('files').get('font:' + key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); return rec && rec.data ? rec.data : null; } catch (e) { return null; }
-};
-J.forgetSong = async () => {
-  try { const db = await IDB.open(); await new Promise(res => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete('song'); tx.oncomplete = res; tx.onerror = res; }); } catch (e) {}
+  finally { if (db) db.close(); }
 };
 
 /* rebuild a beat grid from a user BPM + first-beat offset */

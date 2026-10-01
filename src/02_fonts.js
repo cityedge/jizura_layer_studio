@@ -35,43 +35,29 @@ J.FONTS = {
 };
 J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap';
 
-/* user fonts (local family names or uploaded files) */
+/* User fonts reference installed PC families; no font binaries are loaded or stored. */
 J.addUserFont = (key, label, family, weight = 400, kind = 'custom') => {
   J.FONTS[key] = { label, family: `"${family.replace(/"/g, '')}"`, weight, kind, fb: JP_SANS_FB, user: true };
   J.glyphs.clear();
 };
 /* only plain keys / family names ever reach the page (project files are untrusted input) */
-J.SAFE_FONT_KEY = /^user_[A-Za-z0-9_-]{1,80}$/;
-J.safeFamily = s => String(s || '').replace(/[^\w\- ]/g, '_').slice(0, 80);
-J.loadFontFile = async (file) => {
-  const buf = await file.arrayBuffer();
-  const fam = 'UF_' + file.name.replace(/\.[^.]+$/, '').replace(/[^\w]/g, '_').slice(0, 60);
-  const ff = new FontFace(fam, buf);
-  await ff.load(); document.fonts.add(ff);
-  const key = 'user_' + fam, label = file.name.replace(/\.[^.]+$/, '').slice(0, 80);
-  J.addUserFont(key, label, fam, 400, 'custom');
-  J.FONTS[key].loaded = true;
-  if (J.saveFontData) J.saveFontData(key, buf);        // kept in this browser, so a reload keeps the face
-  return { key, label, family: fam, weight: 400 };
-};
-/* uploaded faces of a project: register them from this browser's copy; returns the labels that are not available */
-J.restoreUserFonts = async (list) => {
-  const missing = [];
-  for (const uf of list || []) {
-    const f = J.FONTS[uf.key];
-    if (f && f.loaded) continue;
-    let ok = false;
-    try {
-      const buf = J.loadFontData ? await J.loadFontData(uf.key) : null;
-      if (buf) { const ff = new FontFace(J.safeFamily(uf.family), buf); await ff.load(); document.fonts.add(ff); ok = true; }
-    } catch (e) { ok = false; }
-    if (ok && J.FONTS[uf.key]) { J.FONTS[uf.key].loaded = true; J.glyphs.clear(); J.metrics.clear(); }
-    else missing.push(uf.label || uf.family || uf.key);
+J.SAFE_FONT_KEY = /^(?:local_[\p{L}\p{N}_-]{1,100}|user_[A-Za-z0-9_-]{1,80})$/u;
+J.safeFamily = s => String(s || '').replace(/["\\\x00-\x1f\x7f]/g, '').trim().slice(0, 100);
+J.registerProjectFonts = list => {
+  for (const [key, font] of Object.entries(J.FONTS)) if (font.user) delete J.FONTS[key];
+  const fonts = (Array.isArray(list) ? list : []).filter(f => f && J.SAFE_FONT_KEY.test(f.key))
+    .map(f => ({ key: f.key, label: String(f.label || f.key).slice(0, 80), family: J.safeFamily(f.family), weight: J.clamp(parseInt(f.weight, 10) || 400, 100, 900) }));
+  for (const f of fonts) {
+    const legacy = f.key.startsWith('user_');
+    // Old uploaded filenames do not identify installed family names. Keep a marked
+    // placeholder so old cuts can preview with fallback, but never silently export it.
+    J.addUserFont(f.key, f.label, legacy ? 'JizuraUnavailableLegacyFont' : f.family, f.weight);
+    J.FONTS[f.key].legacyUpload = legacy;
   }
-  return missing;
+  J.glyphs.clear(); J.metrics.clear();
+  return fonts;
 };
-/* uploaded faces the plan draws with but this page does not have */
-J.missingUserFonts = (keys) => (keys || []).filter(k => J.FONTS[k] && J.FONTS[k].user && !J.FONTS[k].loaded).map(k => J.FONTS[k].label);
+J.missingUserFonts = keys => [...new Set((keys || []).filter(k => J.FONTS[k]?.legacyUpload).map(k => J.FONTS[k].label))];
 
 J.fontCSS = (key, px) => {
   const f = J.faceOf ? J.faceOf(key) : (J.FONTS[key] || J.FONTS.gothic_bold);   // per-language face (02b_lang.js)
@@ -154,7 +140,7 @@ J.metrics = {
    A glyph is rasterised once per (font, char, resolution bucket); its alpha
    mask is split into connected pieces (strokes / radicals / dots) so that
    each can be flown, shattered or dropped independently. Works with any
-   font the browser can render, including local and uploaded ones.        */
+   font the browser can render, including installed PC fonts.        */
 class GlyphCache {
   constructor() { this.map = new Map(); this.tint = new Map(); this.count = 0; this.maxRes = 512; }
   clear() { this.map.clear(); this.tint.clear(); }

@@ -216,7 +216,7 @@ async function exportVideo(simple, frontOnly = false) {
       const project = structuredClone(J.ui.project), plan = J.ui.plan, range = J.uiApi.exportRange();
       await J.ensureFonts(project.lyrics, J.fontsOfPlan(plan));
       const missing = J.missingUserFonts(J.fontsOfPlan(plan));
-      if (missing.length) throw new Error(tr('不足しているフォントを読み直してください: ', 'Reload missing fonts: ') + missing.join(', '));
+      if (missing.length) throw new Error(tr('旧フォントファイルの指定を、PCにインストール済みの書体または標準書体に変更してください: ', 'Replace legacy file-font selections with installed PC fonts or built-in fonts: ') + missing.join(', '));
       const args = { plan, project, spectrum, range, signal: ac.signal,
         onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : frontOnly ? tr('フロント動画を生成中 ', 'Encoding front video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
       const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : frontOnly ? await J.exportLayerFront(args) : await J.exportLayerPair(args);

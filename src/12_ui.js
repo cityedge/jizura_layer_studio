@@ -144,9 +144,7 @@ function mergeProject(p) {
     if (typeof v === 'boolean') o.colors[k] = v;
     else if (typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)) o.colors[k] = v;
   }
-  o.userFonts = (Array.isArray(p && p.userFonts) ? p.userFonts : []).filter(uf => uf && J.SAFE_FONT_KEY.test(uf.key))
-    .map(uf => ({ key: uf.key, label: String(uf.label || uf.key).slice(0, 80), family: J.safeFamily(uf.family || uf.key.slice(5)), weight: J.clamp(parseInt(uf.weight, 10) || 400, 100, 900) }));
-  for (const uf of o.userFonts) if (!J.FONTS[uf.key]) J.addUserFont(uf.key, uf.label, uf.family, uf.weight);
+  o.userFonts = J.registerProjectFonts(p && p.userFonts);
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
   return o;
@@ -157,6 +155,22 @@ function setBadges(d) {
     + (d && d.set && SET_UI[d.set] ? `<span class="set-badge set-${d.set}" title="${SET_UI[d.set].name}">${SET_UI[d.set].badge}</span>` : '');
 }
 function loadLocal() { try { const s = localStorage.getItem(LS_KEY); if (s) return mergeProject(JSON.parse(s)); } catch (e) {} return mergeProject(null); }
+function showProjectLoadNotice() {
+  let dlg = $('projectLoadNotice');
+  if (!dlg) {
+    dlg = document.createElement('dialog'); dlg.id = 'projectLoadNotice'; dlg.className = 'terms publication-dialog';
+    const title = document.createElement('h2'); title.id = 'projectLoadNoticeTitle'; title.textContent = J.layerText('プロジェクトを読み込みました', 'Project loaded');
+    dlg.setAttribute('aria-labelledby', title.id); dlg.append(title);
+    for (const [ja, en] of [
+      ['字幕・フィラー・演出設定はJSONから復元されます。SRTの再読み込みは不要です（読み込むと現在の字幕を置き換えます）。', 'Subtitles, fillers and effect settings are restored from JSON. Do not reimport SRT to resume: importing it replaces the current subtitles.'],
+      ['音源・背景画像／動画・外部スペアナのフロント／マット動画はJSONに含まれません。使用する素材は別途読み込んでください。すでに選択中の素材がある場合は、このプロジェクト用か確認してください。', 'Audio, background images/videos and external spectrum front/matte videos are not included in JSON. Load the media you use separately. If media is already selected, check that it belongs to this project.'],
+      ['追加書体はPCにインストール済みのフォントを使用します。別のPCでは同じ書体をインストールしてください。音源・フォント本体のブラウザ保存と自動復元は行いません。', 'Additional fonts use installed PC families. Install the same fonts on another PC. Audio and font files are no longer stored or restored by the app.'],
+    ]) { const p = document.createElement('p'); p.textContent = J.layerText(ja, en); dlg.append(p); }
+    const button = document.createElement('button'); button.type = 'button'; button.textContent = J.layerText('閉じる', 'Close'); button.addEventListener('click', () => dlg.close()); dlg.append(button);
+    document.body.append(dlg);
+  }
+  pause(); dlg.showModal(); dlg.querySelector('button').focus();
+}
 let saveTimer = 0;
 function autosave() { clearTimeout(saveTimer); saveTimer = setTimeout(flushSave, 700); }
 function flushSave() { clearTimeout(saveTimer); try { localStorage.setItem(LS_KEY, JSON.stringify(S.project)); } catch (e) {} }
@@ -842,7 +856,6 @@ async function resetAll() {
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
   S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
-  if (J.forgetSong) await J.forgetSong();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0;
@@ -1451,7 +1464,7 @@ async function runExport(kind) {
   try {
     await J.ensureFonts(S.project.lyrics + (S.project.title || '') + (S.project.artist || '') + HUD_CHARS, J.fontsOfPlan(S.plan));
     const lost = J.missingUserFonts(J.fontsOfPlan(S.plan).concat(Object.values(S.project.fonts || {})));
-    if (lost.length) throw new Error(`読み込んだ書体（${[...new Set(lost)].join('・')}）がこのブラウザにないため、書き出しを止めました。「フォント」から同じファイルを読み込み直すか、別の書体を選んでください`);
+    if (lost.length) throw new Error(J.layerText('旧フォントファイルの指定を、PCにインストール済みの書体または標準書体に変更してください: ', 'Replace legacy file-font selections with installed PC fonts or built-in fonts: ') + lost.join(', '));
     if (kind === 'mp4' || kind === 'mp4file') {
       const plan = S.plan, range = exportRange(), span = J.exportSpan(plan, range);
       const r = await J.exportMP4({ plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range, file });
@@ -1682,22 +1695,14 @@ function bind() {
   $('accentOn').addEventListener('change', colorToggle('accentOn', ACCENT_KEYS));
   $('btnRandPalette').addEventListener('click', randomPalette);
   $('btnAddFont').addEventListener('click', () => {
-    const name = $('localFont').value.trim(); if (!name) return;
-    const key = 'local_' + name.replace(/\s+/g, '_');
+    const name = J.safeFamily($('localFont').value); if (!name) return;
+    const key = 'local_' + J.sid(name).toString(16);
     const weight = /bold|太|black|heavy|w[6-9]|[6-9]00/i.test(name) ? 700 : 400;
-    J.addUserFont(key, name + '（PC）', name, weight);
-    S.project.userFonts = (S.project.userFonts || []).filter(u => u.key !== key).concat([{ key, label: name + '（PC）', family: name, weight }]);
+    const label = name + J.layerText('（PC）', ' (PC)');
+    J.addUserFont(key, label, name, weight);
+    S.project.userFonts = (S.project.userFonts || []).filter(u => u.key !== key).concat([{ key, label, family: name, weight }]);
     S.project.fonts.display = key; $('localFont').value = '';
     fontKey = ''; renderFontRoles(); replan();
-  });
-  $('fontFile').addEventListener('change', async e => {
-    const f = e.target.files && e.target.files[0]; if (!f) return;
-    try {
-      const uf = await J.loadFontFile(f);
-      S.project.userFonts = (S.project.userFonts || []).filter(x => x.key !== uf.key).concat([uf]);
-      S.project.fonts.display = uf.key; fontKey = ''; renderFontRoles(); replan(); flushSave();
-    }
-    catch (err) { showMsg('フォントを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
   });
   ['outAspect', 'eAspect'].forEach(id => $(id).addEventListener('change', e => { S.project.aspect = e.target.value; syncOut(); replan(); codecNote(); }));
   ['outRes', 'eRes'].forEach(id => $(id).addEventListener('change', e => { S.project.res = +e.target.value; syncOut(); autosave(); codecNote(); }));
@@ -1761,7 +1766,7 @@ function bind() {
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); restoreFonts(); }
+    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); warnLegacyFonts(); showProjectLoadNotice(); }
     catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
@@ -1807,7 +1812,7 @@ function bind() {
 
 /* song file -> beat analysis (file input) */
 let audioSeq = 0;
-async function loadAudioFile(f, restored) {
+async function loadAudioFile(f) {
   const my = ++audioSeq;                      // only the latest choice may win (an earlier, slower analysis is dropped)
   $('audioName').textContent = '解析中…';
   try {
@@ -1815,9 +1820,8 @@ async function loadAudioFile(f, restored) {
     const a = await J.analyzeAudio(f);
     if (my !== audioSeq) return false;
     pause(); AP.load(f, a.buffer); S.audio = a;
-    $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）` + (restored ? '・前回の曲' : '');
+    $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）`;
     S.project.audioName = f.name;
-    if (!restored && J.saveSong) J.saveSong(f);             // kept in this browser: a reload does not drop the song from exports
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
@@ -1886,20 +1890,21 @@ function bindTour() {
   window.addEventListener('scroll', () => { if (TR.i >= 0) tourPlace(TOUR[TR.i].t()); }, true);
 }
 
-/* uploaded faces: bring them back from this browser; say so when a project uses one that is not here */
-async function restoreFonts() {
+/* Legacy file-font references are retained as unavailable placeholders, never loaded. */
+function warnLegacyFonts() {
   const list = S.project.userFonts || [];
   if (!list.length) return;
-  const missing = await J.restoreUserFonts(list);
+  const missing = J.missingUserFonts(list.map(f => f.key));
   fontKey = ''; renderFontRoles(); replan();
-  if (missing.length) toast(`読み込んだ書体（${missing.join('・')}）がこのブラウザにありません。「フォント」から同じファイルを読み込み直してください（それまでは近い書体で表示します）`);
+  if (missing.length) toast(J.layerText('旧フォントファイルは使えません。PCにインストールして書体名を指定するか、標準書体に変更してください: ', 'Legacy font files are no longer supported. Install the font on your PC and add its family name, or choose a built-in font: ') + missing.join(', '));
 }
 
 /* ---------------- boot ---------------- */
 function boot() {
+  J.clearLegacyMediaCache?.();
   S.project = loadLocal();
   bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
-  restoreFonts();
+  warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
   try { mode = localStorage.getItem('jizura.mode') || mode; } catch (e) {}
@@ -1911,8 +1916,6 @@ function boot() {
   const c0 = S.plan.cuts.find(c => c.line >= 0);
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
   requestAnimationFrame(tick);
-  // the song used last time (same name as the saved project's) comes back after a reload
-  if (J.loadSong && S.project.audioName) J.loadSong().then(f => { if (f && f.name === S.project.audioName && !S.audio) loadAudioFile(f, true); });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;

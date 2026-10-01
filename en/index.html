@@ -559,7 +559,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.1</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.2</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -743,7 +743,7 @@ dialog.filler-dialog p { font-size:12px; }
           <input id="localFont" type="text" placeholder="Installed font name (e.g. Arial)" style="flex:1">
           <button id="btnAddFont">Add</button>
         </div>
-        <div class="row" style="margin-top:8px"><label class="file">Font file (.ttf/.otf)<input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2"></label></div>
+        <p class="note">Install additional fonts on your PC, then enter the family name. Font files are not stored.</p>
         <h3>Accent and offset colors</h3>
         <label class="check"><input id="accentOn" type="checkbox"><span>Use custom colors<small>Applies to every scene. Brightness adapts to the background.</small></span></label>
         <div class="color-row" id="colorRowAccent"></div>
@@ -837,7 +837,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.1</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.2</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1318,7 +1318,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio User Guide</h2>
-    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.3.1 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.3.2 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
     <p class="terms-main">Create an animated subtitle front and binary matte to composite over another video.</p>
     <ol class="guide-steps">
       <li><strong>Import subtitles</strong><p>Choose a UTF-8 SRT with “Import SRT”. Start/end times, line breaks and gaps are preserved. Use “Edit SRT text, start and end” to make changes. You can also type subtitles without an SRT.</p></li>
@@ -1359,12 +1359,12 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Text, cue times and other subtitles stay fixed except for adjacent joins. Modes 2–4 replace manual choices within their scope; ordinary Fine-tune retains them. Random bypasses Unified look while respecting effect-pack permissions. Locked cues are skipped. Playing previews restart 0.3 seconds before the cue; paused previews stay at its start. Ctrl-Z and project JSON preserve local results.</p>
     <p>Space: play/pause. Left/right: 2 seconds. Shift-left/right: cue navigation (left returns to the current start, or the previous cue when near the start). A/D: one frame. Shift-A/D: one second. R: whole-project Auto-compose. These normal shortcuts do not run in inputs or dialogs.</p>
     <h3>Save and restore</h3>
-    <p>Save a project JSON with the top Save button. It preserves subtitles, effects and spectrum placement, but not the actual background, spectrum or song files. Reselect those files when reopening. Save your project before switching languages.</p>
+    <p>Save a project JSON with the top Save button. It preserves subtitles, effects and spectrum placement, but not the actual background, spectrum or song files. Reload those media files when reopening. Audio/font binaries are not stored by the app; install additional fonts on the PC and enter their family names. Opening JSON displays a reminder. Subtitles and fillers are restored, so do not reimport SRT. Save your project before switching languages.</p>
     <h3>Output characteristics</h3>
     <p>Export front MP4 only saves one silent video on black, including any spectrum but excluding audio and the preview background. It skips matte pixel generation and encoding. Matching a matte exported separately later is not guaranteed; use pair export when you need a matching matte.</p>
     <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. Before compression, exactly the nonblack pixels in the final front have a black matte. The matte is binary, without partial transparency. MP4 compression can slightly change colours and edges.</p>
     <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.1</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.2</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -1650,43 +1650,29 @@ J.FONTS = {
 };
 J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap';
 
-/* user fonts (local family names or uploaded files) */
+/* User fonts reference installed PC families; no font binaries are loaded or stored. */
 J.addUserFont = (key, label, family, weight = 400, kind = 'custom') => {
   J.FONTS[key] = { label, family: `"${family.replace(/"/g, '')}"`, weight, kind, fb: JP_SANS_FB, user: true };
   J.glyphs.clear();
 };
 /* only plain keys / family names ever reach the page (project files are untrusted input) */
-J.SAFE_FONT_KEY = /^user_[A-Za-z0-9_-]{1,80}$/;
-J.safeFamily = s => String(s || '').replace(/[^\w\- ]/g, '_').slice(0, 80);
-J.loadFontFile = async (file) => {
-  const buf = await file.arrayBuffer();
-  const fam = 'UF_' + file.name.replace(/\.[^.]+$/, '').replace(/[^\w]/g, '_').slice(0, 60);
-  const ff = new FontFace(fam, buf);
-  await ff.load(); document.fonts.add(ff);
-  const key = 'user_' + fam, label = file.name.replace(/\.[^.]+$/, '').slice(0, 80);
-  J.addUserFont(key, label, fam, 400, 'custom');
-  J.FONTS[key].loaded = true;
-  if (J.saveFontData) J.saveFontData(key, buf);        // kept in this browser, so a reload keeps the face
-  return { key, label, family: fam, weight: 400 };
-};
-/* uploaded faces of a project: register them from this browser's copy; returns the labels that are not available */
-J.restoreUserFonts = async (list) => {
-  const missing = [];
-  for (const uf of list || []) {
-    const f = J.FONTS[uf.key];
-    if (f && f.loaded) continue;
-    let ok = false;
-    try {
-      const buf = J.loadFontData ? await J.loadFontData(uf.key) : null;
-      if (buf) { const ff = new FontFace(J.safeFamily(uf.family), buf); await ff.load(); document.fonts.add(ff); ok = true; }
-    } catch (e) { ok = false; }
-    if (ok && J.FONTS[uf.key]) { J.FONTS[uf.key].loaded = true; J.glyphs.clear(); J.metrics.clear(); }
-    else missing.push(uf.label || uf.family || uf.key);
+J.SAFE_FONT_KEY = /^(?:local_[\p{L}\p{N}_-]{1,100}|user_[A-Za-z0-9_-]{1,80})$/u;
+J.safeFamily = s => String(s || '').replace(/["\\\x00-\x1f\x7f]/g, '').trim().slice(0, 100);
+J.registerProjectFonts = list => {
+  for (const [key, font] of Object.entries(J.FONTS)) if (font.user) delete J.FONTS[key];
+  const fonts = (Array.isArray(list) ? list : []).filter(f => f && J.SAFE_FONT_KEY.test(f.key))
+    .map(f => ({ key: f.key, label: String(f.label || f.key).slice(0, 80), family: J.safeFamily(f.family), weight: J.clamp(parseInt(f.weight, 10) || 400, 100, 900) }));
+  for (const f of fonts) {
+    const legacy = f.key.startsWith('user_');
+    // Old uploaded filenames do not identify installed family names. Keep a marked
+    // placeholder so old cuts can preview with fallback, but never silently export it.
+    J.addUserFont(f.key, f.label, legacy ? 'JizuraUnavailableLegacyFont' : f.family, f.weight);
+    J.FONTS[f.key].legacyUpload = legacy;
   }
-  return missing;
+  J.glyphs.clear(); J.metrics.clear();
+  return fonts;
 };
-/* uploaded faces the plan draws with but this page does not have */
-J.missingUserFonts = (keys) => (keys || []).filter(k => J.FONTS[k] && J.FONTS[k].user && !J.FONTS[k].loaded).map(k => J.FONTS[k].label);
+J.missingUserFonts = keys => [...new Set((keys || []).filter(k => J.FONTS[k]?.legacyUpload).map(k => J.FONTS[k].label))];
 
 J.fontCSS = (key, px) => {
   const f = J.faceOf ? J.faceOf(key) : (J.FONTS[key] || J.FONTS.gothic_bold);   // per-language face (02b_lang.js)
@@ -1769,7 +1755,7 @@ J.metrics = {
    A glyph is rasterised once per (font, char, resolution bucket); its alpha
    mask is split into connected pieces (strokes / radicals / dots) so that
    each can be flown, shattered or dropped independently. Works with any
-   font the browser can render, including local and uploaded ones.        */
+   font the browser can render, including installed PC fonts.        */
 class GlyphCache {
   constructor() { this.map = new Map(); this.tint = new Map(); this.count = 0; this.maxRes = 512; }
   clear() { this.map.clear(); this.tint.clear(); }
@@ -4211,7 +4197,7 @@ J.chunkText = (text) => {
     else out.push(c);
   }
   for (let i = out.length - 1; i > 0; i--) {
-    if ([...out[i]].length === 1 && !J.isKanji(out[i])) { out[i - 1] += out[i]; out.splice(i, 1); }
+    if ([...out[i]].length === 1 && (J.isHira(out[i]) || J.isKata(out[i]))) { out[i - 1] += out[i]; out.splice(i, 1); }
   }
   return out.length ? out : [text];
 };
@@ -4304,7 +4290,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.3.1', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.3.2', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -5879,37 +5865,32 @@ J.audioWav = (buffer, duration, offset = 0) => {
   return new Blob([ab], { type: 'audio/wav' });
 };
 
-/* the last song, kept in this browser (IndexedDB) so a reload does not silently drop the audio from exports */
-const IDB = { db: null };
-IDB.open = () => IDB.db || (IDB.db = new Promise((res, rej) => {
-  if (typeof indexedDB === 'undefined') return rej(new Error('no IndexedDB'));
-  const r = indexedDB.open('jizura', 1);
-  r.onupgradeneeded = () => { r.result.createObjectStore('files'); };
-  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
-}));
-J.saveSong = async (file) => {
+/* Remove only this app's obsolete media cache. No new media is persisted. */
+J.clearLegacyMediaCache = async () => {
+  if (typeof indexedDB === 'undefined') return false;
+  let db;
   try {
-    const db = await IDB.open(), data = await file.arrayBuffer();
-    await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put({ name: file.name, type: file.type, data }, 'song'); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('jizura');
+      // Do not create a database for new users.
+      request.onupgradeneeded = () => request.transaction.abort();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    if (!db.objectStoreNames.contains('files')) return true;
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('files', 'readwrite'), store = tx.objectStore('files');
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result; if (!cursor) return;
+        if (cursor.key === 'song' || (typeof cursor.key === 'string' && cursor.key.startsWith('font:'))) cursor.delete();
+        cursor.continue();
+      };
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error);
+    });
     return true;
   } catch (e) { return false; }
-};
-J.loadSong = async () => {
-  try {
-    const db = await IDB.open();
-    const rec = await new Promise((res, rej) => { const tx = db.transaction('files', 'readonly'); const q = tx.objectStore('files').get('song'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
-    if (!rec || !rec.data) return null;
-    return new File([rec.data], rec.name || 'song', { type: rec.type || '' });
-  } catch (e) { return null; }
-};
-J.saveFontData = async (key, data) => {
-  try { const db = await IDB.open(); await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put({ data }, 'font:' + key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); return true; } catch (e) { return false; }
-};
-J.loadFontData = async (key) => {
-  try { const db = await IDB.open(); const rec = await new Promise((res, rej) => { const tx = db.transaction('files', 'readonly'); const q = tx.objectStore('files').get('font:' + key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); return rec && rec.data ? rec.data : null; } catch (e) { return null; }
-};
-J.forgetSong = async () => {
-  try { const db = await IDB.open(); await new Promise(res => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete('song'); tx.oncomplete = res; tx.onerror = res; }); } catch (e) {}
+  finally { if (db) db.close(); }
 };
 
 /* rebuild a beat grid from a user BPM + first-beat offset */
@@ -38520,9 +38501,7 @@ function mergeProject(p) {
     if (typeof v === 'boolean') o.colors[k] = v;
     else if (typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)) o.colors[k] = v;
   }
-  o.userFonts = (Array.isArray(p && p.userFonts) ? p.userFonts : []).filter(uf => uf && J.SAFE_FONT_KEY.test(uf.key))
-    .map(uf => ({ key: uf.key, label: String(uf.label || uf.key).slice(0, 80), family: J.safeFamily(uf.family || uf.key.slice(5)), weight: J.clamp(parseInt(uf.weight, 10) || 400, 100, 900) }));
-  for (const uf of o.userFonts) if (!J.FONTS[uf.key]) J.addUserFont(uf.key, uf.label, uf.family, uf.weight);
+  o.userFonts = J.registerProjectFonts(p && p.userFonts);
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
   return o;
@@ -38533,6 +38512,22 @@ function setBadges(d) {
     + (d && d.set && SET_UI[d.set] ? `<span class="set-badge set-${d.set}" title="${SET_UI[d.set].name}">${SET_UI[d.set].badge}</span>` : '');
 }
 function loadLocal() { try { const s = localStorage.getItem(LS_KEY); if (s) return mergeProject(JSON.parse(s)); } catch (e) {} return mergeProject(null); }
+function showProjectLoadNotice() {
+  let dlg = $('projectLoadNotice');
+  if (!dlg) {
+    dlg = document.createElement('dialog'); dlg.id = 'projectLoadNotice'; dlg.className = 'terms publication-dialog';
+    const title = document.createElement('h2'); title.id = 'projectLoadNoticeTitle'; title.textContent = J.layerText('プロジェクトを読み込みました', 'Project loaded');
+    dlg.setAttribute('aria-labelledby', title.id); dlg.append(title);
+    for (const [ja, en] of [
+      ['字幕 · フィラー · Effects設定はJSONから復元されます。SRTの再読み込みは不要です（読み込むと現在の字幕を置き換えます). ', 'Subtitles, fillers and effect settings are restored from JSON. Do not reimport SRT to resume: importing it replaces the current subtitles.'],
+      ['音源 · Background画像／動画 · 外部スペアナのフロント／マット動画はJSONに含まれません。使用する素材は別途読み込んでください。すでに選択中の素材がある場合は、このプロジェクト用か確認してください。', 'Audio, background images/videos and external spectrum front/matte videos are not included in JSON. Load the media you use separately. If media is already selected, check that it belongs to this project.'],
+      ['New書体はPCにインストール済み fontを使用します。別のPCでは同じ書体をインストールしてください。音源 · フォント本体のブラウザ保存とAuto復元はline いません。', 'Additional fonts use installed PC families. Install the same fonts on another PC. Audio and font files are no longer stored or restored by the app.'],
+    ]) { const p = document.createElement('p'); p.textContent = J.layerText(ja, en); dlg.append(p); }
+    const button = document.createElement('button'); button.type = 'button'; button.textContent = J.layerText('閉じる', 'Close'); button.addEventListener('click', () => dlg.close()); dlg.append(button);
+    document.body.append(dlg);
+  }
+  pause(); dlg.showModal(); dlg.querySelector('button').focus();
+}
 let saveTimer = 0;
 function autosave() { clearTimeout(saveTimer); saveTimer = setTimeout(flushSave, 700); }
 function flushSave() { clearTimeout(saveTimer); try { localStorage.setItem(LS_KEY, JSON.stringify(S.project)); } catch (e) {} }
@@ -39218,7 +39213,6 @@ async function resetAll() {
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
   S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
-  if (J.forgetSong) await J.forgetSong();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0;
@@ -39827,7 +39821,7 @@ async function runExport(kind) {
   try {
     await J.ensureFonts(S.project.lyrics + (S.project.title || '') + (S.project.artist || '') + HUD_CHARS, J.fontsOfPlan(S.plan));
     const lost = J.missingUserFonts(J.fontsOfPlan(S.plan).concat(Object.values(S.project.fonts || {})));
-    if (lost.length) throw new Error(`The uploaded font (${[...new Set(lost)].join(', ')}) is not in this browser, so the export was stopped. Load the same file again under Fonts, or pick another font`);
+    if (lost.length) throw new Error(J.layerText('旧フォントファイルの指定を、PCにインストール済みの書体または標準書体に変更してください: ', 'Replace legacy file-font selections with installed PC fonts or built-in fonts: ') + lost.join(', '));
     if (kind === 'mp4' || kind === 'mp4file') {
       const plan = S.plan, range = exportRange(), span = J.exportSpan(plan, range);
       const r = await J.exportMP4({ plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range, file });
@@ -40058,22 +40052,14 @@ function bind() {
   $('accentOn').addEventListener('change', colorToggle('accentOn', ACCENT_KEYS));
   $('btnRandPalette').addEventListener('click', randomPalette);
   $('btnAddFont').addEventListener('click', () => {
-    const name = $('localFont').value.trim(); if (!name) return;
-    const key = 'local_' + name.replace(/\s+/g, '_');
+    const name = J.safeFamily($('localFont').value); if (!name) return;
+    const key = 'local_' + J.sid(name).toString(16);
     const weight = /bold|太|black|heavy|w[6-9]|[6-9]00/i.test(name) ? 700 : 400;
-    J.addUserFont(key, name + ' (installed)', name, weight);
-    S.project.userFonts = (S.project.userFonts || []).filter(u => u.key !== key).concat([{ key, label: name + ' (installed)', family: name, weight }]);
+    const label = name + J.layerText(' (installed)', ' (PC)');
+    J.addUserFont(key, label, name, weight);
+    S.project.userFonts = (S.project.userFonts || []).filter(u => u.key !== key).concat([{ key, label, family: name, weight }]);
     S.project.fonts.display = key; $('localFont').value = '';
     fontKey = ''; renderFontRoles(); replan();
-  });
-  $('fontFile').addEventListener('change', async e => {
-    const f = e.target.files && e.target.files[0]; if (!f) return;
-    try {
-      const uf = await J.loadFontFile(f);
-      S.project.userFonts = (S.project.userFonts || []).filter(x => x.key !== uf.key).concat([uf]);
-      S.project.fonts.display = uf.key; fontKey = ''; renderFontRoles(); replan(); flushSave();
-    }
-    catch (err) { showMsg('Could not load the font'); setTimeout(() => showMsg(null), 2500); }
   });
   ['outAspect', 'eAspect'].forEach(id => $(id).addEventListener('change', e => { S.project.aspect = e.target.value; syncOut(); replan(); codecNote(); }));
   ['outRes', 'eRes'].forEach(id => $(id).addEventListener('change', e => { S.project.res = +e.target.value; syncOut(); autosave(); codecNote(); }));
@@ -40126,7 +40112,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.1' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.2' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -40137,7 +40123,7 @@ function bind() {
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); restoreFonts(); }
+    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); warnLegacyFonts(); showProjectLoadNotice(); }
     catch (err) { showMsg('Could not open the project'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
@@ -40183,7 +40169,7 @@ function bind() {
 
 /* song file -> beat analysis (file input) */
 let audioSeq = 0;
-async function loadAudioFile(f, restored) {
+async function loadAudioFile(f) {
   const my = ++audioSeq;                      // only the latest choice may win (an earlier, slower analysis is dropped)
   $('audioName').textContent = 'Analyzing audio…';
   try {
@@ -40191,9 +40177,8 @@ async function loadAudioFile(f, restored) {
     const a = await J.analyzeAudio(f);
     if (my !== audioSeq) return false;
     pause(); AP.load(f, a.buffer); S.audio = a;
-    $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · about ${S.audio.bpm}BPM）` + (restored ? ' · last song' : '');
+    $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · about ${S.audio.bpm}BPM）`;
     S.project.audioName = f.name;
-    if (!restored && J.saveSong) J.saveSong(f);             // kept in this browser: a reload does not drop the song from exports
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
@@ -40262,20 +40247,21 @@ function bindTour() {
   window.addEventListener('scroll', () => { if (TR.i >= 0) tourPlace(TOUR[TR.i].t()); }, true);
 }
 
-/* uploaded faces: bring them back from this browser; say so when a project uses one that is not here */
-async function restoreFonts() {
+/* Legacy file-font references are retained as unavailable placeholders, never loaded. */
+function warnLegacyFonts() {
   const list = S.project.userFonts || [];
   if (!list.length) return;
-  const missing = await J.restoreUserFonts(list);
+  const missing = J.missingUserFonts(list.map(f => f.key));
   fontKey = ''; renderFontRoles(); replan();
-  if (missing.length) toast(`The uploaded font (${missing.join(', ')}) is not in this browser. Load the same file again under Fonts (a similar font is used until then)`);
+  if (missing.length) toast(J.layerText('旧フォントファイルは使えません。PCにインストールして書体名を指定するか、標準書体に変更してください: ', 'Legacy font files are no longer supported. Install the font on your PC and add its family name, or choose a built-in font: ') + missing.join(', '));
 }
 
 /* ---------------- boot ---------------- */
 function boot() {
+  J.clearLegacyMediaCache?.();
   S.project = loadLocal();
   bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
-  restoreFonts();
+  warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
   try { mode = localStorage.getItem('jizura.mode') || mode; } catch (e) {}
@@ -40287,8 +40273,6 @@ function boot() {
   const c0 = S.plan.cuts.find(c => c.line >= 0);
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
   requestAnimationFrame(tick);
-  // the song used last time (same name as the saved project's) comes back after a reload
-  if (J.loadSong && S.project.audioName) J.loadSong().then(f => { if (f && f.name === S.project.audioName && !S.audio) loadAudioFile(f, true); });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
@@ -40514,7 +40498,7 @@ async function exportVideo(simple, frontOnly = false) {
       const project = structuredClone(J.ui.project), plan = J.ui.plan, range = J.uiApi.exportRange();
       await J.ensureFonts(project.lyrics, J.fontsOfPlan(plan));
       const missing = J.missingUserFonts(J.fontsOfPlan(plan));
-      if (missing.length) throw new Error(tr('不足しているフォントを読み直してください: ', 'Reload missing fonts: ') + missing.join(', '));
+      if (missing.length) throw new Error(tr('旧フォントファイルの指定を、PCにインストール済みの書体または標準書体に変更してください: ', 'Replace legacy file-font selections with installed PC fonts or built-in fonts: ') + missing.join(', '));
       const args = { plan, project, spectrum, range, signal: ac.signal,
         onProgress(p, m) { $('layerProgress').value = p; status((simple ? tr('簡易動画を生成中 ', 'Encoding simple video ') : frontOnly ? tr('フロント動画を生成中 ', 'Encoding front video ') : tr('ペア動画を生成中 ', 'Encoding pair ')) + m); } };
       const pair = simple ? await J.exportSimpleVideo({ ...args, background: session.background, audio: J.ui.audio }) : frontOnly ? await J.exportLayerFront(args) : await J.exportLayerPair(args);
