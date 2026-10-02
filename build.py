@@ -21,7 +21,7 @@ demux = read('vendor/mediabunny.min.js')
 def build(lang):
     english = lang == 'en'
     title = publication.NAME + ' — cityedge fork'
-    description = ('字幕フロントと白黒マットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。' if lang == 'ja' else 'Create subtitle front and binary matte MP4 pairs. An unofficial JIZURA derivative with SRT import, preview backgrounds and spectrum compositing.')
+    description = ('字幕フロントと二値・グレーマットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。' if lang == 'ja' else 'Create subtitle front and binary or grayscale matte MP4 pairs. An unofficial JIZURA derivative with SRT import, preview backgrounds and spectrum compositing.')
     folder = dict((c, f) for c, f, _, _ in i18n.EDITIONS)[lang]
     canonical = SITE_URL + '/' + (folder + '/' if folder else '') if SITE_URL else ''
     language_nav = i18n.nav(lang)

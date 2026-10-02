@@ -102,10 +102,34 @@ J.drawFx = (env, it) => {
 
 const unionBB = (a, b) => !a ? b : !b ? a : { x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), boxes: [], cx: (Math.min(a.x0, b.x0) + Math.max(a.x1, b.x1)) / 2, cy: (Math.min(a.y0, b.y0) + Math.max(a.y1, b.y1)) / 2 };
 
+/* Latin text wraps between words. Balance the lines without breaking a long word. */
+const splitWords = (text, maxPer) => {
+  const words = text.trim().split(/\s+/), n = words.length;
+  const prefix = [0];
+  for (const word of words) prefix.push(prefix[prefix.length - 1] + [...word].length);
+  const total = prefix[n] + n - 1, nLines = Math.min(n, Math.ceil(total / maxPer));
+  if (nLines <= 1) return words.join(' ');
+  const length = (a, b) => prefix[b] - prefix[a] + b - a - 1;
+  const ideal = total / nLines, memo = new Map();
+  const best = (i, lines) => {
+    if (lines === 1) return { cost: (length(i, n) - ideal) ** 2, cuts: [] };
+    const key = i + ',' + lines;
+    if (memo.has(key)) return memo.get(key);
+    let result = { cost: Infinity, cuts: [] };
+    for (let j = i + 1; j <= n - lines + 1; j++) {
+      const rest = best(j, lines - 1), cost = (length(i, j) - ideal) ** 2 + rest.cost;
+      if (cost < result.cost) result = { cost, cuts: [j, ...rest.cuts] };
+    }
+    memo.set(key, result); return result;
+  };
+  const cuts = [0, ...best(0, nLines).cuts, n];
+  return cuts.slice(1).map((end, i) => words.slice(cuts[i], end).join(' ')).join('\n');
+};
 /* split long text into balanced lines, preferring script boundaries */
 J.splitLines = (text, maxPer) => {
   const arr = [...text];
   if (arr.length <= maxPer) return text;
+  if (J.isLatinText && J.isLatinText(text)) return /\s/.test(text.trim()) ? splitWords(text, maxPer) : text;
   const nLines = Math.ceil(arr.length / maxPer);
   const per = arr.length / nLines;
   const out = []; let start = 0;

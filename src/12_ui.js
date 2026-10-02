@@ -107,6 +107,23 @@ function initPreviewSpeed() {
   select.addEventListener('change', () => { setPreviewRate(select.value); select.value = S.previewEngine === 'legacy' ? 'legacy' : String(S.previewRate); });
   label.append(caption, select); $('btnLoop').after(label);
 }
+function initOmakaseThemes() {
+  for (const [id, anchor] of [['omakaseTheme', $('btnOmakase')], ['omakaseThemeEasy', $('btnOmakaseBig')]]) {
+    const label = document.createElement('label'); label.className = 'omakase-theme';
+    const caption = document.createElement('span'); caption.textContent = J.layerText('テーマ', 'Theme');
+    const select = document.createElement('select'); select.id = id;
+    select.setAttribute('aria-label', J.layerText('おまかせ・字幕ガチャのテーマ', 'Theme for auto-compose and subtitle draws'));
+    select.title = J.layerText('おまかせ・字幕ガチャ1〜3に適用。選択だけでは現在の演出や9の復帰先は変わりません。', 'Applies to auto-compose and cue draws 1–3. Selecting alone does not change effects or the baseline for key 9.');
+    select.add(new Option(J.layerText('テーマなし', 'No theme'), ''));
+    for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
+    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value); syncOmakaseThemes(); flushSave(); });
+    label.append(caption, select); anchor.before(label);
+  }
+  syncOmakaseThemes();
+}
+function syncOmakaseThemes() {
+  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) $(id).value = J.normalizeTheme(S.project.theme);
+}
 /* プレビュー音量: remembered per browser */
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
@@ -598,7 +615,9 @@ function updateCutInfo() {
     const rule = target && S.project.overrides?.[target.index]?.cueLook;
     const style = J.STYLES[rule?.style || S.project.style]?.name || '', mood = J.MOODS[rule?.mood || S.project.mood]?.name || '';
     const randomLabel = target && S.project.overrides?.[target.index]?.randomDraw ? J.layerText('ランダム · ', 'Random · ') : '';
-    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}` : J.layerText('（対象なし）', ' (no cue)'));
+    const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
+    const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
+    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) $('cueRollTarget').textContent = label;
   }
   const cut = J.cutAt(S.plan, S.t);
@@ -709,6 +728,17 @@ function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
   const ov = S.project.overrides, R = exportRangeLines();
   const layoutOpts = '<option value="">自動</option>' + J.LAYOUT_ORDER.map(k => `<option value="${k}">${J.LAYOUTS[k].name}</option>`).join('');
+  // Hundreds of menus otherwise duplicate the complete layout catalogue on every replan.
+  const lazyLay = (sel, value) => {
+    sel.innerHTML = '<option value="">自動</option>' + (value && J.LAYOUTS[value] ? `<option value="${value}">${J.LAYOUTS[value].name}</option>` : '');
+    sel.value = value || '';
+    const fill = () => {
+      if (sel.dataset.full) return;
+      const current = sel.value;
+      sel.innerHTML = layoutOpts; sel.value = current; sel.dataset.full = '1';
+    };
+    for (const event of ['pointerdown', 'mousedown', 'focus', 'keydown', 'touchstart']) sel.addEventListener(event, fill, { capture: true, passive: true });
+  };
   const cutOpts = '<option value="">カット 自動</option>' + [1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">カット ${n}</option>`).join('');
   S.plan.lines.forEach((ln, i) => {
     const o = ov[i] || {};
@@ -722,7 +752,7 @@ function renderLines() {
       <span class="tools">
         <button class="icon ghost edit" title="この行の歌詞を直す" aria-label="${i + 1}行目の歌詞を直す">${ICON.pen}</button>
         ${ln.interlude ? '' : `<select class="ncut" aria-label="${i + 1}行目のカット数">${cutOpts}</select>`}
-        ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="レイアウト指定">${layoutOpts}</select>`}
+        ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="レイアウト指定"></select>`}
         <button class="icon ghost tapfrom" title="この行からタップで同期し直す" aria-label="${i + 1}行目からタップ">${ICON.tap}</button>
         <button class="icon ghost rng" title="書き出す範囲にする（Shift+クリックで範囲を広げる）" aria-pressed="${R && i >= R.from && i <= R.to ? 'true' : 'false'}" aria-label="${i + 1}行目を書き出す範囲に">${ICON.range}</button>
         ${ln.interlude ? '' : `<button class="icon ghost dice" title="この行を再抽選">${ICON.dice}</button>`}
@@ -734,7 +764,7 @@ function renderLines() {
       const badge = document.createElement('span'); badge.className = 'filler-badge'; badge.textContent = J.layerText('フィラー', 'Filler');
       q('.txt').prepend(badge);
     }
-    if (q('.lay')) q('.lay').value = o.layout || '';
+    if (q('.lay')) lazyLay(q('.lay'), o.layout || '');
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
     q('.time').addEventListener('change', e => {
       const v = parseFloat(e.target.value);
@@ -766,8 +796,7 @@ function renderLines() {
       const forced = o.cutLayouts && o.cutLayouts[k];
       const sel = document.createElement('select');
       sel.className = 'cut-lay pro-only' + (forced ? ' is-forced' : '');
-      sel.innerHTML = layoutOpts;
-      sel.value = forced || c.layout;
+      lazyLay(sel, forced || c.layout);
       sel.title = `${c.text}｜${J.ENTER[c.enter].name} → ${J.EXIT[c.exit].name}`;
       sel.setAttribute('aria-label', `${i + 1}行目 カット${k + 1}のレイアウト`);
       sel.style.borderColor = `hsla(${layoutHue(c.layout)},70%,58%,0.7)`;
@@ -1032,7 +1061,7 @@ function randomPalette() {
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
@@ -1058,7 +1087,10 @@ function histGo(d) {
   }
   delete look._cueIds;
   Object.assign(S.project, look);
-  fontKey = ''; syncUI(); replan(); updateHist();
+  fontKey = ''; syncUI(); replan();
+  // Cue-ID remapping can insert empty overrides. Treat that normalization as
+  // this history entry, otherwise remember() truncates the forward history.
+  H.list[H.i] = lookSnap(); updateHist();
   toast(`${j + 1} / ${H.list.length} 案目`);
   restartPreview();
 }
@@ -1165,15 +1197,20 @@ function rerollPart(part) {
   const P = S.project;
   let msg = '';
   if (part === 'style') {
-    let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
-    if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
-    P.style = pool[Math.floor(Math.random() * pool.length)];
+    if (J.normalizeTheme(P.theme)) {
+      const r = J.omakase(P, Math.random, { mood: P.mood });
+      Object.assign(P, J.themeSwitches(P.theme), { style: r.style, lookTheme: r.lookTheme });
+    } else {
+      let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
+      if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
+      P.style = pool[Math.floor(Math.random() * pool.length)]; P.lookTheme = '';
+    }
     P.colors.enabled = false;
     msg = `スタイル：${J.STYLES[P.style].name}`;
   } else if (part === 'mood') {
     const keepE = lockedEnabled(), keepP = lockedParams();
     const r = J.omakase(P);
-    Object.assign(P, { mood: r.mood, fx: r.fx, enabled: r.enabled });
+    Object.assign(P, J.themeSwitches(P.theme), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
     restoreEnabled(keepE); restoreParams(keepP);
     msg = `雰囲気：${J.MOODS[r.mood].name}`;
   } else if (part === 'cut') {
@@ -1313,7 +1350,14 @@ function techPaneOpen() {
 function ensurePreviewObs() {
   if (previewObs) return previewObs;
   previewObs = new IntersectionObserver((ents) => {
-    ents.forEach(e => { if (e.isIntersecting && e.intersectionRatio > 0) previewLive.add(e.target); else previewLive.delete(e.target); });
+    const now = performance.now();
+    ents.forEach(e => {
+      const cv = e.target;
+      if (e.isIntersecting && e.intersectionRatio > 0) {
+        previewLive.add(cv);
+        if (!cv.dataset.ready && cv.dataset.g && cv.dataset.k) paintTechCanvas(cv, cv.dataset.g, cv.dataset.k, previewTime(getPreviewPlan(cv.dataset.g, cv.dataset.k), cv.dataset.g, now));
+      } else previewLive.delete(cv);
+    });
     kickPreviewLoop();
   }, { root: null, rootMargin: '40px 0px', threshold: [0, 0.12, 0.4] });
   return previewObs;
@@ -1342,14 +1386,8 @@ function kickPreviewLoop() {
   previewRaf = requestAnimationFrame(tick);
 }
 function queueThumbs(list) {
-  const now = performance.now();
-  [...list.querySelectorAll('canvas[data-g]')].forEach(cv => {
-    previewLive.add(cv);
-    watchThumb(cv);
-    const g = cv.dataset.g, k = cv.dataset.k;
-    if (g && k) paintTechCanvas(cv, g, k, previewTime(getPreviewPlan(g, k), g, now));
-  });
-  kickPreviewLoop();
+  // First paint, as well as animation, waits until the thumbnail enters the viewport.
+  [...list.querySelectorAll('canvas[data-g]')].forEach(cv => watchThumb(cv));
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) kickPreviewLoop(); });
 
@@ -1367,7 +1405,9 @@ function renderTech() {
     const d = document.createElement('details'); d.className = 'tgroup';
     d.open = !!q || openGroups.has(g);
     const list = document.createElement('div'); list.className = 'checks tech-grid';
-    d.addEventListener('toggle', () => { if (d.open) { openGroups.add(g); queueThumbs(list); } else openGroups.delete(g); });
+    let built = false;
+    const build = () => { if (built) return; built = true; fillCards(); };
+    d.addEventListener('toggle', () => { if (d.open) { openGroups.add(g); build(); queueThumbs(list); } else openGroups.delete(g); });
     const lked = !!locksOf().tech[g];
     d.innerHTML = `<summary><span class="tg-name">${label}</span><span class="tg-cnt mono">${onN}/${items.length}</span>`
       + `<button type="button" class="icon ghost lk pro-only" data-lk="${g}" aria-pressed="${lked}" title="${lked ? LOCK_TITLE_OFF : TECH_LOCK_ON}">${ICON.lock}</button></summary><div class="tg-tools"><button class="ghost small" data-a="on">すべてON</button><button class="ghost small" data-a="off">すべてOFF</button><button class="ghost small" data-a="flip">反転</button></div>`;
@@ -1375,7 +1415,7 @@ function renderTech() {
       const [W, H] = J.designSize(S.project.aspect || '16:9');
       const h = 90; return [Math.max(80, Math.round(h * W / H)), h];
     })();
-    shown.forEach(k => {
+    const fillCards = () => shown.forEach(k => {
       const l = document.createElement('label');
       l.className = 'tcard';
       l.title = k + (tbl[k].tags && tbl[k].tags.length ? '（' + tbl[k].tags.map(t => (J.MOODS[t] ? J.MOODS[t].name : t)).join('・') + '）' : '');
@@ -1396,7 +1436,7 @@ function renderTech() {
     }));
     d.appendChild(list);
     box.appendChild(d);
-    if (d.open) queueThumbs(list);
+    if (d.open) { build(); queueThumbs(list); }
   });
   $('techTotal').textContent = `${onAll}/${total}`;
 }
@@ -1573,6 +1613,7 @@ function updateTap() {
 
 /* ---------------- sync all inputs from project ---------------- */
 function syncUI() {
+  syncOmakaseThemes();
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
   $('lyrics').value = S.project.lyrics;
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
@@ -1766,7 +1807,17 @@ function bind() {
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); warnLegacyFonts(); showProjectLoadNotice(); }
+    try {
+      const next = mergeProject(JSON.parse(await f.text()));
+      if (S.tap) stopTap();
+      pause();
+      S.project = next;
+      // Both edit history and look proposals belong to the project that was closed.
+      ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
+      fontKey = '';
+      syncUI(); replan(); commit(); updateEditBtns(); flushSave();
+      warnLegacyFonts(); showProjectLoadNotice();
+    }
     catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
@@ -1903,7 +1954,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
-  bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';

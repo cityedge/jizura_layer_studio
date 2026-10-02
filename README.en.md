@@ -1,7 +1,9 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.3.2**
+**Animated subtitle layers · cityedge fork · v1.4.0**
 
-New subtitle draw: **9 / Global taste** clears local choices and redraws the current cue within the latest globally applied settings.
+Grayscale alpha matte export supports adjustable background-color opacity, optional decorative number/time hiding, and themes for Auto-compose and cue draws. Choose No theme, Lyric video, Kinetic, Japanese, Horror, Pop or Ballad; change one cue's direction and use 9 to restore the global taste.
+
+Subtitle draw **9 / Global taste** clears local choices and redraws the current cue within the latest globally applied settings.
 
 Edit SRT part breaks in the subtitle summary: Enter adds a separator above the cue at its start, otherwise below, and Backspace/Delete removes a blank separator. Text and timing stay protected; Undo and JSON persistence are supported.
 
@@ -9,7 +11,7 @@ Subtitle draws: **0 Random / 1 Everything / 2 Style / 3 Mood / 4 Performance / 5
 
 [Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 
-Create a subtitle front on black and a binary matte as two synchronized, silent MP4 files for compositing over another video.
+Create a subtitle front on black and a binary or grayscale matte as two synchronized, silent MP4 files for compositing over another video.
 
 An optional [simple video export](user_guide.en.md#exporting-a-simple-video) combines an image or video background, spectrum, subtitles and optional audio into one MP4.
 
@@ -39,7 +41,7 @@ The app can also generate 64 bars from the loaded song. Choose **Generate from a
 
 ## Features
 
-v1.3.0 adds video backgrounds to simple export, three transitions carrying the outgoing cut into the next, and bounded drawing regions for selected effects that obscured the background. See [what changed](user_guide.en.md#new-and-changed-controls-in-v130) and the [changelog](CHANGELOG.md).
+Simple export supports image and video backgrounds. Use [transitions retaining the previous cut](user_guide.en.md#transitions-that-retain-the-previous-subtitle) and [opacity controls](user_guide.en.md#opacity-and-background-color-opacity) to shape the composite. See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 The retained JIZURA effects engine works alongside this edition's layer tools. The [user manual](user_guide.en.md) explains controls, workflows and limits.
 
@@ -74,7 +76,7 @@ Duration automatically follows the longest subtitle, spectrum, decoded audio or 
 
 New projects default to 30fps and 15 drawings/s. Spectrum export selects decoded frames by presentation timestamp; see the user guide for frame correspondence and legacy project settings.
 
-Apply the matte with Darken, then the front with Lighten. Align both videos in time and size. For alpha-based compositing, white matte means transparent and black means opaque. The pre-encode matte is binary; lossy MP4 may introduce small colour/edge changes. No partial alpha is exported.
+Apply the matte with Darken, then the front with Lighten. Align both videos in time and size. For alpha-based compositing, white matte means transparent and black means opaque. Binary mode uses a binary matte. Alpha mode exports premultiplied RGB and a continuous inverse grayscale matte: result = front + background*(matte/255). Multiply the background by the matte, then add the front; do not apply alpha to the front again. Darken/Lighten is for binary pairs only. Lossy MP4 may introduce small color/edge changes. If Add is unavailable, use [Difference with two white layers](user_guide.en.md#when-add-is-unavailable-but-difference-is-available).
 
 Selected media stays in the browser; fonts are loaded from Google Fonts. Settings/subtitles are autosaved locally; save project JSON explicitly too. Background, spectrum and song files are not embedded: reselect them when reopening.
 

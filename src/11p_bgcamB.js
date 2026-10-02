@@ -939,7 +939,7 @@ const vhsNoise = (col, w, h, v) => cached(`vhs|${col}|${w}x${h}|${v}`, () => {
     for (let i = 0; i < w; i++) {
       let n = hash2(i >> 1, y, v * 7 + 2); n = n * n * n;
       if (hash2(i >> 4, y, v * 5 + 3) > 0.94) n = Math.max(n, 0.55 + 0.45 * hash2(i, y, v + 9));
-      const o = (y * w + i) * 4; d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = Math.round(255 * clamp(n * row));
+      const o = (y * w + i) * 4; d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = Math.round(255 * clamp(n * row) * J.colorAlpha(col));
     }
   }
   x.putImageData(id, 0, 0); return c;
@@ -1106,6 +1106,7 @@ const marbleCv = (P, px, c1, c2) => cached(`marb|${P.seed}|${px}|${c1}|${c2}|${P
     const cloud = clamp((fbm2(X * 0.9 + 11, Y * 0.9, sd + 21, 2) - 0.42) * 1.6);
     let a1 = Math.pow(w1, 14) * (0.45 + 0.55 * noise2(X * 2.2 + 3, Y * 2.2, sd + 3)) + Math.pow(w1, 4) * 0.08 + cloud * 0.22, a2 = 0;
     if (P.acc) { const s2 = Math.sin((u * cb + v * sb) * fq * 1.6 + fbm2(X * 1.4 + 5, Y * 1.4, sd + 9, 3) * tb * 1.3); a2 = Math.pow(1 - Math.abs(s2), 12) * 0.5; }
+    a1 *= J.colorAlpha(c1); a2 *= J.colorAlpha(c2);
     const al = a1 + a2 * (1 - a1), o = (j * px + i) * 4;
     if (al <= 0.003) { d[o + 3] = 0; continue; }
     const f = a2 * (1 - a1) / al;

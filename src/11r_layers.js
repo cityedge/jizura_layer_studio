@@ -3,6 +3,7 @@
 'use strict';
 J.layerApp = true;
 J.layerText = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
+J.normalizeLayerMode = mode => mode === 'alpha' ? 'alpha' : 'binary';
 const msg = J.layerText;
 
 J.validateCues = cues => {
@@ -112,10 +113,19 @@ J.defaultProject = () => {
   p.layerOnly = true; p.includeAudio = false; p.keyBg = 'off';
   p.spectrumLayout = J.defaultSpectrumLayout();
   p.layerEffectsVersion = 1;
+  p.layerMode = 'binary';
+  p.layerBackgroundOpacity = J.normalizeBackgroundOpacity();
+  p.hideDecorativeText = false;
+  p.theme = ''; p.lookTheme = '';
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
 J.upgradeLayerProject = (project, source) => {
+  project.layerMode = J.normalizeLayerMode(source?.layerMode);
+  project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(source?.layerBackgroundOpacity);
+  project.hideDecorativeText = source?.hideDecorativeText === true;
+  project.theme = J.normalizeTheme(source?.theme);
+  project.lookTheme = J.normalizeTheme(source?.lookTheme);
   // Preserve the old onTwos-only project format without changing saved motion cadence.
   if (source?.fx && source.fx.koma == null) project.fx.koma = source.fx.onTwos === false ? 0 : 12;
   if (source?.layerOnly && !source.layerEffectsVersion) {
@@ -169,6 +179,17 @@ J.layerPixels = rgba => {
   return out;
 };
 
+// Straight RGB + coverage. Keep genuine black artwork nonzero for the front
+// contract, but never bake coverage into RGB in this mode.
+J.alphaLayerPixels = rgba => {
+  const out = new Uint8ClampedArray(rgba);
+  for (let i = 0; i < out.length; i += 4) {
+    if (!out[i + 3]) { out[i] = out[i + 1] = out[i + 2] = 0; continue; }
+    if (!(out[i] || out[i + 1] || out[i + 2])) out[i] = out[i + 1] = out[i + 2] = 3;
+  }
+  return out;
+};
+
 // Remove every exterior pixel ADDED by bloom, before deriving either output.
 // Existing ink/particles (even dark ones) are protected by the pre-bloom frame.
 // Keep bloom's colour/brightness changes within that existing footprint.
@@ -199,6 +220,42 @@ J.overPixels = (back, front) => {
   }
   return out;
 };
+// Source-over in straight RGBA. Binary spectra remain opaque wherever present.
+J.alphaOverPixels = (back, front) => {
+  const out = new Uint8ClampedArray(back);
+  for (let i = 0; i < front.length; i += 4) {
+    const a = front[i + 3];
+    if (!a) continue;
+    if (a === 255 || !back[i + 3]) {
+      out[i] = front[i]; out[i + 1] = front[i + 1]; out[i + 2] = front[i + 2]; out[i + 3] = a; continue;
+    }
+    const b = back[i + 3] * (1 - a / 255), total = a + b;
+    for (let c = 0; c < 3; c++) out[i + c] = Math.round((front[i + c] * a + back[i + c] * b) / total);
+    out[i + 3] = Math.round(total);
+  }
+  return out;
+};
+J.composeLayerPixels = (back, front, mode) => J.normalizeLayerMode(mode) === 'alpha' ? J.alphaOverPixels(back, front) : J.overPixels(back, front);
+J.alphaFrontPixels = rgba => {
+  const front = new Uint8ClampedArray(rgba);
+  for (let i = 0; i < front.length; i += 4) {
+    // Export premultiplied RGB so background * inverse matte + front restores
+    // source-over. Internal rendering stays straight RGBA for Canvas compositing.
+    const a = rgba[i + 3] / 255;
+    front[i] = Math.round(rgba[i] * a);
+    front[i + 1] = Math.round(rgba[i + 1] * a);
+    front[i + 2] = Math.round(rgba[i + 2] * a);
+    front[i + 3] = 255;
+  }
+  return front;
+};
+J.alphaPairPixels = rgba => {
+  const front = J.alphaFrontPixels(rgba), matte = new Uint8ClampedArray(rgba.length);
+  for (let i = 0; i < rgba.length; i += 4) {
+    matte[i] = matte[i + 1] = matte[i + 2] = 255 - rgba[i + 3]; matte[i + 3] = 255;
+  }
+  return { front, matte };
+};
 J.pairPixels = rgba => {
   const front = new Uint8ClampedArray(rgba.length), matte = new Uint8ClampedArray(rgba.length);
   for (let i = 0; i < rgba.length; i += 4) {
@@ -213,7 +270,10 @@ J.pairPixels = rgba => {
   return { front, matte };
 };
 J.LayerRenderer = class {
-  constructor(w, h) {
+  constructor(w, h, mode = 'binary', backgroundOpacity, hideDecorativeText = false) {
+    this.mode = J.normalizeLayerMode(mode);
+    this.backgroundOpacity = J.normalizeBackgroundOpacity(backgroundOpacity);
+    this.hideDecorativeText = hideDecorativeText === true;
     this.w = w; this.h = h; this.engine = new J.Renderer();
     this.raw = canvas(w, h); this.part = canvas(w, h); this.layer = canvas(w, h);
     this.front = canvas(w, h); this.matte = null; this.plans = new WeakMap();
@@ -226,16 +286,22 @@ J.LayerRenderer = class {
     const active = tracks.filter(p => p.lines.some(l => t >= l.start && t < l.end) && p.cuts.some(c => t >= c.start && t < c.end));
     for (let i = 0; i < active.length; i++) {
       this.engine.frame(this.part.getContext('2d', { willReadFrequently: true }), active[i], t, {
-        scale: this.w / plan.W, transparent: true, layerComposition: true, noHud: i < active.length - 1, fast,
+        scale: this.w / plan.W, transparent: true, layerComposition: true, layerMode: this.mode, layerBackgroundOpacity: this.backgroundOpacity, hideDecorativeText: this.hideDecorativeText, noHud: i < active.length - 1, fast,
       });
       x.drawImage(this.part, 0, 0);
     }
-    const pixels = J.layerPixels(x.getImageData(0, 0, this.w, this.h).data);
+    const raw = x.getImageData(0, 0, this.w, this.h).data;
+    const pixels = this.mode === 'alpha' ? J.alphaLayerPixels(raw) : J.layerPixels(raw);
     this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
     this.lastPixels = pixels;
     return pixels;
   }
   frontFrame(pixels, backgroundPixels = null) {
+    if (this.mode === 'alpha') {
+      const combined = backgroundPixels ? J.alphaOverPixels(backgroundPixels, pixels) : pixels;
+      this.front.getContext('2d').putImageData(new ImageData(J.alphaFrontPixels(combined), this.w, this.h), 0, 0);
+      return this.front;
+    }
     if (pixels !== this.lastPixels) this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
     this.lastPixels = pixels;
     const x = this.front.getContext('2d');
@@ -249,7 +315,7 @@ J.LayerRenderer = class {
     return this.front;
   }
   pair(pixels) {
-    const p = J.pairPixels(pixels);
+    const p = this.mode === 'alpha' ? J.alphaPairPixels(pixels) : J.pairPixels(pixels);
     this.matte ||= canvas(this.w, this.h);
     this.front.getContext('2d').putImageData(new ImageData(p.front, this.w, this.h), 0, 0);
     this.matte.getContext('2d').putImageData(new ImageData(p.matte, this.w, this.h), 0, 0);
@@ -346,12 +412,12 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         state.encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); state.count++; } catch (e) { state.error = e; } }, error(e) { state.error = e; } });
         writers.push(state); state.encoder.configure(Object.assign({}, codec.cfg, { latencyMode: 'quality' }));
       }
-      const render = new J.LayerRenderer(w, h);
+      const mode = J.normalizeLayerMode(project.layerMode), render = new J.LayerRenderer(w, h, mode, project.layerBackgroundOpacity, project.hideDecorativeText);
       for (let i = 0; i < total; i++) {
         abort(signal);
         let pixels = render.draw(plan, t0 + i / fps);
         const spectrumPixels = reader ? await reader.pixels(t0 + i / fps, signal, project.spectrumLayout) : null;
-        if (spectrumPixels && !frontOnly) pixels = J.overPixels(spectrumPixels, pixels);
+        if (spectrumPixels && !frontOnly) pixels = J.composeLayerPixels(spectrumPixels, pixels, mode);
         const pair = frontOnly ? { front: render.frontFrame(pixels, spectrumPixels) } : render.pair(pixels);
         for (const state of writers) {
           if (state.error) throw state.error;
@@ -375,11 +441,11 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         s.mux.finalize();
       }
       const files = writers.map(s => ({
-        name: (spectrum ? 'combined_front' : 'subtitle_front') + (s.name === 'matte' ? '_matte_dark' : '') + '.mp4',
+        name: (spectrum ? 'combined_front' : 'subtitle_front') + (mode === 'alpha' ? '_alpha' : '') + (s.name === 'matte' ? '_matte_dark' : '') + '.mp4',
         blob: new Blob([s.target.buffer], { type: 'video/mp4' }),
       }));
-      const manifest = { format: frontOnly ? 'jizura-layer-front-v1' : 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
-        exteriorBloom: 'removed', matte: frontOnly ? null : 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
+      const manifest = { format: frontOnly ? 'jizura-layer-front-v1' : mode === 'alpha' ? 'jizura-premultiplied-layer-pair-v1' : 'jizura-binary-layer-pair-v1', layerMode: mode, layerBackgroundOpacity: render.backgroundOpacity, width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
+        exteriorBloom: 'removed', matte: frontOnly ? null : mode === 'alpha' ? 'alpha=1-matte/255; white=transparent, black=opaque; do not threshold' : 'white=transparent, black=opaque; threshold decoded luminance at 128', front: mode === 'alpha' ? 'premultiplied RGB; composite=front+background*(matte/255); no audio' : 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
       abort(signal); onProgress?.(1, msg('完了', 'Done'));
       return { files, manifest };
     } catch (e) {

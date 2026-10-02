@@ -425,7 +425,7 @@ fx('hrSignalLoss', {
       ctx.font = J.fontCSS('mono', fs); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff'; ctx.globalAlpha = (I.step % 4 < 3) ? 0.85 : 0.3;
       ctx.fillText('NO SIGNAL', cw * 0.06, ch * 0.08);
-      ctx.globalAlpha = 0.6; ctx.fillText('CH ' + String(3 + (s % 9)).padStart(2, '0'), cw * 0.06, ch * 0.08 + fs * 1.5);
+      if (!I.opt?.hideDecorativeText) { ctx.globalAlpha = 0.6; ctx.fillText('CH ' + String(3 + (s % 9)).padStart(2, '0'), cw * 0.06, ch * 0.08 + fs * 1.5); }
       return;
     }
     const q = (k - 0.78) / 0.22, oy = Math.round((1 - q) * ch * 0.5);

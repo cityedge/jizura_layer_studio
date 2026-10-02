@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.3.2. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.4.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -17,6 +17,26 @@ Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove 
 Without SRT, type subtitles using the original lyric syntax. Auto-compose, adjust individual rows, or return to a previous proposal. Effect panels, ribbons, graphics, HUDs and flashes can cover the full frame. Plain base backgrounds and independent title/interlude scenes are excluded.
 
 Load an image/video as a preview background. Songs support preview and timing. Neither background nor audio is included in pair exports.
+
+## Themes and cue draws
+
+Themes are No theme, Lyric video, Kinetic, Japanese, Horror, Pop and Ballad. Selecting alone leaves the composition unchanged. Global Auto-compose enables necessary sets globally. Cue keys 1–3 consider the theme and enable its required sets only inside that cue. Keys 4/6 use the applied cue base; 9 restores the last global settings and theme; 0/5 ignore the pending theme. See [draw scopes](../user_guide.en.md#automatic-parts-and-subtitle-rerolls).
+
+Hide decorative numbers and times under Subtitle layers removes numeric ornaments while preserving lyric numbers and `[timestamp]`, without rerolling effects.
+
+## Filler subtitles
+
+Timeline numbers are gray for normal cues and red for fillers. Both become yellow while hovered or dragged. Updated defaults apply to new settings; saved filler settings are preserved.
+
+After importing SRT, **Add fillers…** opens a settings dialog. Generated cues are editable placeholders, marked as fillers independently of their text. Regeneration replaces all fillers, including manually edited ones, while preserving normal subtitles and effects. **Remove all fillers** is also available. Generation and removal support Ctrl+Z.
+
+- **Usable gap threshold:** applied after the pre-gap following a normal cue and the post-gap before the next. Defaults are 5s threshold, 0.3s pre-gap and 0.5s post-gap: an interior gap must be at least 5.8s. Intros use only the post-gap; outros use only the pre-gap. Overlapping normal cues form one occupied interval.
+- **Average duration:** Normal is the mean of the longer half of current normal cue durations, rounding the count up. Short uses ×0.75 and Long ×1.5. Individual durations vary while filling each eligible interval.
+- **Text types:** enable Whitespace, Lyric text, Timestamp, Symbols and/or Custom text. Weights range from 0–10. Defaults enable all types at weights 3, 8, 2, 1 and 0. Custom text starts empty and uses the full text entered. If enabled with a positive weight but no text, generation reports an error without replacing existing fillers. Whitespace uses 3–4 groups of 2–5 ideographic spaces separated by ASCII spaces, allowing plates and decorations without visible lyric glyphs. Symbols follow the mean normal text length excluding whitespace, using repeated, mixed, alternating or symmetric patterns. Lyrics are chosen whole from normal cues regardless of length.
+- **Time tags:** `[timestamp]` renders as `02 05 853` using the cue start time and follows retiming. Type it into normal or filler cues, alone or with other text. The editor and JSON retain the literal tag.
+- **End time:** uses audio duration first, then spectrum duration, otherwise the last normal cue; never shorter than the last normal cue. Load media first to fill the outro.
+
+Existing fillers are excluded from all gap and reference calculations. Settings and filler identity persist in JSON. Cancel leaves the project unchanged. Safeguards: target duration is at least 0.25s, symbols at most 120 characters, and total cues at most 20,000.
 
 ## Spectrum
 
@@ -48,13 +68,21 @@ All added exterior bloom is removed regardless of brightness. There is no contro
 
 Only new exterior pixels added by automatic bloom / bloom effects are removed. Original text, graphics, sparks and interior brightness changes remain. Not every dark shadow or camera blur is removed.
 
+## Opacity modes
+
+Opacity mode under Subtitle layers controls preview and all exports. Binary (legacy) retains the previous result; Alpha (grayscale matte) preserves partial opacity. Projects save this setting; older JSON defaults to binary. Spectra remain binary, with translucent subtitles composited over them. Exterior bloom removal remains active.
+
+Alpha pairs use `_alpha` filenames. Their front contains premultiplied RGB (color multiplied by opacity). The grayscale matte is white for transparent, black for opaque. Multiply the background by the matte, then add the front: `result = front + background * (matte / 255)`. Do not threshold it, use Darken/Lighten, or multiply the front by alpha again. Front-only output cannot preserve opacity by itself. Simple video composites retained opacity directly onto its background. MP4 compression can alter colors and matte edges.
+
+In Alpha mode, Background color opacity ranges from 0–100% (default 40%). It affects rendering and mixtures that use the palette background color, not other palette fields, fixed colors or spectrum opacity. It applies to all previews/exports and persists in JSON.
+
 ## Output
 
-Preview with background + subtitles, front on black, or binary matte. Use a background to inspect dark artwork.
+Preview with background + subtitles, front on black, or binary/grayscale matte. Use a background to inspect dark artwork.
 
 Export two direct MP4s without ZIP compression. Allow multiple downloads if prompted, or use individual save links. Keep the tab open during export.
 
-Names: `project_subtitle_front.mp4` and `project_subtitle_front_matte_dark.mp4`. Spectrum composites use `combined_front`. Both files have matching dimensions, fps and frame count, without audio.
+Names: `project_subtitle_front.mp4` and `project_subtitle_front_matte_dark.mp4`. Spectrum composites use `combined_front`. Alpha mode appends `_alpha` to the front name; its matching matte adds `_matte_dark` after that. Both files have matching dimensions, fps and frame count, without audio.
 
 16:9 presets: 854×480, 960×540, 1280×720, 1360×766, 1600×900, 1920×1080, 2560×1440, 3840×2160. Other aspect ratios change dimensions; both axes are even. The intermediate option displays actual dimensions (766×1360 for portrait).
 
@@ -62,15 +90,27 @@ Names: `project_subtitle_front.mp4` and `project_subtitle_front_matte_dark.mp4`.
 
 RGB 000000 means empty space. Black subtitle drawing colours become RGB 030303 before alpha is applied. Fades rounded down to zero stay empty.
 
-Exactly the nonblack final front pixels produce black matte pixels before encoding; empty pixels produce white. No outline dilation or partial alpha is exported. Soft effects retain brightness on black, which can create a dark edge over bright footage.
+In Binary mode, exactly the nonblack final front pixels produce black matte pixels before encoding; empty pixels produce white. No outline dilation or partial alpha is exported in this mode. Soft effects retain brightness on black, which can create a dark edge over bright footage. Alpha mode uses the continuous matte described above.
 
 Lossy MP4 compression/colour conversion may change exact RGB and introduce intermediate matte shades. Verify decoded footage in your compositor.
 
-Apply the matte with Darken, then the front with Lighten. Match timing, size and speed. For custom alpha processing use `alpha = 1 - matte / 255`. The pre-encode binary pair also obeys `front + background * (matte / 255)`.
+For Binary mode, apply the matte with Darken, then the front with Lighten. Match timing, size and speed. For custom alpha processing use `alpha = 1 - matte / 255`. The pre-encode binary pair also obeys `front + background * (matte / 255)`. For Alpha mode, use Multiply then Add as described above; the front is already premultiplied.
+
+### Difference instead of Add
+
+If Add is unavailable but absolute Difference is available, stack these from back to front:
+
+1. Background: Normal
+2. Grayscale matte: Multiply
+3. Full-frame white: Difference
+4. Matching Alpha-mode front: Difference
+5. Full-frame white: Difference
+
+Set every layer to 100% opacity and cover the same frame and interval with both white layers. This equals Add when background × matte + front is at most 1 in each RGB channel, as with a correct ordinary premultiplied pair. Verify a short range for color-processing/compression differences. See the [full procedure and calculation](../user_guide.en.md#when-add-is-unavailable-but-difference-is-available).
 
 ## Save and limitations
 
-Save project JSON explicitly; autosave is a convenience. Subtitles, effects and placement persist, but actual background, spectrum and song files do not. Reselect media after reopening; save before language switching, which reloads the page.
+Save project JSON explicitly; autosave is a convenience. Subtitles, effects and placement persist, but actual background, spectrum and song files do not. Reselect media after reopening JSON; cues and fillers are already restored, so do not reimport SRT. Save before language switching, which reloads the page.
 
 Desktop Chrome / Edge is recommended. MP4 requires WebCodecs and H.264 encoding, depending on browser/OS. Long/4K exports are not thoroughly verified and use substantial memory; start with a short range. File-URL storage behavior depends on browser.
 
@@ -86,16 +126,4 @@ Background frames are decoded and selected by output timestamps. Constant 30fps 
 
 Existing resolution, fps, quality and range settings apply; duration rounds up to whole video frames. Audio is encoded as AAC at its original level, independent of preview volume. If AAC encoding is unavailable, exclude audio or use a supported environment. Settings persist in JSON. See [details](../user_guide.en.md#exporting-a-simple-video).
 
-## Filler subtitles
-
-Timeline numbers are gray for normal cues and red for fillers. Both become yellow while hovered or dragged. Updated defaults apply to new settings; saved filler settings are preserved.
-
-After importing SRT, **Add fillers…** opens a settings dialog. Generated cues are editable placeholders, marked as fillers independently of their text. Regeneration replaces all fillers, including manually edited ones, while preserving normal subtitles and effects. **Remove all fillers** is also available. Generation and removal support Ctrl+Z.
-
-- **Usable gap threshold:** applied after the pre-gap following a normal cue and the post-gap before the next. Defaults are 5s threshold, 0.3s pre-gap and 0.5s post-gap: an interior gap must be at least 5.8s. Intros use only the post-gap; outros use only the pre-gap. Overlapping normal cues form one occupied interval.
-- **Average duration:** Normal is the mean of the longer half of current normal cue durations, rounding the count up. Short uses ×0.75 and Long ×1.5. Individual durations vary while filling each eligible interval.
-- **Text types:** enable Whitespace, Lyric text, Timestamp, Symbols and/or Custom text. Weights range from 0–10. Defaults enable all types at weights 3, 8, 2, 1 and 0. Custom text starts empty and uses the full text entered. If enabled with a positive weight but no text, generation reports an error without replacing existing fillers. Whitespace uses 3–4 groups of 2–5 ideographic spaces separated by ASCII spaces, allowing plates and decorations without visible lyric glyphs. Symbols follow the mean normal text length excluding whitespace, using repeated, mixed, alternating or symmetric patterns. Lyrics are chosen whole from normal cues regardless of length.
-- **Time tags:** `[timestamp]` renders as `02 05 853` using the cue start time and follows retiming. Type it into normal or filler cues, alone or with other text. The editor and JSON retain the literal tag.
-- **End time:** uses audio duration first, then spectrum duration, otherwise the last normal cue; never shorter than the last normal cue. Load media first to fill the outro.
-
-Existing fillers are excluded from all gap and reference calculations. Settings and filler identity persist in JSON. Cancel leaves the project unchanged. Safeguards: target duration is at least 0.25s, symbols at most 120 characters, and total cues at most 20,000.
+See [CHANGELOG.md](../CHANGELOG.md) for release history.

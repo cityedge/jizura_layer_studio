@@ -21,7 +21,11 @@ function fit(ctx, m, w, h) {
 }
 J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
-  if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
+  const mode = J.normalizeLayerMode(J.ui.project.layerMode);
+  const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
+  if (!renderer || renderer.w !== w || renderer.h !== h || renderer.mode !== mode) { renderer = new J.LayerRenderer(w, h, mode, opacity); spectrumPreview = null; }
+  renderer.backgroundOpacity = opacity;
+  renderer.hideDecorativeText = J.ui.project.hideDecorativeText === true;
   let pixels = renderer.draw(plan, t, opt.fast);
   const playing = J.previewRunning();
   syncMedia(session.background, t, playing);
@@ -31,12 +35,12 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   }
   if (J.ui.project.spectrumMode === 'generated') {
     const native = J.drawNativeSpectrumPixels(w, h, t);
-    if (native) pixels = J.overPixels(native, pixels);
+    if (native) pixels = J.composeLayerPixels(native, pixels, mode);
   } else if (J.ui.project.spectrumMode !== 'none' && session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
-      pixels = J.overPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels);
+      pixels = J.composeLayerPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels, mode);
     }
   }
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
@@ -437,6 +441,17 @@ function mountPartEditor() {
 }
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  $('layerMode').value = J.normalizeLayerMode(J.ui.project.layerMode);
+  const alpha = $('layerMode').value === 'alpha';
+  const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
+  $('layerBackgroundOpacity').value = opacity;
+  $('layerBackgroundOpacity').disabled = !alpha;
+  $('layerBackgroundOpacityValue').value = opacity + '%';
+  $('hideDecorativeText').checked = J.ui.project.hideDecorativeText === true;
+  $('layerPreview').querySelector('[value="matte"]').textContent = alpha ? tr('グレーマット', 'Grayscale matte') : tr('白黒マット', 'Binary matte');
+  $('layerModeHelp').textContent = alpha
+    ? tr('半透明を保持します。背景にグレーマットを「乗算」、フロントを「加算」で合成します。フロントは透明度を掛けた色です。アルファとして使う場合も二重に掛けないでください。', 'Preserves opacity. Multiply the background by the grayscale matte, then add the front. Front RGB is premultiplied; do not multiply it by alpha again.')
+    : tr('従来の二値マットです。半透明は黒背景上の色に焼き込みます。', 'Legacy binary matte. Partial opacity is baked into color against black.');
   J.syncNativeSpectrumUI?.();
   J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
@@ -517,7 +532,31 @@ function boot() {
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
   panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント動画と白黒2値のマット動画を作成します。マット＋フロントのペア出力には、音声・作業用背景は含みません。', 'Creates a front video on black and a binary matte. Matte + front pair exports exclude audio and preview backgrounds.'), 'note'));
+  panel.append(el('p', tr('フロントとマットの2本を作成します。ペア出力には音声・作業用背景は含みません。透明度モードはプレビュー・全出力で共通です。', 'Creates front and matte videos without audio or preview backgrounds. Opacity mode applies to the preview and all exports.'), 'note'));
+  const modeLabel = el('label', tr('透明度モード', 'Opacity mode')), mode = el('select'); mode.id = 'layerMode';
+  mode.setAttribute('aria-label', tr('透明度モード', 'Opacity mode'));
+  for (const [value, ja, en] of [['binary', '二値（従来）', 'Binary (legacy)'], ['alpha', '半透明（グレーマット）', 'Alpha (grayscale matte)']]) {
+    const option = el('option', tr(ja, en)); option.value = value; mode.append(option);
+  }
+  mode.addEventListener('change', () => { J.ui.project.layerMode = J.normalizeLayerMode(mode.value); J.uiApi.flushSave(); J.syncLayerUI(); dirty(); });
+  modeLabel.append(mode); const help = el('p', '', 'note'); help.id = 'layerModeHelp'; panel.append(modeLabel, help);
+  const opacityLabel = el('label', null, 'layer-background-opacity'); opacityLabel.htmlFor = 'layerBackgroundOpacity';
+  const opacityTitle = el('span', tr('背景色の不透明度', 'Background color opacity'));
+  const opacityValue = el('output'); opacityValue.id = 'layerBackgroundOpacityValue'; opacityValue.htmlFor = 'layerBackgroundOpacity';
+  const opacity = el('input'); opacity.id = 'layerBackgroundOpacity'; opacity.type = 'range'; opacity.min = '0'; opacity.max = '100'; opacity.step = '1';
+  opacity.setAttribute('aria-describedby', 'layerBackgroundOpacityHelp');
+  opacity.addEventListener('input', () => {
+    J.ui.project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(Number(opacity.value));
+    opacityValue.value = J.ui.project.layerBackgroundOpacity + '%'; dirty();
+  });
+  opacity.addEventListener('change', () => J.uiApi.flushSave());
+  opacityLabel.append(opacityTitle, opacityValue, opacity);
+  const opacityHelp = el('p', tr('半透明モードのみ。初期値40%。上げるほど背景色を使う塗りが濃くなります。混色・フェード・重なりで実際の濃さは変わります。', 'Alpha mode only. Default: 40%. Higher values make fills using the background color more opaque. Mixtures, fades and overlaps affect the final opacity.'), 'note'); opacityHelp.id = 'layerBackgroundOpacityHelp';
+  panel.append(opacityLabel, opacityHelp);
+  const hideLabel = el('label', null, 'layer-hide-decorative'), hide = el('input'); hide.id = 'hideDecorativeText'; hide.type = 'checkbox';
+  hide.addEventListener('change', () => { J.ui.project.hideDecorativeText = hide.checked; J.uiApi.flushSave(); dirty(); });
+  hideLabel.append(hide, el('span', tr('飾りの数字・時刻を隠す', 'Hide decorative numbers and times')));
+  panel.append(hideLabel, el('p', tr('No.01やタイムコードなどを非表示にします。字幕本文の数字・[timestamp]は残します。枠やRECなど、数字以外の装飾は対象外です。', 'Hides labels such as No.01 and timecodes. Numbers and [timestamp] in subtitles remain. Frames and nonnumeric ornaments such as REC are unaffected.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   panel.append(button('layerExportFront', tr('フロントだけ MP4を出力', 'Export front MP4 only'), () => exportVideo(false, true)));
   panel.append(el('p', tr('フロントのみはマット生成を省略します。音声・作業用背景は含みません。', 'Front-only export skips matte generation. Audio and preview backgrounds are excluded.'), 'note'));

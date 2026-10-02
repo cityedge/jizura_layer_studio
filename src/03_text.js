@@ -146,11 +146,27 @@ function drawItemLayered(env, it) {
 }
 
 /* draw one text item. env = {ctx, pass, passColor, scale}. Returns design-space bbox + glyph boxes. */
+// Based on upstream decorative-copy filtering. Never hide text found in the
+// actual lyric, including resolved [timestamp] fillers and their word chunks.
+J.decoTextKind = text => {
+  const t = String(text ?? '').trim();
+  if (!t || !/\d/.test(t) || /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(t)) return null;
+  if (/\d{1,2}[:：]\d{2}/.test(t) && /^[A-Za-z]{0,4}[\s.#]*[\d:：.,;'"\s\/\-–—+]+[A-Za-z]{0,3}$/.test(t)) return 'time';
+  if ((t.match(/[A-Za-z]/g) || []).length <= 5 && /^[A-Za-z#№.\s\d\/\-–—+×x%:,'°]+$/.test(t)) return 'no';
+  return null;
+};
+J.hideDecoText = (env, text) => {
+  if (!env.hideDecorativeText || !J.decoTextKind(text)) return false;
+  const normalize = s => String(s ?? '').replace(/\s+/g, ' ').trim();
+  const needle = normalize(text), cut = env.cut;
+  return ![cut?.lineText, cut?.text].some(s => normalize(s).includes(needle));
+};
 J.drawItem = (env, it) => {
   const ctx = env.ctx;
   const ghostPass = env.pass !== 'main';
   if (ghostPass && it.ghost === false) return null;
   if (!it.text || it.size <= 0.5) return null;
+  if (J.hideDecoText(env, it.text)) return null;
   if (!env.inLayer && !env.glyphLog && !env.hideText && env.allowFilter && !it.pieceFn && ((it.blur || 0) > 0.4 || (it.shadow && !ghostPass && (it.shadow.blur || 0) * (env.scale || 1) > 6))) {
     const r = drawItemLayered(env, it);
     if (r !== undefined) return r;

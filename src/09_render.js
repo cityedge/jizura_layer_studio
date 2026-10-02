@@ -54,12 +54,29 @@ class Renderer {
 
   ensure(c, w, h) { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } return c; }
 
+  effectCanvas(c, w, h, opt) {
+    this.ensure(c, w, h);
+    if (opt.layerComposition && opt.layerMode === 'alpha') {
+      // An opaque palette fill used to erase the previous contents implicitly.
+      // With translucent background colours, scratch buffers must start empty.
+      const x = c.getContext('2d'); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h); x.restore();
+    }
+    return c;
+  }
+
   /* main entry: draw frame at time t into ctx (canvas px = design * scale) */
   frame(ctx, plan, t, opt = {}) {
     // Local subtitle looks also apply to recursive transition frames.
     const look = J.cutAt(plan, t)?.renderLook;
     const baseLook = plan._baseLook || { style: plan.style, styleKey: plan.styleKey, fx: plan.fx, hud: plan.hud };
     if (look || plan._baseLook) plan = { ...plan, ...(look || baseLook), _baseLook: baseLook };
+    // A global display preference, independent of each cue's saved random look.
+    plan = { ...plan, hideDecorativeText: opt.hideDecorativeText === true };
+    const renderStyle = J.layerRenderStyle(plan.style, opt);
+    if (renderStyle !== plan.style) plan = { ...plan, style: renderStyle };
+    if (opt.layerComposition && opt.layerMode === 'alpha') {
+      for (const c of [this.scratch, this.small, this.tiny, this.small2]) if (c) this.effectCanvas(c, c.width, c.height, opt);
+    }
     const W = plan.W, H = plan.H, scale = opt.scale || 1;
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style, fps = plan.fps;
@@ -118,7 +135,7 @@ class Renderer {
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
     if ((!opt.transparent || layer === 'back' || opt.layerComposition) && !key && mainCut && mainCut.bg && mainCut.bg !== 'none' && J.BG[mainCut.bg]) {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, layerMode: opt.layerMode, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
       ctx.save();
       try { J.BG[mainCut.bg].draw(env, mainCut.bgP || {}); } catch (e) { console.warn('bg', mainCut.bg, e); }
       ctx.restore();
@@ -207,7 +224,7 @@ class Renderer {
         const A = this.ensure(this.transA || (this.transA = mk(2, 2)), cw, ch), B = this.ensure(this.transB || (this.transB = mk(2, 2)), cw, ch);
         const bx = B.getContext('2d'); bx.setTransform(1, 0, 0, 1, 0, 0); bx.globalCompositeOperation = 'copy'; bx.drawImage(ctx.canvas, 0, 0); bx.globalCompositeOperation = 'source-over';
         this.frame(A.getContext('2d'), plan, Math.max(prev.start, prev.end - 1e-3), Object.assign({}, opt, { noTrans: true, noPost: true, noHud: true }));
-        const pst = prev.renderLook?.style || baseLook.style;
+        const pst = J.layerRenderStyle(prev.renderLook?.style || baseLook.style, opt);
         const psc = pst.schemes[prev.scheme % pst.schemes.length] || pst.schemes[0];
         ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
         // Replace copied regions, including their transparent holes, during layer transitions.
@@ -222,7 +239,7 @@ class Renderer {
             return drawImage.call(this, img, ...args);
           };
         }
-        try { J.TRANS[mainCut.trans].draw(ctx, A, B, J.clamp(lt / dur), { cw, ch, sc, scPrev: psc, st, P: mainCut.transP || {}, step, t, scale, allowFilter, seed: mainCut.seed | 0, tmp: (w, h) => this.ensure(this.transC || (this.transC = mk(2, 2)), w, h) }); }
+        try { J.TRANS[mainCut.trans].draw(ctx, A, B, J.clamp(lt / dur), { cw, ch, sc, scPrev: psc, st, layerComposition: !!opt.layerComposition, layerMode: opt.layerMode, P: mainCut.transP || {}, step, t, scale, allowFilter, seed: mainCut.seed | 0, tmp: (w, h) => this.effectCanvas(this.transC || (this.transC = mk(2, 2)), w, h, opt) }); }
         catch (e) { console.warn('trans', mainCut.trans, e); }
         finally { if (opt.layerComposition) delete ctx.drawImage; }
         ctx.restore();
@@ -268,10 +285,10 @@ class Renderer {
   /* モーフ: where every glyph of the previous cut rests at its end, and where this cut's glyphs land (cached) */
   morphLogs(plan, A, B, cw, ch, scale, opt) {
     if (!this.morphCache || this.morphCache.plan !== plan) this.morphCache = { plan, map: new Map() };
-    const key = A.index + ':' + B.index + ':' + cw + 'x' + ch + ':' + scale.toFixed(4), M = this.morphCache.map;
+    const key = A.index + ':' + B.index + ':' + cw + 'x' + ch + ':' + scale.toFixed(4) + ':' + !!opt.layerComposition + ':' + (opt.layerMode || 'binary') + ':' + J.normalizeBackgroundOpacity(opt.layerBackgroundOpacity) + ':' + !!opt.hideDecorativeText, M = this.morphCache.map;
     if (M.has(key)) return M.get(key);
     const cv = this.ensure(this.morphCv || (this.morphCv = mk(2, 2)), cw, ch), x = cv.getContext('2d');
-    const o2 = { scale, noPost: true, noHud: true, noTrans: true, noGhost: true, transparent: opt.transparent, layerComposition: opt.layerComposition, fast: true };
+    const o2 = { scale, noPost: true, noHud: true, noTrans: true, noGhost: true, transparent: opt.transparent, layerComposition: opt.layerComposition, layerMode: opt.layerMode, layerBackgroundOpacity: opt.layerBackgroundOpacity, hideDecorativeText: opt.hideDecorativeText, fast: true };
     const la = [], lb = [];
     this.frame(x, plan, Math.max(A.start, A.end - 1e-3), Object.assign({}, o2, { glyphLog: la }));
     this.frame(x, plan, B.start + B.morph.dur + 1e-3, Object.assign({}, o2, { glyphLog: lb }));
@@ -322,7 +339,7 @@ class Renderer {
   }
   makeEnv(ctx, plan, cut, sc, o) {
     const W = o.zone ? o.zone.w : plan.W, H = o.zone ? o.zone.h : plan.H;   // 中央を空ける: a cut lives in its side band
-    const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan }, o);
+    const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan, hideDecorativeText: plan.hideDecorativeText === true }, o);
     if (cut) {
       env.pIn = J.clamp(o.lt / Math.max(0.01, cut.inDur));
       env.pOut = cut.outDur > 0 ? J.clamp((o.lt - (cut.dur - cut.outDur)) / cut.outDur) : 0;
@@ -462,7 +479,7 @@ class Renderer {
         if (D.scratch) copy();
         const bloomBase = opt.layerComposition && ev.type === 'bloomFlash' ? ctx.getImageData(0, 0, cw, ch) : null;
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);

@@ -92,14 +92,18 @@ J.cueRerollModes = [
   ['random', 'ランダム', 'Random'],
 ];
 J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
-const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
+const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'lookTheme'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
-const globalKeys = [...ruleKeys, 'seed', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'unify', 'typeset'];
+const globalKeys = [...ruleKeys, 'seed', 'unify', 'typeset'];
 // Local overrides are deliberately absent from the signature. Global controls,
 // including manual edits and history navigation, establish the latest baseline.
 J.globalLookBaseline = (p, current) => {
   const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
-  const context = JSON.stringify(canonical({ ...values, enabled: poolContext(values.enabled) }));
+  values.lookTheme = J.normalizeTheme(values.lookTheme);
+  const signature = { ...values, enabled: poolContext(values.enabled) };
+  // No-theme signatures match projects saved before themes were introduced.
+  if (!signature.lookTheme) delete signature.lookTheme;
+  const context = JSON.stringify(canonical(signature));
   if (p.globalLook?.context === context && p.globalLook.values && p.globalLook.palettes) return clone(p.globalLook);
   const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes || []]))
     : { normal: current.unifyPalettes || [], filler: current.unifyPalettes || [] };
@@ -255,20 +259,22 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'color' && ov.randomDraw) rule.palette = clone(renderLook.style.schemes);
   if (mode !== 'fine') {
     if (mode === 'all' || mode === 'style' || mode === 'mood') {
-      const draw = J.omakase(effective, random, mode === 'style' ? { mood: effective.mood } : {});
+      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : {}) });
+      const themed = { ...effective, ...draw };
       if (mode === 'all') {
         for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
-        rule = { ...ruleFrom(draw), palette: clone(J.resolveStyle({ ...p, ...draw }).schemes), palettes: [] };
+        rule = { ...ruleFrom(themed), palette: clone(J.resolveStyle(themed).schemes), palettes: [] };
       } else if (mode === 'style') {
-        Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(p, effective.mood, random), palettes: [] });
+        Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(themed, effective.mood, random), palettes: [] });
         clearGroups(target, ['layout', 'bg', 'treat']);
       } else {
         Object.assign(rule, { mood: draw.mood, fx: draw.fx, enabled: draw.enabled, palettes: [] });
         clearGroups(target, ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);
       }
+      Object.assign(rule, J.themeSwitches(p.theme), { lookTheme: draw.lookTheme });
       rule.unifyMode = 'local';
     } else if (mode === 'motion') {
-      rule.enabled = broadPool(p, effective.mood, random);
+      rule.enabled = broadPool(effective, effective.mood, random);
       rule.fx = { ...rule.fx, density: 0.2 + random() * 0.75 };
       rule.unifyMode = 'loose';
       clearGroups(target, ['layout', 'bg', 'enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);

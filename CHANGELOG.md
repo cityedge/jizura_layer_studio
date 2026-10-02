@@ -1,3 +1,31 @@
+## 1.4.0 — 2026-10-02
+
+- 日英マニュアルを現行の操作順へ再構成。透明度・テーマ・出力・保存の説明を本文へ統合し、更新履歴を分離。加算のない編集環境向けに、乗算と差の絶対値・白ベタ2枚による半透明合成手順を掲載。短いガイドとアプリ内ガイドも更新。
+- Reorganize Japanese/English manuals around current workflows, integrating opacity, themes, exports and storage into the main text and separating release history. Document Multiply plus Difference with two white layers as an alternative to Add for alpha compositing; update short and in-app guides.
+
+- おまかせテーマ「なし・文字PV・キネティック・和風・ホラー・ポップ・バラード」を追加。全体抽選では必要なセットを有効化し、字幕ガチャ1〜3では対象字幕だけに適用。4・6は字幕の基準、9は最後に全体へ適用したテーマと設定を維持。0・5は選択テーマから独立。JSON・履歴・統一感・フィラーに対応。
+- Add No theme / Lyric video / Kinetic / Japanese / Horror / Pop / Ballad. Enable required sets globally for Auto-compose and locally for cue draws 1–3. Preserve cue settings for 4/6 and the applied global baseline for 9; 0/5 ignore the pending theme. Support JSON, history, coherence and fillers.
+- 字幕ガチャ後の全体変更を「前の案」で戻した際に、「次の案」が失われる問題を修正。テーマによるセットの自動有効化も履歴で復元。
+- Preserve forward look history after undoing a global change following a cue draw, and restore theme-enabled set switches when navigating history.
+
+- 「飾りの数字・時刻を隠す」を追加。本文の数字・タイムスタンプフィラーを保護し、演出抽選を変えずプレビュー・全出力で共有。初期値オフ、JSON保存対応。
+- Add Hide decorative numbers and times, preserving numeric lyrics and timestamp fillers without rerolling effects. Shared by previews and all exports; off by default and saved in JSON.
+
+- 半透明モードに「背景色の不透明度」スライダーを追加（0〜100%、初期値40%）。プレビュー・全出力で共有し、JSONへ保存。背景色の参照から混色・グラデーション・テクスチャへ透明度を引き継ぎ、文字・前景・つなぎ・画面加工も対象とします。混色率から直接不透明度を作る個別修正を撤去し、半透明の作業用バッファを明示的に初期化。保存配色・抽選・二値モードは維持します。
+- Add a Background color opacity slider (0–100%, default 40%) shared by previews and all exports and saved in project JSON. Propagate palette background alpha through mixtures, gradients and textures, including text, foreground parts, transitions and post effects. Remove per-effect mix-ratio conversions and explicitly clear translucent scratch buffers. Preserve saved palettes, random choices and binary rendering.
+
+- 透明度モード「二値（従来）／半透明（グレーマット）」を追加。プレビュー・ペア・フロントのみ・簡易MP4に共通で適用し、JSONに保存。旧JSONは二値で復元。
+- Add Binary (legacy) / Alpha (grayscale matte) opacity modes shared by preview, pair, front-only and simple MP4 exports. Persist in JSON; legacy projects remain binary.
+- 半透明モードはプリマルチプライ済みRGBと白＝透明の連続グレーマットを出力。ファイル名に `_alpha` を付加。簡易出力は透明度を保って背景へ合成。スペアナは二値のまま、字幕が手前で透過合成。外周ブルーム除去は維持。
+- Alpha mode exports premultiplied RGB with an inverse grayscale alpha matte and `_alpha` filenames. Simple export composites retained opacity onto the background. Spectra stay binary; subtitles blend over them. Exterior bloom removal is unchanged.
+
+- 本家v0.10.0〜v0.10.1の改善を部分移植。字幕一覧のレイアウト選択肢は操作時に、手法カードは分類を開いたときに生成し、サムネイルは表示範囲のみ描画。
+- Port selected upstream v0.10.0–v0.10.1 improvements: populate layout menus on interaction, create technique cards on opening their group, and paint thumbnails only within the viewport.
+- 長い英単語の自動分割・レイアウト内改行を単語単位に変更。ハイフン後の分割・再結合に対応し、英語中心の横画面コマ割りは左から右へ。空白フィラーと既存の1文字単語修正は維持。
+- Preserve long English words in automatic chunks and layout wrapping, retain hyphen boundaries, and order landscape panels left-to-right for Latin lyrics. Keep whitespace fillers and the existing single-letter-word fix.
+- JSON読込時に、前のプロジェクトの編集Undo/Redo・前の案/次の案を消去。ロック時の末尾効果は既存の所属情報による保持を継続し、フィラー・字幕ガチャ・JSON復元を含む回帰テストを追加。
+- Clear the previous project's edit and look histories when loading JSON. Retain the existing effect-ownership logic for late locked-cue accents, with regression coverage for fillers, cue redraws and JSON restoration.
+
 ## 1.3.2 — 2026-10-01
 
 - フォントファイルの読み込み・保存を廃止。追加書体はPCの書体名指定に統一し、日本語名のJSON復元を修正。音源のブラウザ保存・自動復元も廃止し、旧素材キャッシュを起動時に削除。字幕・設定の自動保存は維持。

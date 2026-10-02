@@ -104,7 +104,8 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
       encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
       encoder.configure({ ...codec.cfg, latencyMode: 'quality' });
-      const render = new J.LayerRenderer(w, h), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
+      const mode = J.normalizeLayerMode(project.layerMode);
+      const render = new J.LayerRenderer(w, h, mode, project.layerBackgroundOpacity, project.hideDecorativeText), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
       const ctx = canvas.getContext('2d'), bx = base.getContext('2d');
       bx.fillStyle = '#000'; bx.fillRect(0, 0, w, h);
       if (background && !background.video) {
@@ -116,7 +117,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         const t = span.t0 + i / fps;
         if (backgroundReader) await backgroundReader.drawNext(bx);
         let pixels = render.draw(plan, t);
-        if (reader) pixels = J.overPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels);
+        if (reader) pixels = J.composeLayerPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels, mode);
         ctx.drawImage(base, 0, 0);
         render.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
         ctx.drawImage(render.layer, 0, 0);

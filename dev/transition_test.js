@@ -7,6 +7,28 @@ vm.createContext(sandbox);
 for (const name of fs.readdirSync(root).filter(n => n.endsWith('.js') && n < '12').sort())
   vm.runInContext(fs.readFileSync(path.join(root, name), 'utf8'), sandbox, { filename: name });
 const J = sandbox.window.J, copy = x => JSON.parse(JSON.stringify(x));
+test('owned late effects survive locking, other-cue rerolls and JSON for normal and filler lines', () => {
+  for (const filler of [false, true]) for (const plain of [false, true]) {
+    if (plain && filler) continue;
+    let p = fixture(filler);
+    if (plain) { p.lyrics = p.subtitleCues.map(c => c.text).join('\n'); p.subtitleCues = null; }
+    const plan = J.plan(p), index = 1;
+    const group = plan.layerGroups?.find(g => g.indices.includes(index));
+    const base = group?.plan || plan, local = group ? group.indices.indexOf(index) : index;
+    const cuts = base.cuts.filter(c => c.line === local && c.utext != null), last = cuts.at(-1);
+    // Exit accents can fall outside the old time-window inference (end minus 0.3 s).
+    const events = [-0.1, 0.1].map(dt => ({t:last.end+dt,type:'shake',amp:.42,dur:.12,line:local,cut:cuts.length-1}));
+    base.events.push(...events);
+    const snapshot = J.lineSnapshot(plan, index);
+    for (const e of events) assert.ok(snapshot.at(-1).events.some(x => x.dt === e.t-last.start && x.amp === .42));
+    p.overrides[index] = {...p.overrides[index],lock:true,lockedSeed:plan.lines[index].seed,lockedCuts:snapshot};
+    const expected = copy(J.lineSnapshot(J.plan(p), index));
+    p = J.prepareCueReroll(p, J.plan(p), 3, null, 'random');
+    assert.deepEqual(copy(J.lineSnapshot(J.plan(copy(p)),index)), expected);
+    assert.deepEqual(copy(J.lineSnapshot(J.plan(copy(p)),index)).at(-1).events.filter(e=>e.amp===.42), copy(snapshot.at(-1).events.filter(e=>e.amp===.42)));
+    assert.ok(!J.lineSnapshot(plan,0).some(c=>c.events.some(e=>e.amp===.42)));
+  }
+});
 function fixture(filler = false) {
   const p = J.defaultProject();
   p.subtitleCues = ['朝が来る', '空の向こう', '夜を越えて', '明日へ'].map((text, i) => ({ id: 'c' + i, text, start: i * 3, end: (i + 1) * 3, filler: filler && i < 2 }));

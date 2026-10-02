@@ -82,9 +82,18 @@ J.hex = h => {
   const n = parseInt(h.slice(0, 6), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
-J.rgba = (h, a = 1) => { const [r, g, b] = J.hex(h); return `rgba(${r},${g},${b},${a})`; };
+J.hasColorAlpha = h => /^#[0-9a-f]{8}$/i.test(h);
+J.colorAlpha = h => J.hasColorAlpha(h) ? parseInt(h.slice(7, 9), 16) / 255 : 1;
+J.withColorAlpha = (h, a) => J.toHex(...J.hex(h)) + Math.round(J.clamp(a) * 255).toString(16).padStart(2, '0');
+J.rgba = (h, a = 1) => { const [r, g, b] = J.hex(h); return `rgba(${r},${g},${b},${J.hasColorAlpha(h) ? J.colorAlpha(h) * a : a})`; };
 J.mix = (h1, h2, t) => {
   const a = J.hex(h1), b = J.hex(h2);
+  if (J.hasColorAlpha(h1) || J.hasColorAlpha(h2)) {
+    // Interpolate premultiplied contributions, then return straight CSS RGBA.
+    // Opaque inputs retain the original rounding / string representation below.
+    const k = J.clamp(t), aa = J.colorAlpha(h1) * (1 - k), ba = J.colorAlpha(h2) * k, alpha = aa + ba;
+    return J.withColorAlpha(J.toHex(...a.map((v, i) => alpha ? (v * aa + b[i] * ba) / alpha : 0)), alpha);
+  }
   const c = a.map((v, i) => Math.round(J.lerp(v, b[i], t)));
   return '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
 };
@@ -116,9 +125,10 @@ J.fitContrast = (hex, bg, min = 3) => {  // nudge lightness away from the backgr
   for (let i = 0; i < 24; i++) {
     l = dark ? Math.min(0.96, l + 0.035) : Math.max(0.04, l - 0.035);
     const c = J.hsl(h, s, l);
-    if (J.contrast(c, bg) >= min) return c;
+    if (J.contrast(c, bg) >= min) return J.hasColorAlpha(hex) ? J.withColorAlpha(c, J.colorAlpha(hex)) : c;
   }
-  return dark ? '#FFFFFF' : '#111111';
+  const fallback = dark ? '#FFFFFF' : '#111111';
+  return J.hasColorAlpha(hex) ? J.withColorAlpha(fallback, J.colorAlpha(hex)) : fallback;
 };
 /* random accent + chromatic ghost pair that works on the given background */
 J.GHOST_PAIRS = [['#16F4D4', '#F5A50C'], ['#FF2A2A', '#2AA8FF'], ['#FF2BD6', '#2BFF88'], ['#FFE600', '#7B2BFF'], ['#FF6A00', '#00C2B8'],

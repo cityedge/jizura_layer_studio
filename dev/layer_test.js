@@ -3,8 +3,68 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const context = { J: { defaultProject: () => ({fx:{}}), plan: p => p }, document: { documentElement: {lang:'ja'} } };
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/01b_background_color.js'),'utf8'), context);
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/08c_themes.js'),'utf8'), context);
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/11r_layers.js'),'utf8'), context);
 const J = context.J, json = x => JSON.parse(JSON.stringify(x));
+
+test('opacity mode defaults to legacy binary and survives JSON migration', () => {
+  assert.equal(J.defaultProject().layerMode, 'binary');
+  assert.equal(J.defaultProject().layerBackgroundOpacity, 40);
+  assert.equal(J.defaultProject().hideDecorativeText, false);
+  assert.equal(J.defaultProject().theme, ''); assert.equal(J.defaultProject().lookTheme, '');
+  for (const mode of [undefined, 'binary', 'alpha', 'invalid']) {
+    const source = JSON.parse(JSON.stringify({ fx:{}, layerMode:mode })), p = {...source};
+    J.upgradeLayerProject(p, source);
+    assert.equal(p.layerMode, mode === 'alpha' ? 'alpha' : 'binary');
+    assert.equal(p.layerBackgroundOpacity, 40);
+    assert.equal(p.hideDecorativeText,false);
+  }
+  for (const value of [0, 25, 40, 100]) {
+    const source = JSON.parse(JSON.stringify({layerMode:'alpha',layerBackgroundOpacity:value})), p = {};
+    J.upgradeLayerProject(p,source); assert.equal(p.layerBackgroundOpacity,value);
+  }
+  for(const value of [true,false,undefined,'true']) {
+    const p={};J.upgradeLayerProject(p,{hideDecorativeText:value});assert.equal(p.hideDecorativeText,value===true);
+  }
+  for(const theme of ['', 'horror', 'ballad', undefined, 'invalid']) {
+    const p={};J.upgradeLayerProject(p,{theme,lookTheme:theme});assert.equal(p.theme,J.normalizeTheme(theme));assert.equal(p.lookTheme,p.theme);
+  }
+});
+test('grayscale pair premultiplies color and preserves all 256 alpha levels, including black art', () => {
+  for (const rgb of [[255,255,255], [213,40,119], [0,0,0]]) for (let a = 0; a < 256; a++) {
+    const raw = new Uint8ClampedArray([...rgb,a]), pixels = J.alphaLayerPixels(raw);
+    const {front,matte} = J.alphaPairPixels(pixels);
+    assert.deepEqual([...matte], [255-a,255-a,255-a,255]);
+    const color = a ? rgb.some(Boolean) ? rgb : [3,3,3] : [0,0,0];
+    assert.deepEqual([...front], [...color.map(c => Math.round(c*a/255)),255]);
+    assert.equal(pixels[3], a);
+    assert.deepEqual([...raw], [...rgb,a]);
+    // Multiply inverse matte into background, then add front. Only 8-bit RGB rounding differs.
+    for (let c = 0; c < 3; c++) {
+      const background = [17,130,240][c];
+      assert.ok(Math.abs(front[c]+background*matte[c]/255 - (pixels[c]*a/255+background*(1-a/255))) <= .5000001);
+    }
+  }
+});
+test('alpha subtitles blend over opaque spectrum; empty spectrum retains subtitle alpha', () => {
+  for (let a = 0; a < 256; a++) {
+    const front = new Uint8ClampedArray([240,40,120,a]), back = new Uint8ClampedArray([10,210,70,255]);
+    const out = J.composeLayerPixels(back,front,'alpha');
+    assert.equal(out[3],255);
+    for (let c = 0; c < 3; c++) assert.equal(out[c],Math.round(front[c]*a/255+back[c]*(1-a/255)));
+    const empty = J.composeLayerPixels(new Uint8ClampedArray(4),front,'alpha');
+    assert.deepEqual([...empty],a ? [...front] : [0,0,0,0]);
+    assert.deepEqual([...front],[240,40,120,a]); assert.deepEqual([...back],[10,210,70,255]);
+  }
+});
+test('source-over handles overlapping translucent layers without applying alpha twice', () => {
+  const front = new Uint8ClampedArray([255,0,0,128]), back = new Uint8ClampedArray([0,0,255,128]);
+  assert.deepEqual([...J.alphaOverPixels(back,front)],[170,0,85,192]);
+  const opaque = new Uint8ClampedArray([8,9,10,255]);
+  assert.deepEqual([...J.composeLayerPixels(back,opaque,'alpha')],[8,9,10,255]);
+  assert.deepEqual([...J.composeLayerPixels(back,front,'binary')],[255,0,0,128]);
+});
 
 test('retiming imported cues preserves duration and moves overrides with reordered cues', () => {
   const p = { subtitleCues: [{id:'a',start:1,end:3,text:'A\nline'}, {id:'b',start:4,end:5,text:'B'}], timing:{lineTimes:{0:8}}, overrides:{0:{layout:'ticket',lock:true},1:{layout:'grid'}}, exportRange:{from:0,to:0} };

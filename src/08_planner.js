@@ -120,6 +120,21 @@ J.segments = (text) => {
   if (cur) out.push(cur);
   return out;
 };
+// Upstream v0.10: retain word boundaries, including words split after a hyphen.
+const WORDCH = /[A-Za-z\u00c0-\u024f0-9\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/;
+J.isWordLike = t => /^[A-Za-z\u00c0-\u024f0-9\uac00-\ud7af'’.,!?‐–—-]+$/.test(t) && WORDCH.test(t);
+J.joinWords = arr => {
+  const latin = /[A-Za-z]/.test(arr.join('')), hangul = /[\uac00-\ud7af]/;
+  return arr.reduce((acc, word, i) => {
+    if (!i) return word;
+    if (/[-‐–—]$/.test(acc)) return acc + word;
+    return acc + (latin || (hangul.test([...acc].pop()) && hangul.test([...word][0])) ? ' ' : '') + word;
+  }, '');
+};
+J.isLatinText = text => {
+  const s = String(text || '').replace(/\s/g, '');
+  return !!s && (s.match(/[A-Za-z\u00c0-\u024f\u1e00-\u1eff]/g) || []).length / [...s].length >= 0.6;
+};
 J.chunkText = (text) => {
   // Ideographic-space groups are intentional invisible text; ASCII spaces separate them.
   if (J.isWhitespaceText(text)) {
@@ -149,7 +164,8 @@ J.chunkText = (text) => {
   const out = [];
   for (const c of chunks) {
     const n = [...c].length;
-    if (n > 10) { J.splitLines(c, Math.ceil(n / Math.ceil(n / 8))).split('\n').forEach(x => out.push(x)); }
+    if (n > 10 && J.isWordLike(c)) out.push(...c.split(/(?<=[-‐–—])(?=\S)/));
+    else if (n > 10) { J.splitLines(c, Math.ceil(n / Math.ceil(n / 8))).split('\n').forEach(x => out.push(x)); }
     else out.push(c);
   }
   for (let i = out.length - 1; i > 0; i--) {
@@ -161,7 +177,7 @@ J.chunkText = (text) => {
 /* English lyrics: cut by short phrases, not word by word (a Japanese chunk holds about as much as 2–3 English words) */
 J.phraseChunks = (words) => {
   const out = []; let cur = [], letters = 0;
-  const flush = () => { if (cur.length) out.push(cur.join(' ')); cur = []; letters = 0; };
+  const flush = () => { if (cur.length) out.push(J.joinWords(cur)); cur = []; letters = 0; };
   for (const w of words) {
     const n = (w.match(/[A-Za-z\u00c0-\u024f0-9]/g) || []).length;
     cur.push(w); letters += n;
@@ -169,7 +185,7 @@ J.phraseChunks = (words) => {
   }
   flush();
   // a lone short word at the end joins the previous phrase
-  if (out.length >= 2 && out[out.length - 1].replace(/[^A-Za-z]/g, '').length <= 4) { const last = out.pop(); out[out.length - 1] += ' ' + last; }
+  if (out.length >= 2 && out[out.length - 1].replace(/[^A-Za-z]/g, '').length <= 4) { const last = out.pop(); out[out.length - 1] = J.joinWords([out[out.length - 1], last]); }
   return out.length ? out : words;
 };
 
@@ -289,7 +305,7 @@ J.plan = (project, audio) => {
     const st = local ? J.resolveStyle(local) : globalLook.st;
     if (local && rule.palette?.length) st.schemes = rule.palette;
     const fx = local ? { ...globalLook.fx, ...local.fx } : globalLook.fx;
-    const en = local ? Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, local.enabled?.[g]?.[k] !== false && (!J.randomOk || J.randomOk(project, g, k))]))])) : globalLook.en;
+    const en = local ? Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, local.enabled?.[g]?.[k] !== false && (!J.randomOk || J.randomOk(local, g, k))]))])) : globalLook.en;
     const nSchemes = st.schemes.length;
     const U = ov.randomDraw || project._cueUnits?.[li] ? null : local ? (plan.unify ? makeUnify(parsed.lines.map((line, i) => i === li ? line : { ...line, text: '', impact: false }), { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: rule.palettes, relaxed: rule.unifyMode === 'loose' }) : null) : globalLook.U;
     const renderLook = local ? { style: st, styleKey: local.style, fx, hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud } : null;
@@ -337,7 +353,7 @@ J.plan = (project, audio) => {
     let groups;
     const nG = Math.min(nC, chunks2.length);
     if (nG <= 1) groups = [ln.text];
-    else groups = partition(chunks2, nG).map(g => g.join(spaceOnly || /[A-Za-z]/.test(g.join('')) ? ' ' : ''));
+    else groups = partition(chunks2, nG).map(g => spaceOnly ? g.join(' ') : J.joinWords(g));
     const recap = !fixedN && nC > groups.length && groups.length >= 2;
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });

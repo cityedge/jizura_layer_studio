@@ -645,7 +645,7 @@ fx('negativeRing', { name: '反転リング', tags: ['graphic', 'pop', 'glitch']
   } });
 
 // edge detection: |frame - shifted frame| → neon outlines on dark schemes, ink line drawing on light ones
-const invHex = h => { const [r, g, b] = J.hex(h); return J.toHex(255 - r, 255 - g, 255 - b); };
+const invHex = h => { const [r, g, b] = J.hex(h), c = J.toHex(255 - r, 255 - g, 255 - b); return J.hasColorAlpha(h) ? J.withColorAlpha(c, J.colorAlpha(h)) : c; };
 fx('edgeDetect', { name: '輪郭抽出', tags: ['graphic', 'glitch', 'editorial'], w: 0.7, dur: 4, amp: 1, mid: true, scratch: true,
   draw(ctx, ev, k, I) {
     const { cw, ch, S, sc } = I; if (!S) return;

@@ -1,42 +1,10 @@
-# JIZURA Layer Studio v1.3.2 User Manual
+# JIZURA Layer Studio v1.4.0 User Manual
 
-JIZURA Layer Studio turns lyrics and subtitles into animated **silent MP4 layers** for compositing over other footage. It retains JIZURA's typography and effects engine and adds editable SRT cues, filler generation, spectrum compositing, and paired front/matte export.
+JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.3.2. Features removed from the original JIZURA are not presented as available operations.
-
-## Changes in v1.3.2
-
-- Preserve single-letter English word boundaries (for example, Had a and and I).
-- Stop storing audio and uploaded font binaries. Additional fonts must be installed on the PC and selected by family name. Old media caches are deleted at startup.
-- Show a resume reminder after opening JSON. Subtitles and fillers are restored without reimporting SRT; reload audio, background and external spectrum media separately.
-
-## New in v1.3.1
-
-- **9 / Global taste** redraws the current cue using the latest globally applied settings. See the subtitle-draw section below.
-
-## New and changed controls in v1.3.0
-
-- Three kinetic transitions carry the outgoing cut's final image into the next: Retreating echo, Diagonal split and Radial shatter. They are available to automatic draws and manual technique selection. Cuts must touch within the same part; the incoming cut needs at least one second and the outgoing cut at least 0.45 seconds. Background media and spectra remain intact, and cue end times do not change. Effects that already disappear near their end may leave little to carry over.
-- Hidden development keys O/P review historically high-coverage layouts/backgrounds on the current cue, using different pools from normal rerolls. See the [review-key guide](docs/DEBUG_REVIEW.md#english).
-- Selected effects now leave more of your image/video visible outside their drawing regions. Gradients and lighting retain filled fields; Shadow Play preserves the illumination connecting its light source, text and shadow. Subtitle Bar leaves its picture area open in every palette, and Static TV retains its body without the surrounding room glow. Some background patterns use outlines. Flashlight has a larger hole, and CCTV monitors have outer margins. Existing projects use the revised drawing too. Foreground boards such as Ticket, and the Shoji, Zipper and Door Gap layouts, remain unchanged.
-- [Simple video export](#exporting-a-simple-video) now accepts video as well as image backgrounds, with either generated or external spectra.
-- Background videos start at timeline zero and hold their final frame after ending. Their video-track end time also contributes to automatic output duration. Background audio is ignored; only the separately loaded song is included.
-
-## New and changed controls in v1.2.1
-
-- [Manual part breaks](#automatic-parts-and-subtitle-rerolls): add/remove blank separators to mark verses, choruses and other sections while protecting cue text and timing. Enter at a row's start adds a break above it and keeps the caret with the text.
-- [Preview after global changes](#auto-compose-and-shuffle): restart 0.5 seconds before the first cue, avoiding repeated waits through long intros.
-
-## New and changed controls in v1.2.0
-
-- [Subtitle draws](#automatic-parts-and-subtitle-rerolls): 0 for Random, 1–5 for specific scopes, and 6 for Fine-tune. This section covers partial changes after Random, returning to base settings, manual choices and Unified look.
-- [Automatic parts](#automatic-parts-and-subtitle-rerolls): a 3-second gap between normal cues starts a new part; touching cue boundaries within a part are eligible for transitions.
-- [Keyboard navigation](#keyboard-controls): arrows seek by 2 seconds, Shift-arrows by cue, A/D by one frame, and Shift-A/D by one second.
-- [Front-only export](#exporting-mp4): save one silent MP4 while skipping matte generation and encoding.
-- [Tap sync](#tap-sync): disabled while using SRT. Edit SRT timing through fields, dragging or ±0.1s shifts.
-- [Built-in spectrum](#generating-from-audio): Reset to defaults restores both colors and motion settings together.
+This manual describes the retained features of v1.4.0. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -50,6 +18,7 @@ This manual describes the retained features of v1.3.2. Features removed from the
 - [Audio and timing](#audio-and-timing)
 - [Playback and timeline](#playback-and-timeline)
 - [Preview background and display modes](#preview-background-and-display-modes)
+- [Opacity and background color opacity](#opacity-and-background-color-opacity)
 - [Auto-compose and Shuffle](#auto-compose-and-shuffle)
 - [Styles and fonts](#styles-and-fonts)
 - [Colors](#colors)
@@ -69,19 +38,20 @@ This manual describes the retained features of v1.3.2. Features removed from the
 - [Troubleshooting](#troubleshooting)
 - [Limits and data handling](#limits-and-data-handling)
 - [Distribution files and licenses](#distribution-files-and-licenses)
+- [Version history](#version-history)
 
 ## Capabilities
 
 | Task | Features |
 |---|---|
 | Prepare subtitles | UTF-8 SRT import, editable text/start/end, direct text entry, LRC start times |
-| Animate | Auto-compose, Shuffle, styles, layouts, entrance/hold/exit, camera, text treatments, ornaments, transitions |
+| Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–6/9, styles, layouts, motion, ornaments and transitions |
 | Constrain choices | Technique checkboxes, expression sets, line locks, parameter and technique-group locks |
 | Follow music | Beat/energy analysis, BPM override, tap synchronization, timeline editing |
 | Fill gaps | Editable placeholders in SRT intros, interludes and outros |
-| Preview | Image/video background, front view, binary matte view |
-| Combine footage | Spectrum front with optional matte; position and independent horizontal/vertical scaling |
-| Export | Two silent MP4s with matching dimensions, fps and frame count; line-range export |
+| Preview | Image/video background, front view, binary/grayscale matte view |
+| Combine footage | Generate 64 spectrum bars from audio or load external spectrum footage; position and scale it |
+| Export | Synchronized front + binary/grayscale matte, front only, or simple video with background/audio; range export |
 | Preserve work | Browser autosave and downloadable project JSON |
 
 The primary front/matte pair excludes background and audio for external editing. Optional simple video export combines an image/video background, overlays and audio into one MP4. After Effects projects and PNG sequences are not supported.
@@ -108,25 +78,25 @@ The lyric-language selector controls text segmentation and font choices: automat
 
 ## Your first video
 
-1. Import SRT, or type subtitles if you have no SRT.
-2. Load the song to check timing by ear.
-3. Load an image or video as a preview background.
-4. Try Auto-compose and compare proposals with the previous/next controls.
-5. Reroll or replace the few lines that need work; lock the lines you want to keep.
-6. If needed, generate fillers in gaps and replace the placeholder text.
-7. Optionally load a spectrum front, with its matching matte if available.
-8. Export a few lines at 540p or 720p, 30fps, and test the composite.
-9. Save a project JSON.
-10. Return the range to the whole timeline and export at the intended resolution.
+1. **Prepare subtitles.** Import SRT or type lyrics for a new project. To resume saved work, open JSON and reload audio, background and external spectrum media; do not reimport SRT.
+2. **Load audio and background media.** Check timing and readability over your image or video.
+3. **Choose opacity mode.** Use Alpha (grayscale matte) to retain translucency, or Binary (legacy) for a black/white mask workflow. In Alpha mode, adjust Background color opacity as needed (default 40%).
+4. **Auto-compose.** Optionally select a theme first. Compare proposals with the previous/next controls.
+5. **Refine individual cues.** Edit part breaks, use numbered subtitle draws, and use 9 to return a cue to the global taste. Lock lines you want to keep.
+6. **Add fillers** to SRT gaps if needed, then edit their placeholder text.
+7. **Add a spectrum** using Generate from audio or External video.
+8. **Test a short range** at 540p or 720p and 30fps. Export a front/matte pair for external editing, or a simple video for a finished background/audio composite.
+9. **Save project JSON.** Store source media separately.
+10. **Export the whole video.** Reset the range to Whole and verify resolution and duration.
 
-In your external editor, put the matte over the background using **Darken**, then the front over that result using **Lighten**. Add the song as a separate audio track.
+Binary pairs use Darken then Lighten. Alpha pairs use Multiply then Add; Difference with two white layers can substitute for Add. Follow the mode-specific [compositing instructions](#compositing-in-a-video-editor). Simple video is already composited and needs no such step.
 
 ## Workspace and modes
 
 | Region | Controls |
 |---|---|
 | Header | Project name, modes, interface language, Open/Save JSON, Reset, User guide, About |
-| Upper left | SRT, fillers, cue editor, preview background, audio/timing, spectrum, display mode, paired MP4 export |
+| Upper left | SRT, fillers, cue editor, preview background, audio/timing, spectrum, opacity/decorative-number settings, display mode, pair/front/simple MP4 export |
 | Lower left | Subtitle text, lyric language, line/cut list |
 | Center | Preview, playback, volume, loop, look history, Auto-compose, timeline, current cut information |
 | Right | Easy controls or detailed Style, Effects, Techniques and Export tabs |
@@ -138,6 +108,8 @@ On a narrow screen, scroll through the workspace. Mobile mode folds some control
 ## Lines and cuts
 
 A **line** is a subtitle unit. With SRT, one cue block corresponds to one line even if its text contains line breaks.
+
+Automatic segmentation and layout wrapping keep English words together where possible, including spaces in `Had a` and `and I`. Hyphens offer split points, and Latin-text landscape panels run left to right.
 
 A **cut** is a timed combination of text and effects inside a line. A line may be divided into several words or phrases shown sequentially with different layouts and motion. Ten subtitle cues can therefore contain many more than ten cuts.
 
@@ -282,9 +254,26 @@ Load an image or video as the preview background. It is fitted within the frame 
 |---|---|
 | Preview background + subtitles | Composite over the working background, including loaded spectrum |
 | Front on black | Colors, text and ornaments; black represents empty space |
-| Binary matte | Black occupied regions, white empty regions |
+| Binary / grayscale matte | White transparent, black opaque; Alpha mode adds intermediate gray coverage |
 
 This selector only controls preview. Pair exports exclude the background; simple video export composites the image/video background with spectrum and subtitles regardless of the selected preview mode.
+
+## Opacity and background color opacity
+
+Select Opacity mode under Subtitle layers. One setting controls preview, matte + front, front-only and simple video exports. It is saved in project JSON; older projects open in Binary (legacy). Switching modes does not redraw the random composition.
+
+- **Binary (legacy)** does not retain partial opacity: partial opacity is baked into RGB against black, with a binary matte.
+- **Alpha (grayscale matte)** retains subtitle and decoration opacity. Simple video composites it directly onto the background. Matte preview displays intermediate gray values.
+
+In Alpha mode, the palette background color is translucent during rendering. Use the **Background color opacity** slider to adjust it from 0–100% (default: 40%). Higher values make fills more opaque; lower values reveal more of your background media. The setting applies to previews and all exports: matte + front, front only, and simple MP4. It is saved in project JSON; older projects without the setting use 40%. The slider is disabled in Binary mode, which retains legacy rendering.
+
+This applies to backgrounds, transitions and post effects, including text or foreground parts that use the background color as their ink. The same RGB stored in another palette field or a fixed color is unaffected. Saved palettes, random choices and spectrum opacity remain unchanged.
+
+Color mixtures interpolate both premultiplied color and opacity. At the default setting, mixing the 40%-opaque background color with opaque text color gives about 45% opacity at a 9% text-color ratio, or 52% at 20%. Fades and gradient opacity multiply the result, while overlapping fills can become more opaque. This does not set a fixed opacity for the entire finished frame. At 0%, mixed text/accent color contributions remain; at 100%, the effect's own fades still apply.
+
+Spectra remain binary in both modes. Their visible bars are opaque; translucent subtitles blend over them. Exterior bloom removal remains active. Background-dependent blend effects are not guaranteed to reproduce every original JIZURA result exactly.
+
+This does not change the opacity of imported background media. See [Exporting MP4](#exporting-mp4) for layer files and [Compositing in a video editor](#compositing-in-a-video-editor) for blending them. Simple video export performs the opacity-aware composition inside this app.
 
 ## Auto-compose and Shuffle
 
@@ -296,9 +285,39 @@ Whole-project Auto-compose, partial changes, Shuffle and look-history navigation
 
 Easy mode also offers separate rerolls for style, palette, mood and composition. Palette affects accent/ghost colors; mood affects effect settings and candidate techniques; composition changes arrangement and motion combinations.
 
-### Expression sets
+### Themes for Auto-compose and subtitle draws
 
-Additional expressions, Japanese motifs, typography/PV, kinetic and horror sets control automatic candidates. Horror also enables the horror mood, and Auto-compose uses those elements for that mood. The additional set contains elements added after the original app's first release.
+Choose a theme beside the central Auto-compose button or above Auto-compose in Simple mode. Both selectors share one setting. New and older projects default to **No theme**, retaining the existing behavior. A theme guides selection rather than excluding every unrelated technique.
+
+| Theme | Mood candidates | Sets enabled when needed |
+|---|---|---|
+| No theme | Existing settings | None |
+| Lyric video | Editorial, graphic, emotional | Typography/PV |
+| Kinetic | Pop, graphic, glitch | Kinetic |
+| Japanese | Calm, emotional, editorial | Japanese and additional expressions |
+| Horror | Horror | Horror |
+| Pop | Pop | None |
+| Ballad | Calm, emotional | None |
+
+Selecting alone changes no existing effects, set switches, playhead position or key-9 baseline. Whole-project Auto-compose enables required sets globally; whole-project Style/Mood changes also consider the selected theme. Existing candidate and parameter locks remain respected.
+
+For subtitle draws, required sets are enabled **inside the target cue only**. With global Horror off, select Horror and press 1 to create one horror cue without altering global switches or other cues. Boundary transitions may change how neighboring cues connect.
+
+| Key | Theme behavior |
+|---|---|
+| 1 Everything | Draw a new combination in the selected theme |
+| 2 Style | Consider the theme while keeping current mood and palette |
+| 3 Mood | Draw a mood within the theme while keeping style, fonts and palette |
+| 4 Performance / 6 Fine-tune | Use the cue's applied settings and candidates, ignoring a newly selected theme |
+| 5 Colors | Reroll colors independently of the theme |
+| 9 Global taste | Return to the last globally applied settings and theme |
+| 0 Random | Do not constrain the draw by the selected theme |
+
+Because 2 and 3 preserve some properties, they may not fully match a new theme; use 1 for a complete change. For example, compose the whole project as Ballad, select Horror and press 1 for one cue, then press 9 to restore that cue to the original Ballad taste. Pending, globally applied and cue-local settings are saved in project JSON.
+
+### Expression set switches
+
+Additional expressions, Japanese motifs, typography/PV, kinetic and horror sets control automatic candidates. Horror enables horror styles and techniques. With No theme, Auto-compose uses those parts for the horror mood; a themed draw enables its required sets. A partial draw such as cue key 2 can combine a horror-themed style with a retained non-horror mood. The additional set contains elements added after the original app's first release.
 
 These controls primarily filter automatic selection. A technique explicitly assigned to a line or cut may remain even when its set is excluded from automatic choices.
 
@@ -324,7 +343,7 @@ Install additional fonts on your PC first. In Detailed mode, enter the family na
 
 Project JSON and browser project autosave retain names and selections only, never font binaries. Install the same fonts on other PCs. An unavailable or misspelled family may render with a browser fallback.
 
-Direct font-file import has been removed. Legacy uploaded fonts preview with fallback; export is blocked while those fonts are used. Install the font on your PC and select its actual family name, or choose a built-in font. On startup, this version deletes old audio and uploaded-font binaries from browser storage.
+Font files cannot be imported directly. Legacy uploaded fonts preview with fallback; export is blocked while those fonts are used. Install the font on your PC and select its actual family name, or choose a built-in font. On startup, this version deletes old audio and uploaded-font binaries from browser storage.
 
 ## Colors
 
@@ -337,7 +356,7 @@ Direct font-file import has been removed. Legacy uploaded fonts preview with fal
 
 Enable custom accent or text colors to override the style. Random palette rerolls accent/ghost colors. Different effects use these roles differently; one color input does not recolor every visible object.
 
-Check dark text over a working background. Meaningful pure-black artwork is reserved as RGB 030303 in the front to distinguish it from empty RGB 000000.
+Check dark text over a working background. Meaningful pure-black artwork becomes RGB 030303 before opacity multiplication, so faint artwork can produce still lower RGB values. In Alpha mode, the matte retains coverage; do not infer opacity from front RGB alone.
 
 ## Effects
 
@@ -353,12 +372,11 @@ Effect sliders use a 0–100 strength/frequency scale. Each technique responds d
 | Texture | Texture intensity where applicable; removed background processing may have no visible effect |
 | Background switching | Variation in behind-text graphics, not switching imported preview files |
 
-
 ### Automatic parts and subtitle rerolls
 
 By default, SRT cues start a new part after at least 3 seconds with no normal subtitle visible. Overlapping cues are considered together; fillers and completely empty cues do not define automatic boundaries. Text/timing edits recalculate automatic boundaries, with manual choices taking precedence at edited boundaries.
 
-Since v1.2.1, the subtitle summary lets you **edit part breaks only**, protecting text and timing.
+The subtitle summary lets you **edit part breaks only**, protecting text and timing.
 
 1. Click a cue's row and press Enter or **Add part break** to insert a blank separator above it when the caret is at the start of the row, otherwise below it. No separator is added before the first cue or where one already exists. Touching cue times can still be split into separate parts.
 2. Inserting above a row keeps the caret at the moved text's start. Place the caret on a blank separator and press Backspace/Delete or **Remove part break** to join the parts. Automatic boundaries can also be removed.
@@ -369,14 +387,6 @@ Use the SRT cue editor to change text. The summary shows one row per cue, displa
 A manual choice belongs to the **cue immediately after the boundary** and follows it when retimed. Deleting that cue removes the choice. Normal-cue choices survive filler regeneration; choices on fillers disappear when those fillers are deleted or regenerated. Reimporting SRT restores automatic boundaries for the new cues. Removing a part break does not shorten the actual silent interval.
 
 Unified look uses these parts to coordinate layout, motion and color. Cross-cue transitions are eligible only within a part when the previous end equals the next start at millisecond precision. Eligible boundaries do not always receive a transition.
-
-### Transitions that retain the previous subtitle
-
-The Kinetic set includes **Retreating echo**, **Diagonal split** and **Radial shatter**. They retain the outgoing cut's final image at the start of the incoming cut, then shrink, split or fragment it. Background media and the spectrum are unaffected.
-
-Automatic choices require touching cuts within the same part, with an outgoing cut of at least 0.45 seconds and an incoming cut of at least one second. Separate SRT cues must also have matching end/start times. Auto-compose and Random can select these effects; manual selection is also available. Cue times and cut lengths stay unchanged.
-
-Retreating echo retains the incoming cut's normal entrance; the other two replace it. Their maximum duration is 0.8–1.1 seconds, shortened to fit the incoming cut and finish before its exit. The outgoing image is still: its original animation does not continue playing.
 
 The subtitle draw buttons and number keys affect only the current subtitle. A line's dice is equivalent to Fine-tune. **0 Random** samples compatible layouts, motion, ornaments, fonts and colors without style/mood preferences. It retains base settings separately, honors effect-pack permissions and cue locks, and bypasses Unified look. Ornament counts and screen accents are limited to avoid overcrowding; Typesetting restraint still applies.
 
@@ -395,7 +405,9 @@ The subtitle draw buttons and number keys affect only the current subtitle. A li
 
 Global Auto-compose, partial changes, Shuffle and manual edits to global settings update the baseline; cue-level draws do not. The baseline is saved in JSON. Older projects use their existing global settings, not an unavailable earlier history. Other cues, text, timing and locks remain intact. Ctrl-Z undoes the draw.
 
-Each subtitle retains its local settings. Use Everything to explore, then Mood, Colors and Fine-tune to refine without returning to the global starting look. The global controls stay unchanged; the local style and mood appear beside the draw buttons. Unified look favors small pools for Fine-tune, loosens them for Performance and builds a new local combination for Everything. Disabled categories such as Horror stay excluded from new random choices. Broad draws retry repeated layout/motion combinations, but manual choices and short text may limit variation.
+Each subtitle retains its local settings. Use Everything to explore, then Mood, Colors and Fine-tune to refine without returning to the global starting look. The global controls stay unchanged; the local style and mood appear beside the draw buttons. Unified look favors small pools for Fine-tune, loosens them for Performance and builds a new local combination for Everything. Draws use the cue’s applied set permissions. Keys 1–3 enable sets required by the selected theme inside that cue, even if the corresponding global switch is off. Keys 4/6 retain the applied cue framework rather than adopting a newly selected theme. Broad draws retry repeated layout/motion combinations, but manual choices and short text may limit variation.
+
+Keys 1–3 consider the [selected theme](#themes-for-auto-compose-and-subtitle-draws); 0/5 are independent of it. Key 9 restores the applied global theme as well as other global settings. Merely selecting a theme does not change that baseline.
 
 All modes preserve text, cue times and locks. Everything clears that cue's manual effect choices. Style replaces layout, background graphic and treatment choices; Mood replaces entrance, exit, hold, ornaments, camera, transitions and treatment choices. Performance replaces both sets and cut structure while retaining fonts and colors. Modes 2–4 overwrite manual and per-cut choices within their scope and retain other choices. Ordinary Fine-tune retains manual choices. Other subtitles retain their artwork and effects; joins immediately around the target may change.
 
@@ -410,6 +422,14 @@ Unity relates palettes/layouts across sections and repeated lyrics. Typesetting 
 ### Flash and HUD
 
 Flash enables brief flashes. Turn it off to reduce flashing, and also review screen-effect candidates. HUD adds small information such as scene numbers and times; select style-dependent, always on or off.
+
+### Hide decorative numbers and times
+
+Enable this checkbox under Subtitle layers to hide numeric ornaments such as `No.01`, `#03` and timecodes added by HUDs or layouts. Numbers in subtitle text and `[timestamp]` fillers remain visible. Matching text in the current lyric is preserved conservatively. Frames, shapes and nonnumeric ornaments such as `REC` and `UNTITLED` remain.
+
+Default: off. Applies to Binary and Alpha previews and all exports, and is saved in project JSON. It does not reroll effects or change the global taste restored by key 9.
+
+The HUD selector controls the shared HUD. This checkbox also covers numeric ornaments drawn independently by layouts; use it when numbers remain with the HUD switched off.
 
 ### Cadence and fps
 
@@ -445,6 +465,16 @@ The Techniques tab shows looping previews. Filter by name and check which techni
 All on, all off and invert affect the shown items when filtered. Basic fallbacks such as no treatment or still motion can remain available to keep a valid composition.
 
 Thumbnails are isolated examples. Layer-specific omissions and the actual text, background and combinations can change the final appearance.
+
+### Transitions that retain the previous subtitle
+
+The Kinetic set includes **Retreating echo**, **Diagonal split** and **Radial shatter**. They retain the outgoing cut's final image at the start of the incoming cut, then shrink, split or fragment it. Background media and the spectrum are unaffected.
+
+Automatic choices require touching cuts within the same part, with an outgoing cut of at least 0.45 seconds and an incoming cut of at least one second. Separate SRT cues must also have matching end/start times. Auto-compose and Random can select these effects; manual selection is also available. Cue times and cut lengths stay unchanged.
+
+Retreating echo retains the incoming cut's normal entrance; the other two replace it. Their maximum duration is 0.8–1.1 seconds, shortened to fit the incoming cut and finish before its exit. The outgoing image is still: its original animation does not continue playing.
+
+If the outgoing effect has already disappeared, there may be little image left to carry into the next cut.
 
 ### Locks
 
@@ -636,9 +666,27 @@ Choose output settings on the right, then use **Export matte + front MP4** on th
 
 ### Files
 
-The front contains colored text, ornaments and any loaded spectrum on black. The matte contains black occupied shapes on white. Both are silent and downloaded directly as MP4, without ZIP compression.
+Check output settings on the right and Opacity mode under Subtitle layers before exporting. Use the two files from the same pair-export run together.
 
-A subtitle-only project named `demo` produces `demo_subtitle_front.mp4` and `demo_subtitle_front_matte_dark.mp4`. Composited output uses combined-output names. The matte always adds `_matte_dark` to the corresponding front basename. Browser download settings determine duplicate-name handling; keep each pair together.
+| Mode | Front | Matte |
+|---|---|---|
+| Binary (legacy) | Colored subtitles, ornaments and spectrum baked onto black; empty space is black | Before compression, black where the front is nonblack and white elsewhere |
+| Alpha (grayscale matte) | Color multiplied by opacity (premultiplied RGB); empty space is black | White transparent, black opaque, gray partially opaque |
+
+Both are silent MP4s with matching dimensions, fps and frame count, downloaded without ZIP compression. Neither contains background media or song audio. An enabled generated/external spectrum is included.
+
+For a project named `demo`:
+
+| Content / mode | Front filename | Matte filename |
+|---|---|---|
+| Subtitles / Binary | `demo_subtitle_front.mp4` | `demo_subtitle_front_matte_dark.mp4` |
+| Subtitles / Alpha | `demo_subtitle_front_alpha.mp4` | `demo_subtitle_front_alpha_matte_dark.mp4` |
+| Spectrum composite / Binary | `demo_combined_front.mp4` | `demo_combined_front_matte_dark.mp4` |
+| Spectrum composite / Alpha | `demo_combined_front_alpha.mp4` | `demo_combined_front_alpha_matte_dark.mp4` |
+
+The matte adds `_matte_dark` to the front basename. Never mix modes or files from different renders. Browser settings determine duplicate-name handling; keep each pair together.
+
+Front-only output contains no independent opacity information, so correct translucent compositing requires its matching matte. Black artwork starts as RGB 030303 before opacity multiplication, which can reduce faint black to lower values. Lossy MP4 may alter colors, edges and matte values; test a short range using the [mode-specific compositing workflow](#compositing-in-a-video-editor).
 
 ### Aspect and resolution
 
@@ -706,7 +754,7 @@ Export decodes the video and selects the frame corresponding to each output time
 
 Decoding depends on browser codec support. Loading checks support; unsupported footage disables only simple export and displays a reason. H.264 MP4 is a good starting format. Video backgrounds with external spectrum footage require multiple decoders and may cost more than still backgrounds or generated spectra.
 
-Subtitle colors, decorations, bloom cleanup and spectrum placement/matte processing use the layer pipeline. Subtitle coverage follows the binary layer mask; this does not add translucent light physically to the background.
+Subtitle colors, decorations, bloom cleanup and spectrum placement/matte processing use the layer pipeline. Binary mode uses the legacy mask; Alpha mode retains opacity when compositing onto the background.
 
 ### Duration
 
@@ -738,16 +786,51 @@ Duration and audio inclusion persist in project JSON and autosave. Media binarie
 
 ## Compositing in a video editor
 
-```text
-Top:    front MP4       → Lighten
-Middle: matte MP4       → Darken
-Bottom: background video/image
-Audio:  original song on a separate track
-```
+Use a matching pair from one export run. Match start time, duration, playback speed, position and scaling. The tables specify **back-to-front compositing order**, not track numbers. Set every layer to 100% opacity. Put the original song on a separate audio track.
 
-Align start time, size, duration and any transforms for both files. If the whole image turns white, check that the matte is not using ordinary source-over blending. Front-only Lighten can lose dark text or colored artwork over bright backgrounds; the pair is the normal workflow.
+### Binary mode: Darken and Lighten
 
-For alpha-based matte workflows, white means transparent and black means opaque. Invert a white-is-opaque interpretation. The exported matte is binary, not continuous alpha. Soft effects retain their brightness against black in the front. Before compression, exactly the front's nonzero RGB pixels have a black matte; lossy MP4 can slightly alter edges and colors.
+| Order (back to front) | Material | Blend mode |
+|---|---|---|
+| 1 | Background image/video | Normal |
+| 2 | Binary matte MP4 | Darken |
+| 3 | Matching front MP4 | Lighten |
+
+The matte makes the subtitle footprint black, then the front supplies its color. This workflow is for binary pairs. Front-only Lighten loses dark artwork over brighter backgrounds. Binary mode bakes soft effects onto black and cannot restore their original translucency.
+
+### Alpha mode: Multiply and Add
+
+| Order (back to front) | Material | Blend mode |
+|---|---|---|
+| 1 | Background image/video | Normal |
+| 2 | Grayscale matte MP4 (white = transparent) | Multiply |
+| 3 | Matching Alpha-mode front MP4 | Add / equivalent Linear Dodge |
+
+For each RGB channel normalized to 0–1, `result = F + B × M`. B is background, F is premultiplied front, and M is the matte (8-bit value divided by 255). White matte retains the background; black blocks it. **Do not multiply the front by alpha again.** Thresholding the matte or using Darken/Lighten cannot reproduce partial opacity.
+
+### When Add is unavailable but Difference is available
+
+If the editor offers Multiply and absolute Difference, use **two full-frame white layers** to substitute for Add.
+
+| Order (back to front) | Material | Blend mode |
+|---|---|---|
+| 1 | Background image/video | Normal |
+| 2 | Grayscale matte MP4 (white = transparent) | Multiply |
+| 3 | Full-frame white (RGB 255,255,255) | Difference |
+| 4 | Matching Alpha-mode front MP4 | Difference |
+| 5 | Full-frame white (RGB 255,255,255) | Difference |
+
+Both white layers must cover the full frame and the same time interval as the pair. Keep every layer at 100% opacity, with no fades, shadows or color correction on the white layers. Each step blends against the accumulated result beneath it. Exclusion is a different operation and is not a substitute for Difference.
+
+Let D be the result of step 2 and F the front. Steps 3–5 produce `1 − D`, then `|1 − D − F|`, then `1 − |1 − D − F|`. If **D + F ≤ 1 in every RGB channel**, the final result equals `D + F`. For D = 0.4 and F = 0.3, the intermediate values are 0.6 → 0.3 → 0.7.
+
+A correct premultiplied front has F = C×α and M = 1−α. With ordinary 0–1 RGB values, `D + F = B×(1−α) + C×α ≤ 1`. Brightness adjustments or mismatched files can violate this condition; Difference then folds the value back downward instead of clipping to white like Add. Compression and editor color processing may also introduce differences. Compare a short export against the app's background composite first.
+
+### Importing the matte as alpha
+
+Opacity is `α = 1 − M`: invert the matte in a workflow that interprets white as opaque. Treat the Alpha-mode front as **premultiplied RGB**. Interpreting it as straight RGB and multiplying by alpha again darkens it. If the editor cannot specify the input interpretation, use the Multiply/Add or Difference workflow above.
+
+Front-only output cannot reconstruct correct partial opacity. Export the matching pair together, or use [simple video export](#exporting-a-simple-video) to finish the composite inside the app.
 
 ## Saving and resuming
 
@@ -758,7 +841,10 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Cue text, start/end and filler identity | Yes |
 | Filler settings, style, effects, colors, font references, line/cut overrides and locks | Yes |
 | Aspect, resolution, fps, export range and spectrum layout | Yes |
+| Opacity mode, background color opacity and decorative-number hiding | Yes |
+| Pending theme, applied global/cue settings, key-9 baseline, cue draws and part breaks | Yes |
 | Simple video duration and audio inclusion | Yes |
+| Preview speed | No; starts at 1× |
 | Audio/background/spectrum media binaries | No |
 | PC font binaries | No |
 | Durable undo/look history or rendered MP4 files | No |
@@ -789,6 +875,8 @@ Text inputs and open dialogs suppress some app shortcuts.
 | Ctrl-Shift-Z or Ctrl-Y | Redo those edits |
 | Shift-drag | Avoid timeline beat snapping |
 
+Development keys O/P review historically high-coverage layouts/backgrounds using different pools from normal draws. See the [review-key guide](docs/DEBUG_REVIEW.md#english).
+
 During tap sync, Space/Enter taps, Backspace steps back, and Escape pauses/exits.
 
 ## Suggested workflows
@@ -799,11 +887,11 @@ Lower cut density, motion, glitch and ornaments. Try typesetting. Reduce cuts in
 
 ### Create an energetic lyric video
 
-Enable typography/PV and kinetic sets, explore with Auto-compose, lock strong lines, then refine entrance/hold/exit per cut. Add lyric-heavy fillers during instrumental sections and edit their placeholder text.
+Choose the Lyric video or Kinetic theme, explore with Auto-compose, lock strong lines, then refine entrance/hold/exit per cut. Required sets are enabled by the draw. Add lyric-heavy fillers during instrumental sections and edit their placeholder text.
 
 ### Keep a character visible
 
-Load the character footage as a working background, try center-clear layout, and replace panels/tickets or screen-wide effects that obscure the face. Resize/reposition the spectrum to avoid competition with subtitles.
+Load the character footage as a working background, try Alpha mode with adjustable Background color opacity and center-clear layout, and replace panels/tickets or screen-wide effects that obscure the face. Resize/reposition the spectrum to avoid competition with subtitles.
 
 ### Make interludes less busy
 
@@ -816,20 +904,22 @@ Increase pre/post gaps, choose longer fillers to reduce their count, and reduce 
 | Cannot find a control | Switch to Detailed and scroll the panes. Output settings are on the right; paired export is on the left. Exterior bloom cleanup is automatic and has no control |
 | SRT will not load | Verify UTF-8, valid timestamps, nonempty text and end after start. Renaming an extension does not convert a format |
 | Correct timing but unreadable text | Reduce cut count/density and motion; try a simple layout |
-| Large dark panel covers footage | Exterior post-processing bloom is removed automatically. Tickets/bands and individual shadows are retained artwork; replace their layout/background/ornaments |
-| No fillers | Import SRT, enable a type, check the usable gap after margins, and load media to establish the outro |
+| Large dark panel covers footage | Try Alpha mode and lower Background color opacity. Fixed colors and other palette fields are unaffected, so replace remaining obstructive layouts/backgrounds/ornaments. Bloom cleanup does not remove original panels |
+| Alpha composite is dark, white or opaque | Use a matching `_alpha` pair, Multiply for the matte and Add for the front. For the Difference substitute, check white → front → white, all at 100%. Do not apply alpha to the front twice; see the compositing chapter |
+| Selecting a theme does nothing | Selection alone leaves effects intact. Apply Auto-compose or keys 1–3; 4/6 keep the applied cue base, while 9 restores the global base. Use 1 to change the whole cue framework |
+| No fillers | Import SRT, enable a type with positive weight, check the usable gap after margins, and load media to establish the outro |
 | Old default values appear | Saved project settings are preserved; change them in the dialog and Generate |
-| Spectrum missing | Load a front, seek within its duration, check codec support, or reset off-screen placement. Matte alone is insufficient |
+| Spectrum missing | For Generate from audio, load a song. For External video, load a supported front and seek within its duration. Check source mode and reset off-screen placement; matte alone is insufficient |
 | Spectrum has dark residue | Without a matte only exact RGB zero is transparent. Compression can make black nonzero; prepare a matching matte and check the source |
 | Jerky motion | Check subtitle cadence; for spectrum check actual source/output fps and range alignment. Compare a short export rather than relying only on a heavy preview |
 | Slow or failed export | Test a few lines at 540p/720p and 30fps. Follow decoder, missing-font, memory or encoder errors shown by the app |
 | Only one MP4 downloaded | Allow multiple downloads or use the two individual links |
-| Media disappears on reopen | Reselect background/spectrum; JSON stores settings, not media |
+| Media disappears on reopen | Reselect audio, background and external spectrum; JSON stores settings and subtitles, not media binaries. Do not reimport SRT |
 | Old app version still appears | Reload the updated site, or open HTML from the newly extracted ZIP rather than the old directory |
 
 ## Limits and data handling
 
-- No true alpha MP4, continuous-alpha matte, PNG sequences or After Effects export. Simple video export supports images and videos, but does not import background soundtracks or edit multiple background clips.
+- No single MP4 with embedded alpha, PNG sequences or After Effects export. Partial opacity is provided by a separate grayscale matte plus premultiplied front video. Simple video export supports images and videos, but does not import background soundtracks or edit multiple background clips.
 - No source-SRT overwrite/export or speech recognition.
 - No independent multiple-spectrum tracks or spectrum start-offset control.
 - Long/4K/60fps combinations can use substantial memory/time; all devices/codecs are not guaranteed.
@@ -852,3 +942,7 @@ Increase pre/post gaps, choose longer fillers to reduce their count, and reduce 
 This is an unofficial cityedge derivative of JIZURA by hakoniwa. The original and derivative application code use MIT; bundled libraries have their own terms. Consult the included notices and About dialog.
 
 You do not need to attach this app's MIT notice to exported videos. Check the rights and usage terms of your lyrics, music, images, footage and fonts separately.
+
+## Version history
+
+See [CHANGELOG.md](CHANGELOG.md) for version-by-version additions, changes and fixes. This manual describes current operation. Saved projects use the current renderer when opened, so an app update can change the appearance of an existing composition.

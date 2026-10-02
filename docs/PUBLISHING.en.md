@@ -1,10 +1,10 @@
 # Manual publication
 
-## Publishing v1.3.2
+## Publishing v1.4.0
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.3.2.zip` to your Release. Use the 1.3.2 entry in `CHANGELOG.md` for the release description. Both manuals, source files and licenses are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.4.0.zip` to your Release. Use the 1.4.0 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
 
-After publication, check the **v1.3.2** header, both interface languages and manual links. Verify single-letter English words, installed font JSON restoration, audio remaining unloaded after restart, the JSON resume dialog and filler restoration. This update removes no files relative to v1.3.1. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.4.0** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 1–6/9/0, JSON restoration of settings and fillers, and short pair/simple MP4 exports. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.3.2. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 

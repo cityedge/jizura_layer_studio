@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JIZURA Layer Studio — cityedge fork</title>
-<meta name="description" content="字幕フロントと白黒マットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。">
+<meta name="description" content="字幕フロントと二値・グレーマットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。">
 <link rel="canonical" href="https://cityedge.github.io/jizura_layer_studio/">
 <meta property="og:url" content="https://cityedge.github.io/jizura_layer_studio/">
 <link rel="alternate" hreflang="ja" href="https://cityedge.github.io/jizura_layer_studio/">
 <link rel="alternate" hreflang="en" href="https://cityedge.github.io/jizura_layer_studio/en/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JIZURA Layer Studio — cityedge fork">
-<meta property="og:description" content="字幕フロントと白黒マットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。">
+<meta property="og:description" content="字幕フロントと二値・グレーマットを2本のMP4に。SRT・作業用背景・スペアナ合成に対応したJIZURAの非公式派生版。">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -461,6 +461,15 @@ button.small.primary { padding: 4px 12px; }
 .layer-media .muted { flex:1; min-width:55px; overflow-wrap:anywhere; font-size:11px; }
 .layer-media button { padding:5px 7px; }
 #layerPreview, #layerExport { width:100%; margin-top:10px; }
+#layerMode { display:block; width:100%; margin-top:6px; }
+.layer-background-opacity { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; font-size:11px; }
+.layer-background-opacity input { width:100%; min-width:0; margin:0; accent-color:var(--amber); }
+.layer-background-opacity:has(input:disabled) { opacity:.5; }
+.layer-hide-decorative { display:flex; align-items:center; gap:5px; font-size:11px; }
+.omakase-theme { display:flex; align-items:center; gap:5px; font-size:11px; min-width:0; }
+.omakase-theme select { min-width:0; max-width:170px; }
+.easy-hero > .omakase-theme { margin-bottom:8px; }
+.easy-hero > .omakase-theme select { flex:1; max-width:none; }
 #layerExport { background:var(--accent, #f5a50c); color:#171310; font-weight:700; white-space:normal; }
 #simpleExport { width:100%; margin-top:12px; white-space:normal; }
 .simple-export-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
@@ -559,7 +568,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.3.2</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.4.0</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -837,7 +846,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.3.2</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.4.0</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1318,15 +1327,15 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.3.2 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
-    <p class="terms-main">他の動画に重ねるための、字幕フロントと白黒マットを作るツールです。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.4.0 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
+    <p class="terms-main">他の動画に重ねるための、字幕フロントと二値／グレーマット、または背景・音源まで合成したMP4を作るツールです。</p>
     <ol class="guide-steps">
       <li><strong>字幕を用意する</strong><p>「SRTを読み込む」でUTF-8のSRTを選びます。開始・終了・改行・字幕のない区間を保持します。「SRTの本文・開始・終了を編集」で修正できます。SRTを使わず字幕を直接入力することもできます。</p></li>
       <li><strong>演出と背景を確認する</strong><p>「おまかせ」で演出を作り、行ごとの設定で調整します。作業用背景に画像・動画を読み込むと、重ねた見え方を確認できます。背景と音源は、フロント／マットのペア出力には入りません。</p></li>
       <li><strong>必要ならスペアナを重ねる</strong><p>「スペアナの入力」で「音源から生成」または「外部動画」を選びます。音源からは64本のバーを生成し、感度・拍動・戻る速さと上下の色を調整できます。色は最大高さに固定し、低いバーには下端付近の色だけを表示します。解析後はプレビューと出力で同じ動きを使います。</p><p>外部動画はフロントと「同名_matte_dark.mp4」をまとめて選択できます。マットがなければRGB 000000だけを透過します。「なし」で合成を止めます。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
       <li><strong>外周ブルームは自動除去</strong><p>後処理で外側に追加されたブルームは、明るさに関係なく常に除去します。文字・図形・スパーク本体と、その内側の明るさの変化は保持します。調整項目はなく、旧プロジェクトのしきい値も無視します。</p></li>
       <li><strong>MP4を2本保存する</strong><p>画面比・解像度・fpsを選び、「マット＋フロント MP4を出力」を押します。ブラウザに複数ダウンロードの確認が出たら許可してください。保存されない場合は、出力後の個別保存リンクを使えます。2本とも無音で、ZIP圧縮はしません。書き出し中はタブを開いたままにしてください。</p></li>
-      <li><strong>動画編集ソフトで重ねる</strong><p>背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
+      <li><strong>動画編集ソフトで重ねる</strong><p>二値モードでは背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。半透明モードでは「乗算」→「加算」を使います。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
     </ol>
     <p>プレビューの「速度」で1倍・0.8倍・2/3倍・0.5倍を選べます。曲の音程を維持し、字幕・背景動画・スペアナも同じ速度で再生します。MP4出力や字幕時刻には影響せず、速度はJSONに保存しません。音程補正で音の質感が多少変わる場合があります。タップ同期中は1倍固定です。</p>
     <p>通常画面のプルダウン・チェック・スライダーをマウスで変更すると、操作後に数字キーなどのショートカットへ戻れます。文字・数値入力、ダイアログ、キーボードでの設定操作はフォーカスを維持します。プレビュー画面やタイムラインのクリックでも入力欄から戻れます。</p>
@@ -1359,13 +1368,19 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>9は字幕の個別テイスト・手動演出・カット数指定を解除し、最後に全体へ適用したスタイル・雰囲気・配色・書体・候補・統一感で再抽選します。元と同じ演出の復元ではありません。全体設定の変更で基準を更新し、字幕ガチャでは更新しません。基準はJSONに保存し、旧JSONでは残っている全体設定を使います。</p>
     <p>本文・開始／終了・他字幕は保持し、前後のつなぎだけ変わる場合があります。2〜4は担当範囲の手動指定も置き換え、対象外の指定は維持します。通常の6は手動指定を維持します。0は統一感による候補制限を外しますが、追加分・ホラーなどの使用許可は守ります。ロック中は対象外。再生中は0.3秒前から再生し直し、停止中は字幕の頭で停止します。Ctrl＋ZとJSON保存に対応します。</p>
     <p>Space：再生／停止。左右：2秒移動。Shift＋左右：字幕移動（左は現在の字幕の頭、開始直後なら前の字幕）。A／D：1フレーム移動。Shift＋A／D：1秒移動。R：全体のおまかせ。入力欄・ダイアログ内ではこれらの通常操作を行いません。</p>
+    <h3>おまかせ・字幕ガチャのテーマ</h3>
+    <p>中央のおまかせ付近、またはかんたんモードで「なし・文字PV・キネティック・和風・ホラー・ポップ・バラード」を選べます。選択だけでは演出は変わりません。全体のおまかせは必要なセットをオンにし、字幕ガチャ1〜3では対象字幕の内部だけで有効にします。2は雰囲気・配色、3はスタイル・書体・配色を維持するため、テーマへ一式を寄せるときは1を使います。</p>
+    <p>4・6は字幕に適用済みの設定、9は最後の全体設定とテーマを使います。テーマ選択だけでは9の復帰先は変わりません。0・5は選択中のテーマで制限しません。設定はJSONに保存され、旧JSONはテーマなしです。</p>
+    <h3>飾りの数字・時刻を隠す</h3>
+    <p>「字幕レイヤー」のチェックでNo.01やタイムコードなどを非表示にできます。字幕本文の数字や[timestamp]は残します。枠やRECなど数字以外の装飾は対象外です。初期値はオフ。プレビュー・全出力に共通で反映し、JSONへ保存します。演出の再抽選は行いません。</p>
     <h3>保存と復元</h3>
     <p>上部の「保存」でプロジェクトJSONを保存できます。字幕・演出・スペアナ配置などの設定を保持しますが、背景・スペアナ・曲の実ファイルは含みません。再度開くときは音源・背景・外部スペアナを選び直してください。音源・フォント本体はブラウザへ保存しません。追加書体はPCへインストールして名前を指定します。JSONを開くと案内が表示されます。字幕・フィラーは復元されるため、SRTの再読み込みは不要です。言語切り替え前にも保存しておくと安心です。</p>
-    <h3>出力の特徴</h3>
+    <h3>透明度モード</h3><p>「二値（従来）／半透明（グレーマット）」はプレビューと全出力で共通です。旧JSONは二値で開きます。スペアナは常に二値で、半透明字幕はその手前へ合成します。簡易動画は半透明を保って背景へ合成できます。</p><p>半透明ペアはファイル名に _alpha が付き、フロントは透明度を掛けた色、マットは白＝透明・黒＝不透明です。背景へマットを「乗算」、フロントを「加算」で合成します（front + background × matte / 255）。フロントへ再びアルファを掛けないでください。比較（暗）→比較（明）は二値モード用です。フロント単独では半透明を再現できません。</p><h3>加算がなく、差の絶対値がある場合</h3><p>背景から手前へ、①背景（通常）→②グレーマット（乗算）→③全画面の白ベタ（差の絶対値）→④対応する半透明フロント（差の絶対値）→⑤全画面の白ベタ（差の絶対値）の順に重ねます。全レイヤーは不透明度100%、白ベタ2枚も同じサイズと区間に揃えます。</p><p>各RGB成分で「背景×マット＋フロント」が1以下なら加算と一致します。正しいプリマルチプライ済みのペアは通常この条件を満たしますが、色補正や圧縮誤差もあるため短い範囲で確認してください。「除外」は別の演算です。詳しい式と手順は詳細マニュアルの「動画編集ソフトで合成する」を参照してください。</p><h3>出力の特徴</h3>
     <p>「フロントだけ MP4を出力」は黒背景の無音MP4を1本保存します。スペアナは含み、音源と作業用背景は含みません。マットの画素生成・エンコードを省略します。後から別に作ったペアのマットとの一致は保証しないため、対応マットが必要ならペアで出力してください。</p>
-    <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。圧縮前の最終フロントで黒以外の場所だけ、マットが黒になります。マットは2値で、半透明は保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
+    <p>半透明モードでは「背景色の不透明度」を0〜100%で調整できます（初期値40%）。上げるほど濃くなり、混色にも透明度を引き継ぎます。プレビュー・全出力に共通で反映し、プロジェクトJSONに保存します。背景色を使う文字・前景・つなぎ・画面加工にも適用します。別の配色項目や固定色、スペアナは対象外です。0%でも混ぜた文字色などは残り、100%でも演出のフェードは残ります。塗りの重なりでは濃くなります。保存配色・抽選・二値モードは変わりません。</p>
+    <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。二値モードでは、圧縮前の最終フロントで黒以外の場所だけマットが黒になります。二値モードでは半透明を保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
     <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.3.2</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.4.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -1516,9 +1531,18 @@ J.hex = h => {
   const n = parseInt(h.slice(0, 6), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
-J.rgba = (h, a = 1) => { const [r, g, b] = J.hex(h); return `rgba(${r},${g},${b},${a})`; };
+J.hasColorAlpha = h => /^#[0-9a-f]{8}$/i.test(h);
+J.colorAlpha = h => J.hasColorAlpha(h) ? parseInt(h.slice(7, 9), 16) / 255 : 1;
+J.withColorAlpha = (h, a) => J.toHex(...J.hex(h)) + Math.round(J.clamp(a) * 255).toString(16).padStart(2, '0');
+J.rgba = (h, a = 1) => { const [r, g, b] = J.hex(h); return `rgba(${r},${g},${b},${J.hasColorAlpha(h) ? J.colorAlpha(h) * a : a})`; };
 J.mix = (h1, h2, t) => {
   const a = J.hex(h1), b = J.hex(h2);
+  if (J.hasColorAlpha(h1) || J.hasColorAlpha(h2)) {
+    // Interpolate premultiplied contributions, then return straight CSS RGBA.
+    // Opaque inputs retain the original rounding / string representation below.
+    const k = J.clamp(t), aa = J.colorAlpha(h1) * (1 - k), ba = J.colorAlpha(h2) * k, alpha = aa + ba;
+    return J.withColorAlpha(J.toHex(...a.map((v, i) => alpha ? (v * aa + b[i] * ba) / alpha : 0)), alpha);
+  }
   const c = a.map((v, i) => Math.round(J.lerp(v, b[i], t)));
   return '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
 };
@@ -1550,9 +1574,10 @@ J.fitContrast = (hex, bg, min = 3) => {  // nudge lightness away from the backgr
   for (let i = 0; i < 24; i++) {
     l = dark ? Math.min(0.96, l + 0.035) : Math.max(0.04, l - 0.035);
     const c = J.hsl(h, s, l);
-    if (J.contrast(c, bg) >= min) return c;
+    if (J.contrast(c, bg) >= min) return J.hasColorAlpha(hex) ? J.withColorAlpha(c, J.colorAlpha(hex)) : c;
   }
-  return dark ? '#FFFFFF' : '#111111';
+  const fallback = dark ? '#FFFFFF' : '#111111';
+  return J.hasColorAlpha(hex) ? J.withColorAlpha(fallback, J.colorAlpha(hex)) : fallback;
 };
 /* random accent + chromatic ghost pair that works on the given background */
 J.GHOST_PAIRS = [['#16F4D4', '#F5A50C'], ['#FF2A2A', '#2AA8FF'], ['#FF2BD6', '#2BFF88'], ['#FFE600', '#7B2BFF'], ['#FF6A00', '#00C2B8'],
@@ -1613,6 +1638,32 @@ J.fmtTime = (t, fps) => {
   const m = Math.floor(t / 60), s = Math.floor(t % 60), f = Math.floor((t % 1) * (fps || 100));
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}${fps ? ':' + String(f).padStart(2, '0') : '.' + String(f).padStart(2, '0')}`;
 };
+
+/* Render-only palette policy. A background colour is translucent wherever a
+   painter references it, including foreground parts, transitions and post FX.
+   Saved palettes, planning, and legacy binary rendering stay unchanged. */
+(() => {
+'use strict';
+J.LAYER_BACKGROUND_ALPHA = 0.4;
+J.normalizeBackgroundOpacity = value => typeof value === 'number' && Number.isFinite(value)
+  ? Math.max(0, Math.min(100, Math.round(value))) : J.LAYER_BACKGROUND_ALPHA * 100;
+const cache = new WeakMap(), originals = new WeakMap();
+J.layerRenderStyle = (style, opt = {}) => {
+  style = originals.get(style) || style;
+  if (!opt.layerComposition || opt.layerMode !== 'alpha') return style;
+  const opacity = J.normalizeBackgroundOpacity(opt.layerBackgroundOpacity);
+  let copy = cache.get(style);
+  // Palettes can be edited in place; never reuse stale cached colours.
+  if (copy && copy.opacity === opacity && copy.original.length === style.schemes.length && style.schemes.every((sc, i) => {
+    const prev = copy.original[i];
+    return Object.keys(sc).length === Object.keys(prev).length && Object.keys(sc).every(k => sc[k] === prev[k]);
+  }) && Object.keys(style).every(k => k === 'schemes' || copy.style[k] === style[k])) return copy.style;
+  const value = { ...style, schemes: style.schemes.map(sc => ({ ...sc, bg: J.withColorAlpha(sc.bg, J.colorAlpha(sc.bg) * opacity / 100) })) };
+  originals.set(value, style);
+  cache.set(style, { style: value, opacity, original: style.schemes.map(sc => ({ ...sc })) });
+  return value;
+};
+})();
 
 /* ============================================================
    JIZURA — fonts: catalogue, loading, glyph decomposition
@@ -2203,11 +2254,27 @@ function drawItemLayered(env, it) {
 }
 
 /* draw one text item. env = {ctx, pass, passColor, scale}. Returns design-space bbox + glyph boxes. */
+// Based on upstream decorative-copy filtering. Never hide text found in the
+// actual lyric, including resolved [timestamp] fillers and their word chunks.
+J.decoTextKind = text => {
+  const t = String(text ?? '').trim();
+  if (!t || !/\d/.test(t) || /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(t)) return null;
+  if (/\d{1,2}[:：]\d{2}/.test(t) && /^[A-Za-z]{0,4}[\s.#]*[\d:：.,;'"\s\/\-–—+]+[A-Za-z]{0,3}$/.test(t)) return 'time';
+  if ((t.match(/[A-Za-z]/g) || []).length <= 5 && /^[A-Za-z#№.\s\d\/\-–—+×x%:,'°]+$/.test(t)) return 'no';
+  return null;
+};
+J.hideDecoText = (env, text) => {
+  if (!env.hideDecorativeText || !J.decoTextKind(text)) return false;
+  const normalize = s => String(s ?? '').replace(/\s+/g, ' ').trim();
+  const needle = normalize(text), cut = env.cut;
+  return ![cut?.lineText, cut?.text].some(s => normalize(s).includes(needle));
+};
 J.drawItem = (env, it) => {
   const ctx = env.ctx;
   const ghostPass = env.pass !== 'main';
   if (ghostPass && it.ghost === false) return null;
   if (!it.text || it.size <= 0.5) return null;
+  if (J.hideDecoText(env, it.text)) return null;
   if (!env.inLayer && !env.glyphLog && !env.hideText && env.allowFilter && !it.pieceFn && ((it.blur || 0) > 0.4 || (it.shadow && !ghostPass && (it.shadow.blur || 0) * (env.scale || 1) > 6))) {
     const r = drawItemLayered(env, it);
     if (r !== undefined) return r;
@@ -3221,10 +3288,34 @@ J.drawFx = (env, it) => {
 
 const unionBB = (a, b) => !a ? b : !b ? a : { x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), boxes: [], cx: (Math.min(a.x0, b.x0) + Math.max(a.x1, b.x1)) / 2, cy: (Math.min(a.y0, b.y0) + Math.max(a.y1, b.y1)) / 2 };
 
+/* Latin text wraps between words. Balance the lines without breaking a long word. */
+const splitWords = (text, maxPer) => {
+  const words = text.trim().split(/\s+/), n = words.length;
+  const prefix = [0];
+  for (const word of words) prefix.push(prefix[prefix.length - 1] + [...word].length);
+  const total = prefix[n] + n - 1, nLines = Math.min(n, Math.ceil(total / maxPer));
+  if (nLines <= 1) return words.join(' ');
+  const length = (a, b) => prefix[b] - prefix[a] + b - a - 1;
+  const ideal = total / nLines, memo = new Map();
+  const best = (i, lines) => {
+    if (lines === 1) return { cost: (length(i, n) - ideal) ** 2, cuts: [] };
+    const key = i + ',' + lines;
+    if (memo.has(key)) return memo.get(key);
+    let result = { cost: Infinity, cuts: [] };
+    for (let j = i + 1; j <= n - lines + 1; j++) {
+      const rest = best(j, lines - 1), cost = (length(i, j) - ideal) ** 2 + rest.cost;
+      if (cost < result.cost) result = { cost, cuts: [j, ...rest.cuts] };
+    }
+    memo.set(key, result); return result;
+  };
+  const cuts = [0, ...best(0, nLines).cuts, n];
+  return cuts.slice(1).map((end, i) => words.slice(cuts[i], end).join(' ')).join('\n');
+};
 /* split long text into balanced lines, preferring script boundaries */
 J.splitLines = (text, maxPer) => {
   const arr = [...text];
   if (arr.length <= maxPer) return text;
+  if (J.isLatinText && J.isLatinText(text)) return /\s/.test(text.trim()) ? splitWords(text, maxPer) : text;
   const nLines = Math.ceil(arr.length / maxPer);
   const per = arr.length / nLines;
   const out = []; let start = 0;
@@ -4165,6 +4256,21 @@ J.segments = (text) => {
   if (cur) out.push(cur);
   return out;
 };
+// Upstream v0.10: retain word boundaries, including words split after a hyphen.
+const WORDCH = /[A-Za-z\u00c0-\u024f0-9\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/;
+J.isWordLike = t => /^[A-Za-z\u00c0-\u024f0-9\uac00-\ud7af'’.,!?‐–—-]+$/.test(t) && WORDCH.test(t);
+J.joinWords = arr => {
+  const latin = /[A-Za-z]/.test(arr.join('')), hangul = /[\uac00-\ud7af]/;
+  return arr.reduce((acc, word, i) => {
+    if (!i) return word;
+    if (/[-‐–—]$/.test(acc)) return acc + word;
+    return acc + (latin || (hangul.test([...acc].pop()) && hangul.test([...word][0])) ? ' ' : '') + word;
+  }, '');
+};
+J.isLatinText = text => {
+  const s = String(text || '').replace(/\s/g, '');
+  return !!s && (s.match(/[A-Za-z\u00c0-\u024f\u1e00-\u1eff]/g) || []).length / [...s].length >= 0.6;
+};
 J.chunkText = (text) => {
   // Ideographic-space groups are intentional invisible text; ASCII spaces separate them.
   if (J.isWhitespaceText(text)) {
@@ -4194,7 +4300,8 @@ J.chunkText = (text) => {
   const out = [];
   for (const c of chunks) {
     const n = [...c].length;
-    if (n > 10) { J.splitLines(c, Math.ceil(n / Math.ceil(n / 8))).split('\n').forEach(x => out.push(x)); }
+    if (n > 10 && J.isWordLike(c)) out.push(...c.split(/(?<=[-‐–—])(?=\S)/));
+    else if (n > 10) { J.splitLines(c, Math.ceil(n / Math.ceil(n / 8))).split('\n').forEach(x => out.push(x)); }
     else out.push(c);
   }
   for (let i = out.length - 1; i > 0; i--) {
@@ -4206,7 +4313,7 @@ J.chunkText = (text) => {
 /* English lyrics: cut by short phrases, not word by word (a Japanese chunk holds about as much as 2–3 English words) */
 J.phraseChunks = (words) => {
   const out = []; let cur = [], letters = 0;
-  const flush = () => { if (cur.length) out.push(cur.join(' ')); cur = []; letters = 0; };
+  const flush = () => { if (cur.length) out.push(J.joinWords(cur)); cur = []; letters = 0; };
   for (const w of words) {
     const n = (w.match(/[A-Za-z\u00c0-\u024f0-9]/g) || []).length;
     cur.push(w); letters += n;
@@ -4214,7 +4321,7 @@ J.phraseChunks = (words) => {
   }
   flush();
   // a lone short word at the end joins the previous phrase
-  if (out.length >= 2 && out[out.length - 1].replace(/[^A-Za-z]/g, '').length <= 4) { const last = out.pop(); out[out.length - 1] += ' ' + last; }
+  if (out.length >= 2 && out[out.length - 1].replace(/[^A-Za-z]/g, '').length <= 4) { const last = out.pop(); out[out.length - 1] = J.joinWords([out[out.length - 1], last]); }
   return out.length ? out : words;
 };
 
@@ -4291,7 +4398,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.3.2', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.4.0', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4334,7 +4441,7 @@ J.plan = (project, audio) => {
     const st = local ? J.resolveStyle(local) : globalLook.st;
     if (local && rule.palette?.length) st.schemes = rule.palette;
     const fx = local ? { ...globalLook.fx, ...local.fx } : globalLook.fx;
-    const en = local ? Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, local.enabled?.[g]?.[k] !== false && (!J.randomOk || J.randomOk(project, g, k))]))])) : globalLook.en;
+    const en = local ? Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, local.enabled?.[g]?.[k] !== false && (!J.randomOk || J.randomOk(local, g, k))]))])) : globalLook.en;
     const nSchemes = st.schemes.length;
     const U = ov.randomDraw || project._cueUnits?.[li] ? null : local ? (plan.unify ? makeUnify(parsed.lines.map((line, i) => i === li ? line : { ...line, text: '', impact: false }), { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: rule.palettes, relaxed: rule.unifyMode === 'loose' }) : null) : globalLook.U;
     const renderLook = local ? { style: st, styleKey: local.style, fx, hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud } : null;
@@ -4382,7 +4489,7 @@ J.plan = (project, audio) => {
     let groups;
     const nG = Math.min(nC, chunks2.length);
     if (nG <= 1) groups = [ln.text];
-    else groups = partition(chunks2, nG).map(g => g.join(spaceOnly || /[A-Za-z]/.test(g.join('')) ? ' ' : ''));
+    else groups = partition(chunks2, nG).map(g => spaceOnly ? g.join(' ') : J.joinWords(g));
     const recap = !fixedN && nC > groups.length && groups.length >= 2;
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
@@ -5136,25 +5243,30 @@ J.MOODS = {
 })();
 
 J.omakase = (project, rnd = Math.random, options = {}) => {
+  const theme = J.normalizeTheme(options.theme ?? project.theme), T = J.THEMES[theme], switches = J.themeSwitches(theme);
+  if (T) project = { ...project, ...switches };
+  const themePart = d => !!(T && d && ((T.set && d.set === T.set) || (T.wa && d.wa)));
   const pick = a => a[Math.floor(rnd() * a.length) % a.length];
   const range = r => +(r[0] + (r[1] - r[0]) * rnd()).toFixed(2);
   const moodOk = k => !J.MOODS[k].set || (J.setOn && J.setOn(project, J.MOODS[k].set));
-  const moods = Object.keys(J.MOODS).filter(k => k !== project.mood && moodOk(k));
+  let moods = Object.keys(J.MOODS).filter(k => k !== project.mood && moodOk(k));
+  if (T) { const allowed = T.moods.filter(moodOk); moods = allowed.filter(k => k !== project.mood); if (!moods.length) moods = allowed; }
   // with the ホラー switch on, おまかせ leans to the ホラー mood (it may repeat)
-  const mood = options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
+  const mood = options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : !T && moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
   // a set tied to a mood (ホラー) is only used in that mood
-  const moodSetOk = d => !(d && d.set) || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set;
+  const moodSetOk = d => themePart(d) || !(d && d.set) || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set;
   // style: mostly one that suits the mood, sometimes anything; never the same twice in a row
   // (only styles the 追加分 / 和風 switches allow)
   const okStyle = k => J.STYLES[k] && (!J.randomOk || J.randomOk(project, 'style', k)) && moodSetOk(J.STYLES[k]);
   const moodStyles = [...new Set([...(M.styles || []), ...J.STYLE_ORDER.filter(k => (J.STYLES[k].moods || []).includes(mood))])].filter(okStyle);
   let pool = (moodStyles.length && rnd() < 0.72 ? moodStyles : J.STYLE_ORDER.filter(okStyle)).filter(k => k !== project.style);
+  if (T) { const themed = J.STYLE_ORDER.filter(k => okStyle(k) && themePart(J.STYLES[k]) && k !== project.style); if (themed.length && rnd() < 0.8) pool = themed; }
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style && okStyle(k));
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style);
   const style = pick(pool);
   const fx = Object.assign({}, project.fx);
   for (const k of Object.keys(M.fx)) fx[k] = range(M.fx[k]);
-  fx.koma = pick({ horror: [15, 10, 0], glitch: [15, 15, 10], pop: [15, 15, 10, 0], calm: [0, 0, 15], editorial: [0, 15], emotional: [15, 0], graphic: [15, 15, 0] }[mood] || [15, 10, 0]);
+  fx.koma = pick(T?.koma || { horror: [15, 10, 0], glitch: [15, 15, 10], pop: [15, 15, 10, 0], calm: [0, 0, 15], editorial: [0, 15], emotional: [15, 0], graphic: [15, 15, 0] }[mood] || [15, 10, 0]);
   fx.onTwos = fx.koma > 0; fx.flash = rnd() < 0.65; fx.hud = pick(['auto', 'auto', 'on', 'off']);
   // technique subset per group: everything tagged with the mood (plus the mood's hand-picked core items),
   // a sprinkle of everything else, and a minimum count so the planner always has room to vary
@@ -5164,6 +5276,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
     const order = J.order(g).filter(k => !(J.registry(g)[k] || {}).special && (!J.randomOk || J.randomOk(project, g, k)) && moodSetOk(J.registry(g)[k]));
     const hand = ['layout', 'enter', 'exit'].includes(g) && Array.isArray(M[g]) ? M[g] : [];   // (M.fx holds slider ranges, not a list)
     const prefer = mood === 'chaos' ? null : new Set([...hand, ...J.taggedWith(g, mood)]);
+    if (prefer && T) for (const k of order) if (themePart(J.registry(g)[k])) prefer.add(k);
     const on = {};
     // entries of a set tied to another mood are switched off explicitly (a missing key would count as enabled)
     for (const k of J.order(g)) if (!moodSetOk(J.registry(g)[k])) on[k] = false;
@@ -5195,7 +5308,26 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
   // keep locked lines, drop other per-line picks
   const overrides = {};
   for (const [i, o] of Object.entries(project.overrides || {})) if (o.lock) overrides[i] = o;
-  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9) };
+  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9), ...switches, lookTheme: theme };
+};
+})();
+
+/* A pending theme constrains new draws; it never replans existing subtitles.
+   Theme/mood mappings follow upstream, with this fork's 30fps motion cadence. */
+(() => {
+'use strict';
+J.THEMES = {
+  lyricpv: { name: '文字PV', en: 'Lyric video', moods: ['editorial', 'graphic', 'emotional'], set: 'typo' },
+  kinetic: { name: 'キネティック', en: 'Kinetic', moods: ['pop', 'graphic', 'glitch'], set: 'kinetic' },
+  wa: { name: '和風', en: 'Japanese', moods: ['calm', 'emotional', 'editorial'], wa: true },
+  horror: { name: 'ホラー', en: 'Horror', moods: ['horror'], set: 'horror' },
+  pop: { name: 'ポップ', en: 'Pop', moods: ['pop'] },
+  ballad: { name: 'バラード', en: 'Ballad', moods: ['calm', 'emotional'], koma: [0, 0, 15] },
+};
+J.normalizeTheme = value => typeof value === 'string' && Object.hasOwn(J.THEMES, value) ? value : '';
+J.themeSwitches = theme => {
+  const T = J.THEMES[J.normalizeTheme(theme)];
+  return { ...(T?.set ? { [T.set]: true } : {}), ...(T?.wa ? { wa: true, extra: true } : {}) };
 };
 })();
 
@@ -5255,12 +5387,29 @@ class Renderer {
 
   ensure(c, w, h) { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } return c; }
 
+  effectCanvas(c, w, h, opt) {
+    this.ensure(c, w, h);
+    if (opt.layerComposition && opt.layerMode === 'alpha') {
+      // An opaque palette fill used to erase the previous contents implicitly.
+      // With translucent background colours, scratch buffers must start empty.
+      const x = c.getContext('2d'); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h); x.restore();
+    }
+    return c;
+  }
+
   /* main entry: draw frame at time t into ctx (canvas px = design * scale) */
   frame(ctx, plan, t, opt = {}) {
     // Local subtitle looks also apply to recursive transition frames.
     const look = J.cutAt(plan, t)?.renderLook;
     const baseLook = plan._baseLook || { style: plan.style, styleKey: plan.styleKey, fx: plan.fx, hud: plan.hud };
     if (look || plan._baseLook) plan = { ...plan, ...(look || baseLook), _baseLook: baseLook };
+    // A global display preference, independent of each cue's saved random look.
+    plan = { ...plan, hideDecorativeText: opt.hideDecorativeText === true };
+    const renderStyle = J.layerRenderStyle(plan.style, opt);
+    if (renderStyle !== plan.style) plan = { ...plan, style: renderStyle };
+    if (opt.layerComposition && opt.layerMode === 'alpha') {
+      for (const c of [this.scratch, this.small, this.tiny, this.small2]) if (c) this.effectCanvas(c, c.width, c.height, opt);
+    }
     const W = plan.W, H = plan.H, scale = opt.scale || 1;
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style, fps = plan.fps;
@@ -5319,7 +5468,7 @@ class Renderer {
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
     if ((!opt.transparent || layer === 'back' || opt.layerComposition) && !key && mainCut && mainCut.bg && mainCut.bg !== 'none' && J.BG[mainCut.bg]) {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { layerComposition: !!opt.layerComposition, layerMode: opt.layerMode, pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
       ctx.save();
       try { J.BG[mainCut.bg].draw(env, mainCut.bgP || {}); } catch (e) { console.warn('bg', mainCut.bg, e); }
       ctx.restore();
@@ -5408,7 +5557,7 @@ class Renderer {
         const A = this.ensure(this.transA || (this.transA = mk(2, 2)), cw, ch), B = this.ensure(this.transB || (this.transB = mk(2, 2)), cw, ch);
         const bx = B.getContext('2d'); bx.setTransform(1, 0, 0, 1, 0, 0); bx.globalCompositeOperation = 'copy'; bx.drawImage(ctx.canvas, 0, 0); bx.globalCompositeOperation = 'source-over';
         this.frame(A.getContext('2d'), plan, Math.max(prev.start, prev.end - 1e-3), Object.assign({}, opt, { noTrans: true, noPost: true, noHud: true }));
-        const pst = prev.renderLook?.style || baseLook.style;
+        const pst = J.layerRenderStyle(prev.renderLook?.style || baseLook.style, opt);
         const psc = pst.schemes[prev.scheme % pst.schemes.length] || pst.schemes[0];
         ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
         // Replace copied regions, including their transparent holes, during layer transitions.
@@ -5423,7 +5572,7 @@ class Renderer {
             return drawImage.call(this, img, ...args);
           };
         }
-        try { J.TRANS[mainCut.trans].draw(ctx, A, B, J.clamp(lt / dur), { cw, ch, sc, scPrev: psc, st, P: mainCut.transP || {}, step, t, scale, allowFilter, seed: mainCut.seed | 0, tmp: (w, h) => this.ensure(this.transC || (this.transC = mk(2, 2)), w, h) }); }
+        try { J.TRANS[mainCut.trans].draw(ctx, A, B, J.clamp(lt / dur), { cw, ch, sc, scPrev: psc, st, layerComposition: !!opt.layerComposition, layerMode: opt.layerMode, P: mainCut.transP || {}, step, t, scale, allowFilter, seed: mainCut.seed | 0, tmp: (w, h) => this.effectCanvas(this.transC || (this.transC = mk(2, 2)), w, h, opt) }); }
         catch (e) { console.warn('trans', mainCut.trans, e); }
         finally { if (opt.layerComposition) delete ctx.drawImage; }
         ctx.restore();
@@ -5469,10 +5618,10 @@ class Renderer {
   /* モーフ: where every glyph of the previous cut rests at its end, and where this cut's glyphs land (cached) */
   morphLogs(plan, A, B, cw, ch, scale, opt) {
     if (!this.morphCache || this.morphCache.plan !== plan) this.morphCache = { plan, map: new Map() };
-    const key = A.index + ':' + B.index + ':' + cw + 'x' + ch + ':' + scale.toFixed(4), M = this.morphCache.map;
+    const key = A.index + ':' + B.index + ':' + cw + 'x' + ch + ':' + scale.toFixed(4) + ':' + !!opt.layerComposition + ':' + (opt.layerMode || 'binary') + ':' + J.normalizeBackgroundOpacity(opt.layerBackgroundOpacity) + ':' + !!opt.hideDecorativeText, M = this.morphCache.map;
     if (M.has(key)) return M.get(key);
     const cv = this.ensure(this.morphCv || (this.morphCv = mk(2, 2)), cw, ch), x = cv.getContext('2d');
-    const o2 = { scale, noPost: true, noHud: true, noTrans: true, noGhost: true, transparent: opt.transparent, layerComposition: opt.layerComposition, fast: true };
+    const o2 = { scale, noPost: true, noHud: true, noTrans: true, noGhost: true, transparent: opt.transparent, layerComposition: opt.layerComposition, layerMode: opt.layerMode, layerBackgroundOpacity: opt.layerBackgroundOpacity, hideDecorativeText: opt.hideDecorativeText, fast: true };
     const la = [], lb = [];
     this.frame(x, plan, Math.max(A.start, A.end - 1e-3), Object.assign({}, o2, { glyphLog: la }));
     this.frame(x, plan, B.start + B.morph.dur + 1e-3, Object.assign({}, o2, { glyphLog: lb }));
@@ -5523,7 +5672,7 @@ class Renderer {
   }
   makeEnv(ctx, plan, cut, sc, o) {
     const W = o.zone ? o.zone.w : plan.W, H = o.zone ? o.zone.h : plan.H;   // 中央を空ける: a cut lives in its side band
-    const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan }, o);
+    const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan, hideDecorativeText: plan.hideDecorativeText === true }, o);
     if (cut) {
       env.pIn = J.clamp(o.lt / Math.max(0.01, cut.inDur));
       env.pOut = cut.outDur > 0 ? J.clamp((o.lt - (cut.dur - cut.outDur)) / cut.outDur) : 0;
@@ -5663,7 +5812,7 @@ class Renderer {
         if (D.scratch) copy();
         const bloomBase = opt.layerComposition && ev.type === 'bloomFlash' ? ctx.getImageData(0, 0, cw, ch) : null;
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);
@@ -7113,7 +7262,7 @@ const vhsNoise = (col, w, h, v) => cached(`vhs|${col}|${w}x${h}|${v}`, () => {
     for (let i = 0; i < w; i++) {
       let n = hash2(i >> 1, y, v * 7 + 2); n = n * n * n;
       if (hash2(i >> 4, y, v * 5 + 3) > 0.94) n = Math.max(n, 0.55 + 0.45 * hash2(i, y, v + 9));
-      const o = (y * w + i) * 4; d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = Math.round(255 * clamp(n * row));
+      const o = (y * w + i) * 4; d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = Math.round(255 * clamp(n * row) * J.colorAlpha(col));
     }
   }
   x.putImageData(id, 0, 0); return c;
@@ -7280,6 +7429,7 @@ const marbleCv = (P, px, c1, c2) => cached(`marb|${P.seed}|${px}|${c1}|${c2}|${P
     const cloud = clamp((fbm2(X * 0.9 + 11, Y * 0.9, sd + 21, 2) - 0.42) * 1.6);
     let a1 = Math.pow(w1, 14) * (0.45 + 0.55 * noise2(X * 2.2 + 3, Y * 2.2, sd + 3)) + Math.pow(w1, 4) * 0.08 + cloud * 0.22, a2 = 0;
     if (P.acc) { const s2 = Math.sin((u * cb + v * sb) * fq * 1.6 + fbm2(X * 1.4 + 5, Y * 1.4, sd + 9, 3) * tb * 1.3); a2 = Math.pow(1 - Math.abs(s2), 12) * 0.5; }
+    a1 *= J.colorAlpha(c1); a2 *= J.colorAlpha(c2);
     const al = a1 + a2 * (1 - a1), o = (j * px + i) * 4;
     if (al <= 0.003) { d[o + 3] = 0; continue; }
     const f = a2 * (1 - a1) / al;
@@ -17594,7 +17744,7 @@ fx('negativeRing', { name: '反転リング', tags: ['graphic', 'pop', 'glitch']
   } });
 
 // edge detection: |frame - shifted frame| → neon outlines on dark schemes, ink line drawing on light ones
-const invHex = h => { const [r, g, b] = J.hex(h); return J.toHex(255 - r, 255 - g, 255 - b); };
+const invHex = h => { const [r, g, b] = J.hex(h), c = J.toHex(255 - r, 255 - g, 255 - b); return J.hasColorAlpha(h) ? J.withColorAlpha(c, J.colorAlpha(h)) : c; };
 fx('edgeDetect', { name: '輪郭抽出', tags: ['graphic', 'glitch', 'editorial'], w: 0.7, dur: 4, amp: 1, mid: true, scratch: true,
   draw(ctx, ev, k, I) {
     const { cw, ch, S, sc } = I; if (!S) return;
@@ -19490,7 +19640,7 @@ fx('hrSignalLoss', {
       ctx.font = J.fontCSS('mono', fs); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff'; ctx.globalAlpha = (I.step % 4 < 3) ? 0.85 : 0.3;
       ctx.fillText('NO SIGNAL', cw * 0.06, ch * 0.08);
-      ctx.globalAlpha = 0.6; ctx.fillText('CH ' + String(3 + (s % 9)).padStart(2, '0'), cw * 0.06, ch * 0.08 + fs * 1.5);
+      if (!I.opt?.hideDecorativeText) { ctx.globalAlpha = 0.6; ctx.fillText('CH ' + String(3 + (s % 9)).padStart(2, '0'), cw * 0.06, ch * 0.08 + fs * 1.5); }
       return;
     }
     const q = (k - 0.78) / 0.22, oy = Math.round((1 - q) * ch * 0.5);
@@ -21641,7 +21791,7 @@ function splitK(text, k, force) {
     words.forEach((w, i) => { const l = J.glyphCount(w); if (l > bl && !hard.has(w)) { bl = l; bi = i; } });
     if (bi < 0) break;
     let parts = latin ? [words[bi]] : split2(words[bi]);
-    if (parts.length < 2 && force && words.length < force) parts = split2(words[bi], true);
+    if (parts.length < 2 && force && words.length < force && !latin) parts = split2(words[bi], true);
     if (parts.length < 2) { hard.add(words[bi]); continue; }
     words.splice(bi, 1, ...parts);
   }
@@ -21724,7 +21874,7 @@ function dash(env, x0, y0, x1, y1, d, g, col, lw, a = 1) {
 const closeLoop = pts => pts.concat([pts[0], pts[1]]);
 /* one-call text row for dense secondary copy (main pass only); sp = extra px after each glyph */
 function fastRow(env, text, font, size, x, y, sp, color, alpha, align = 'left') {
-  if (env.pass !== 'main' || alpha <= 0.01 || !text) return;
+  if (env.pass !== 'main' || alpha <= 0.01 || !text || J.hideDecoText(env, text)) return;
   const ctx = env.ctx;
   if (!('letterSpacing' in ctx)) { env.draw({ text, font, size, x, y, align, track: sp / size, color, alpha, ghost: false }); return; }
   ctx.save();
@@ -22971,6 +23121,7 @@ reg('panels', {
   plan: (rng, cut, st) => { const k = cut.n >= 6 ? 3 : 2; return { chunks: splitK(cut.text, k, 2), font: rng.pick(fontsOf(st, ['display', 'serif'])), acc: rng.int(0, 2), fx: rng.pick(['focus', 'tone', 'focus', 'none']), slant: rng.range(5, 11), widths: [rng.range(0.8, 1.25), rng.range(0.8, 1.25), rng.range(0.8, 1.25)] }; },
   render(env) {
     const { W, H, sc, ctx } = env, p = env.cut.params, u = U(env), port = isPort(env);
+    const ltr = !port && J.isLatinText && J.isLatinText(env.cut.text);
     let ch = p.chunks && p.chunks.length ? p.chunks : splitK(env.cut.text, 2, 2);
     const k = ch.length;
     const m = u * 0.05, g = u * 0.028, lw = Math.max(3, u * 0.0065);
@@ -22988,7 +23139,7 @@ reg('panels', {
       const a0 = a + (i === 0 ? 0 : g / 2), b0 = b - (i === k - 1 ? 0 : g / 2);
       // in reading-axis coordinates: (t, c) with c in [0, cross]
       const q = [[a0 + sa, 0], [b0 + sb, 0], [b0 - sb, cross], [a0 - sa, cross]];
-      const poly = q.map(([t, c]) => (port ? [m + c, m + t] : [W - m - t, m + c]));
+      const poly = q.map(([t, c]) => (port ? [m + c, m + t] : ltr ? [m + t, m + c] : [W - m - t, m + c]));
       poly.along = Math.min((b0 + sb) - (a0 + sa), (b0 - sb) - (a0 - sa));
       polys.push(poly);
     }
@@ -23000,8 +23151,8 @@ reg('panels', {
       // wipe along the reading direction
       let rev = poly;
       if (e < 1) {
-        const xs = poly.map(q => (port ? q[1] : -q[0])), lo = Math.min(...xs), hi = Math.max(...xs);
-        rev = clipHalf(poly, port ? 0 : -1, port ? 1 : 0, lo + (hi - lo) * e);
+        const xs = poly.map(q => (port ? q[1] : ltr ? q[0] : -q[0])), lo = Math.min(...xs), hi = Math.max(...xs);
+        rev = clipHalf(poly, port ? 0 : ltr ? 1 : -1, port ? 1 : 0, lo + (hi - lo) * e);
       }
       if (rev.length < 3) return;
       const accent = i === p.acc % k;
@@ -25597,7 +25748,7 @@ function fitBlock(text, font, aw, ah, o = {}, maxLines = 4) {
 const rowW = (text, font, size) => { let w = 0; for (const ch of text) w += J.metrics.adv(font, ch) * size; return w; };
 /* one-call text row for dense secondary copy (main pass only); sp = extra px after each glyph */
 function fastRow(env, text, font, size, x, y, sp, color, alpha, align = 'left') {
-  if (env.pass !== 'main' || alpha <= 0.01 || !text) return;
+  if (env.pass !== 'main' || alpha <= 0.01 || !text || J.hideDecoText(env, text)) return;
   const ctx = env.ctx;
   if (!('letterSpacing' in ctx)) { env.draw({ text, font, size, x, y, align, track: sp / size, color, alpha, ghost: false }); return; }
   ctx.save();
@@ -36472,6 +36623,7 @@ J.randomOk = (project, g, k) => {
 'use strict';
 J.layerApp = true;
 J.layerText = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
+J.normalizeLayerMode = mode => mode === 'alpha' ? 'alpha' : 'binary';
 const msg = J.layerText;
 
 J.validateCues = cues => {
@@ -36581,10 +36733,19 @@ J.defaultProject = () => {
   p.layerOnly = true; p.includeAudio = false; p.keyBg = 'off';
   p.spectrumLayout = J.defaultSpectrumLayout();
   p.layerEffectsVersion = 1;
+  p.layerMode = 'binary';
+  p.layerBackgroundOpacity = J.normalizeBackgroundOpacity();
+  p.hideDecorativeText = false;
+  p.theme = ''; p.lookTheme = '';
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
 J.upgradeLayerProject = (project, source) => {
+  project.layerMode = J.normalizeLayerMode(source?.layerMode);
+  project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(source?.layerBackgroundOpacity);
+  project.hideDecorativeText = source?.hideDecorativeText === true;
+  project.theme = J.normalizeTheme(source?.theme);
+  project.lookTheme = J.normalizeTheme(source?.lookTheme);
   // Preserve the old onTwos-only project format without changing saved motion cadence.
   if (source?.fx && source.fx.koma == null) project.fx.koma = source.fx.onTwos === false ? 0 : 12;
   if (source?.layerOnly && !source.layerEffectsVersion) {
@@ -36638,6 +36799,17 @@ J.layerPixels = rgba => {
   return out;
 };
 
+// Straight RGB + coverage. Keep genuine black artwork nonzero for the front
+// contract, but never bake coverage into RGB in this mode.
+J.alphaLayerPixels = rgba => {
+  const out = new Uint8ClampedArray(rgba);
+  for (let i = 0; i < out.length; i += 4) {
+    if (!out[i + 3]) { out[i] = out[i + 1] = out[i + 2] = 0; continue; }
+    if (!(out[i] || out[i + 1] || out[i + 2])) out[i] = out[i + 1] = out[i + 2] = 3;
+  }
+  return out;
+};
+
 // Remove every exterior pixel ADDED by bloom, before deriving either output.
 // Existing ink/particles (even dark ones) are protected by the pre-bloom frame.
 // Keep bloom's colour/brightness changes within that existing footprint.
@@ -36668,6 +36840,42 @@ J.overPixels = (back, front) => {
   }
   return out;
 };
+// Source-over in straight RGBA. Binary spectra remain opaque wherever present.
+J.alphaOverPixels = (back, front) => {
+  const out = new Uint8ClampedArray(back);
+  for (let i = 0; i < front.length; i += 4) {
+    const a = front[i + 3];
+    if (!a) continue;
+    if (a === 255 || !back[i + 3]) {
+      out[i] = front[i]; out[i + 1] = front[i + 1]; out[i + 2] = front[i + 2]; out[i + 3] = a; continue;
+    }
+    const b = back[i + 3] * (1 - a / 255), total = a + b;
+    for (let c = 0; c < 3; c++) out[i + c] = Math.round((front[i + c] * a + back[i + c] * b) / total);
+    out[i + 3] = Math.round(total);
+  }
+  return out;
+};
+J.composeLayerPixels = (back, front, mode) => J.normalizeLayerMode(mode) === 'alpha' ? J.alphaOverPixels(back, front) : J.overPixels(back, front);
+J.alphaFrontPixels = rgba => {
+  const front = new Uint8ClampedArray(rgba);
+  for (let i = 0; i < front.length; i += 4) {
+    // Export premultiplied RGB so background * inverse matte + front restores
+    // source-over. Internal rendering stays straight RGBA for Canvas compositing.
+    const a = rgba[i + 3] / 255;
+    front[i] = Math.round(rgba[i] * a);
+    front[i + 1] = Math.round(rgba[i + 1] * a);
+    front[i + 2] = Math.round(rgba[i + 2] * a);
+    front[i + 3] = 255;
+  }
+  return front;
+};
+J.alphaPairPixels = rgba => {
+  const front = J.alphaFrontPixels(rgba), matte = new Uint8ClampedArray(rgba.length);
+  for (let i = 0; i < rgba.length; i += 4) {
+    matte[i] = matte[i + 1] = matte[i + 2] = 255 - rgba[i + 3]; matte[i + 3] = 255;
+  }
+  return { front, matte };
+};
 J.pairPixels = rgba => {
   const front = new Uint8ClampedArray(rgba.length), matte = new Uint8ClampedArray(rgba.length);
   for (let i = 0; i < rgba.length; i += 4) {
@@ -36682,7 +36890,10 @@ J.pairPixels = rgba => {
   return { front, matte };
 };
 J.LayerRenderer = class {
-  constructor(w, h) {
+  constructor(w, h, mode = 'binary', backgroundOpacity, hideDecorativeText = false) {
+    this.mode = J.normalizeLayerMode(mode);
+    this.backgroundOpacity = J.normalizeBackgroundOpacity(backgroundOpacity);
+    this.hideDecorativeText = hideDecorativeText === true;
     this.w = w; this.h = h; this.engine = new J.Renderer();
     this.raw = canvas(w, h); this.part = canvas(w, h); this.layer = canvas(w, h);
     this.front = canvas(w, h); this.matte = null; this.plans = new WeakMap();
@@ -36695,16 +36906,22 @@ J.LayerRenderer = class {
     const active = tracks.filter(p => p.lines.some(l => t >= l.start && t < l.end) && p.cuts.some(c => t >= c.start && t < c.end));
     for (let i = 0; i < active.length; i++) {
       this.engine.frame(this.part.getContext('2d', { willReadFrequently: true }), active[i], t, {
-        scale: this.w / plan.W, transparent: true, layerComposition: true, noHud: i < active.length - 1, fast,
+        scale: this.w / plan.W, transparent: true, layerComposition: true, layerMode: this.mode, layerBackgroundOpacity: this.backgroundOpacity, hideDecorativeText: this.hideDecorativeText, noHud: i < active.length - 1, fast,
       });
       x.drawImage(this.part, 0, 0);
     }
-    const pixels = J.layerPixels(x.getImageData(0, 0, this.w, this.h).data);
+    const raw = x.getImageData(0, 0, this.w, this.h).data;
+    const pixels = this.mode === 'alpha' ? J.alphaLayerPixels(raw) : J.layerPixels(raw);
     this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
     this.lastPixels = pixels;
     return pixels;
   }
   frontFrame(pixels, backgroundPixels = null) {
+    if (this.mode === 'alpha') {
+      const combined = backgroundPixels ? J.alphaOverPixels(backgroundPixels, pixels) : pixels;
+      this.front.getContext('2d').putImageData(new ImageData(J.alphaFrontPixels(combined), this.w, this.h), 0, 0);
+      return this.front;
+    }
     if (pixels !== this.lastPixels) this.layer.getContext('2d').putImageData(new ImageData(pixels, this.w, this.h), 0, 0);
     this.lastPixels = pixels;
     const x = this.front.getContext('2d');
@@ -36718,7 +36935,7 @@ J.LayerRenderer = class {
     return this.front;
   }
   pair(pixels) {
-    const p = J.pairPixels(pixels);
+    const p = this.mode === 'alpha' ? J.alphaPairPixels(pixels) : J.pairPixels(pixels);
     this.matte ||= canvas(this.w, this.h);
     this.front.getContext('2d').putImageData(new ImageData(p.front, this.w, this.h), 0, 0);
     this.matte.getContext('2d').putImageData(new ImageData(p.matte, this.w, this.h), 0, 0);
@@ -36815,12 +37032,12 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         state.encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); state.count++; } catch (e) { state.error = e; } }, error(e) { state.error = e; } });
         writers.push(state); state.encoder.configure(Object.assign({}, codec.cfg, { latencyMode: 'quality' }));
       }
-      const render = new J.LayerRenderer(w, h);
+      const mode = J.normalizeLayerMode(project.layerMode), render = new J.LayerRenderer(w, h, mode, project.layerBackgroundOpacity, project.hideDecorativeText);
       for (let i = 0; i < total; i++) {
         abort(signal);
         let pixels = render.draw(plan, t0 + i / fps);
         const spectrumPixels = reader ? await reader.pixels(t0 + i / fps, signal, project.spectrumLayout) : null;
-        if (spectrumPixels && !frontOnly) pixels = J.overPixels(spectrumPixels, pixels);
+        if (spectrumPixels && !frontOnly) pixels = J.composeLayerPixels(spectrumPixels, pixels, mode);
         const pair = frontOnly ? { front: render.frontFrame(pixels, spectrumPixels) } : render.pair(pixels);
         for (const state of writers) {
           if (state.error) throw state.error;
@@ -36844,11 +37061,11 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
         s.mux.finalize();
       }
       const files = writers.map(s => ({
-        name: (spectrum ? 'combined_front' : 'subtitle_front') + (s.name === 'matte' ? '_matte_dark' : '') + '.mp4',
+        name: (spectrum ? 'combined_front' : 'subtitle_front') + (mode === 'alpha' ? '_alpha' : '') + (s.name === 'matte' ? '_matte_dark' : '') + '.mp4',
         blob: new Blob([s.target.buffer], { type: 'video/mp4' }),
       }));
-      const manifest = { format: frontOnly ? 'jizura-layer-front-v1' : 'jizura-binary-layer-pair-v1', width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
-        exteriorBloom: 'removed', matte: frontOnly ? null : 'white=transparent, black=opaque; threshold decoded luminance at 128', front: 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
+      const manifest = { format: frontOnly ? 'jizura-layer-front-v1' : mode === 'alpha' ? 'jizura-premultiplied-layer-pair-v1' : 'jizura-binary-layer-pair-v1', layerMode: mode, layerBackgroundOpacity: render.backgroundOpacity, width: w, height: h, fps, frames: total, timelineStart: t0, duration: total / fps,
+        exteriorBloom: 'removed', matte: frontOnly ? null : mode === 'alpha' ? 'alpha=1-matte/255; white=transparent, black=opaque; do not threshold' : 'white=transparent, black=opaque; threshold decoded luminance at 128', front: mode === 'alpha' ? 'premultiplied RGB; composite=front+background*(matte/255); no audio' : 'RGB on black, no audio', composite: 'subtitle over spectrum', spectrumLayout: spectrum ? J.normalizeSpectrumLayout(project.spectrumLayout) : null };
       abort(signal); onProgress?.(1, msg('完了', 'Done'));
       return { files, manifest };
     } catch (e) {
@@ -37276,7 +37493,8 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
       encoder = new VideoEncoder({ output(chunk, meta) { try { mux.addVideoChunk(chunk, meta); count++; } catch (e) { error = e; } }, error(e) { error = e; } });
       encoder.configure({ ...codec.cfg, latencyMode: 'quality' });
-      const render = new J.LayerRenderer(w, h), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
+      const mode = J.normalizeLayerMode(project.layerMode);
+      const render = new J.LayerRenderer(w, h, mode, project.layerBackgroundOpacity, project.hideDecorativeText), canvas = J.layerCanvas(w, h), base = J.layerCanvas(w, h);
       const ctx = canvas.getContext('2d'), bx = base.getContext('2d');
       bx.fillStyle = '#000'; bx.fillRect(0, 0, w, h);
       if (background && !background.video) {
@@ -37288,7 +37506,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         const t = span.t0 + i / fps;
         if (backgroundReader) await backgroundReader.drawNext(bx);
         let pixels = render.draw(plan, t);
-        if (reader) pixels = J.overPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels);
+        if (reader) pixels = J.composeLayerPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels, mode);
         ctx.drawImage(base, 0, 0);
         render.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
         ctx.drawImage(render.layer, 0, 0);
@@ -37588,14 +37806,18 @@ J.cueRerollModes = [
   ['random', 'ランダム', 'Random'],
 ];
 J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
-const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled'];
+const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'lookTheme'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
-const globalKeys = [...ruleKeys, 'seed', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'unify', 'typeset'];
+const globalKeys = [...ruleKeys, 'seed', 'unify', 'typeset'];
 // Local overrides are deliberately absent from the signature. Global controls,
 // including manual edits and history navigation, establish the latest baseline.
 J.globalLookBaseline = (p, current) => {
   const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
-  const context = JSON.stringify(canonical({ ...values, enabled: poolContext(values.enabled) }));
+  values.lookTheme = J.normalizeTheme(values.lookTheme);
+  const signature = { ...values, enabled: poolContext(values.enabled) };
+  // No-theme signatures match projects saved before themes were introduced.
+  if (!signature.lookTheme) delete signature.lookTheme;
+  const context = JSON.stringify(canonical(signature));
   if (p.globalLook?.context === context && p.globalLook.values && p.globalLook.palettes) return clone(p.globalLook);
   const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes || []]))
     : { normal: current.unifyPalettes || [], filler: current.unifyPalettes || [] };
@@ -37751,20 +37973,22 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'color' && ov.randomDraw) rule.palette = clone(renderLook.style.schemes);
   if (mode !== 'fine') {
     if (mode === 'all' || mode === 'style' || mode === 'mood') {
-      const draw = J.omakase(effective, random, mode === 'style' ? { mood: effective.mood } : {});
+      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : {}) });
+      const themed = { ...effective, ...draw };
       if (mode === 'all') {
         for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
-        rule = { ...ruleFrom(draw), palette: clone(J.resolveStyle({ ...p, ...draw }).schemes), palettes: [] };
+        rule = { ...ruleFrom(themed), palette: clone(J.resolveStyle(themed).schemes), palettes: [] };
       } else if (mode === 'style') {
-        Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(p, effective.mood, random), palettes: [] });
+        Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(themed, effective.mood, random), palettes: [] });
         clearGroups(target, ['layout', 'bg', 'treat']);
       } else {
         Object.assign(rule, { mood: draw.mood, fx: draw.fx, enabled: draw.enabled, palettes: [] });
         clearGroups(target, ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);
       }
+      Object.assign(rule, J.themeSwitches(p.theme), { lookTheme: draw.lookTheme });
       rule.unifyMode = 'local';
     } else if (mode === 'motion') {
-      rule.enabled = broadPool(p, effective.mood, random);
+      rule.enabled = broadPool(effective, effective.mood, random);
       rule.fx = { ...rule.fx, density: 0.2 + random() * 0.75 };
       rule.unifyMode = 'loose';
       clearGroups(target, ['layout', 'bg', 'enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);
@@ -38220,6 +38444,23 @@ function initPreviewSpeed() {
   select.add(new Option(J.layerText('旧1×', 'Legacy 1×'), 'legacy'));
   select.addEventListener('change', () => { setPreviewRate(select.value); select.value = S.previewEngine === 'legacy' ? 'legacy' : String(S.previewRate); });
   label.append(caption, select); $('btnLoop').after(label);
+}
+function initOmakaseThemes() {
+  for (const [id, anchor] of [['omakaseTheme', $('btnOmakase')], ['omakaseThemeEasy', $('btnOmakaseBig')]]) {
+    const label = document.createElement('label'); label.className = 'omakase-theme';
+    const caption = document.createElement('span'); caption.textContent = J.layerText('テーマ', 'Theme');
+    const select = document.createElement('select'); select.id = id;
+    select.setAttribute('aria-label', J.layerText('おまかせ・字幕ガチャのテーマ', 'Theme for auto-compose and subtitle draws'));
+    select.title = J.layerText('おまかせ・字幕ガチャ1〜3に適用。選択だけでは現在の演出や9の復帰先は変わりません。', 'Applies to auto-compose and cue draws 1–3. Selecting alone does not change effects or the baseline for key 9.');
+    select.add(new Option(J.layerText('テーマなし', 'No theme'), ''));
+    for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
+    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value); syncOmakaseThemes(); flushSave(); });
+    label.append(caption, select); anchor.before(label);
+  }
+  syncOmakaseThemes();
+}
+function syncOmakaseThemes() {
+  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) $(id).value = J.normalizeTheme(S.project.theme);
 }
 /* プレビュー音量: remembered per browser */
 function initVolume() {
@@ -38712,7 +38953,9 @@ function updateCutInfo() {
     const rule = target && S.project.overrides?.[target.index]?.cueLook;
     const style = J.STYLES[rule?.style || S.project.style]?.name || '', mood = J.MOODS[rule?.mood || S.project.mood]?.name || '';
     const randomLabel = target && S.project.overrides?.[target.index]?.randomDraw ? J.layerText('ランダム · ', 'Random · ') : '';
-    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}` : J.layerText('（対象なし）', ' (no cue)'));
+    const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
+    const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
+    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) $('cueRollTarget').textContent = label;
   }
   const cut = J.cutAt(S.plan, S.t);
@@ -38823,6 +39066,17 @@ function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
   const ov = S.project.overrides, R = exportRangeLines();
   const layoutOpts = '<option value="">自動</option>' + J.LAYOUT_ORDER.map(k => `<option value="${k}">${J.LAYOUTS[k].name}</option>`).join('');
+  // Hundreds of menus otherwise duplicate the complete layout catalogue on every replan.
+  const lazyLay = (sel, value) => {
+    sel.innerHTML = '<option value="">自動</option>' + (value && J.LAYOUTS[value] ? `<option value="${value}">${J.LAYOUTS[value].name}</option>` : '');
+    sel.value = value || '';
+    const fill = () => {
+      if (sel.dataset.full) return;
+      const current = sel.value;
+      sel.innerHTML = layoutOpts; sel.value = current; sel.dataset.full = '1';
+    };
+    for (const event of ['pointerdown', 'mousedown', 'focus', 'keydown', 'touchstart']) sel.addEventListener(event, fill, { capture: true, passive: true });
+  };
   const cutOpts = '<option value="">カット 自動</option>' + [1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">カット ${n}</option>`).join('');
   S.plan.lines.forEach((ln, i) => {
     const o = ov[i] || {};
@@ -38836,7 +39090,7 @@ function renderLines() {
       <span class="tools">
         <button class="icon ghost edit" title="この行の歌詞を直す" aria-label="${i + 1}行目の歌詞を直す">${ICON.pen}</button>
         ${ln.interlude ? '' : `<select class="ncut" aria-label="${i + 1}行目のカット数">${cutOpts}</select>`}
-        ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="レイアウト指定">${layoutOpts}</select>`}
+        ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="レイアウト指定"></select>`}
         <button class="icon ghost tapfrom" title="この行からタップで同期し直す" aria-label="${i + 1}行目からタップ">${ICON.tap}</button>
         <button class="icon ghost rng" title="書き出す範囲にする（Shift+クリックで範囲を広げる）" aria-pressed="${R && i >= R.from && i <= R.to ? 'true' : 'false'}" aria-label="${i + 1}行目を書き出す範囲に">${ICON.range}</button>
         ${ln.interlude ? '' : `<button class="icon ghost dice" title="この行を再抽選">${ICON.dice}</button>`}
@@ -38848,7 +39102,7 @@ function renderLines() {
       const badge = document.createElement('span'); badge.className = 'filler-badge'; badge.textContent = J.layerText('フィラー', 'Filler');
       q('.txt').prepend(badge);
     }
-    if (q('.lay')) q('.lay').value = o.layout || '';
+    if (q('.lay')) lazyLay(q('.lay'), o.layout || '');
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
     q('.time').addEventListener('change', e => {
       const v = parseFloat(e.target.value);
@@ -38880,8 +39134,7 @@ function renderLines() {
       const forced = o.cutLayouts && o.cutLayouts[k];
       const sel = document.createElement('select');
       sel.className = 'cut-lay pro-only' + (forced ? ' is-forced' : '');
-      sel.innerHTML = layoutOpts;
-      sel.value = forced || c.layout;
+      lazyLay(sel, forced || c.layout);
       sel.title = `${c.text}｜${J.ENTER[c.enter].name} → ${J.EXIT[c.exit].name}`;
       sel.setAttribute('aria-label', `${i + 1}行目 カット${k + 1}のレイアウト`);
       sel.style.borderColor = `hsla(${layoutHue(c.layout)},70%,58%,0.7)`;
@@ -39146,7 +39399,7 @@ function randomPalette() {
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
 function remember() {            // call before changing the look: makes sure the current look is on the stack
@@ -39172,7 +39425,10 @@ function histGo(d) {
   }
   delete look._cueIds;
   Object.assign(S.project, look);
-  fontKey = ''; syncUI(); replan(); updateHist();
+  fontKey = ''; syncUI(); replan();
+  // Cue-ID remapping can insert empty overrides. Treat that normalization as
+  // this history entry, otherwise remember() truncates the forward history.
+  H.list[H.i] = lookSnap(); updateHist();
   toast(`${j + 1} / ${H.list.length} 案目`);
   restartPreview();
 }
@@ -39279,15 +39535,20 @@ function rerollPart(part) {
   const P = S.project;
   let msg = '';
   if (part === 'style') {
-    let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
-    if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
-    P.style = pool[Math.floor(Math.random() * pool.length)];
+    if (J.normalizeTheme(P.theme)) {
+      const r = J.omakase(P, Math.random, { mood: P.mood });
+      Object.assign(P, J.themeSwitches(P.theme), { style: r.style, lookTheme: r.lookTheme });
+    } else {
+      let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
+      if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
+      P.style = pool[Math.floor(Math.random() * pool.length)]; P.lookTheme = '';
+    }
     P.colors.enabled = false;
     msg = `スタイル：${J.STYLES[P.style].name}`;
   } else if (part === 'mood') {
     const keepE = lockedEnabled(), keepP = lockedParams();
     const r = J.omakase(P);
-    Object.assign(P, { mood: r.mood, fx: r.fx, enabled: r.enabled });
+    Object.assign(P, J.themeSwitches(P.theme), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
     restoreEnabled(keepE); restoreParams(keepP);
     msg = `雰囲気：${J.MOODS[r.mood].name}`;
   } else if (part === 'cut') {
@@ -39427,7 +39688,14 @@ function techPaneOpen() {
 function ensurePreviewObs() {
   if (previewObs) return previewObs;
   previewObs = new IntersectionObserver((ents) => {
-    ents.forEach(e => { if (e.isIntersecting && e.intersectionRatio > 0) previewLive.add(e.target); else previewLive.delete(e.target); });
+    const now = performance.now();
+    ents.forEach(e => {
+      const cv = e.target;
+      if (e.isIntersecting && e.intersectionRatio > 0) {
+        previewLive.add(cv);
+        if (!cv.dataset.ready && cv.dataset.g && cv.dataset.k) paintTechCanvas(cv, cv.dataset.g, cv.dataset.k, previewTime(getPreviewPlan(cv.dataset.g, cv.dataset.k), cv.dataset.g, now));
+      } else previewLive.delete(cv);
+    });
     kickPreviewLoop();
   }, { root: null, rootMargin: '40px 0px', threshold: [0, 0.12, 0.4] });
   return previewObs;
@@ -39456,14 +39724,8 @@ function kickPreviewLoop() {
   previewRaf = requestAnimationFrame(tick);
 }
 function queueThumbs(list) {
-  const now = performance.now();
-  [...list.querySelectorAll('canvas[data-g]')].forEach(cv => {
-    previewLive.add(cv);
-    watchThumb(cv);
-    const g = cv.dataset.g, k = cv.dataset.k;
-    if (g && k) paintTechCanvas(cv, g, k, previewTime(getPreviewPlan(g, k), g, now));
-  });
-  kickPreviewLoop();
+  // First paint, as well as animation, waits until the thumbnail enters the viewport.
+  [...list.querySelectorAll('canvas[data-g]')].forEach(cv => watchThumb(cv));
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) kickPreviewLoop(); });
 
@@ -39481,7 +39743,9 @@ function renderTech() {
     const d = document.createElement('details'); d.className = 'tgroup';
     d.open = !!q || openGroups.has(g);
     const list = document.createElement('div'); list.className = 'checks tech-grid';
-    d.addEventListener('toggle', () => { if (d.open) { openGroups.add(g); queueThumbs(list); } else openGroups.delete(g); });
+    let built = false;
+    const build = () => { if (built) return; built = true; fillCards(); };
+    d.addEventListener('toggle', () => { if (d.open) { openGroups.add(g); build(); queueThumbs(list); } else openGroups.delete(g); });
     const lked = !!locksOf().tech[g];
     d.innerHTML = `<summary><span class="tg-name">${label}</span><span class="tg-cnt mono">${onN}/${items.length}</span>`
       + `<button type="button" class="icon ghost lk pro-only" data-lk="${g}" aria-pressed="${lked}" title="${lked ? LOCK_TITLE_OFF : TECH_LOCK_ON}">${ICON.lock}</button></summary><div class="tg-tools"><button class="ghost small" data-a="on">すべてON</button><button class="ghost small" data-a="off">すべてOFF</button><button class="ghost small" data-a="flip">反転</button></div>`;
@@ -39489,7 +39753,7 @@ function renderTech() {
       const [W, H] = J.designSize(S.project.aspect || '16:9');
       const h = 90; return [Math.max(80, Math.round(h * W / H)), h];
     })();
-    shown.forEach(k => {
+    const fillCards = () => shown.forEach(k => {
       const l = document.createElement('label');
       l.className = 'tcard';
       l.title = k + (tbl[k].tags && tbl[k].tags.length ? '（' + tbl[k].tags.map(t => (J.MOODS[t] ? J.MOODS[t].name : t)).join('・') + '）' : '');
@@ -39510,7 +39774,7 @@ function renderTech() {
     }));
     d.appendChild(list);
     box.appendChild(d);
-    if (d.open) queueThumbs(list);
+    if (d.open) { build(); queueThumbs(list); }
   });
   $('techTotal').textContent = `${onAll}/${total}`;
 }
@@ -39687,6 +39951,7 @@ function updateTap() {
 
 /* ---------------- sync all inputs from project ---------------- */
 function syncUI() {
+  syncOmakaseThemes();
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
   $('lyrics').value = S.project.lyrics;
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
@@ -39869,7 +40134,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.3.2' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.4.0' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -39880,7 +40145,17 @@ function bind() {
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); warnLegacyFonts(); showProjectLoadNotice(); }
+    try {
+      const next = mergeProject(JSON.parse(await f.text()));
+      if (S.tap) stopTap();
+      pause();
+      S.project = next;
+      // Both edit history and look proposals belong to the project that was closed.
+      ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
+      fontKey = '';
+      syncUI(); replan(); commit(); updateEditBtns(); flushSave();
+      warnLegacyFonts(); showProjectLoadNotice();
+    }
     catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
@@ -40017,7 +40292,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
-  bind(); initVolume(); initPreviewSpeed(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
@@ -40060,7 +40335,11 @@ function fit(ctx, m, w, h) {
 }
 J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
-  if (!renderer || renderer.w !== w || renderer.h !== h) { renderer = new J.LayerRenderer(w, h); spectrumPreview = null; }
+  const mode = J.normalizeLayerMode(J.ui.project.layerMode);
+  const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
+  if (!renderer || renderer.w !== w || renderer.h !== h || renderer.mode !== mode) { renderer = new J.LayerRenderer(w, h, mode, opacity); spectrumPreview = null; }
+  renderer.backgroundOpacity = opacity;
+  renderer.hideDecorativeText = J.ui.project.hideDecorativeText === true;
   let pixels = renderer.draw(plan, t, opt.fast);
   const playing = J.previewRunning();
   syncMedia(session.background, t, playing);
@@ -40070,12 +40349,12 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   }
   if (J.ui.project.spectrumMode === 'generated') {
     const native = J.drawNativeSpectrumPixels(w, h, t);
-    if (native) pixels = J.overPixels(native, pixels);
+    if (native) pixels = J.composeLayerPixels(native, pixels, mode);
   } else if (J.ui.project.spectrumMode !== 'none' && session.front && t < J.spectrumDuration(session.front, session.matte)) {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
-      pixels = J.overPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels);
+      pixels = J.composeLayerPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels, mode);
     }
   }
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
@@ -40476,6 +40755,17 @@ function mountPartEditor() {
 }
 J.syncLayerUI = () => {
   if (!$('layerPanel') || session.busy) return;
+  $('layerMode').value = J.normalizeLayerMode(J.ui.project.layerMode);
+  const alpha = $('layerMode').value === 'alpha';
+  const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
+  $('layerBackgroundOpacity').value = opacity;
+  $('layerBackgroundOpacity').disabled = !alpha;
+  $('layerBackgroundOpacityValue').value = opacity + '%';
+  $('hideDecorativeText').checked = J.ui.project.hideDecorativeText === true;
+  $('layerPreview').querySelector('[value="matte"]').textContent = alpha ? tr('グレーマット', 'Grayscale matte') : tr('白黒マット', 'Binary matte');
+  $('layerModeHelp').textContent = alpha
+    ? tr('半透明を保持します。背景にグレーマットを「乗算」、フロントを「加算」で合成します。フロントは透明度を掛けた色です。アルファとして使う場合も二重に掛けないでください。', 'Preserves opacity. Multiply the background by the grayscale matte, then add the front. Front RGB is premultiplied; do not multiply it by alpha again.')
+    : tr('従来の二値マットです。半透明は黒背景上の色に焼き込みます。', 'Legacy binary matte. Partial opacity is baked into color against black.');
   J.syncNativeSpectrumUI?.();
   J.syncFillerUI?.();
   const cues = J.ui.project.subtitleCues, srt = Array.isArray(cues);
@@ -40556,7 +40846,31 @@ function boot() {
   select.addEventListener('change', () => { session.preview = select.value; dirty(); });
   panel.append(el('hr', null, 'layer-divider'));
   panel.append(el('h2', tr('字幕レイヤー', 'Subtitle layers')));
-  panel.append(el('p', tr('黒背景のフロント動画と白黒2値のマット動画を作成します。マット＋フロントのペア出力には、音声・作業用背景は含みません。', 'Creates a front video on black and a binary matte. Matte + front pair exports exclude audio and preview backgrounds.'), 'note'));
+  panel.append(el('p', tr('フロントとマットの2本を作成します。ペア出力には音声・作業用背景は含みません。透明度モードはプレビュー・全出力で共通です。', 'Creates front and matte videos without audio or preview backgrounds. Opacity mode applies to the preview and all exports.'), 'note'));
+  const modeLabel = el('label', tr('透明度モード', 'Opacity mode')), mode = el('select'); mode.id = 'layerMode';
+  mode.setAttribute('aria-label', tr('透明度モード', 'Opacity mode'));
+  for (const [value, ja, en] of [['binary', '二値（従来）', 'Binary (legacy)'], ['alpha', '半透明（グレーマット）', 'Alpha (grayscale matte)']]) {
+    const option = el('option', tr(ja, en)); option.value = value; mode.append(option);
+  }
+  mode.addEventListener('change', () => { J.ui.project.layerMode = J.normalizeLayerMode(mode.value); J.uiApi.flushSave(); J.syncLayerUI(); dirty(); });
+  modeLabel.append(mode); const help = el('p', '', 'note'); help.id = 'layerModeHelp'; panel.append(modeLabel, help);
+  const opacityLabel = el('label', null, 'layer-background-opacity'); opacityLabel.htmlFor = 'layerBackgroundOpacity';
+  const opacityTitle = el('span', tr('背景色の不透明度', 'Background color opacity'));
+  const opacityValue = el('output'); opacityValue.id = 'layerBackgroundOpacityValue'; opacityValue.htmlFor = 'layerBackgroundOpacity';
+  const opacity = el('input'); opacity.id = 'layerBackgroundOpacity'; opacity.type = 'range'; opacity.min = '0'; opacity.max = '100'; opacity.step = '1';
+  opacity.setAttribute('aria-describedby', 'layerBackgroundOpacityHelp');
+  opacity.addEventListener('input', () => {
+    J.ui.project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(Number(opacity.value));
+    opacityValue.value = J.ui.project.layerBackgroundOpacity + '%'; dirty();
+  });
+  opacity.addEventListener('change', () => J.uiApi.flushSave());
+  opacityLabel.append(opacityTitle, opacityValue, opacity);
+  const opacityHelp = el('p', tr('半透明モードのみ。初期値40%。上げるほど背景色を使う塗りが濃くなります。混色・フェード・重なりで実際の濃さは変わります。', 'Alpha mode only. Default: 40%. Higher values make fills using the background color more opaque. Mixtures, fades and overlaps affect the final opacity.'), 'note'); opacityHelp.id = 'layerBackgroundOpacityHelp';
+  panel.append(opacityLabel, opacityHelp);
+  const hideLabel = el('label', null, 'layer-hide-decorative'), hide = el('input'); hide.id = 'hideDecorativeText'; hide.type = 'checkbox';
+  hide.addEventListener('change', () => { J.ui.project.hideDecorativeText = hide.checked; J.uiApi.flushSave(); dirty(); });
+  hideLabel.append(hide, el('span', tr('飾りの数字・時刻を隠す', 'Hide decorative numbers and times')));
+  panel.append(hideLabel, el('p', tr('No.01やタイムコードなどを非表示にします。字幕本文の数字・[timestamp]は残します。枠やRECなど、数字以外の装飾は対象外です。', 'Hides labels such as No.01 and timecodes. Numbers and [timestamp] in subtitles remain. Frames and nonnumeric ornaments such as REC are unaffected.'), 'note'));
   panel.append(select, button('layerExport', tr('マット＋フロント MP4を出力', 'Export matte + front MP4'), exportPair));
   panel.append(button('layerExportFront', tr('フロントだけ MP4を出力', 'Export front MP4 only'), () => exportVideo(false, true)));
   panel.append(el('p', tr('フロントのみはマット生成を省略します。音声・作業用背景は含みません。', 'Front-only export skips matte generation. Audio and preview backgrounds are excluded.'), 'note'));

@@ -443,6 +443,15 @@ button.small.primary { padding: 4px 12px; }
 .layer-media .muted { flex:1; min-width:55px; overflow-wrap:anywhere; font-size:11px; }
 .layer-media button { padding:5px 7px; }
 #layerPreview, #layerExport { width:100%; margin-top:10px; }
+#layerMode { display:block; width:100%; margin-top:6px; }
+.layer-background-opacity { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; font-size:11px; }
+.layer-background-opacity input { width:100%; min-width:0; margin:0; accent-color:var(--amber); }
+.layer-background-opacity:has(input:disabled) { opacity:.5; }
+.layer-hide-decorative { display:flex; align-items:center; gap:5px; font-size:11px; }
+.omakase-theme { display:flex; align-items:center; gap:5px; font-size:11px; min-width:0; }
+.omakase-theme select { min-width:0; max-width:170px; }
+.easy-hero > .omakase-theme { margin-bottom:8px; }
+.easy-hero > .omakase-theme select { flex:1; max-width:none; }
 #layerExport { background:var(--accent, #f5a50c); color:#171310; font-weight:700; white-space:normal; }
 #simpleExport { width:100%; margin-top:12px; white-space:normal; }
 .simple-export-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
