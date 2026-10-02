@@ -282,8 +282,8 @@ function sizeViewport() {
   const vp = $('viewport'), c = $('view');
   const ar = S.plan.W / S.plan.H;
   let cssW = vp.clientWidth || 800, cssH = cssW / ar;
-  // fixed workspace: the viewport gets whatever height is left under the header / above the transport and timeline
-  const maxH = fixedLayout() ? Math.max(160, vp.clientHeight - 2) : Math.max(220, window.innerHeight * 0.68);
+  // Size from the window, never the remaining space after cards/picker. Mobile retains its cap.
+  const maxH = S.mode === 'mobile' ? Math.max(220, window.innerHeight * 0.68) : Math.max(180, window.innerHeight * 0.55);
   if (cssH > maxH) { cssH = maxH; cssW = cssH * ar; }
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const pw = Math.round(Math.min(S.plan.W, cssW * dpr)), ph = Math.round(pw / ar);
@@ -406,7 +406,8 @@ function drawTimeline() {
   let { D, vd, off } = tlView();
   // follow the playhead while playing (zoomed in)
   if (TL.z > 1 && S.playing && TL.drag < 0 && (S.t < off || S.t > off + vd * 0.92)) { TL.off = S.t - vd * 0.1; ({ D, vd, off } = tlView()); }
-  const x = c.getContext('2d'), X = t => (t - off) / vd * w, T = px => off + px / w * vd;
+  const plot = tlPlot(w, dpr);
+  const x = c.getContext('2d'), X = t => plot.left + (t - off) / vd * plot.width, T = px => off + (px - plot.left) / plot.width * vd;
   x.fillStyle = '#131316'; x.fillRect(0, 0, w, h);
   if (S.audio && S.audio.peaks) {
     const pk = S.audio.peaks, n = pk.length, sd = S.audio.duration;
@@ -441,7 +442,8 @@ function drawTimeline() {
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
     x.fillStyle = on ? '#f5a50c' : S.project.subtitleCues?.[ln.index]?.filler ? '#f07178' : '#8e8a94';
-    x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
+    const label = String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : '');
+    x.fillText(label, Math.max(2 * dpr, Math.min(lx + 4 * dpr, w - x.measureText(label).width - 2 * dpr)), 17 * dpr);
   }
   if (TL.z > 1) {                                          // where the view sits in the whole song
     x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, h - 2 * dpr, w, 2 * dpr);
@@ -455,17 +457,22 @@ function drawTimeline() {
   const px = X(S.t);
   x.fillStyle = '#f5a50c'; x.fillRect(Math.round(px) - dpr, 0, 2 * dpr, h);
 }
+// Keep endpoint handles inside the canvas; use the same plot for drawing and pointer mapping.
+function tlPlot(width, scale = 1) {
+  const left = Math.min(8 * scale, width / 4);
+  return { left, width: Math.max(1, width - left * 2) };
+}
 function tlTime(ev) {
-  const r = $('timeline').getBoundingClientRect(), { vd, off } = tlView();
-  return off + J.clamp((ev.clientX - r.left) / r.width, 0, 1) * vd;
+  const c = $('timeline'), r = c.getBoundingClientRect(), plot = tlPlot(c.clientWidth), { vd, off } = tlView();
+  return off + J.clamp((ev.clientX - r.left - c.clientLeft - plot.left) / plot.width, 0, 1) * vd;
 }
 function timelineSeek(ev) { seek(tlTime(ev)); }
 /* the line whose start handle is under the pointer (top band, ±7px) */
 function tlHandleAt(ev) {
-  const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
+  const c = $('timeline'), r = c.getBoundingClientRect(), plot = tlPlot(c.clientWidth), { vd, off } = tlView();
   if (ev.clientY - r.top > r.height * 0.45) return -1;
   let best = -1, bd = 8;
-  for (const ln of S.plan.lines) { const d = Math.abs((ln.start - off) / vd * r.width - (ev.clientX - r.left)); if (d < bd) { bd = d; best = ln.index; } }
+  for (const ln of S.plan.lines) { const d = Math.abs(plot.left + (ln.start - off) / vd * plot.width - (ev.clientX - r.left - c.clientLeft)); if (d < bd) { bd = d; best = ln.index; } }
   return best;
 }
 function tlDragTo(i, ev) {
@@ -618,7 +625,7 @@ function updateCutInfo() {
     const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
     const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
     const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
-    if ($('cueRollTarget').textContent !== label) $('cueRollTarget').textContent = label;
+    if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
   const cut = J.cutAt(S.plan, S.t);
   const idx = cut ? cut.index : -1;
@@ -1690,7 +1697,7 @@ function bind() {
     e.preventDefault();
     if (TL.drag >= 0) return;
     const { vd } = tlView();
-    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tl.clientWidth * vd; tlView(); drawTimeline(); }
+    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tlPlot(tl.clientWidth).width * vd; tlView(); drawTimeline(); }
     else tlZoom(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0025)), tlTime(e));
   }, { passive: false });
   $('tlIn').addEventListener('click', () => tlZoom(1.6));
@@ -1858,6 +1865,7 @@ function bind() {
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
   if (window.ResizeObserver) new ResizeObserver(() => { sizeViewport(); drawTimeline(); }).observe($('viewport'));
+  if (window.ResizeObserver) new ResizeObserver(drawTimeline).observe($('timeline'));
   bindFollow();
 }
 

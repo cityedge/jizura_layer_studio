@@ -146,6 +146,14 @@ button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px;
 
 /* ---------- stage ---------- */
 .col-stage { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; min-width: 0; }
+/* Desktop has one scroll owner. Cards and the picker grow naturally below the preview.
+   Disable scroll anchoring so content updates retain the distance from the pane's top. */
+#app:not(.is-mobile) .col-stage { height: calc(100dvh - 110px); min-height: 280px; overflow-x: hidden; overflow-y: scroll; scrollbar-gutter: stable; overflow-anchor: none; overscroll-behavior-y: contain; }
+#app:not(.is-mobile) .col-stage > * { flex: none; min-width: 0; max-width: 100%; }
+#app:not(.is-mobile) .col-stage .cut-pick { max-height: none; overflow: visible; }
+#app:not(.is-mobile) .col-stage .chip { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+#app:not(.is-mobile) .col-stage .cut-pick-h { flex-wrap: wrap; }
+#app:not(.is-mobile) .col-stage .tl-hint, #app:not(.is-mobile) .col-stage .cut-pick-h .muted { overflow-wrap: anywhere; min-width: 0; }
 .viewport { position: relative; width: 100%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
 .viewport canvas { display: block; width: 100%; height: auto; max-height: 68vh; object-fit: contain; }
 .field-wide { grid-column: span 2; }
@@ -329,15 +337,13 @@ dialog.terms a { color: var(--cyan); word-break: break-all; }
 .terms-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
 
 /* ---------- fixed workspace (wide & tall enough windows) ----------
-   The page no longer scrolls as a whole: the header and the preview + timeline stay put, and the
-   lyrics / line list (left) and settings (right) scroll inside their own columns. */
+   Each pane scrolls independently below the header. */
 @media (min-width: 1181px) and (min-height: 620px) {
   html.fixed-ok body { overflow: hidden; }
   html.fixed-ok #app { height: 100vh; height: 100dvh; min-height: 0; }
   html.fixed-ok .work { overflow: hidden; }
   html.fixed-ok .col-left, html.fixed-ok .col-right { overscroll-behavior: contain; }
-  html.fixed-ok .col-stage { overflow: hidden auto; }
-  html.fixed-ok .viewport { flex: 1 1 0; min-height: 180px; }
+  html.fixed-ok #app:not(.is-mobile) .col-stage { height: 100%; min-height: 0; }
   html.fixed-ok .viewport canvas { max-height: none; }
 }
 
@@ -477,6 +483,28 @@ button.small.primary { padding: 4px 12px; }
 .simple-export-controls input[type=number] { width:100%; min-width:0; }
 .simple-export-controls label.simple-audio { flex-direction:row; align-items:center; }
 #simpleExportInfo.error { color:#ff9696; }
+#simpleSettingsOpen { width:100%; margin-top:6px; }
+.simple-settings-dialog { width:min(1000px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-sizing:border-box; overflow:auto; padding:20px; background:var(--panel,#191b21); color:var(--text,#eee); border:1px solid var(--line2,#444); border-radius:8px; }
+.simple-settings-dialog::backdrop { background:#060608b8; }
+.simple-settings-dialog h2 { font-size:16px; margin:0 0 8px; }
+.simple-settings-dialog h3 { font-size:12px; margin:0 0 8px; }
+.simple-settings-dialog .note { font-size:11px; line-height:1.6; }
+.simple-settings-dialog .error { color:#ff9696; }
+.simple-settings-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; }
+.simple-title-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin-top:16px; }
+.simple-title-grid label { display:flex; flex-direction:column; gap:5px; font-size:11px; min-width:0; }
+.simple-title-grid label.simple-check { flex-direction:row; align-items:center; }
+.simple-title-grid .simple-wide { grid-column:1/-1; }
+.simple-title-grid input:not([type=checkbox]), .simple-title-grid select, .simple-title-grid textarea { width:100%; min-width:0; box-sizing:border-box; }
+.simple-title-grid textarea { resize:vertical; }
+.simple-title-grid input[type=color] { height:32px; }
+.simple-title-grid [aria-invalid=true], #simpleDuration[aria-invalid=true] { outline:1px solid #ff9696; }
+.simple-settings-preview { position:sticky; top:0; align-self:start; background:var(--panel,#191b21); }
+.simple-settings-preview canvas { display:block; max-width:100%; max-height:420px; width:auto; height:auto; margin:auto; background:#000; }
+.simple-settings-preview label { display:block; margin-top:10px; font-size:11px; }
+.simple-settings-preview input { width:100%; }
+.simple-settings-actions { display:flex; justify-content:flex-end; position:sticky; bottom:-20px; padding:12px 0; background:var(--panel,#191b21); }
+@media(max-width:650px) { .simple-settings-layout { grid-template-columns:minmax(0,1fr); } .simple-settings-preview { position:static; grid-row:1; } .simple-settings-preview canvas { max-height:210px; } .simple-settings-dialog { padding:14px; } }
 #layerProgress { width:100%; margin-top:12px; accent-color:#f5a50c; }
 #layerStatus { overflow-wrap:anywhere; }
 #layerStatus.error { color:#ff9696; }
@@ -520,6 +548,8 @@ button.small.primary { padding: 4px 12px; }
 
 /* Publication identity and self-contained help / license notices. */
 .cue-roll-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:8px 0; }
+#app:not(.is-mobile) .cue-roll-bar { display:grid; grid-template-columns:minmax(0,1fr); }
+#app:not(.is-mobile) #cueRollTarget { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:1.5em; }
 #cueRollTarget { font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
 #cueRollButtons { display:flex; flex-wrap:wrap; gap:5px; }
 #cueRollButtons button { font-size:11px; padding:5px 8px; }
@@ -568,7 +598,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.4.0</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.4.1</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -846,7 +876,7 @@ dialog.filler-dialog p { font-size:12px; }
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.4.0</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.4.1</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1327,7 +1357,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio User Guide</h2>
-    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.4.0 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.4.1 Detailed user manual (Markdown)</a>: Auto-compose, fonts, effects, techniques, line/cut editing, fillers, compositing and saving. The instructions below are a quick workflow.</p>
     <p class="terms-main">Create an animated subtitle front with a binary/grayscale matte, or a finished MP4 with background and audio.</p>
     <ol class="guide-steps">
       <li><strong>Import subtitles</strong><p>Choose a UTF-8 SRT with “Import SRT”. Start/end times, line breaks and gaps are preserved. Use “Edit SRT text, start and end” to make changes. You can also type subtitles without an SRT.</p></li>
@@ -1337,12 +1367,14 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
       <li><strong>Save two MP4 files</strong><p>Select aspect ratio, resolution and fps, then “Export matte + front MP4”. Allow multiple downloads if the browser asks. Individual save links remain available if either file is missing. Both videos are silent and are downloaded without ZIP compression. Keep the tab open during export.</p></li>
       <li><strong>Composite in your video editor</strong><p>For Binary mode, apply the matte to the background with Darken, then apply the front with Lighten. For Alpha mode, use Multiply then Add. Keep both videos aligned in time and size. If using the matte as alpha, invert it so white is transparent and black is opaque.</p></li>
     </ol>
+    <p>On desktop, the whole center pane scrolls vertically with a permanent scrollbar. Card changes preserve preview size and the scroll offset from the pane top. Detailed technique choices expand downward; scroll the center pane to choose them. The wheel over the timeline zooms it. Mobile mode retains page scrolling.</p>
     <p>Preview Speed offers 1×, 0.8×, 2/3× and 0.5× with pitch-preserving audio and synchronized subtitles, background video and spectrum. It does not affect MP4 exports or cue times and is not saved in JSON. Pitch correction may slightly change the sound's texture. Tap sync uses 1×.</p>
     <p>Mouse adjustments to main-editor dropdowns, checkboxes and sliders return focus for number-key shortcuts. Text/number editing, dialogs and keyboard-operated settings keep focus. Clicking the preview image or timeline also returns from an input field.</p>
     <p>If audio behaves poorly, select Legacy 1× at the bottom of Speed to use the original Web Audio player. Standard loading/playback failures or a 10-second startup wait also switch automatically at the current position, with a message. Legacy playback is always normal speed; if it also fails, playback stops. Choose a regular speed to switch back. MP4 exports are unaffected.</p>
     <p>The built-in spectrum scans the whole song and selects a range including 250–4,000 Hz, limited by the source Nyquist frequency. Auto range shows the result, fixed for the song, or a default-range note if estimation fails. FFT sizes and pulse processing are unchanged; color, placement and sensitivity changes do not change the range.</p>
     <h3>Optional simple video MP4</h3>
-    <p>Export simple video MP4, below the pair-export description, saves one flattened video: image/video background, then spectrum, then subtitles. No background means black. Background videos start at timeline zero and hold their final frame after ending. Only the separately loaded song is included; background audio is ignored. Both generated and external spectra can be used.</p>
+    <p>Simple video settings… contains Duration, Exclude audio and Show title. Changes save immediately. Titles default to off and support text, fonts, bold/italic, size/color, black outline, translucent black backing and position. Use the dialog time slider to inspect the composite.</p><p>Whole video covers the entire output; otherwise specify timeline start/end seconds. Optional one-second fades apply at each end of the visible interval intersecting the export range, shortened below two seconds. The title is in front; backing is directly above the background and below lyrics/spectrum, translucent even in Binary mode. Only composite previews and simple video include it. Settings persist in JSON.</p>
+    <p>Export simple video MP4, below the pair-export description, saves one flattened video, back to front: image/video background, title backing, spectrum, subtitles, title text. A disabled title contributes neither text nor backing. No background means black. Background videos start at timeline zero and hold their final frame after ending. Only the separately loaded song is included; background audio is ignored. Both generated and external spectra can be used.</p>
     <p>Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Background duration uses the video track's end time. Audio counts even with Exclude audio checked. Ended audio becomes silent and ended overlays disappear. Range exports keep all sources at their original timestamps. Video backgrounds require a supported decoder; unsupported media reports a reason.</p>
     <p>Existing resolution, fps, quality and export-range settings apply. A selected range trims the output; actual video duration appears below the button. Audio output requires AAC encoding support. Preview volume does not affect export; the source audio retains its original level.</p>
     <p>Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove normal cues; Ctrl+Z undoes changes. Empty text keeps a silent slot. Ideographic spaces are valid text; ASCII spaces separate groups. Invalid times block export until corrected.</p>
@@ -1379,7 +1411,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>In Alpha mode, adjust Background color opacity from 0–100% (default: 40%). Higher values make fills more opaque, including color mixtures. The setting applies to previews and all exports and is saved in project JSON. Text, foreground parts, transitions and post effects using that color also inherit its opacity. Other palette fields, fixed colors and spectrum opacity are unaffected. At 0%, mixed text/accent contributions remain; at 100%, effect fades still apply. Overlapping fills increase opacity. Saved palettes, random choices and Binary mode remain unchanged.</p>
     <p>Pure black in the front means empty space. Black subtitle artwork is processed as RGB 030303. In Binary mode, before compression, exactly the nonblack pixels in the final front have a black matte. Binary mode has no partial transparency. MP4 compression can slightly change colours and edges.</p>
     <p>Desktop Chrome / Edge is recommended. MP4 export requires WebCodecs and H.264 encoding support. Long or high-resolution exports use more memory; start with a short range.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.4.0</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.4.1</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -4397,7 +4429,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.4.0', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.4.1', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -37390,9 +37422,22 @@ J.lineSnapshot = (plan, index) => {
 (() => {
 'use strict';
 const tr = J.layerText;
+const number = (v, fallback, min, max) => Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : fallback;
+J.normalizeSimpleTitle = value => ({
+  enabled: value?.enabled === true, text: typeof value?.text === 'string' ? value.text.slice(0, 2000).replace(/\r\n?/g, '\n') : '',
+  all: value?.all !== false, start: number(value?.start, 0, 0, 86400), end: number(value?.end, 10, 0, 86400),
+  font: typeof value?.font === 'string' && /^[\p{L}\p{N}_-]{1,110}$/u.test(value.font) ? value.font : 'gothic_bold',
+  family: typeof value?.family === 'string' ? value.family.replace(/["\\\x00-\x1f\x7f]/g, '').trim().slice(0, 100) : '',
+  bold: value?.bold !== false, italic: value?.italic === true, size: number(value?.size, 5, 1, 30),
+  color: /^#[0-9a-f]{6}$/i.test(value?.color) ? value.color : '#ffffff', outline: value?.outline !== false,
+  backing: value?.backing !== false, opacity: number(value?.opacity, 50, 0, 100),
+  position: /^(top|middle|bottom)-(left|center|right)$/.test(value?.position) ? value.position : 'top-left',
+  x: number(value?.x, 0, -100, 100), y: number(value?.y, 0, -100, 100), fade: value?.fade !== false,
+});
 J.normalizeSimpleExport = value => ({
   duration: Number.isFinite(value?.duration) && value.duration > 0 && value.duration <= 86400 ? value.duration : null,
   includeAudio: value?.includeAudio !== false,
+  title: J.normalizeSimpleTitle(value?.title),
 });
 const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
 J.defaultProject = () => ({ ...defaults(), simpleExport: J.normalizeSimpleExport() });
@@ -37415,6 +37460,83 @@ J.simpleExportSpan = (duration, fps, range) => {
     throw new Error(tr('指定した出力時間と書き出し範囲が重なりません。', 'Duration does not overlap the selected export range.'));
   const frames = Math.max(1, Math.ceil((end - t0) * fps - 1e-7));
   return { t0, frames, duration: frames / fps };
+};
+J.simpleTitleError = value => {
+  const s = J.normalizeSimpleTitle(value);
+  if (!s.enabled) return '';
+  if (!s.text.trim()) return tr('タイトル本文を入力するか、タイトル表示をオフにしてください。', 'Enter title text or turn off the title.');
+  if (!s.all && s.end <= s.start) return tr('タイトルの終了は開始より後にしてください。', 'Title end must be after its start.');
+  if (s.font === 'custom' && !s.family) return tr('PCにインストール済みのフォント名を入力してください。', 'Enter an installed PC font family.');
+  return '';
+};
+J.simpleTitleWindow = (value, span) => {
+  const s = J.normalizeSimpleTitle(value);
+  if (!s.enabled || !s.text.trim() || !span) return null;
+  const start = s.all ? span.t0 : Math.max(span.t0, s.start);
+  const end = s.all ? span.t0 + span.duration : Math.min(span.t0 + span.duration, s.end);
+  return end > start ? { start, end } : null;
+};
+J.simpleTitleAlpha = (value, t, span) => {
+  const win = J.simpleTitleWindow(value, span);
+  if (!win || t < win.start || t >= win.end) return 0;
+  if (value.fade === false) return 1;
+  const fade = Math.min(1, (win.end - win.start) / 2);
+  return Math.max(0, Math.min(1, (t - win.start) / fade, (win.end - t) / fade));
+};
+J.simpleTitleFont = (s, px) => {
+  const face = J.faceOf?.(s.font) || J.FONTS?.[s.font] || J.FONTS?.gothic_bold;
+  const family = s.font === 'custom' ? '"' + s.family + '",sans-serif' : (face ? face.family + ',' + face.fb : 'sans-serif');
+  return `${s.italic ? 'italic ' : ''}${s.bold ? 700 : 400} ${px}px ${family}`;
+};
+let titleFontRevision = 0;
+J.ensureSimpleTitleFont = async value => {
+  const s = J.normalizeSimpleTitle(value); if (!s.enabled) return;
+  const error = J.simpleTitleError(s); if (error) throw new Error(error);
+  const missing = J.missingUserFonts?.([s.font]);
+  if (missing?.length) throw new Error(tr('タイトルの旧ファイル書体を変更してください。', 'Replace the legacy uploaded title font.'));
+  if (s.font !== 'custom') await J.ensureFonts(s.text, [s.font]);
+  await document.fonts?.load(J.simpleTitleFont(s, 64), s.text);
+  titleFontRevision++;
+};
+// One measured layout is shared by both passes; no title pixels enter layer/matte exports.
+const titleLayouts = new WeakMap();
+J.simpleTitleFrame = (ctx, value, t, span) => {
+  const s = J.normalizeSimpleTitle(value), alpha = J.simpleTitleAlpha(s, t, span);
+  if (!alpha || J.simpleTitleError(s)) return null;
+  const w = ctx.canvas.width, h = ctx.canvas.height;
+  const key = JSON.stringify([s, w, h, J.lang, document.fonts?.status, titleFontRevision]);
+  let layout = titleLayouts.get(ctx);
+  if (!layout || layout.key !== key) {
+    const short = Math.min(w, h), pad = short * .018, margin = short * .035;
+    let px = short * s.size / 100;
+    const lines = s.text.split('\n');
+    ctx.save(); ctx.font = J.simpleTitleFont(s, px);
+    let width = Math.max(...lines.map(l => ctx.measureText(l).width), px);
+    const scale = Math.min(1, (w - 2 * (margin + pad)) / width, (h - 2 * (margin + pad)) / (lines.length * px * 1.3));
+    px *= scale; width *= scale;
+    const height = lines.length * px * 1.3, [v, a] = s.position.split('-');
+    const x = (a === 'left' ? margin + pad : a === 'right' ? w - margin - pad - width : (w - width) / 2) + s.x * w / 100;
+    const y = (v === 'top' ? margin + pad : v === 'bottom' ? h - margin - pad - height : (h - height) / 2) + s.y * h / 100;
+    // Bake the outline and fill together, then fade the result once. This avoids
+    // the outline showing through a partially transparent fill during fades.
+    const ink = J.layerCanvas(w, h), ix = ink.getContext('2d');
+    ix.font = J.simpleTitleFont(s, px); ix.textBaseline = 'middle'; ix.textAlign = a;
+    ix.lineJoin = 'round'; ix.lineWidth = Math.max(.5, px * .075); ix.strokeStyle = '#000'; ix.fillStyle = s.color;
+    const tx = x + (a === 'left' ? 0 : a === 'right' ? width : width / 2);
+    lines.forEach((line, i) => { const ty = y + (i + .5) * px * 1.3; if (s.outline) ix.strokeText(line, tx, ty); ix.fillText(line, tx, ty); });
+    layout = { key, width, height, x, y, pad, ink };
+    ctx.restore(); titleLayouts.set(ctx, layout);
+  }
+  return { ...layout, settings: s, alpha };
+};
+J.drawSimpleTitle = (ctx, frame, pass) => {
+  if (!frame) return;
+  const { settings: s, alpha, x, y, width, height, pad, ink } = frame;
+  ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = alpha;
+  if (pass === 'backing') {
+    if (s.backing) { ctx.globalAlpha *= s.opacity / 100; ctx.fillStyle = '#000'; ctx.fillRect(x - pad, y - pad, width + pad * 2, height + pad * 2); }
+  } else ctx.drawImage(ink, 0, 0);
+  ctx.restore();
 };
 const abort = signal => { if (signal?.aborted) throw new DOMException('Cancelled', 'AbortError'); };
 const tick = () => new Promise(r => setTimeout(r, 0));
@@ -37471,6 +37593,7 @@ async function encodeSound(buffer, mux, span, config, signal, progress) {
 J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null, audio = null, range = null, signal, onProgress }) => {
   if (background?.simpleError) throw new Error(background.simpleError);
   const settings = J.normalizeSimpleExport(project.simpleExport), span = J.simpleExportSpan(settings.duration, plan.fps, range);
+  await J.ensureSimpleTitleFont(settings.title);
   const [w, h] = J.outputSize(project), fps = plan.fps;
   let audioConfig = null;
   if (settings.includeAudio && audio?.buffer) {
@@ -37507,8 +37630,11 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         let pixels = render.draw(plan, t);
         if (reader) pixels = J.composeLayerPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels, mode);
         ctx.drawImage(base, 0, 0);
+        const title = J.simpleTitleFrame(ctx, settings.title, t, span);
+        J.drawSimpleTitle(ctx, title, 'backing');
         render.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
         ctx.drawImage(render.layer, 0, 0);
+        J.drawSimpleTitle(ctx, title, 'text');
         const frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round((i + 1) * 1e6 / fps) - Math.round(i * 1e6 / fps) });
         try { encoder.encode(frame, { keyFrame: i % (fps * 2) === 0 }); } finally { frame.close(); }
         await drain(encoder, () => error, signal);
@@ -38863,8 +38989,8 @@ function sizeViewport() {
   const vp = $('viewport'), c = $('view');
   const ar = S.plan.W / S.plan.H;
   let cssW = vp.clientWidth || 800, cssH = cssW / ar;
-  // fixed workspace: the viewport gets whatever height is left under the header / above the transport and timeline
-  const maxH = fixedLayout() ? Math.max(160, vp.clientHeight - 2) : Math.max(220, window.innerHeight * 0.68);
+  // Size from the window, never the remaining space after cards/picker. Mobile retains its cap.
+  const maxH = S.mode === 'mobile' ? Math.max(220, window.innerHeight * 0.68) : Math.max(180, window.innerHeight * 0.55);
   if (cssH > maxH) { cssH = maxH; cssW = cssH * ar; }
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const pw = Math.round(Math.min(S.plan.W, cssW * dpr)), ph = Math.round(pw / ar);
@@ -38987,7 +39113,8 @@ function drawTimeline() {
   let { D, vd, off } = tlView();
   // follow the playhead while playing (zoomed in)
   if (TL.z > 1 && S.playing && TL.drag < 0 && (S.t < off || S.t > off + vd * 0.92)) { TL.off = S.t - vd * 0.1; ({ D, vd, off } = tlView()); }
-  const x = c.getContext('2d'), X = t => (t - off) / vd * w, T = px => off + px / w * vd;
+  const plot = tlPlot(w, dpr);
+  const x = c.getContext('2d'), X = t => plot.left + (t - off) / vd * plot.width, T = px => off + (px - plot.left) / plot.width * vd;
   x.fillStyle = '#131316'; x.fillRect(0, 0, w, h);
   if (S.audio && S.audio.peaks) {
     const pk = S.audio.peaks, n = pk.length, sd = S.audio.duration;
@@ -39022,7 +39149,8 @@ function drawTimeline() {
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
     x.fillStyle = on ? '#f5a50c' : S.project.subtitleCues?.[ln.index]?.filler ? '#f07178' : '#8e8a94';
-    x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' inst.' : ''), lx + 4 * dpr, 17 * dpr);
+    const label = String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' inst.' : '');
+    x.fillText(label, Math.max(2 * dpr, Math.min(lx + 4 * dpr, w - x.measureText(label).width - 2 * dpr)), 17 * dpr);
   }
   if (TL.z > 1) {                                          // where the view sits in the whole song
     x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, h - 2 * dpr, w, 2 * dpr);
@@ -39036,17 +39164,22 @@ function drawTimeline() {
   const px = X(S.t);
   x.fillStyle = '#f5a50c'; x.fillRect(Math.round(px) - dpr, 0, 2 * dpr, h);
 }
+// Keep endpoint handles inside the canvas; use the same plot for drawing and pointer mapping.
+function tlPlot(width, scale = 1) {
+  const left = Math.min(8 * scale, width / 4);
+  return { left, width: Math.max(1, width - left * 2) };
+}
 function tlTime(ev) {
-  const r = $('timeline').getBoundingClientRect(), { vd, off } = tlView();
-  return off + J.clamp((ev.clientX - r.left) / r.width, 0, 1) * vd;
+  const c = $('timeline'), r = c.getBoundingClientRect(), plot = tlPlot(c.clientWidth), { vd, off } = tlView();
+  return off + J.clamp((ev.clientX - r.left - c.clientLeft - plot.left) / plot.width, 0, 1) * vd;
 }
 function timelineSeek(ev) { seek(tlTime(ev)); }
 /* the line whose start handle is under the pointer (top band, ±7px) */
 function tlHandleAt(ev) {
-  const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
+  const c = $('timeline'), r = c.getBoundingClientRect(), plot = tlPlot(c.clientWidth), { vd, off } = tlView();
   if (ev.clientY - r.top > r.height * 0.45) return -1;
   let best = -1, bd = 8;
-  for (const ln of S.plan.lines) { const d = Math.abs((ln.start - off) / vd * r.width - (ev.clientX - r.left)); if (d < bd) { bd = d; best = ln.index; } }
+  for (const ln of S.plan.lines) { const d = Math.abs(plot.left + (ln.start - off) / vd * plot.width - (ev.clientX - r.left - c.clientLeft)); if (d < bd) { bd = d; best = ln.index; } }
   return best;
 }
 function tlDragTo(i, ev) {
@@ -39199,7 +39332,7 @@ function updateCutInfo() {
     const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
     const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
     const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象None）', ' (no cue)'));
-    if ($('cueRollTarget').textContent !== label) $('cueRollTarget').textContent = label;
+    if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
   const cut = J.cutAt(S.plan, S.t);
   const idx = cut ? cut.index : -1;
@@ -40271,7 +40404,7 @@ function bind() {
     e.preventDefault();
     if (TL.drag >= 0) return;
     const { vd } = tlView();
-    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tl.clientWidth * vd; tlView(); drawTimeline(); }
+    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) { TL.off += (e.shiftKey ? e.deltaY : e.deltaX) / tlPlot(tl.clientWidth).width * vd; tlView(); drawTimeline(); }
     else tlZoom(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0025)), tlTime(e));
   }, { passive: false });
   $('tlIn').addEventListener('click', () => tlZoom(1.6));
@@ -40377,7 +40510,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.4.0' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.4.1' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -40439,6 +40572,7 @@ function bind() {
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
   if (window.ResizeObserver) new ResizeObserver(() => { sizeViewport(); drawTimeline(); }).observe($('viewport'));
+  if (window.ResizeObserver) new ResizeObserver(drawTimeline).observe($('timeline'));
   bindFollow();
 }
 
@@ -40578,6 +40712,7 @@ function fit(ctx, m, w, h) {
 }
 J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
+  const display = opt?.simpleSettingsPreview ? 'composite' : session.preview;
   const mode = J.normalizeLayerMode(J.ui.project.layerMode);
   const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
   if (!renderer || renderer.w !== w || renderer.h !== h || renderer.mode !== mode) { renderer = new J.LayerRenderer(w, h, mode, opacity); spectrumPreview = null; }
@@ -40602,12 +40737,20 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   }
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
-  if (session.preview === 'matte') ctx.drawImage(renderer.pair(pixels).matte, 0, 0);
-  else if (session.preview === 'front') ctx.drawImage(renderer.pair(pixels).front, 0, 0);
+  if (display === 'matte') ctx.drawImage(renderer.pair(pixels).matte, 0, 0);
+  else if (display === 'front') ctx.drawImage(renderer.pair(pixels).front, 0, 0);
   else {
-    if (session.preview === 'composite' && session.background) fit(ctx, session.background, w, h);
+    if (session.background) fit(ctx, session.background, w, h);
+    let title = null;
+    try {
+      const s = J.ui.project.simpleExport;
+      const span = J.simpleExportSpan(s.duration, plan.fps, J.uiApi.exportRange());
+      title = J.simpleTitleFrame(ctx, s.title, t, span);
+    } catch (_) { /* An invalid duration is reported beside simple export. */ }
+    J.drawSimpleTitle(ctx, title, 'backing');
     renderer.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
     ctx.drawImage(renderer.layer, 0, 0);
+    J.drawSimpleTitle(ctx, title, 'text');
   }
   ctx.restore();
 };
@@ -40809,10 +40952,13 @@ function syncSimpleExportUI() {
   }
   if (projectChanged || recalculate || (!simpleInvalidDraft && document.activeElement !== input)) input.value = settings.duration;
   $('simpleNoAudio').checked = !settings.includeAudio;
+  J.syncSimpleTitleUI?.(projectChanged);
   let span, reason = '';
   try {
     if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
     span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
+    const titleError = J.simpleTitleDraftError?.() || J.simpleTitleError(settings.title);
+    if (titleError) throw new Error(titleError);
   } catch (e) { reason = e.message; }
   if (session.background?.simpleError) reason = session.background.simpleError;
   if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
@@ -40822,7 +40968,10 @@ function syncSimpleExportUI() {
   const help = $('simpleExportInfo'); help.classList.toggle('error', !!reason);
   help.textContent = reason || tr(`実際の映像：${span.duration.toFixed(3)}秒・${span.frames}フレーム（${project.fps}fps）。`, `Video: ${span.duration.toFixed(3)}s · ${span.frames} frames (${project.fps}fps).`)
     + (span.t0 ? tr(` 開始：${span.t0.toFixed(3)}秒。`, ` Starts at ${span.t0.toFixed(3)}s.`) : '')
-    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 読み込んだ音源を含みます。', ' Includes the loaded audio.') : tr(' 音声なし。', ' No audio.'));
+    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 音源あり。', ' Audio included.') : tr(' 音声なし。', ' No audio.'))
+    + (!settings.title.enabled ? tr(' タイトルなし。', ' No title.') : settings.title.all ? tr(' タイトル：全編。', ' Title: whole video.') : tr(` タイトル：${settings.title.start}〜${settings.title.end}秒。`, ` Title: ${settings.title.start}–${settings.title.end}s.`))
+    + (settings.title.enabled && !J.simpleTitleWindow(settings.title, span) ? tr(' タイトル区間は出力範囲外です。', ' Title is outside the export range.') : '');
+  if ($('simpleSettingsInfo')) { $('simpleSettingsInfo').textContent = help.textContent; $('simpleSettingsInfo').classList.toggle('error', !!reason); }
 }
 J.syncSimpleExportUI = syncSimpleExportUI;
 function simpleExportControls(panel) {
@@ -40841,7 +40990,7 @@ function simpleExportControls(panel) {
   const audio = el('label', null, 'simple-audio'), check = el('input'); check.type = 'checkbox'; check.id = 'simpleNoAudio';
   check.addEventListener('change', () => { J.ui.project.simpleExport.includeAudio = !check.checked; J.uiApi.flushSave(); syncSimpleExportUI(); });
   audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
-  controls.append(label, audio); panel.append(controls);
+  controls.append(label, audio); J.mountSimpleSettings(panel, controls);
   const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
   panel.append(el('p', tr('画像・動画背景＋スペアナ＋字幕を1本のMP4にします。背景動画は0秒から再生し、終了後は最終フレームを保持。背景の音声は使わず、読み込んだ音源だけを使用します。',
     'Exports an image/video background, spectrum and subtitles as one MP4. Background video starts at zero and holds its final frame. Only separately loaded audio is used, not the background soundtrack.'), 'note'));
@@ -41337,6 +41486,110 @@ J.mountNativeSpectrumUI = panel => {
 };
 window.addEventListener('pagehide', () => { state.controller?.abort(); state.controller = null; state.pending = false; });
 window.addEventListener('pageshow', e => { if (e.persisted) J.syncLayerUI(); });
+})();
+
+/* Simple-video settings are live controls; closing retains valid changes. */
+(() => {
+'use strict';
+const tr = J.layerText, $ = id => document.getElementById(id);
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+const fields = new Map(), invalid = new Set();
+let dialog, preview, scrub, timeLabel, fontSignature = '', projectRef = null;
+const settings = () => J.ui.project.simpleExport.title;
+const save = () => { J.uiApi.flushSave(); J.ui.need = true; J.syncSimpleExportUI(); };
+J.simpleTitleDraftError = () => {
+  const s = settings(); if (!s.enabled) return '';
+  return [...invalid].some(k => !(s.all && ['start','end'].includes(k)) && !(s.font !== 'custom' && k === 'family') && !(k === 'opacity' && !s.backing))
+    ? tr('タイトル設定の数値を正しく入力してください。', 'Correct the invalid title setting.') : '';
+};
+J.syncSimpleTitleUI = changed => {
+  if (!dialog) return;
+  if (changed || projectRef !== J.ui.project) { invalid.clear(); projectRef = J.ui.project; fontSignature = ''; }
+  const s = settings();
+  for (const [key, input] of fields) {
+    if (!invalid.has(key) && document.activeElement !== input) {
+      if (input.type === 'checkbox') input.checked = s[key]; else input.value = s[key];
+    }
+    input.disabled = key !== 'enabled' && (!s.enabled || (s.all && ['start','end'].includes(key)) || (key === 'family' && s.font !== 'custom') || (key === 'opacity' && !s.backing));
+    input.setAttribute('aria-invalid', String(invalid.has(key) && !input.disabled));
+  }
+  const signature = JSON.stringify([s.enabled, s.font, s.family, s.bold, s.italic, s.text, J.lang]);
+  if (signature !== fontSignature) {
+    fontSignature = signature;
+    if (!J.simpleTitleError(s)) J.ensureSimpleTitleFont(s).then(() => { J.ui.need = true; }).catch(e => { if (fontSignature === signature) $('simpleSettingsInfo').textContent = e.message; });
+  }
+  scrub.max = J.ui.project.simpleExport.duration || 1;
+};
+J.mountSimpleSettings = (panel, outputControls) => {
+  const open = el('button', tr('簡易動画設定…', 'Simple video settings…')); open.id = 'simpleSettingsOpen'; open.type = 'button'; panel.append(open);
+  dialog = el('dialog', null, 'simple-settings-dialog'); dialog.id = 'simpleSettingsDlg'; dialog.setAttribute('aria-labelledby', 'simpleSettingsHeading');
+  const head = el('h2', tr('簡易動画設定', 'Simple video settings')); head.id = 'simpleSettingsHeading';
+  dialog.append(head, el('p', tr('変更はその場で反映・保存されます。タイトルは背景付きプレビューと簡易MP4にだけ表示します。', 'Changes apply and save immediately. Titles appear only in background-composite previews and simple MP4 exports.'), 'note'));
+  const layout = el('div', null, 'simple-settings-layout'), controls = el('div', null, 'simple-settings-fields');
+  controls.append(outputControls);
+  const grid = el('div', null, 'simple-title-grid'); controls.append(grid);
+  function field(key, ja, en, type, options = {}) {
+    const label = el('label', null, type === 'checkbox' ? 'simple-check' : ''), input = el(type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input');
+    input.id = 'simpleTitle-' + key; input.setAttribute('aria-label', tr(ja, en));
+    if (input.tagName === 'INPUT') input.type = type;
+    if (options.wide) label.classList.add('simple-wide');
+    if (options.min != null) { input.min = options.min; input.max = options.max; input.step = 'any'; }
+    if (type === 'textarea') { input.rows = 3; input.maxLength = 2000; }
+    if (key === 'family') input.maxLength = 100;
+    if (type === 'checkbox') label.append(input, document.createTextNode(tr(ja, en))); else label.append(el('span', tr(ja, en)), input);
+    if (options.items) for (const [value, jaLabel, enLabel] of options.items) input.add(new Option(tr(jaLabel, enLabel), value));
+    input.addEventListener(type === 'select' || type === 'checkbox' ? 'change' : 'input', () => {
+      let value = type === 'checkbox' ? input.checked : type === 'number' ? input.valueAsNumber : input.value;
+      if (type === 'number' && (!Number.isFinite(value) || value < +input.min || value > +input.max)) invalid.add(key);
+      else { invalid.delete(key); settings()[key] = value; }
+      save();
+    });
+    grid.append(label); fields.set(key, input); return input;
+  }
+  field('enabled','タイトルを表示','Show title','checkbox',{wide:true});
+  field('text','タイトル本文（改行可）','Title text (line breaks allowed)','textarea',{wide:true});
+  field('all','全部（最初から最後まで）','Whole video (start to finish)','checkbox',{wide:true});
+  field('start','開始（秒）','Start (seconds)','number',{min:0,max:86400});
+  field('end','終了（秒）','End (seconds)','number',{min:0,max:86400});
+  field('fade','フェードイン・アウト（各1秒）','Fade in/out (1 second each)','checkbox',{wide:true});
+  const font = field('font','フォント','Font','select',{wide:true});
+  field('family','PCのフォント名','Installed PC font family','text',{wide:true});
+  field('bold','太字','Bold','checkbox'); field('italic','イタリック','Italic','checkbox');
+  field('size','文字サイズ（短辺の%）','Font size (% of short side)','number',{min:1,max:30});
+  field('color','文字色','Text color','color');
+  field('outline','黒いふち','Black outline','checkbox'); field('backing','半透明黒の下地','Translucent black backing','checkbox');
+  field('opacity','下地の不透明度（%）','Backing opacity (%)','number',{min:0,max:100,wide:true});
+  field('position','基準位置','Anchor position','select',{wide:true,items:[['top-left','左上','Top left'],['top-center','上中央','Top center'],['top-right','右上','Top right'],['middle-left','左中央','Middle left'],['middle-center','中央','Center'],['middle-right','右中央','Middle right'],['bottom-left','左下','Bottom left'],['bottom-center','下中央','Bottom center'],['bottom-right','右下','Bottom right']]});
+  field('x','横の微調整（画面幅の%）','Horizontal offset (% of width)','number',{min:-100,max:100});
+  field('y','縦の微調整（画面高の%）','Vertical offset (% of height)','number',{min:-100,max:100});
+  controls.append(el('p', tr('右・下への移動は正の値。長い本文は画面に収まるよう縮小します。下地は背景直上、スペアナ・字幕より下です。表示区間は出力範囲との重なりを使い、2秒未満ではフェードを短縮します。', 'Positive offsets move right/down. Long text shrinks to fit. Backing is above the background but below spectrum and lyrics. The visible interval intersects the export range; fades shorten for intervals under two seconds.'), 'note'));
+  const viewer = el('div', null, 'simple-settings-preview');
+  viewer.append(el('h3', tr('仕上がりプレビュー', 'Composite preview')));
+  preview = el('canvas'); preview.id = 'simpleTitlePreview'; preview.setAttribute('aria-label', tr('タイトルを含む簡易動画のプレビュー', 'Simple video preview including title'));
+  const time = el('label'); timeLabel = el('span'); scrub = el('input'); scrub.type = 'range'; scrub.id = 'simpleTitleTime'; scrub.min = 0; scrub.step = .01; scrub.setAttribute('aria-label', tr('プレビュー時刻（秒）', 'Preview time (seconds)')); time.append(timeLabel,scrub);
+  viewer.append(preview,time); layout.append(controls,viewer); dialog.append(layout);
+  const info = el('p', null, 'note'); info.id = 'simpleSettingsInfo'; info.setAttribute('role','status'); dialog.append(info);
+  const foot = el('div', null, 'simple-settings-actions'), close = el('button', tr('閉じる','Close')); close.type='button'; close.addEventListener('click',()=>dialog.close()); foot.append(close); dialog.append(foot); document.body.append(dialog);
+  let raf = 0, last = 0;
+  function draw(now) {
+    if (!dialog.open) return;
+    raf = requestAnimationFrame(draw);
+    if (now - last < 150) return; last = now;
+    const [w,h]=J.outputSize(J.ui.project), ratio=w/h;
+    const pw=Math.round(Math.min(720,420*ratio)), ph=Math.round(pw/ratio);
+    if(preview.width!==pw||preview.height!==ph){preview.width=pw;preview.height=ph;}
+    const t=Number(scrub.value); timeLabel.textContent=tr(`確認時刻：${t.toFixed(2)}秒`,`Preview time: ${t.toFixed(2)}s`);
+    J.drawLayerPreview(preview.getContext('2d'),J.ui.plan,t,{fast:false,simpleSettingsPreview:true});
+  }
+  open.addEventListener('click',()=>{
+    J.uiApi.pause(); font.replaceChildren();
+    for(const [key,f] of Object.entries(J.FONTS)) if(!f.legacyUpload) font.add(new Option((J.faceOf?.(key)||f).label,key));
+    font.add(new Option(tr('PCのフォント名を指定','Enter installed PC font name'),'custom'));
+    if(![...font.options].some(o=>o.value===settings().font)) font.add(new Option(settings().font,settings().font));
+    J.syncSimpleExportUI(); scrub.value=Math.min(+scrub.max,Math.max(0,J.ui.t)); dialog.showModal(); last=0; raf=requestAnimationFrame(draw);
+  });
+  dialog.addEventListener('close',()=>{cancelAnimationFrame(raf);J.ui.need=true;J.syncSimpleExportUI();$('viewport')?.focus({preventScroll:true});});
+};
 })();
 
 /* Finish pointer-operated controls without stealing keyboard/text editing focus. */

@@ -2,9 +2,22 @@
 (() => {
 'use strict';
 const tr = J.layerText;
+const number = (v, fallback, min, max) => Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : fallback;
+J.normalizeSimpleTitle = value => ({
+  enabled: value?.enabled === true, text: typeof value?.text === 'string' ? value.text.slice(0, 2000).replace(/\r\n?/g, '\n') : '',
+  all: value?.all !== false, start: number(value?.start, 0, 0, 86400), end: number(value?.end, 10, 0, 86400),
+  font: typeof value?.font === 'string' && /^[\p{L}\p{N}_-]{1,110}$/u.test(value.font) ? value.font : 'gothic_bold',
+  family: typeof value?.family === 'string' ? value.family.replace(/["\\\x00-\x1f\x7f]/g, '').trim().slice(0, 100) : '',
+  bold: value?.bold !== false, italic: value?.italic === true, size: number(value?.size, 5, 1, 30),
+  color: /^#[0-9a-f]{6}$/i.test(value?.color) ? value.color : '#ffffff', outline: value?.outline !== false,
+  backing: value?.backing !== false, opacity: number(value?.opacity, 50, 0, 100),
+  position: /^(top|middle|bottom)-(left|center|right)$/.test(value?.position) ? value.position : 'top-left',
+  x: number(value?.x, 0, -100, 100), y: number(value?.y, 0, -100, 100), fade: value?.fade !== false,
+});
 J.normalizeSimpleExport = value => ({
   duration: Number.isFinite(value?.duration) && value.duration > 0 && value.duration <= 86400 ? value.duration : null,
   includeAudio: value?.includeAudio !== false,
+  title: J.normalizeSimpleTitle(value?.title),
 });
 const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
 J.defaultProject = () => ({ ...defaults(), simpleExport: J.normalizeSimpleExport() });
@@ -27,6 +40,83 @@ J.simpleExportSpan = (duration, fps, range) => {
     throw new Error(tr('指定した出力時間と書き出し範囲が重なりません。', 'Duration does not overlap the selected export range.'));
   const frames = Math.max(1, Math.ceil((end - t0) * fps - 1e-7));
   return { t0, frames, duration: frames / fps };
+};
+J.simpleTitleError = value => {
+  const s = J.normalizeSimpleTitle(value);
+  if (!s.enabled) return '';
+  if (!s.text.trim()) return tr('タイトル本文を入力するか、タイトル表示をオフにしてください。', 'Enter title text or turn off the title.');
+  if (!s.all && s.end <= s.start) return tr('タイトルの終了は開始より後にしてください。', 'Title end must be after its start.');
+  if (s.font === 'custom' && !s.family) return tr('PCにインストール済みのフォント名を入力してください。', 'Enter an installed PC font family.');
+  return '';
+};
+J.simpleTitleWindow = (value, span) => {
+  const s = J.normalizeSimpleTitle(value);
+  if (!s.enabled || !s.text.trim() || !span) return null;
+  const start = s.all ? span.t0 : Math.max(span.t0, s.start);
+  const end = s.all ? span.t0 + span.duration : Math.min(span.t0 + span.duration, s.end);
+  return end > start ? { start, end } : null;
+};
+J.simpleTitleAlpha = (value, t, span) => {
+  const win = J.simpleTitleWindow(value, span);
+  if (!win || t < win.start || t >= win.end) return 0;
+  if (value.fade === false) return 1;
+  const fade = Math.min(1, (win.end - win.start) / 2);
+  return Math.max(0, Math.min(1, (t - win.start) / fade, (win.end - t) / fade));
+};
+J.simpleTitleFont = (s, px) => {
+  const face = J.faceOf?.(s.font) || J.FONTS?.[s.font] || J.FONTS?.gothic_bold;
+  const family = s.font === 'custom' ? '"' + s.family + '",sans-serif' : (face ? face.family + ',' + face.fb : 'sans-serif');
+  return `${s.italic ? 'italic ' : ''}${s.bold ? 700 : 400} ${px}px ${family}`;
+};
+let titleFontRevision = 0;
+J.ensureSimpleTitleFont = async value => {
+  const s = J.normalizeSimpleTitle(value); if (!s.enabled) return;
+  const error = J.simpleTitleError(s); if (error) throw new Error(error);
+  const missing = J.missingUserFonts?.([s.font]);
+  if (missing?.length) throw new Error(tr('タイトルの旧ファイル書体を変更してください。', 'Replace the legacy uploaded title font.'));
+  if (s.font !== 'custom') await J.ensureFonts(s.text, [s.font]);
+  await document.fonts?.load(J.simpleTitleFont(s, 64), s.text);
+  titleFontRevision++;
+};
+// One measured layout is shared by both passes; no title pixels enter layer/matte exports.
+const titleLayouts = new WeakMap();
+J.simpleTitleFrame = (ctx, value, t, span) => {
+  const s = J.normalizeSimpleTitle(value), alpha = J.simpleTitleAlpha(s, t, span);
+  if (!alpha || J.simpleTitleError(s)) return null;
+  const w = ctx.canvas.width, h = ctx.canvas.height;
+  const key = JSON.stringify([s, w, h, J.lang, document.fonts?.status, titleFontRevision]);
+  let layout = titleLayouts.get(ctx);
+  if (!layout || layout.key !== key) {
+    const short = Math.min(w, h), pad = short * .018, margin = short * .035;
+    let px = short * s.size / 100;
+    const lines = s.text.split('\n');
+    ctx.save(); ctx.font = J.simpleTitleFont(s, px);
+    let width = Math.max(...lines.map(l => ctx.measureText(l).width), px);
+    const scale = Math.min(1, (w - 2 * (margin + pad)) / width, (h - 2 * (margin + pad)) / (lines.length * px * 1.3));
+    px *= scale; width *= scale;
+    const height = lines.length * px * 1.3, [v, a] = s.position.split('-');
+    const x = (a === 'left' ? margin + pad : a === 'right' ? w - margin - pad - width : (w - width) / 2) + s.x * w / 100;
+    const y = (v === 'top' ? margin + pad : v === 'bottom' ? h - margin - pad - height : (h - height) / 2) + s.y * h / 100;
+    // Bake the outline and fill together, then fade the result once. This avoids
+    // the outline showing through a partially transparent fill during fades.
+    const ink = J.layerCanvas(w, h), ix = ink.getContext('2d');
+    ix.font = J.simpleTitleFont(s, px); ix.textBaseline = 'middle'; ix.textAlign = a;
+    ix.lineJoin = 'round'; ix.lineWidth = Math.max(.5, px * .075); ix.strokeStyle = '#000'; ix.fillStyle = s.color;
+    const tx = x + (a === 'left' ? 0 : a === 'right' ? width : width / 2);
+    lines.forEach((line, i) => { const ty = y + (i + .5) * px * 1.3; if (s.outline) ix.strokeText(line, tx, ty); ix.fillText(line, tx, ty); });
+    layout = { key, width, height, x, y, pad, ink };
+    ctx.restore(); titleLayouts.set(ctx, layout);
+  }
+  return { ...layout, settings: s, alpha };
+};
+J.drawSimpleTitle = (ctx, frame, pass) => {
+  if (!frame) return;
+  const { settings: s, alpha, x, y, width, height, pad, ink } = frame;
+  ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = alpha;
+  if (pass === 'backing') {
+    if (s.backing) { ctx.globalAlpha *= s.opacity / 100; ctx.fillStyle = '#000'; ctx.fillRect(x - pad, y - pad, width + pad * 2, height + pad * 2); }
+  } else ctx.drawImage(ink, 0, 0);
+  ctx.restore();
 };
 const abort = signal => { if (signal?.aborted) throw new DOMException('Cancelled', 'AbortError'); };
 const tick = () => new Promise(r => setTimeout(r, 0));
@@ -83,6 +173,7 @@ async function encodeSound(buffer, mux, span, config, signal, progress) {
 J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null, audio = null, range = null, signal, onProgress }) => {
   if (background?.simpleError) throw new Error(background.simpleError);
   const settings = J.normalizeSimpleExport(project.simpleExport), span = J.simpleExportSpan(settings.duration, plan.fps, range);
+  await J.ensureSimpleTitleFont(settings.title);
   const [w, h] = J.outputSize(project), fps = plan.fps;
   let audioConfig = null;
   if (settings.includeAudio && audio?.buffer) {
@@ -119,8 +210,11 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
         let pixels = render.draw(plan, t);
         if (reader) pixels = J.composeLayerPixels(await reader.pixels(t, signal, project.spectrumLayout), pixels, mode);
         ctx.drawImage(base, 0, 0);
+        const title = J.simpleTitleFrame(ctx, settings.title, t, span);
+        J.drawSimpleTitle(ctx, title, 'backing');
         render.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
         ctx.drawImage(render.layer, 0, 0);
+        J.drawSimpleTitle(ctx, title, 'text');
         const frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round((i + 1) * 1e6 / fps) - Math.round(i * 1e6 / fps) });
         try { encoder.encode(frame, { keyFrame: i % (fps * 2) === 0 }); } finally { frame.close(); }
         await drain(encoder, () => error, signal);

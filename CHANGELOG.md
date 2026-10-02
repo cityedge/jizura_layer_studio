@@ -1,3 +1,10 @@
+## 1.4.1 — 2026-10-02
+
+- 中央ペイン全体を常時縦スクロールに変更。カード・手法選択の高さを制限せず、増減時もプレビューの大きさと先頭からのスクロール量を維持。タイムライン端の目印・番号を内側に収め、スマホ配置は維持。
+- Use one permanently scrollable desktop center pane. Let cards and technique choices grow naturally while preserving preview size and scroll offset. Keep timeline endpoint handles/labels inside the canvas and preserve mobile layout.
+- 簡易動画設定をダイアログへ集約し、出力時間と音源除外を移動。独立したタイトル本文・書体・太字／斜体・サイズ・色・ふち・9位置と微調整・半透明黒下地を追加。全編／開始終了秒、前後各1秒のフェード（短区間は短縮）、範囲出力、JSON、日英UIに対応。下地は背景直上、タイトルは最前面。背景付きプレビューと簡易MP4のみへ反映し、レイヤー出力は維持。
+- Consolidate simple-video duration/audio controls in a settings dialog. Add independent title text, font, bold/italic, size/color, outline, nine anchors/offsets and translucent black backing. Support whole-video or timed intervals, one-second fades shortened for brief intervals, range export, JSON and Japanese/English UI. Place backing above the background and title above all overlays; apply only to composite previews and simple MP4.
+
 ## 1.4.0 — 2026-10-02
 
 - 日英マニュアルを現行の操作順へ再構成。透明度・テーマ・出力・保存の説明を本文へ統合し、更新履歴を分離。加算のない編集環境向けに、乗算と差の絶対値・白ベタ2枚による半透明合成手順を掲載。短いガイドとアプリ内ガイドも更新。

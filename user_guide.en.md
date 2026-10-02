@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.4.0 User Manual
+# JIZURA Layer Studio v1.4.1 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.4.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.4.1. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -85,7 +85,7 @@ The lyric-language selector controls text segmentation and font choices: automat
 5. **Refine individual cues.** Edit part breaks, use numbered subtitle draws, and use 9 to return a cue to the global taste. Lock lines you want to keep.
 6. **Add fillers** to SRT gaps if needed, then edit their placeholder text.
 7. **Add a spectrum** using Generate from audio or External video.
-8. **Test a short range** at 540p or 720p and 30fps. Export a front/matte pair for external editing, or a simple video for a finished background/audio composite.
+8. **Test a short range** at 540p or 720p and 30fps. Export a front/matte pair for external editing, or a simple video for a finished background/audio/title composite. Open Simple video settings… to check duration, audio inclusion, title formatting and its visible interval.
 9. **Save project JSON.** Store source media separately.
 10. **Export the whole video.** Reset the range to Whole and verify resolution and duration.
 
@@ -100,6 +100,10 @@ Binary pairs use Darken then Lighten. Alpha pairs use Multiply then Add; Differe
 | Lower left | Subtitle text, lyric language, line/cut list |
 | Center | Preview, playback, volume, loop, look history, Auto-compose, timeline, current cut information |
 | Right | Easy controls or detailed Style, Effects, Techniques and Export tabs |
+
+On desktop, the entire center pane scrolls vertically with a permanent scrollbar. Effect cards and technique choices expand downward. Card changes preserve the preview size and scroll offset from the pane's top. If closing the picker shortens the content past the current position, the offset clamps to the new bottom. Resizing the window adjusts the preview size. Mobile mode keeps its existing page scrolling.
+
+In Detailed mode, clicking an effect card expands its choices below. Scroll the whole center pane to browse them. The wheel over the timeline zooms it; scroll elsewhere in the pane or use its scrollbar to move vertically.
 
 **Easy** emphasizes Auto-compose and the current proposal, with buttons to reroll only style, palette, mood or composition. **Detailed** exposes fonts, colors, effect parameters, technique candidates and individual cut replacement. Switching modes preserves the project.
 
@@ -731,22 +735,47 @@ Rendering, pixel processing, source decoding and two encodes all take time. GPU 
 
 ## Exporting a simple video
 
-This supplementary feature produces one MP4 containing an image/video background, spectrum, subtitles and optional loaded audio. It does not export a separate matte.
+This feature produces one MP4 containing an image/video background, spectrum, subtitles, an optional title and optional loaded audio. It does not export a separate matte.
 
 ### Steps
 
 1. Prepare subtitles and effects; optionally load an image or video preview background, spectrum and song.
 2. Find the neutral-colored Export simple video MP4 button below the pair-export description in the left pane.
-3. Check the automatically calculated Duration (seconds), then adjust it manually if needed.
-4. Check Exclude audio for silent output. With no song loaded, output is silent regardless of the checkbox.
+3. Open Simple video settings… and check the automatically calculated Duration (seconds); adjust it manually if needed.
+4. Set Exclude audio and the optional title in the dialog. With no song loaded, output is silent. Changes apply and save immediately; Close returns to the editor.
 5. Check the existing aspect, resolution, fps, quality and range settings. The actual video duration and frame count appear below the button.
 6. Export. Use the automatic download or the Save simple video MP4 link after completion. Cancel export stops processing without saving a partial file.
 
 The filename is based on the project name: `project_simple_video.mp4`.
 
+### Title settings
+
+Enable Show title in Simple video settings…. It defaults to off, including in older projects. Title text is independent of the project name and output filename.
+
+| Setting | Behavior |
+|---|---|
+| Title text | Up to 2,000 characters, with manual line breaks |
+| Whole video | On by default; covers the entire exported interval |
+| Start/end seconds | Editable when Whole video is off; uses original timeline time, like SRT and audio |
+| Fade in/out | On by default; text, outline and black backing fade for one second at each end of their visible interval |
+| Font | Built-in, previously added installed PC family, or Enter installed PC font name; no font-file import |
+| Bold/Italic | The browser may synthesize these depending on the font |
+| Size/color | Size is 1–30% of the short frame side (default 5%); color uses a picker |
+| Black outline | On by default; width scales with text |
+| Translucent black backing | On by default at 50% opacity; covers the text block plus padding |
+| Anchor/offset | Nine positions (top/middle/bottom × left/center/right), with offsets as percentages of frame width/height; positive means right/down |
+
+Sizes, margins and positions scale with output resolution. Long or multiline text shrinks to fit; offsets can deliberately move it beyond the frame, where it is clipped.
+
+Range export uses the intersection of the title interval and actual output interval. Whole video always covers the complete export range. Fades apply at the ends of this visible interval; intervals shorter than two seconds use half their duration for each fade. A non-overlapping title is omitted, with a note in the summary.
+
+Use the dialog preview and time slider to inspect positioning, timing and fades. The normal background-composite preview also shows titles. Front/matte previews and pair/front-only exports exclude both title and backing. Subtitle draws do not alter the title.
+
+An enabled title with empty text, end at/before start, a missing required PC family, or invalid active numeric settings blocks simple export. Correct it or disable the title. The left-pane summary shows actual duration, audio and title status/interval.
+
 ### Background and composition
 
-Composition order is background, spectrum, then subtitles. Both images and videos fit inside the frame without changing their aspect ratio, with black padding. No background means black. Front/matte preview modes do not alter simple export's composition.
+Composition order is background → title backing → spectrum → subtitles → title text/outline. The backing darkens only the background, without covering lyrics or spectra. Title translucency and fades are independent of subtitle opacity mode and work in Binary mode too. Both images and videos fit inside the frame without changing their aspect ratio, with black padding. No background means black. Front/matte preview modes do not alter simple export's composition.
 
 **Video backgrounds start at timeline zero and hold their final frame after ending.** They do not loop. Generated and external spectra, including external mattes, can be used. Pair and front-only exports continue to exclude the background.
 
@@ -782,7 +811,7 @@ Audio starts at timeline zero and retains its original level. Preview volume/mut
 
 Video uses H.264; audio uses AAC at 48kHz, up to two channels, 192kbps. Excluding audio or having no loaded song creates an MP4 without an audio track. Missing AAC support reports an error; select Exclude audio or use a supported environment. AAC padding may make external tools report a container duration slightly different from the video duration.
 
-Duration and audio inclusion persist in project JSON and autosave. Media binaries are not included; verify that the required sources are loaded when resuming a project.
+Duration, audio inclusion and all title settings persist in project JSON and autosave. Media binaries are not included; verify that the required sources are loaded when resuming a project.
 
 ## Compositing in a video editor
 
@@ -843,7 +872,7 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Aspect, resolution, fps, export range and spectrum layout | Yes |
 | Opacity mode, background color opacity and decorative-number hiding | Yes |
 | Pending theme, applied global/cue settings, key-9 baseline, cue draws and part breaks | Yes |
-| Simple video duration and audio inclusion | Yes |
+| Simple video duration, audio inclusion, title text/formatting/interval/fades | Yes |
 | Preview speed | No; starts at 1× |
 | Audio/background/spectrum media binaries | No |
 | PC font binaries | No |

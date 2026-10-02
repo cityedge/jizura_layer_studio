@@ -21,6 +21,7 @@ function fit(ctx, m, w, h) {
 }
 J.drawLayerPreview = (ctx, plan, t, opt) => {
   const w = ctx.canvas.width, h = ctx.canvas.height;
+  const display = opt?.simpleSettingsPreview ? 'composite' : session.preview;
   const mode = J.normalizeLayerMode(J.ui.project.layerMode);
   const opacity = J.normalizeBackgroundOpacity(J.ui.project.layerBackgroundOpacity);
   if (!renderer || renderer.w !== w || renderer.h !== h || renderer.mode !== mode) { renderer = new J.LayerRenderer(w, h, mode, opacity); spectrumPreview = null; }
@@ -45,12 +46,20 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
   }
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
-  if (session.preview === 'matte') ctx.drawImage(renderer.pair(pixels).matte, 0, 0);
-  else if (session.preview === 'front') ctx.drawImage(renderer.pair(pixels).front, 0, 0);
+  if (display === 'matte') ctx.drawImage(renderer.pair(pixels).matte, 0, 0);
+  else if (display === 'front') ctx.drawImage(renderer.pair(pixels).front, 0, 0);
   else {
-    if (session.preview === 'composite' && session.background) fit(ctx, session.background, w, h);
+    if (session.background) fit(ctx, session.background, w, h);
+    let title = null;
+    try {
+      const s = J.ui.project.simpleExport;
+      const span = J.simpleExportSpan(s.duration, plan.fps, J.uiApi.exportRange());
+      title = J.simpleTitleFrame(ctx, s.title, t, span);
+    } catch (_) { /* An invalid duration is reported beside simple export. */ }
+    J.drawSimpleTitle(ctx, title, 'backing');
     renderer.layer.getContext('2d').putImageData(new ImageData(pixels, w, h), 0, 0);
     ctx.drawImage(renderer.layer, 0, 0);
+    J.drawSimpleTitle(ctx, title, 'text');
   }
   ctx.restore();
 };
@@ -252,10 +261,13 @@ function syncSimpleExportUI() {
   }
   if (projectChanged || recalculate || (!simpleInvalidDraft && document.activeElement !== input)) input.value = settings.duration;
   $('simpleNoAudio').checked = !settings.includeAudio;
+  J.syncSimpleTitleUI?.(projectChanged);
   let span, reason = '';
   try {
     if (simpleInvalidDraft) throw new Error(tr('出力時間を正しく入力してください。', 'Enter a valid duration.'));
     span = J.simpleExportSpan(settings.duration, project.fps, J.uiApi.exportRange());
+    const titleError = J.simpleTitleDraftError?.() || J.simpleTitleError(settings.title);
+    if (titleError) throw new Error(titleError);
   } catch (e) { reason = e.message; }
   if (session.background?.simpleError) reason = session.background.simpleError;
   if (J.layerCueEditsInvalid) reason = tr('字幕の時刻エラーを修正してください。', 'Correct the subtitle timing error.');
@@ -265,7 +277,10 @@ function syncSimpleExportUI() {
   const help = $('simpleExportInfo'); help.classList.toggle('error', !!reason);
   help.textContent = reason || tr(`実際の映像：${span.duration.toFixed(3)}秒・${span.frames}フレーム（${project.fps}fps）。`, `Video: ${span.duration.toFixed(3)}s · ${span.frames} frames (${project.fps}fps).`)
     + (span.t0 ? tr(` 開始：${span.t0.toFixed(3)}秒。`, ` Starts at ${span.t0.toFixed(3)}s.`) : '')
-    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 読み込んだ音源を含みます。', ' Includes the loaded audio.') : tr(' 音声なし。', ' No audio.'));
+    + (settings.includeAudio && J.ui.audio?.buffer ? tr(' 音源あり。', ' Audio included.') : tr(' 音声なし。', ' No audio.'))
+    + (!settings.title.enabled ? tr(' タイトルなし。', ' No title.') : settings.title.all ? tr(' タイトル：全編。', ' Title: whole video.') : tr(` タイトル：${settings.title.start}〜${settings.title.end}秒。`, ` Title: ${settings.title.start}–${settings.title.end}s.`))
+    + (settings.title.enabled && !J.simpleTitleWindow(settings.title, span) ? tr(' タイトル区間は出力範囲外です。', ' Title is outside the export range.') : '');
+  if ($('simpleSettingsInfo')) { $('simpleSettingsInfo').textContent = help.textContent; $('simpleSettingsInfo').classList.toggle('error', !!reason); }
 }
 J.syncSimpleExportUI = syncSimpleExportUI;
 function simpleExportControls(panel) {
@@ -284,7 +299,7 @@ function simpleExportControls(panel) {
   const audio = el('label', null, 'simple-audio'), check = el('input'); check.type = 'checkbox'; check.id = 'simpleNoAudio';
   check.addEventListener('change', () => { J.ui.project.simpleExport.includeAudio = !check.checked; J.uiApi.flushSave(); syncSimpleExportUI(); });
   audio.append(check, document.createTextNode(tr('音源を含めない', 'Exclude audio')));
-  controls.append(label, audio); panel.append(controls);
+  controls.append(label, audio); J.mountSimpleSettings(panel, controls);
   const help = el('p', null, 'note'); help.id = 'simpleExportInfo'; help.setAttribute('role', 'status'); panel.append(help);
   panel.append(el('p', tr('画像・動画背景＋スペアナ＋字幕を1本のMP4にします。背景動画は0秒から再生し、終了後は最終フレームを保持。背景の音声は使わず、読み込んだ音源だけを使用します。',
     'Exports an image/video background, spectrum and subtitles as one MP4. Background video starts at zero and holds its final frame. Only separately loaded audio is used, not the background soundtrack.'), 'note'));

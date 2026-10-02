@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.4.0**
+**Animated subtitle layers · cityedge fork · v1.4.1**
 
 Grayscale alpha matte export supports adjustable background-color opacity, optional decorative number/time hiding, and themes for Auto-compose and cue draws. Choose No theme, Lyric video, Kinetic, Japanese, Horror, Pop or Ballad; change one cue's direction and use 9 to restore the global taste.
 
@@ -29,6 +29,8 @@ After importing SRT, use **Add fillers…** to generate editable placeholders in
 4. Load a preview background and optionally generate a spectrum from audio or import spectrum footage.
 5. Export the MP4 pair. Allow multiple downloads when prompted, or use the individual save links.
 
+For a finished video with background, audio and title, open Simple video settings… to check duration, audio and title, then Export simple video MP4. See [title settings](user_guide.en.md#title-settings).
+
 User guide and About / rights dialogs are available in the app. The interface supports Japanese (`index.html`) and English (`en/index.html`), selectable from the top language menu. This does not restrict subtitle text languages or fonts.
 
 ## Create spectrum videos
@@ -40,6 +42,8 @@ The app can also generate 64 bars from the loaded song. Choose **Generate from a
 [Audio Spectrum Overlay Maker](https://github.com/cityedge/audio-spectrum-overlay-maker) is a tool developed by cityedge for creating spectrum videos to import into this app. Use it to prepare your spectrum footage.
 
 ## Features
+
+On desktop, the whole center pane scrolls vertically with a permanent scrollbar. Card changes preserve preview size and the scroll offset from the pane top. Detailed technique choices expand downward; scroll the center pane to choose them. The wheel over the timeline zooms it. Mobile mode retains page scrolling.
 
 Simple export supports image and video backgrounds. Use [transitions retaining the previous cut](user_guide.en.md#transitions-that-retain-the-previous-subtitle) and [opacity controls](user_guide.en.md#opacity-and-background-color-opacity) to shape the composite. See [CHANGELOG.md](CHANGELOG.md) for release history.
 
@@ -71,6 +75,8 @@ Layer-production specifications:
 - Project JSON save/restore.
 
 Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Audio counts even with Exclude audio checked. Background videos start at timeline zero and hold their final frame after ending. Their audio is ignored; only the separately loaded song is included. Both generated and external spectra can be used with video backgrounds. PNG and After Effects output are not provided.
+
+Simple video settings… contains duration, Exclude audio and title controls. Titles support font, bold/italic, color, outline, position, translucent black backing, whole-video or start/end timing, and one-second in/out fades. Title text is in front; its backing is directly above the background. Inspect the composite with the dialog time slider. Settings persist in JSON and do not affect layer exports.
 
 ## Composite, save and compatibility
 

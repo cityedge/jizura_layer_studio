@@ -22,8 +22,32 @@ test('frame duration rounds up, supports ranges and rejects non-overlap/invalid 
  assert.throws(()=>J.simpleExportSpan(1,30,{t0:2,t1:3}));
 });
 test('simple preferences are independent of silent layer settings and survive migration',()=>{
- assert.deepEqual(json(J.defaultProject().simpleExport),{duration:null,includeAudio:true});
+ assert.deepEqual(json(J.defaultProject().simpleExport),{duration:null,includeAudio:true,title:json(J.normalizeSimpleTitle())});
  const p={includeAudio:false,simpleExport:{duration:123.456,includeAudio:false}};
- J.upgradeLayerProject(p,p);assert.equal(p.includeAudio,false);assert.deepEqual(json(p.simpleExport),{duration:123.456,includeAudio:false});
+ J.upgradeLayerProject(p,p);assert.equal(p.includeAudio,false);assert.deepEqual(json(p.simpleExport),{duration:123.456,includeAudio:false,title:json(J.normalizeSimpleTitle())});
  assert.equal(J.normalizeSimpleExport({duration:Infinity}).duration,null);
+});
+test('title defaults, validation and untrusted JSON stay independent of project filename',()=>{
+ const d=J.normalizeSimpleTitle();assert.equal(d.enabled,false);assert.equal(d.all,true);assert.equal(d.fade,true);assert.equal(d.opacity,50);
+ assert.match(J.simpleTitleError({...d,enabled:true}),/text/);
+ assert.equal(J.simpleTitleError({...d,enabled:true,text:'Song',all:true,end:0}),'');
+ assert.match(J.simpleTitleError({...d,enabled:true,text:'Song',all:false,end:0}),/after/);
+ assert.match(J.simpleTitleError({...d,enabled:true,text:'Song',font:'custom'}),/family/);
+ const hostile=J.normalizeSimpleTitle({text:'X\r\nY',family:'"Arial\\\n',color:'url(bad)',size:Infinity,opacity:-20,position:'x'});
+ assert.equal(hostile.text,'X\nY');assert.equal(hostile.family,'Arial');assert.equal(hostile.color,'#ffffff');assert.equal(hostile.size,5);assert.equal(hostile.opacity,0);assert.equal(hostile.position,'top-left');
+ const p={title:'Filename',simpleExport:{duration:30,title:{enabled:true,text:'Different title',all:false,start:2,end:12,fade:false,font:'custom',family:'Arial'}}};
+ J.upgradeLayerProject(p,p); const copy=JSON.parse(JSON.stringify(p)); J.upgradeLayerProject(copy,copy);
+ assert.deepEqual(json(copy),json(p));assert.equal(copy.title,'Filename');assert.equal(copy.simpleExport.title.text,'Different title');
+});
+test('title uses output intersection, exact time bounds and shared short-interval fades',()=>{
+ const s={...J.normalizeSimpleTitle(),enabled:true,text:'Song'},span={t0:4,duration:6};
+ assert.deepEqual(json(J.simpleTitleWindow(s,span)),{start:4,end:10});
+ for(const [t,a] of [[3,0],[4,0],[4.5,.5],[5,1],[9,1],[9.5,.5],[10,0]])assert.equal(J.simpleTitleAlpha(s,t,span),a);
+ assert.equal(J.simpleTitleAlpha({...s,fade:false},4,span),1);
+ assert.equal(J.simpleTitleAlpha({...s,fade:false},10,span),0);
+ const timed={...s,all:false,start:5,end:6};
+ assert.equal(J.simpleTitleAlpha(timed,5.25,span),.5);assert.equal(J.simpleTitleAlpha(timed,5.5,span),1);assert.equal(J.simpleTitleAlpha(timed,5.75,span),.5);
+ assert.equal(J.simpleTitleWindow({...timed,end:3},span),null);
+ assert.deepEqual(json(J.simpleTitleWindow({...timed,start:0,end:8},span)),{start:4,end:8});
+ assert.equal(J.simpleTitleAlpha({...s,enabled:false},5,span),0);
 });

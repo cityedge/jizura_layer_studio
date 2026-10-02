@@ -1,10 +1,12 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.4.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.4.1. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
 ## Subtitles and preview
+
+On desktop, the whole center pane scrolls vertically with a permanent scrollbar. Card changes preserve preview size and the scroll offset from the pane top. Detailed technique choices expand downward; scroll the center pane to choose them. The wheel over the timeline zooms it. Mobile mode retains page scrolling.
 
 Import a UTF-8 SRT as an editable starting point. Start/end times, line breaks, gaps and overlaps are loaded initially; the source SRT file is never modified. Characters like `/`, `*`, `|`, `!` are literal in SRT.
 
@@ -118,7 +120,9 @@ PNG and AE export are not offered. The interface supports Japanese and English; 
 
 ## Simple video export (optional)
 
-The neutral-colored Export simple video MP4 button below the pair description saves a single composite: image/video background, spectrum, subtitles. No background means black. Video backgrounds start at timeline zero and hold their final frame after ending. Both generated and external spectra can be used. Background audio is ignored.
+Simple video settings… contains duration, Exclude audio and title controls. Titles support font, bold/italic, color, outline, position, translucent black backing, whole-video or start/end timing, and one-second in/out fades. Title text is in front; its backing is directly above the background. Inspect the composite with the dialog time slider. Settings persist in JSON and do not affect layer exports.
+
+The neutral-colored Export simple video MP4 button below the pair description saves a single composite, back to front: image/video background, title backing, spectrum, subtitles, title text. Disabling the title removes both its text and backing. No background means black. Video backgrounds start at timeline zero and hold their final frame after ending. Both generated and external spectra can be used. Background audio is ignored.
 
 Duration automatically follows the longest subtitle, spectrum, decoded audio or video background when materials are loaded or changed, and remains manually editable. Background duration uses the video track's end time. Audio counts even with Exclude audio checked. Extending output holds the background, hides ended overlays and adds silence after the song.
 
