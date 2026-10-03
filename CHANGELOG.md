@@ -1,3 +1,29 @@
+## 1.5.0 — 2026-10-03
+
+- 公開前レビューの修正：全体配色のJSON・自動保存復元、個別編集と全体変更を混ぜたUndo/Redo、スペースを含む日本語の保存済みカット構成、ライブラリ再選択時の管理ボタン、書体変更後のモーション再生成時の配置保持を修正。Undoの説明を日英マニュアル・利用ガイドへ反映。
+- Pre-release review fixes: restore whole palettes through project JSON/autosave; keep cue/global edits coherent in Undo/Redo; preserve saved cut structure for spaced Japanese lyrics; enable library management actions after reselection; retain layout generation font inputs after font-only changes. Update both manuals and in-app guides for chronological undo.
+
+- モーションライブラリのボタンを「おまかせ」の右へ移動。開いた直後は一覧を未選択にし、保存対象を自動試写。空欄名はmotion001形式で自動採番し、削除後も採番を保持。
+- Place Motion library beside Auto-compose. Open with no library selection and automatically audition the save target. Blank names receive persistent sequential motion001-style names.
+
+- モーションライブラリを追加。生成時の初期設定を記録し、字幕全体のカット構成・演出・配色・書体を名前付きで保存。新しい歌詞に合わせた再計算、適合条件の検証、独立した無音試写、未選択時のサンプル、適用・Undo、共通ライブラリの名前変更・削除・JSON持ち出しに対応。旧データからの逆算は行わず、生成設定のない字幕の保存は拒否。適用後の字幕ガチャとJSON復元にも対応し、プロジェクト初期化で共通ライブラリは保持。
+- Add a motion library with generation-time recipes, named whole-subtitle compositions, new-text adaptation and compatibility checks, isolated silent auditions and sample text, Apply/Undo, shared storage, rename/delete and portable JSON. Legacy motions without generation settings cannot be saved. Applied copies support cue draws and project JSON independently of library changes; Reset project retains the collection.
+
+- 「初期化」を「プロジェクト初期化」に変更。共通ライブラリ・画面設定を保持し、現在の字幕・設定・素材・解析・履歴・一時出力リンクだけを初期化。処理途中の読み込み結果の復活を防止し、確認ダイアログの古い音源保存説明を削除。「利用について」を右ペイン最下部へ移動し、日英利用ガイドを現行の操作順に再構成。
+- Rename Reset to Reset project. Keep shared libraries and interface preferences while clearing current cues/settings/media/analysis/history/temporary export links, and ignore stale pending load results. Move About / rights to the bottom of the right pane; reorganize both in-app guides around the current workflow and correct reset/storage documentation.
+
+- 全体の「配色」を「配色微調整」へ改称し、明暗・彩度の傾向を維持して主カラーも変更する「配色」と、スタイル・雰囲気に沿った「書体」を追加。配色2ボタンを横並びに配置。字幕ガチャ7「書体変更」はスタイル・雰囲気から独立して役割別に抽選。個別ガチャ・ロック・履歴・JSONに対応し、演出・カット構成を保持。ロック字幕の保存済みカット時間比を保持するよう修正。スマホの重複テーマ操作欄による横はみ出しを解消。
+- Rename global Palette to Palette fine-tune; add whole-palette hue changes preserving light/dark and saturation structure, and coherent global Fonts. Place the two color actions side by side. Add cue key 7 Fonts, independent of style/mood. Preserve motion/cut structure, local draws, locks, history and JSON, including saved locked-cut duration ratios. Remove duplicate phone theme controls that overflowed the viewport.
+
+- ユーザーテーマのスタイル・雰囲気名へ、ホバー／フォーカス／タップで読める説明を追加。全27スタイルの配色・書体・配置・動き・装飾の傾向を個別に説明。スタイル枠に「雰囲気から決める」を追加し、参考雰囲気の分布を0〜10の近似ウェイトへ展開するボタンも追加。ボタンは雰囲気欄も選択したものを1、ほかを0へ上書き。日英UI・ガイド・JSONに対応。
+- Add hover/focus/tap descriptions for user-theme styles and moods, with individual palette, font, layout, motion and ornament tendencies for all 27 styles. Add a Choose from mood style entry and a button converting a reference mood's distribution into approximate 0–10 style weights. The button also sets that mood to 1 and all others to 0. Support Japanese/English UI, guides and JSON.
+
+- ユーザーテーマ管理ダイアログを追加。スタイル・雰囲気ごとの0〜10ウェイトと「ランダムにスタイルを選ぶ」「ランダムに雰囲気を選ぶ」で独立抽選し、追加・複製・編集・削除、ブラウザ共通ライブラリ、プロジェクトJSON、テーマ専用JSONの保存・読み込みに対応。適用済みテーマ定義はプロジェクト内で共有保存し、削除・同名再作成から字幕ガチャ4・6・9の基準を保護。1は両群、2・3は対象群だけに選択テーマを適用。
+- Add a user-theme manager with independent 0–10 style/mood weights and a random entry. Support add/duplicate/edit/delete, a browser-wide library, project persistence and dedicated theme JSON export/import. Share immutable applied definitions inside projects so deletion or same-name recreation cannot change cue-draw 4/6/9 baselines. Draw 1 uses both groups; 2/3 use only their respective group.
+
+- 詳細設定と簡易動画タイトルに、PCのインストール済み書体を一覧・絞り込み・見本から選ぶ補助機能を追加。明示操作とブラウザの許可時だけ取得し、非対応・権限拒否時は名前入力を継続利用。一覧・フォント本体は保存しません。タイトルサイズの上下操作を0.5%刻みに変更。
+- Add an optional installed-font picker with filtering and a sample to Detailed settings and simple-video titles. Enumerate only after an explicit action with browser permission; retain manual name entry when unsupported or denied. Store neither the list nor font binaries. Change title-size up/down increments to 0.5%.
+
 ## 1.4.1 — 2026-10-02
 
 - 中央ペイン全体を常時縦スクロールに変更。カード・手法選択の高さを制限せず、増減時もプレビューの大きさと先頭からのスクロール量を維持。タイムライン端の目印・番号を内側に収め、スマホ配置は維持。

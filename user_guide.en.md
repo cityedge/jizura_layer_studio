@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.4.1 User Manual
+# JIZURA Layer Studio v1.5.0 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.4.1. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.5.0. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -25,6 +25,7 @@ This manual describes the retained features of v1.4.1. Features removed from the
 - [Effects](#effects)
 - [Choosing techniques](#choosing-techniques)
 - [Editing individual lines and cuts](#editing-individual-lines-and-cuts)
+- [Motion library](#motion-library)
 - [Leaving the center clear](#leaving-the-center-clear)
 - [Filler subtitles](#filler-subtitles)
 - [Compositing a spectrum video](#compositing-a-spectrum-video)
@@ -45,7 +46,7 @@ This manual describes the retained features of v1.4.1. Features removed from the
 | Task | Features |
 |---|---|
 | Prepare subtitles | UTF-8 SRT import, editable text/start/end, direct text entry, LRC start times |
-| Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–6/9, styles, layouts, motion, ornaments and transitions |
+| Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–7/9, styles, layouts, motion, ornaments and transitions |
 | Constrain choices | Technique checkboxes, expression sets, line locks, parameter and technique-group locks |
 | Follow music | Beat/energy analysis, BPM override, tap synchronization, timeline editing |
 | Fill gaps | Editable placeholders in SRT intros, interludes and outros |
@@ -95,11 +96,11 @@ Binary pairs use Darken then Lighten. Alpha pairs use Multiply then Add; Differe
 
 | Region | Controls |
 |---|---|
-| Header | Project name, modes, interface language, Open/Save JSON, Reset, User guide, About |
+| Header | Project name, modes, interface language, Open/Save JSON, Reset project and User guide |
 | Upper left | SRT, fillers, cue editor, preview background, audio/timing, spectrum, opacity/decorative-number settings, display mode, pair/front/simple MP4 export |
 | Lower left | Subtitle text, lyric language, line/cut list |
 | Center | Preview, playback, volume, loop, look history, Auto-compose, timeline, current cut information |
-| Right | Easy controls or detailed Style, Effects, Techniques and Export tabs |
+| Right | Easy controls or detailed Style, Effects, Techniques and Export tabs; About / rights at the bottom |
 
 On desktop, the entire center pane scrolls vertically with a permanent scrollbar. Effect cards and technique choices expand downward. Card changes preserve the preview size and scroll offset from the pane's top. If closing the picker shortens the content past the current position, the offset clamps to the new bottom. Resizing the window adjusts the preview size. Mobile mode keeps its existing page scrolling.
 
@@ -248,7 +249,7 @@ Numbers are gray for normal cues and red for fillers. Hovered or dragged handles
 
 ### Two histories
 
-Undo / Ctrl+Z handles subtitle text, timing, filler generation and related editing. Ctrl+Shift+Z or Ctrl+Y redoes those edits. Previous/next proposal buttons navigate **look history**, independently of subtitle editing. Ctrl+Z is not universal undo for every setting. Save important proposals as separate JSON files; session history is not a durable backup.
+Undo / Ctrl+Z reverses subtitle text/timing edits, filler generation, cue draws, library applications and global look changes such as Auto-compose, Palette and Fonts in chronological order. After a cue draw followed by global Fonts, the first Undo restores the global fonts and the next reverses the cue draw. Ctrl+Shift+Z or Ctrl+Y redoes those edits. Previous/next proposal buttons navigate **look history** without reverting text or timing. Media loading, output settings and shared-library management are not covered by this undo history. Save important proposals as separate JSON files; session history is not a durable backup.
 
 ## Preview background and display modes
 
@@ -287,11 +288,22 @@ Whole-project Auto-compose, partial changes, Shuffle and look-history navigation
 
 **Shuffle** rerolls composition using current settings. Use it when you like the general palette and mood but want a different arrangement. Locked lines retain their structure.
 
-Easy mode also offers separate rerolls for style, palette, mood and composition. Palette affects accent/ghost colors; mood affects effect settings and candidate techniques; composition changes arrangement and motion combinations.
+Easy mode offers six partial changes:
+
+| Button | Changes |
+|---|---|
+| Style | Select another style |
+| Mood | Effect settings and candidate techniques |
+| Palette | Shift the whole palette, including background and text, while retaining its light/dark and saturation character |
+| Palette fine-tune | The previous Palette action: accent and ghost A/B colors |
+| Fonts | Select display, serif and body fonts following the current style and mood |
+| Arrangement | Layout and motion combinations |
+
+Palette and Palette fine-tune sit side by side. Global palette/font actions include locally rerolled cues and skip locked cues. They preserve lyrics, timing, motion and cut structure, and are saved in project JSON and look history. Fonts can change glyph widths, wrapping and fitting; mono ornament fonts stay unchanged. These global changes also update key 9's baseline. Cue keys 5 and 7 independently redraw colors/fonts without following style or mood preferences.
 
 ### Themes for Auto-compose and subtitle draws
 
-Choose a theme beside the central Auto-compose button or above Auto-compose in Simple mode. Both selectors share one setting. New and older projects default to **No theme**, retaining the existing behavior. A theme guides selection rather than excluding every unrelated technique.
+Choose a theme beside the central Auto-compose button or above Auto-compose in Simple mode. Both selectors share one setting. New and older projects default to **No theme**, retaining the existing behavior. System themes guide selection rather than excluding every unrelated technique. User themes let you assign explicit style and mood weights.
 
 | Theme | Mood candidates | Sets enabled when needed |
 |---|---|---|
@@ -314,10 +326,39 @@ For subtitle draws, required sets are enabled **inside the target cue only**. Wi
 | 3 Mood | Draw a mood within the theme while keeping style, fonts and palette |
 | 4 Performance / 6 Fine-tune | Use the cue's applied settings and candidates, ignoring a newly selected theme |
 | 5 Colors | Reroll colors independently of the theme |
+| 7 Fonts | Reroll fonts independently of the theme |
 | 9 Global taste | Return to the last globally applied settings and theme |
 | 0 Random | Do not constrain the draw by the selected theme |
 
 Because 2 and 3 preserve some properties, they may not fully match a new theme; use 1 for a complete change. For example, compose the whole project as Ballad, select Horror and press 1 for one cue, then press 9 to restore that cue to the original Ballad taste. Pending, globally applied and cue-local settings are saved in project JSON.
+
+### Creating and transferring user themes
+
+Open **User themes…** beside the theme selector. Choose **New**, enter a name and style/mood weights (0–10), then **Save changes**. You can also **Duplicate** or **Delete** entries. Cancel or Escape discards unsaved dialog changes. Saved entries appear below the system themes in the selector; creating or saving one does not select it or change existing effects.
+
+Hover over a style or mood name to read its description. Style help covers palettes and fonts as well as favored layouts, entrances/exits, ornaments and textures. These are draw tendencies, not fixed results: the mood and available techniques also affect the outcome. Keyboard focus and tapping the name also show help. When help is visible, Escape first dismisses that help.
+
+Style and mood use their respective weights. When the style entry **Choose from mood** wins, the selected mood determines the style instead. A new theme starts with **Choose a random style** and **Choose a random mood** at 1 in their respective groups and all other weights at zero. **Zero all** helps clear a group, but each group must have at least one positive weight before saving.
+
+- **Explicit weights:** selection follows each candidate's share of its group's total. The usual mood-based style preference does not override user weights, and the same choice can repeat.
+- **Choose a random style / Choose a random mood:** when this entry wins, draw uniformly from all currently available real candidates in that group, including zero-weight entries. Mono 5, Paper 3, Random 2 means 50% direct Mono, 30% direct Paper and 20% unrestricted available-style selection; that last draw can also choose Mono or Paper.
+- **Choose from mood** (styles only): use the original mood-based style lottery, normally 72% preferred styles and 28% available styles, excluding the current style. Without preferred styles, use the available pool. Cue key 2 uses the cue's stored mood; an unset mood falls back to uniform available-style selection. Key 3 retains style and does not use this entry.
+- **Expression sets:** sets required by an explicit style/mood choice are enabled globally for a global draw, or only inside the target cue for a cue draw. The random entry uses the pre-draw availability switches and does not enable all sets.
+- **Techniques, fonts and colors:** existing logic chooses these from the resulting style/mood. This does not restrict every individual technique to one expression family.
+
+To get a starting distribution, choose a **Reference mood** and click **Use mood distribution**. **Both style and mood weights are overwritten.** Styles use a 0–10 integer approximation: equal weights for preferred styles totaling about 72%, and a random entry accounting for about 28%. The selected mood is set to 1 and all other mood entries, including Choose a random mood, to 0. With no preferred styles (Chaos), only Choose a random style is set to 1 in styles, and only Chaos to 1 in moods. Choose from mood and all other styles become zero. You can then edit either group freely.
+
+This creates **editable starting values**, rather than following each drawn mood dynamically. It uses the current expression-set switches, including the required Horror set when Horror is the reference, and includes the current style. The resulting random entry uses the regular user-theme candidate pool, which can include families excluded by the original mood lottery. It is an approximation, not an exact reproduction. The random pool also contains preferred styles, so their final combined probability exceeds approximately 72%.
+
+Select the theme and press **1** to apply it to the current cue. **2** uses only its style weights; **3** uses only its mood weights, retaining the other properties described above. **4/6** use the cue's applied settings, **9** uses the last global baseline, and **0/5/7** ignore the selected theme.
+
+All user themes are stored in the browser-wide library and project JSON. Resetting the project retains the library. Use **Export themes JSON** to download all themes currently in the dialog, including valid unsaved edits, without lyrics or media. **Import themes JSON** adds them to the dialog; Save changes commits them to the library. Export alone does not commit pending edits.
+
+Imports merge without overwriting existing definitions. An identical ID and content is reused; changed content under the same ID is imported under a new ID. Different IDs remain distinct even with the same name; duplicate names receive display numbers in lists. Project JSON import follows the same rules. Loading an older JSON can therefore bring back themes previously deleted from the library.
+
+Theme-only JSON containing Choose from mood requires an app version that supports that entry. Older theme files remain readable.
+
+Applied definitions are immutable snapshots stored once per distinct definition inside the project and referenced by cues. Editing, deleting or recreating library entries does not change existing cues or key 9's baseline. Deleting the selected theme and saving returns the selector to No theme; a recreated same-name theme is not selected automatically. Names are display labels, never identity keys.
 
 ### Expression set switches
 
@@ -343,7 +384,9 @@ Choose the style default to let the style decide. These are roles used by layout
 
 ### Installed PC fonts
 
-Install additional fonts on your PC first. In Detailed mode, enter the family name and choose Add. This selects the display font; assign other roles as needed. Japanese family names are supported.
+Install additional fonts on your PC first. In Detailed mode under Font roles, choose **Choose installed PC font…** and allow browser access. Filter the list by family name, check the sample, then choose **Use this font** to add and select the display font. Assign other roles as needed. Bold and italic faces are grouped under their family name.
+
+This optional helper requires a supported browser and permission. If enumeration is unavailable, enter the family name manually and choose Add. Japanese family names are supported. The list is retrieved only after clicking the button and is not saved.
 
 Project JSON and browser project autosave retain names and selections only, never font binaries. Install the same fonts on other PCs. An unavailable or misspelled family may render with a browser fallback.
 
@@ -403,15 +446,18 @@ The subtitle draw buttons and number keys affect only the current subtitle. A li
 | 4 | Performance | Broadly redraws layout, motion, ornaments and cut structure; keeps style, mood, fonts and palette |
 | 5 | Colors | Palette only; preserves cut structure, motion, timing and screen events |
 | 6 | Fine-tune | Narrow redraw within the subtitle's current style, mood, palette and technique pool |
+| 7 | Fonts | Draw eligible built-in fonts by role, independently of style, mood and theme; preserve palette, motion and cut structure |
 | 9 | Global taste | Clear local choices and redraw effects/cut structure in the latest global framework |
 
 9 creates a new draw using the global style, mood, fonts, palette, technique pool and Unified look; it does not restore the exact original animation. It clears local taste, manual techniques and forced cut counts. 6 uses the cue's own retained base; 9 returns to the global base, which subsequent 6 draws also use.
 
 Global Auto-compose, partial changes, Shuffle and manual edits to global settings update the baseline; cue-level draws do not. The baseline is saved in JSON. Older projects use their existing global settings, not an unavailable earlier history. Other cues, text, timing and locks remain intact. Ctrl-Z undoes the draw.
 
+Key 7 also replaces manually selected fonts but keeps mono ornaments. Glyph widths, wrapping and fitting can change. After key 0, key 7 changes the random artwork's visible fonts while retaining the base settings used by key 6.
+
 Each subtitle retains its local settings. Use Everything to explore, then Mood, Colors and Fine-tune to refine without returning to the global starting look. The global controls stay unchanged; the local style and mood appear beside the draw buttons. Unified look favors small pools for Fine-tune, loosens them for Performance and builds a new local combination for Everything. Draws use the cue’s applied set permissions. Keys 1–3 enable sets required by the selected theme inside that cue, even if the corresponding global switch is off. Keys 4/6 retain the applied cue framework rather than adopting a newly selected theme. Broad draws retry repeated layout/motion combinations, but manual choices and short text may limit variation.
 
-Keys 1–3 consider the [selected theme](#themes-for-auto-compose-and-subtitle-draws); 0/5 are independent of it. Key 9 restores the applied global theme as well as other global settings. Merely selecting a theme does not change that baseline.
+Keys 1–3 consider the [selected theme](#themes-for-auto-compose-and-subtitle-draws); 0/5/7 are independent of it. Key 9 restores the applied global theme as well as other global settings. Merely selecting a theme does not change that baseline.
 
 All modes preserve text, cue times and locks. Everything clears that cue's manual effect choices. Style replaces layout, background graphic and treatment choices; Mood replaces entrance, exit, hold, ornaments, camera, transitions and treatment choices. Performance replaces both sets and cut structure while retaining fonts and colors. Modes 2–4 overwrite manual and per-cut choices within their scope and retain other choices. Ordinary Fine-tune retains manual choices. Other subtitles retain their artwork and effects; joins immediately around the target may change.
 
@@ -501,6 +547,36 @@ Changing one cut is different from filtering all automatic candidates in the Tec
 The cut-information area also has Shuffle and Auto-compose buttons for that cut only. Distinguish them from the whole-project buttons beside playback.
 
 Separate SRT cues are eligible for transitions only within the same part with matching end/start times, preserving silent intervals. Transitions within a cue remain available.
+
+## Motion library
+
+Open **Motion library…** to the right of Auto-compose in the center pane to save and reuse one subtitle’s motion. This is independent of the numeric draw shortcuts.
+
+1. Seek to the subtitle to save and open the library. Main playback pauses and the target is fixed while the dialog is open. No library item is selected initially; the motion to save automatically previews when generation settings are available.
+2. Click **Save motion**. The name is optional: a blank name generates `motion001`, etc., avoiding existing names and retaining the sequence after deletion. All cuts in that subtitle are saved together. Save captures the current subtitle, not another library item being auditioned.
+3. Close, seek to the destination subtitle, and reopen the library.
+4. Select an item to preview it with the destination lyrics. Previewing does not edit the project.
+5. Click **Apply**. Playback resumes 0.3 seconds before the subtitle if it was playing before opening; otherwise the playhead moves to its start. Ctrl+Z undoes the application.
+
+If the text length or duration is incompatible with the saved layout/entrance/exit, the reason is shown and Apply is disabled. Locked subtitles cannot be replaced. The “Keep center clear” setting must match the source. Incompatible parts are never silently substituted.
+
+### What a motion stores
+
+The recipe keeps layout, entrance/hold/exit, backgrounds, ornaments, treatments, camera, transitions, palette, fonts, effects, cut order and relative durations, layout RNG initial states, and the source style/mood framework. Original lyrics and audio/image/video files are not stored in the library.
+
+New lyrics are divided near the original proportions without splitting English words. Layout parameters are regenerated for the new text, frame size and duration. This reuses initial settings rather than reproducing identical pixels. The incoming transition is rechecked against cue timing and part boundaries and is omitted when ineligible. Applying a saved item may use techniques excluded from the current random candidate switches.
+
+**Older projects without generation settings cannot supply library items.** They remain readable. Regenerate a subtitle, for example with draw 1 or 0, before saving it. Color 5 and font 7 alone cannot recover missing generation settings.
+
+### Previewing and managing items
+
+Auditions are silent and show transparency on a checkerboard, without media backgrounds, spectrum or title. Use Play/Pause and the scrubber. With no subtitle selected, select a library item to preview sample text generated from its saved text lengths and word structure. **Preview sample** also works when a selected subtitle is incompatible; **Preview selected cue** switches back.
+
+Rename and Delete affect the shared library only; applied subtitles remain unchanged. Up to 500 items are stored for reuse across projects in the same browser storage area. **Reset project keeps this library.** Browser data removal, a different browser/PC or a different launch URL may clear or separate storage. Back it up with **Export library JSON**.
+
+**Import library JSON** adds items to the existing list (up to 20 MB per file). Equal IDs and contents are deduplicated; equal IDs with different contents become separate items. Project JSON stores independent copies of applied settings, **not the entire shared motion library**. Use the dedicated library JSON to transfer the collection. Installed-font references require the same fonts on the destination PC.
+
+After applying, draws 2–4 and 6 use the inherited source framework. Draws 5/7 change color/fonts, 1 uses the currently selected theme, and 9 uses the destination project’s latest global baseline. Draw 6 is a reroll, not an exact library restore. Reapply the saved item to start from its saved settings again.
 
 ## Leaving the center clear
 
@@ -758,12 +834,14 @@ Enable Show title in Simple video settings…. It defaults to off, including in 
 | Whole video | On by default; covers the entire exported interval |
 | Start/end seconds | Editable when Whole video is off; uses original timeline time, like SRT and audio |
 | Fade in/out | On by default; text, outline and black backing fade for one second at each end of their visible interval |
-| Font | Built-in, previously added installed PC family, or Enter installed PC font name; no font-file import |
+| Font | Built-in, previously added installed PC family, or Enter installed PC font name. Choose installed PC font… also provides a list; no font-file import |
 | Bold/Italic | The browser may synthesize these depending on the font |
-| Size/color | Size is 1–30% of the short frame side (default 5%); color uses a picker |
+| Size/color | Size is 1–30% of the short frame side (default 5%), with 0.5% up/down increments; color uses a picker |
 | Black outline | On by default; width scales with text |
 | Translucent black backing | On by default at 50% opacity; covers the text block plus padding |
 | Anchor/offset | Nine positions (top/middle/bottom × left/center/right), with offsets as percentages of frame width/height; positive means right/down |
+
+Selecting an installed family in the title dialog changes only the title font, not effect fonts. Enumeration requirements and storage behavior are the same as in Installed PC fonts.
 
 Sizes, margins and positions scale with output resolution. Long or multiline text shrinks to fit; offsets can deliberately move it beyond the frame, where it is clipped.
 
@@ -872,6 +950,9 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Aspect, resolution, fps, export range and spectrum layout | Yes |
 | Opacity mode, background color opacity and decorative-number hiding | Yes |
 | Pending theme, applied global/cue settings, key-9 baseline, cue draws and part breaks | Yes |
+| User-theme library and shared applied-theme snapshots | Yes; the library is also stored in browser storage |
+| Applied library motions | Yes; independent of later library edits/deletion |
+| The full motion library | No; use dedicated library JSON export/import |
 | Simple video duration, audio inclusion, title text/formatting/interval/fades | Yes |
 | Preview speed | No; starts at 1× |
 | Audio/background/spectrum media binaries | No |
@@ -882,7 +963,19 @@ Reload audio, background and external spectrum media when reopening. Audio/font 
 
 Autosave depends on origin, browser/profile and local-file location. Clearing browser data or using private mode can remove it. Save important work as JSON.
 
-Reset clears the project, song, settings and session histories after confirmation and cannot be undone. It does not delete downloaded JSON or original media files from disk.
+**Reset project** resets only the current work after confirmation and cannot be undone. Browser autosave is replaced with the blank project, so reloading does not restore the cleared cues.
+
+| Data | Reset behavior |
+|---|---|
+| Lyrics, SRT, fillers, parts and project name | Clear |
+| Effects, local choices, locks, key 9 baseline, spectrum/opacity/export/title settings | Restore defaults |
+| Loaded audio, backgrounds, external spectra and analysis data | Release; ignore pending load results |
+| Playhead, speed, loop, look history, edit Undo/Redo, temporary download links | Reset |
+| Shared libraries, including user themes | **Keep**; delete items in their management screens |
+| Interface language, display mode and preview volume | Keep |
+| Original media, saved JSON and exported videos on your PC | Leave untouched |
+
+Applied project settings and baselines are cleared; their shared library items remain. This is separate from clearing site data in browser settings.
 
 ## Keyboard controls
 
@@ -895,12 +988,13 @@ Text inputs and open dialogs suppress some app shortcuts.
 | 0 | Random draw for the current subtitle |
 | 1–5 | Subtitle: Everything / Style / Mood / Performance / Colors |
 | 6 | Fine-tune the current subtitle |
+| 7 | Change only the current subtitle's fonts |
 | 9 | Redraw the current subtitle using the latest global taste |
 | Left/right | Seek back/forward 2 seconds |
 | Shift-left/right | Current cue start (previous within 0.3s of start) / next cue start |
 | A/D | Seek one output frame |
 | Shift-A/D | Seek one second |
-| Ctrl-Z | Undo subtitle/timing-related edits |
+| Ctrl-Z | Undo cue edits/draws and global look changes in chronological order |
 | Ctrl-Shift-Z or Ctrl-Y | Redo those edits |
 | Shift-drag | Avoid timeline beat snapping |
 
