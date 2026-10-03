@@ -114,15 +114,29 @@ function initOmakaseThemes() {
     const select = document.createElement('select'); select.id = id;
     select.setAttribute('aria-label', J.layerText('おまかせ・字幕ガチャのテーマ', 'Theme for auto-compose and subtitle draws'));
     select.title = J.layerText('おまかせ・字幕ガチャ1〜3に適用。選択だけでは現在の演出や9の復帰先は変わりません。', 'Applies to auto-compose and cue draws 1–3. Selecting alone does not change effects or the baseline for key 9.');
-    select.add(new Option(J.layerText('テーマなし', 'No theme'), ''));
-    for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
-    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value); syncOmakaseThemes(); flushSave(); });
+    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value, S.project); syncOmakaseThemes(); flushSave(); });
     label.append(caption, select); anchor.before(label);
+    J.addUserThemeManagerButton?.(label, id);
   }
   syncOmakaseThemes();
 }
 function syncOmakaseThemes() {
-  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) $(id).value = J.normalizeTheme(S.project.theme);
+  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) {
+    const select = $(id), signature = JSON.stringify((S.project.userThemes || []).map(t => [t.id, t.name]));
+    if (select.dataset.themes !== signature) {
+      select.replaceChildren(new Option(J.layerText('テーマなし', 'No theme'), ''));
+      for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
+      const group = document.createElement('optgroup'); group.label = J.layerText('ユーザーテーマ', 'User themes');
+      const seen = new Map();
+      for (const theme of S.project.userThemes || []) {
+        const n = (seen.get(theme.name) || 0) + 1; seen.set(theme.name, n);
+        group.append(new Option(theme.name + (n > 1 ? ` (${n})` : ''), theme.id));
+      }
+      if (group.children.length) select.append(group);
+      select.dataset.themes = signature;
+    }
+    select.value = J.normalizeTheme(S.project.theme, S.project);
+  }
 }
 /* プレビュー音量: remembered per browser */
 function initVolume() {
@@ -161,9 +175,17 @@ function mergeProject(p) {
     if (typeof v === 'boolean') o.colors[k] = v;
     else if (typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)) o.colors[k] = v;
   }
+  const palette = p?.colors?.palette, paletteStyle = p?.colors?.paletteStyle;
+  if (Array.isArray(palette) && palette.length && palette.length <= 64 && Object.hasOwn(J.STYLES, paletteStyle)) {
+    // Keep the complete scheme (including gradients), but accept only known
+    // fields from our palette schema; never inject arbitrary imported objects.
+    o.colors.palette = J.paletteForStyle(J.STYLES[paletteStyle].schemes, palette);
+    o.colors.paletteStyle = paletteStyle;
+  }
   o.userFonts = J.registerProjectFonts(p && p.userFonts);
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
+  J.mergeUserThemeLibrary?.(o);
   return o;
 }
 const SET_UI = { horror: { name: 'ホラー', badge: 'ホ' }, typo: { name: '文字PV系', badge: '文' }, kinetic: { name: 'キネティック', badge: 'キ' } };
@@ -604,7 +626,7 @@ function rerollCurrentCut(kind) {
   groups.forEach(g => {
     const allowNone = g === 'decor' || g === 'trans';
     const key = pickEnabledTech(g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
-    if (key) setCutTech(cut.line, k, g, key);
+    if (key) setCutTech(cut.line, k, g, key, false);
   });
   markCutQuiet(cut.line, k, groups, true);
   closeCutPick();
@@ -621,9 +643,10 @@ function updateCutInfo() {
   if ($('cueRollTarget')) {
     const rule = target && S.project.overrides?.[target.index]?.cueLook;
     const style = J.STYLES[rule?.style || S.project.style]?.name || '', mood = J.MOODS[rule?.mood || S.project.mood]?.name || '';
-    const randomLabel = target && S.project.overrides?.[target.index]?.randomDraw ? J.layerText('ランダム · ', 'Random · ') : '';
-    const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
-    const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
+    const draw = target && S.project.overrides?.[target.index]?.randomDraw;
+    const randomLabel = draw ? (draw.libraryName ? J.layerText('ライブラリ：', 'Library: ') + draw.libraryName + ' · ' : J.layerText('ランダム · ', 'Random · ')) : '';
+    const themeName = J.appliedThemeName(rule?.lookTheme ?? S.project.lookTheme, S.project);
+    const themeLabel = themeName ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + themeName : '';
     const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
@@ -853,10 +876,12 @@ function editLine(li, ln) {
   inp.addEventListener('blur', () => finish(true));
 }
 
-/* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
-// separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
+/* ---------------- 編集の取り消し（Ctrl+Z） ---------------- */
+// Global look changes and cue edits must share chronological undo. Otherwise
+// old per-cue snapshots can undo a later global palette/font change piecemeal.
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -864,12 +889,13 @@ function edGo(d) {
   const o = JSON.parse(from.pop()), cur = JSON.parse(edSnap());
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
+  if (o.look) Object.assign(S.project, o.look);
   S.project.subtitleCues = o.subtitleCues || null;
   S.project.localLooks = o.localLooks || null;
   S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
-  replan(); flushSave(); updateEditBtns();
+  fontKey = ''; syncUI(); replan(); commit(); flushSave(); updateEditBtns();
   toast(d < 0 ? '元に戻しました' : 'やり直しました');
 }
 // 歌詞を消す: lyrics + everything tied to line numbers (times, per-line settings, export range); undoable
@@ -884,20 +910,27 @@ function clearLyrics() {
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
-// 初期化: back to a blank project — song (also the copy kept in this browser), settings and both histories go
+// Reset only the current project/session. Shared libraries and app preferences
+// are never cleared; flushSave replaces only LS_KEY with the new blank project.
+J.projectSessionEpoch = 0;
 let audioNameDefault = '';
 async function resetAll() {
-  if (S.exporting) return;
+  if (S.exporting || J.layerSession?.busy) return;
+  J.projectSessionEpoch++;
   if (S.tap) stopTap();
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
   S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
+  J.resetLayerProjectSession?.();
+  J.resetNativeSpectrumSession?.();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
-  TL.z = 1; TL.off = 0;
+  TL.z = 1; TL.off = 0; TL.drag = -1; TL.dragView = null;
+  S.loop = 'all'; S.loopHold = null; cueRerollHold = null; syncLoopBtn();
+  if ($('fileProject')) $('fileProject').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
-  toast('初期化しました');
+  toast(J.layerText('プロジェクトを初期化しました。共通ライブラリは保持しています。', 'Project reset. Shared libraries have been kept.'));
 }
 function updateEditBtns() { const u = $('btnUndoEdit'); if (u) u.disabled = !ED.undo.length; }
 
@@ -948,13 +981,15 @@ function bindRangeUI() {
   }));
 }
 function setOv(i, patch) {
+  pushEdit();
   const cur = Object.assign({}, S.project.overrides[i] || {}, patch);
   for (const k of Object.keys(cur)) if (cur[k] === undefined || cur[k] === false || cur[k] === '') delete cur[k];
   if (Object.keys(cur).length) S.project.overrides[i] = cur; else delete S.project.overrides[i];
 }
 function setCutLayout(i, k, layout) { setCutTech(i, k, 'layout', layout); }
-function setCutTech(i, k, group, key) {
+function setCutTech(i, k, group, key, edit = true) {
   if (i == null || i < 0 || k == null || k < 0) return;
+  if (edit) pushEdit();
   const cur = Object.assign({}, S.project.overrides[i] || {});
   const cutTech = Object.assign({}, cur.cutTech || {});
   const slot = Object.assign({}, cutTech[k] || cutTech[String(k)] || {});
@@ -987,7 +1022,7 @@ function drawStyleGrid() {
       const b = document.createElement('button'); b.className = 'stile'; b.dataset.k = k;
       b.title = J.STYLES[k].desc;
       b.innerHTML = `<canvas width="192" height="108"></canvas><span>${J.STYLES[k].name}</span><span class="badges">${setBadges(J.STYLES[k])}</span>`;
-      b.addEventListener('click', () => { remember(); S.project.style = k; S.project.colors.enabled = false; syncUI(); replan(); commit(); });
+      b.addEventListener('click', () => { remember(); S.project.style = k; S.project.colors.enabled = false; delete S.project.colors.palette; delete S.project.colors.paletteStyle; syncUI(); replan(); commit(); });
       g.appendChild(b);
     });
   }
@@ -1019,14 +1054,14 @@ function renderFontRoles() {
   [['display', '見出し'], ['serif', '明朝枠'], ['body', '小さな文字']].forEach(([role, label]) => {
     const row = document.createElement('div'); row.className = 'font-row';
     row.innerHTML = `<span class="muted">${label}</span><select aria-label="${label}のフォント">${fontSelectOptions(S.project.fonts[role])}</select>`;
-    row.querySelector('select').addEventListener('change', e => { if (e.target.value) S.project.fonts[role] = e.target.value; else delete S.project.fonts[role]; fontKey = ''; replan(); });
+    row.querySelector('select').addEventListener('change', e => { pushEdit(); if (e.target.value) S.project.fonts[role] = e.target.value; else delete S.project.fonts[role]; fontKey = ''; replan(); });
     box.appendChild(row);
   });
 }
 const BASE_KEYS = [['fg', '文字'], ['sub', '補助']];
 const ACCENT_KEYS = [['accent', 'アクセント'], ['ghostA', 'ズレ色A'], ['ghostB', 'ズレ色B']];
 function renderColors() {
-  const st = J.STYLES[S.project.style] || J.STYLES.noir, sc = st.schemes[0];
+  const st = J.resolveStyle(S.project), sc = st.schemes[0];
   const c = S.project.colors;
   $('colorOn').checked = !!c.enabled;
   $('accentOn').checked = !!c.accentOn;
@@ -1036,11 +1071,14 @@ function renderColors() {
       const l = document.createElement('label');
       const v = (c[flag] && c[k]) || c[k] || sc[k];
       l.innerHTML = `${label}<input type="color" value="${toColorInput(v)}">`;
+      let editing = false;
       l.querySelector('input').addEventListener('input', e => {
+        if (!editing) { pushEdit(); editing = true; }
         c[k] = e.target.value.toUpperCase();
         if (!c[flag]) { c[flag] = true; $(flag === 'enabled' ? 'colorOn' : 'accentOn').checked = true; }
         replanSoon(60); drawSwatch();
       });
+      l.querySelector('input').addEventListener('change', () => { editing = false; });
       row.appendChild(l);
     });
   };
@@ -1057,21 +1095,30 @@ function drawSwatch() {
 function randomPalette() {
   remember();
   const c = S.project.colors;
-  const sc0 = J.STYLES[S.project.style].schemes[0];
+  const sc0 = J.resolveStyle(S.project).schemes[0];
   const bg = c.enabled && c.bg ? c.bg : sc0.bg;
   let p, guard = 0;
   do { p = J.randomPalette(bg); } while (guard++ < 6 && p.ghostA === c.ghostA && p.ghostB === c.ghostB);
-  Object.assign(c, { accent: p.accent, ghostA: p.ghostA, ghostB: p.ghostB, accentOn: true });
+  S.project = J.prepareGlobalAppearance(S.project, S.plan, audioLike(), 'accent', Math.random, p);
   renderColors(); replan(); commit();
   toast('配色：アクセント・ズレ色A/Bを変更', [p.accent, p.ghostA, p.ghostB]);
+}
+function rerollAppearance(mode) {
+  if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
+  try {
+    const next = J.prepareGlobalAppearance(S.project, S.plan, audioLike(), mode);
+    remember(); S.project = next; fontKey = ''; syncUI(); replan(); commit(); flushSave();
+    toast(mode === 'color' ? J.layerText('配色：全体の配色セットを変更', 'Palette: changed the whole color system') : J.layerText('書体：全体の書体の組み合わせを変更', 'Fonts: changed the global font combination'));
+    restartPreview();
+  } catch (e) { toast(e.message); }
 }
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
-function remember() {            // call before changing the look: makes sure the current look is on the stack
+function remember(edit = true) { // call before changing the look
+  if (edit) pushEdit();
   const s = lookSnap();
   if (H.i >= 0 && H.list[H.i] === s) return;
   H.list = H.list.slice(0, H.i + 1); H.list.push(s); H.i = H.list.length - 1;
@@ -1084,8 +1131,9 @@ function commit() {              // call after changing the look
 }
 function histGo(d) {
   if (S.exporting) return;
-  remember();                    // hand edits made since the last step become a stop of their own
+  remember(false);               // hand edits made since the last step become a stop of their own
   const j = H.i + d; if (j < 0 || j >= H.list.length) return;
+  pushEdit();
   H.i = j;
   const look = JSON.parse(H.list[j]);
   if (look._cueIds && S.project.subtitleCues) {
@@ -1204,20 +1252,23 @@ function rerollPart(part) {
   const P = S.project;
   let msg = '';
   if (part === 'style') {
-    if (J.normalizeTheme(P.theme)) {
+    if (J.normalizeTheme(P.theme, P)) {
       const r = J.omakase(P, Math.random, { mood: P.mood });
-      Object.assign(P, J.themeSwitches(P.theme), { style: r.style, lookTheme: r.lookTheme });
+      Object.assign(P, J.themeDrawSwitches(r), { style: r.style, lookTheme: r.lookTheme });
+      if (r.themeSnapshots) P.themeSnapshots = r.themeSnapshots;
     } else {
       let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
       if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
       P.style = pool[Math.floor(Math.random() * pool.length)]; P.lookTheme = '';
     }
     P.colors.enabled = false;
+    delete P.colors.palette; delete P.colors.paletteStyle;
     msg = `スタイル：${J.STYLES[P.style].name}`;
   } else if (part === 'mood') {
     const keepE = lockedEnabled(), keepP = lockedParams();
-    const r = J.omakase(P);
-    Object.assign(P, J.themeSwitches(P.theme), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
+    const r = J.omakase(P, Math.random, { style: P.style });
+    Object.assign(P, J.themeDrawSwitches(r), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
+    if (r.themeSnapshots) P.themeSnapshots = r.themeSnapshots;
     restoreEnabled(keepE); restoreParams(keepP);
     msg = `雰囲気：${J.MOODS[r.mood].name}`;
   } else if (part === 'cut') {
@@ -1296,7 +1347,9 @@ function renderFx() {
       + `<button type="button" class="icon ghost lk pro-only" data-lk="${k}" aria-pressed="${lk}" title="${lk ? LOCK_TITLE_OFF : LOCK_TITLE_ON}">${ICON.lock}</button>`;
     const inp = row.querySelector('input'), out = row.querySelector('output');
     row.querySelector('.lk').addEventListener('click', () => toggleParamLock(k));
-    inp.addEventListener('input', () => { S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
+    let editing = false;
+    inp.addEventListener('input', () => { if (!editing) { pushEdit(); editing = true; } S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
+    inp.addEventListener('change', () => { editing = false; });
     box.appendChild(row);
   });
   lockBtn('flash', $('fxFlash').closest('label'));
@@ -1713,7 +1766,7 @@ function bind() {
     if (b.dataset.tab === 'tech') kickPreviewLoop();
     loadThumbFonts();
   }));
-  $('fxFlash').addEventListener('change', e => { S.project.fx.flash = e.target.checked; replan(); });
+  $('fxFlash').addEventListener('change', e => { pushEdit(); S.project.fx.flash = e.target.checked; replan(); });
   $('techFilter').addEventListener('input', () => renderTech());
   const setSwitch = (cls, key, on, msgOn, msgOff) => document.querySelectorAll('.' + cls).forEach(el => el.addEventListener('change', e => {
     remember();
@@ -1729,10 +1782,10 @@ function bind() {
   setSwitch('horror-toggle', 'horror', true, 'ホラーの演出：使う（おまかせの雰囲気に「ホラー」が加わります）', 'ホラーの演出：使わない');
   setSwitch('unify-toggle', 'unify', true, '統一感：オン（パートごとにそろえ、キメ・モーフ・太さも使います）', '統一感：オフ');
   setSwitch('typeset-toggle', 'typeset', true, '文字整列：オン（字間・助詞・英字・0.2秒先・効果控えめ）', '文字整列：オフ');
-  $('fxKoma').addEventListener('change', e => { const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
-  $('fxHud').addEventListener('change', e => { S.project.fx.hud = e.target.value; replan(); });
-  $('seed').addEventListener('change', e => { S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
-  $('btnSeed').addEventListener('click', () => { S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
+  $('fxKoma').addEventListener('change', e => { pushEdit(); const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
+  $('fxHud').addEventListener('change', e => { pushEdit(); S.project.fx.hud = e.target.value; replan(); });
+  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
+  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
   const colorToggle = (flag, keys) => e => {
     remember();
     const c = S.project.colors; c[flag] = e.target.checked;
@@ -1744,6 +1797,7 @@ function bind() {
   $('btnRandPalette').addEventListener('click', randomPalette);
   $('btnAddFont').addEventListener('click', () => {
     const name = J.safeFamily($('localFont').value); if (!name) return;
+    pushEdit();
     const key = 'local_' + J.sid(name).toString(16);
     const weight = /bold|太|black|heavy|w[6-9]|[6-9]00/i.test(name) ? 700 : 400;
     const label = name + J.layerText('（PC）', ' (PC)');
@@ -1794,6 +1848,8 @@ function bind() {
   $('eMood').addEventListener('click', () => rerollPart('mood'));
   $('eCut').addEventListener('click', () => rerollPart('cut'));
   $('ePalette').addEventListener('click', () => { randomPalette(); restartPreview(); });
+  $('eFullPalette').addEventListener('click', () => rerollAppearance('color'));
+  $('eFonts').addEventListener('click', () => rerollAppearance('font'));
   // 利用について（出力物の権利・ライセンス）
   const dlg = $('termsDlg');
   const openTerms = () => {
@@ -1807,15 +1863,19 @@ function bind() {
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
+    if (S.exporting || J.layerSession?.busy) return;
     const dlg = $('resetDlg');
-    if (!dlg || typeof dlg.showModal !== 'function') { if (window.confirm('歌詞・曲・設定・履歴をすべて消して、最初の状態に戻します。元に戻すことはできません。')) resetAll(); return; }
+    if (!dlg || typeof dlg.showModal !== 'function') { if (window.confirm(J.layerText('現在のプロジェクト・素材の読み込み・設定・履歴を初期化します。元に戻せません。共通ライブラリ・画面設定・PC上のファイルは削除しません。', 'Reset the current project, loaded media, settings and history? This cannot be undone. Shared libraries, interface preferences and files on your PC are kept.'))) resetAll(); return; }
     dlg.returnValue = ''; dlg.showModal();
   });
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
+    const epoch = J.projectSessionEpoch;
     try {
-      const next = mergeProject(JSON.parse(await f.text()));
+      const content = await f.text();
+      if (epoch !== J.projectSessionEpoch) return;
+      const next = mergeProject(JSON.parse(content));
       if (S.tap) stopTap();
       pause();
       S.project = next;
@@ -1825,7 +1885,7 @@ function bind() {
       syncUI(); replan(); commit(); updateEditBtns(); flushSave();
       warnLegacyFonts(); showProjectLoadNotice();
     }
-    catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
+    catch (err) { if (epoch !== J.projectSessionEpoch) return; showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
   J.cueRerollModes.forEach(([mode, ja, en], i) => {
@@ -1860,7 +1920,7 @@ function bind() {
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
-    else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
+    else if (!e.shiftKey && /^[0-7]$/.test(e.key) && /^(Digit|Numpad)[0-7]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
@@ -1979,5 +2039,17 @@ function boot() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
 // Shared editor hooks used by the layer interface
-J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo };
+J.uiApi = { toast, replan, syncUI, syncOmakaseThemes, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo,
+  audioLike, cueRerollTarget,
+  applyMotionProject(project, index, resume) {
+    if (S.exporting) return;
+    pushEdit(); remember(); S.project = project; fontKey = ''; syncUI(); replan(); commit(); flushSave();
+    const ln = S.plan.lines.find(l => l.index === index);
+    if (ln) {
+      cueRerollHold = { plan: S.plan, index, start: ln.start, end: ln.end };
+      seek(Math.max(0, ln.start - (resume ? 0.3 : 0)), true); refreshLoopHold(ln.start + 0.001);
+      if (resume) play();
+    }
+  },
+};
 })();

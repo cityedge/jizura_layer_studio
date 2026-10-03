@@ -1,13 +1,17 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.4.1**
+**Animated subtitle layers · cityedge fork · v1.5.0**
+
+**Motion library…** saves a subtitle’s motion for previewing and applying to new lyrics. Export/import the shared collection as dedicated JSON. [Instructions](user_guide.en.md#motion-library)
 
 Grayscale alpha matte export supports adjustable background-color opacity, optional decorative number/time hiding, and themes for Auto-compose and cue draws. Choose No theme, Lyric video, Kinetic, Japanese, Horror, Pop or Ballad; change one cue's direction and use 9 to restore the global taste.
+
+**User themes…** lets you create and edit independent style/mood weights. Select one and press 1 to apply it to the current cue. Themes support a browser-wide library, project JSON and dedicated theme JSON export/import. [User-theme instructions](user_guide.en.md#creating-and-transferring-user-themes)
 
 Subtitle draw **9 / Global taste** clears local choices and redraws the current cue within the latest globally applied settings.
 
 Edit SRT part breaks in the subtitle summary: Enter adds a separator above the cue at its start, otherwise below, and Backspace/Delete removes a blank separator. Text and timing stay protected; Undo and JSON persistence are supported.
 
-Subtitle draws: **0 Random / 1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 Fine-tune**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 to replace specific groups or 6 to return to the retained base settings. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
+Subtitle draws: **1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 Fine-tune / 7 Fonts / 9 Global taste / 0 Random**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 or 7 to replace specific groups or 6 to return to the retained base settings. Global controls offer coherent Fonts, whole Palette changes including the main color, and the original Palette fine-tune. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
 
 [Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 

@@ -4,6 +4,11 @@
 const $ = id => document.getElementById(id), tr = J.layerText;
 const state = J.nativeSpectrumState = { buffer: null, raw: null, data: null, key: '', pending: false, error: '', progress: 0, controller: null };
 let previewReader = null;
+J.resetNativeSpectrumSession = () => {
+  state.controller?.abort();
+  Object.assign(state, { buffer:null, raw:null, data:null, key:'', pending:false, error:'', progress:0, controller:null });
+  previewReader = null;
+};
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text) e.textContent = text; if (cls) e.className = cls; return e; };
 const ready = () => state.buffer === J.ui.audio?.buffer && state.key === J.nativeMotionKey(J.ui.project) && !!state.data && !state.pending;
 J.nativeSpectrumBlocked = () => J.ui.project.spectrumMode === 'generated' && !ready();

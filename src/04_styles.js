@@ -156,6 +156,8 @@ J.resolveStyle = (project) => {
   const base = J.STYLES[project.style] || J.STYLES.noir;
   const st = JSON.parse(JSON.stringify(base));
   const ov = project.colors || {};
+  if (Array.isArray(ov.palette) && ov.palette.length && ov.paletteStyle === project.style && J.paletteForStyle)
+    st.schemes = J.paletteForStyle(st.schemes, ov.palette);
   // base colours (background / text) replace the main scheme only
   if (ov.enabled) st.schemes[0] = Object.assign({}, st.schemes[0], pickDefined(ov, ['bg', 'fg', 'sub']));
   // accent + chromatic ghost colours apply to every scheme; accent is re-lit per background for contrast

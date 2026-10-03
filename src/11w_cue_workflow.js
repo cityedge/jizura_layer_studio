@@ -85,21 +85,30 @@ J.captureLocalLooks = (p, current, audio) => {
   });
   p.localLooks = { context: J.localLookContext(p, audio), lines };
 };
+J.rekeyLocalLooks = (p, current, audio) => {
+  p.localLooks.context = J.localLookContext(p, audio);
+  for (const ln of current.lines) {
+    const key = p.subtitleCues?.[ln.index]?.id ?? ('line-' + ln.index), entry = p.localLooks.lines[key];
+    if (entry) entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, p.overrides?.[ln.index] || {});
+  }
+};
 J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
+  ['font', '書体変更', 'Fonts'],
   ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
 J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
 const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'lookTheme'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
+J.cueAppearanceRule = (p, style) => ({ ...ruleFrom(p), palette: clone(style.schemes), palettes: [], unifyMode: 'local' });
 const globalKeys = [...ruleKeys, 'seed', 'unify', 'typeset'];
 // Local overrides are deliberately absent from the signature. Global controls,
 // including manual edits and history navigation, establish the latest baseline.
 J.globalLookBaseline = (p, current) => {
   const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
-  values.lookTheme = J.normalizeTheme(values.lookTheme);
+  values.lookTheme = J.normalizeLookTheme(values.lookTheme, p);
   const signature = { ...values, enabled: poolContext(values.enabled) };
   // No-theme signatures match projects saved before themes were introduced.
   if (!signature.lookTheme) delete signature.lookTheme;
@@ -221,7 +230,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   const next = clone(p);
   J.captureLocalLooks(next, current, audio);
   next.overrides ||= {};
-  const target = next.overrides[index] = { ...clone(mode === 'fine' ? baseOverride(ov) : ov), seed: (ov.seed | 0) + (mode === 'color' ? 0 : 1), drawSerial: (ov.drawSerial | 0) + 1, reroll: true };
+  const target = next.overrides[index] = { ...clone(mode === 'fine' ? baseOverride(ov) : ov), seed: (ov.seed | 0) + (['color','font'].includes(mode) ? 0 : 1), drawSerial: (ov.drawSerial | 0) + 1, reroll: true };
   const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes])) : { normal: current.unifyPalettes, filler: current.unifyPalettes };
   const key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
   const first = current.cuts.find(c => c.line === index), base = targetPlan(current, index);
@@ -231,6 +240,18 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.localLooks.lines[key] = { key: cueKey(ln.text, ln.start, ln.end, ln.part, target), cuts };
     return next;
   };
+  if (mode === 'font') {
+    const fonts = J.drawFontRoles(p, renderLook.style, random, false);
+    // Full-random cues keep their hidden taste, just as with cue color draws.
+    if (!target.randomDraw) {
+      target.cueLook ||= J.cueAppearanceRule(p, renderLook.style);
+      target.cueLook.fonts = { ...target.cueLook.fonts, ...fonts };
+    }
+    const cuts = next.localLooks.lines[key].cuts;
+    for (const cut of cuts) J.retargetCutFonts(cut, fonts, renderLook);
+    if (target.randomDraw) target.randomDraw.cuts = clone(cuts);
+    return storeCuts(cuts);
+  }
   if (mode === 'global') {
     const baseline = J.globalLookBaseline(p, current);
     next.globalLook = baseline;
@@ -259,7 +280,8 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'color' && ov.randomDraw) rule.palette = clone(renderLook.style.schemes);
   if (mode !== 'fine') {
     if (mode === 'all' || mode === 'style' || mode === 'mood') {
-      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : {}) });
+      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : mode === 'mood' ? { style: effective.style } : {}) });
+      if (draw.themeSnapshots) next.themeSnapshots = draw.themeSnapshots;
       const themed = { ...effective, ...draw };
       if (mode === 'all') {
         for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
@@ -271,7 +293,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
         Object.assign(rule, { mood: draw.mood, fx: draw.fx, enabled: draw.enabled, palettes: [] });
         clearGroups(target, ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);
       }
-      Object.assign(rule, J.themeSwitches(p.theme), { lookTheme: draw.lookTheme });
+      Object.assign(rule, J.themeDrawSwitches(draw), { lookTheme: draw.lookTheme });
       rule.unifyMode = 'local';
     } else if (mode === 'motion') {
       rule.enabled = broadPool(effective, effective.mood, random);

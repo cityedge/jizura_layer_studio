@@ -458,6 +458,34 @@ button.small.primary { padding: 4px 12px; }
 .omakase-theme select { min-width:0; max-width:170px; }
 .easy-hero > .omakase-theme { margin-bottom:8px; }
 .easy-hero > .omakase-theme select { flex:1; max-width:none; }
+.omakase-theme { flex-wrap:wrap; }
+.panel-about { padding:16px; border-top:1px solid var(--line); }
+/* Phone mode has the same theme controls in the Easy panel below. */
+#app.is-mobile .transport .omakase-theme { display:none; }
+.user-theme-dialog { box-sizing:border-box; width:min(850px,calc(100vw - 28px)); max-height:calc(100dvh - 28px); overflow-y:auto; padding:18px; background:var(--panel); color:var(--text); border:1px solid var(--line2); border-radius:8px; }
+.user-theme-dialog::backdrop { background:#0009; }
+.user-theme-dialog h2 { font-size:16px; margin:0 0 10px; }
+.user-theme-dialog h3 { font-size:12px; margin:0; }
+.user-theme-dialog .note { font-size:11px; overflow-wrap:anywhere; }
+.user-theme-toolbar, .user-theme-actions, .user-theme-group-heading { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:10px 0; }
+.user-theme-toolbar > select { flex:1; min-width:120px; max-width:100%; }
+.user-theme-name { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12px; }
+.user-theme-name input { flex:1; min-width:0; }
+.user-theme-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.user-theme-weight { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 0; font-size:12px; }
+.user-theme-weight span { overflow-wrap:anywhere; }
+.user-theme-weight select { width:65px; flex-shrink:0; }
+.user-theme-weight .user-theme-help { flex:1; min-width:0; border:0; border-radius:0; background:none; padding:3px 0; text-align:left; font-size:12px; font-weight:inherit; white-space:normal; overflow-wrap:anywhere; text-decoration:underline dotted var(--muted); text-underline-offset:4px; cursor:help; }
+.user-theme-weight .user-theme-help:hover, .user-theme-weight .user-theme-help:focus-visible { color:var(--amber); }
+.user-theme-hint { position:fixed; z-index:30; box-sizing:border-box; width:min(360px,calc(100vw - 40px)); max-height:45dvh; overflow-y:auto; padding:12px; border:1px solid var(--line2); border-radius:6px; background:var(--panel); color:var(--text); box-shadow:0 6px 24px #0009; font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
+.user-theme-distribution, .user-theme-distribution label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12px; }
+.user-theme-distribution { margin-top:14px; }
+.user-theme-distribution select { min-width:0; max-width:100%; }
+.user-theme-actions { justify-content:flex-end; }
+.user-theme-footer { position:sticky; bottom:-18px; margin:12px -4px -4px; padding:1px 4px 4px; border-top:1px solid var(--line2); background:var(--panel); }
+.user-theme-footer .note:empty { display:none; }
+#userThemeStatus.error { color:#ff9696; }
+@media(max-width:560px) { .user-theme-columns { grid-template-columns:minmax(0,1fr); } }
 #layerExport { background:var(--accent, #f5a50c); color:#171310; font-weight:700; white-space:normal; }
 #simpleExport { width:100%; margin-top:12px; white-space:normal; }
 .simple-export-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
@@ -466,6 +494,15 @@ button.small.primary { padding: 4px 12px; }
 .simple-export-controls label.simple-audio { flex-direction:row; align-items:center; }
 #simpleExportInfo.error { color:#ff9696; }
 #simpleSettingsOpen { width:100%; margin-top:6px; }
+.local-font-open { margin-top:6px; max-width:100%; white-space:normal; font-size:11px; }
+.local-font-picker { width:min(560px,calc(100vw - 28px)); max-height:calc(100dvh - 28px); overflow-y:auto; padding:18px; background:var(--panel); color:var(--text); border:1px solid var(--line2); border-radius:8px; }
+.local-font-picker::backdrop { background:#0009; }
+.local-font-picker h2 { font-size:16px; margin:0 0 10px; }
+.local-font-picker .note { font-size:11px; overflow-wrap:anywhere; }
+.local-font-picker input, .local-font-picker select { width:100%; margin-bottom:8px; }
+.local-font-picker select { height:200px; }
+.local-font-sample { font-size:24px; padding:12px; border:1px solid var(--line); overflow-wrap:anywhere; }
+.local-font-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
 .simple-settings-dialog { width:min(1000px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-sizing:border-box; overflow:auto; padding:20px; background:var(--panel,#191b21); color:var(--text,#eee); border:1px solid var(--line2,#444); border-radius:8px; }
 .simple-settings-dialog::backdrop { background:#060608b8; }
 .simple-settings-dialog h2 { font-size:16px; margin:0 0 8px; }
@@ -565,3 +602,21 @@ dialog.filler-dialog p { font-size:12px; }
 .layer-cue.is-filler > strong { color: var(--cyan, #00ddd0); }
 .layer-cue > .filler-badge { grid-column: 1 / -1; }
 @media (max-width: 480px) { .filler-grid { grid-template-columns: 1fr; } .filler-type { gap: 8px; } }
+/* Motion library: flowing controls and one modal scrollbar on small screens. */
+dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: #15161b; color: #ddd; border: 1px solid #444; border-radius: 8px; padding: 20px; }
+.motion-library::backdrop { background: #000b; }
+.motion-library h2 { margin-top: 0; font-size: 18px; }
+.motion-library p { line-height: 1.6; overflow-wrap: anywhere; }
+.motion-library-grid { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 20px; }
+.motion-library-grid > div { min-width: 0; }
+.motion-library select, .motion-library input:not([type=range]):not([type=file]) { box-sizing: border-box; width: 100%; margin: 6px 0; }
+.motion-library select { min-height: 160px; }
+.motion-library option { padding: 5px; }
+.motion-library canvas { display: block; max-width: 100%; height: auto; margin: 0 auto; background: repeating-conic-gradient(#222 0% 25%, #303030 0% 50%) 0 / 24px 24px; }
+.motion-library-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.motion-library-actions input[type=range] { flex: 1 1 100px; min-width: 60px; }
+.motion-library-footer { justify-content: flex-end; }
+.motion-library .error { color: #ffa5a5; }
+@media (max-width: 650px) { .motion-library-grid { grid-template-columns: minmax(0, 1fr); } dialog.motion-library { padding: 12px; } }
+#app.is-mobile .transport { flex-wrap: wrap; }
+#app.is-mobile #btnMotionLibrary { flex: 0 0 100%; }

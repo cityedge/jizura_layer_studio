@@ -4,7 +4,7 @@
 const tr = J.layerText, $ = id => document.getElementById(id);
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
 const fields = new Map(), invalid = new Set();
-let dialog, preview, scrub, timeLabel, fontSignature = '', projectRef = null;
+let dialog, preview, scrub, timeLabel, pcFontButton, fontSignature = '', projectRef = null;
 const settings = () => J.ui.project.simpleExport.title;
 const save = () => { J.uiApi.flushSave(); J.ui.need = true; J.syncSimpleExportUI(); };
 J.simpleTitleDraftError = () => {
@@ -16,6 +16,7 @@ J.syncSimpleTitleUI = changed => {
   if (!dialog) return;
   if (changed || projectRef !== J.ui.project) { invalid.clear(); projectRef = J.ui.project; fontSignature = ''; }
   const s = settings();
+  if (pcFontButton) pcFontButton.disabled = !s.enabled;
   for (const [key, input] of fields) {
     if (!invalid.has(key) && document.activeElement !== input) {
       if (input.type === 'checkbox') input.checked = s[key]; else input.value = s[key];
@@ -43,7 +44,7 @@ J.mountSimpleSettings = (panel, outputControls) => {
     input.id = 'simpleTitle-' + key; input.setAttribute('aria-label', tr(ja, en));
     if (input.tagName === 'INPUT') input.type = type;
     if (options.wide) label.classList.add('simple-wide');
-    if (options.min != null) { input.min = options.min; input.max = options.max; input.step = 'any'; }
+    if (options.min != null) { input.min = options.min; input.max = options.max; input.step = options.step ?? 'any'; }
     if (type === 'textarea') { input.rows = 3; input.maxLength = 2000; }
     if (key === 'family') input.maxLength = 100;
     if (type === 'checkbox') label.append(input, document.createTextNode(tr(ja, en))); else label.append(el('span', tr(ja, en)), input);
@@ -64,8 +65,12 @@ J.mountSimpleSettings = (panel, outputControls) => {
   field('fade','フェードイン・アウト（各1秒）','Fade in/out (1 second each)','checkbox',{wide:true});
   const font = field('font','フォント','Font','select',{wide:true});
   field('family','PCのフォント名','Installed PC font family','text',{wide:true});
+  pcFontButton = J.createLocalFontPickerButton(name => {
+    settings().font = 'custom'; settings().family = name; invalid.delete('family'); save();
+  });
+  pcFontButton.id = 'pickTitleFont'; pcFontButton.classList.add('simple-wide'); grid.append(pcFontButton);
   field('bold','太字','Bold','checkbox'); field('italic','イタリック','Italic','checkbox');
-  field('size','文字サイズ（短辺の%）','Font size (% of short side)','number',{min:1,max:30});
+  field('size','文字サイズ（短辺の%）','Font size (% of short side)','number',{min:1,max:30,step:0.5});
   field('color','文字色','Text color','color');
   field('outline','黒いふち','Black outline','checkbox'); field('backing','半透明黒の下地','Translucent black backing','checkbox');
   field('opacity','下地の不透明度（%）','Backing opacity (%)','number',{min:0,max:100,wide:true});

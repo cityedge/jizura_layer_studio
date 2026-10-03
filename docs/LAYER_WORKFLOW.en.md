@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.4.1. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.5.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -22,9 +22,23 @@ Load an image/video as a preview background. Songs support preview and timing. N
 
 ## Themes and cue draws
 
-Themes are No theme, Lyric video, Kinetic, Japanese, Horror, Pop and Ballad. Selecting alone leaves the composition unchanged. Global Auto-compose enables necessary sets globally. Cue keys 1–3 consider the theme and enable its required sets only inside that cue. Keys 4/6 use the applied cue base; 9 restores the last global settings and theme; 0/5 ignore the pending theme. See [draw scopes](../user_guide.en.md#automatic-parts-and-subtitle-rerolls).
+Themes are No theme, Lyric video, Kinetic, Japanese, Horror, Pop, Ballad and saved user themes. Selecting alone leaves the composition unchanged. Global Auto-compose enables necessary sets globally. Cue keys 1–3 consider the theme and enable its required sets only inside that cue. Keys 4/6 use the applied cue base; 9 restores the last global settings and theme; 0/5/7 ignore the pending theme. See [draw scopes](../user_guide.en.md#automatic-parts-and-subtitle-rerolls).
+
+User themes… assigns style and mood weights from 0–10. Hover/tap names for explanations. From mood uses the chosen mood's style distribution. Use mood distribution approximates style weights and replaces mood weights with 1 for the chosen mood and 0 for all others. Save, select the theme and use Auto-compose or cue key 1 to apply it. Manage the shared collection through the dialog or dedicated JSON. Applied settings remain independent of theme edits, deletion or reuse of the same name. See [user themes](../user_guide.en.md#creating-and-transferring-user-themes).
+
+Global change controls offer Fonts consistent with the style/mood, Palette changes including the main color while preserving light/dark and saturation structure, and the original Palette fine-tune. Cue key 7 changes only that cue's fonts independently of style/mood; key 5 changes only its colors.
+
+Undo / Ctrl+Z follows the order of cue edits and global changes. Previous/next proposal buttons navigate composition proposals. Media, export settings and shared-library actions are outside cue-edit Undo.
 
 Hide decorative numbers and times under Subtitle layers removes numeric ornaments while preserving lyric numbers and `[timestamp]`, without rerolling effects.
+
+## Motion library
+
+Open Motion library… beside Auto-compose. No library item is initially selected; the current cue automatically auditions if it has savable generation settings. Save motion adds it to the collection. Leave the name blank for an automatic motion001-style name. Legacy cues without generation settings cannot be saved.
+
+Select an item to audition it with the current lyrics, then Apply to replace that cue's motion. With no cue selected, the preview uses compatible sample text. Incompatible lyrics, such as too few characters for a layout, block application. Auditions are silent with a patterned background and exclude media and titles.
+
+Rename, delete and export/import the collection as dedicated JSON. Applied cues carry independent setting copies and are unaffected by library edits or deletion. Project JSON does not contain the whole shared motion library; use dedicated JSON to transfer or back up the collection. See [stored settings, adaptation and duplicate IDs](../user_guide.en.md#motion-library).
 
 ## Filler subtitles
 
@@ -110,9 +124,15 @@ If Add is unavailable but absolute Difference is available, stack these from bac
 
 Set every layer to 100% opacity and cover the same frame and interval with both white layers. This equals Add when background × matte + front is at most 1 in each RGB channel, as with a correct ordinary premultiplied pair. Verify a short range for color-processing/compression differences. See the [full procedure and calculation](../user_guide.en.md#when-add-is-unavailable-but-difference-is-available).
 
+## Choosing fonts
+
+Detailed font addition and simple-video title settings can list installed PC fonts in supported browsers after permission. Existing choices and font-name entry remain available when listing is unsupported or denied. Font files themselves are not saved; install the same fonts on another PC to use them there. See [installed fonts](../user_guide.en.md#installed-pc-fonts).
+
 ## Save and limitations
 
 Save project JSON explicitly; autosave is a convenience. Subtitles, effects and placement persist, but actual background, spectrum and song files do not. Reselect media after reopening JSON; cues and fillers are already restored, so do not reimport SRT. Save before language switching, which reloads the page.
+
+Reset project clears current subtitles, effects, media and history while retaining shared user themes, the motion library and interface preferences. Delete shared items in their management dialogs; back them up as dedicated JSON first.
 
 Desktop Chrome / Edge is recommended. MP4 requires WebCodecs and H.264 encoding, depending on browser/OS. Long/4K exports are not thoroughly verified and use substantial memory; start with a short range. File-URL storage behavior depends on browser.
 
@@ -120,7 +140,7 @@ PNG and AE export are not offered. The interface supports Japanese and English; 
 
 ## Simple video export (optional)
 
-Simple video settings… contains duration, Exclude audio and title controls. Titles support font, bold/italic, color, outline, position, translucent black backing, whole-video or start/end timing, and one-second in/out fades. Title text is in front; its backing is directly above the background. Inspect the composite with the dialog time slider. Settings persist in JSON and do not affect layer exports.
+Simple video settings… contains duration, Exclude audio and title controls. Titles support font, bold/italic, size in 0.5% steps, color, outline, position, translucent black backing, whole-video or start/end timing, and one-second in/out fades. Title text is in front; its backing is directly above the background. Inspect the composite with the dialog time slider. Settings persist in JSON and do not affect layer exports.
 
 The neutral-colored Export simple video MP4 button below the pair description saves a single composite, back to front: image/video background, title backing, spectrum, subtitles, title text. Disabling the title removes both its text and backing. No background means black. Video backgrounds start at timeline zero and hold their final frame after ending. Both generated and external spectra can be used. Background audio is ignored.
 

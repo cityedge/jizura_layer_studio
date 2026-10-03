@@ -5,6 +5,7 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const context = { J: { defaultProject: () => ({fx:{}}), plan: p => p }, document: { documentElement: {lang:'ja'} } };
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/01b_background_color.js'),'utf8'), context);
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/08c_themes.js'),'utf8'), context);
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/08d_user_themes.js'),'utf8'), context);
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/11r_layers.js'),'utf8'), context);
 const J = context.J, json = x => JSON.parse(JSON.stringify(x));
 

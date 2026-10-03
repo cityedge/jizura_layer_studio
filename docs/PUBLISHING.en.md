@@ -1,15 +1,23 @@
 # Manual publication
 
-## Publishing v1.4.1
+## Publishing v1.5.0
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.4.1.zip` to your Release. Use the 1.4.1 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.0.zip` to your Release. Use the 1.5.0 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
 
-After publication, check the **v1.4.1** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 1–6/9/0, JSON restoration of settings and fillers, and short pair/simple MP4 exports. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.4.0. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.5.0** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 1–7/9/0, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.4.1. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 
 
-For 1.4.1, verify title text, formatting, visible interval, fades and audio controls in Simple video settings…, including JSON restoration. Check the permanently scrollable center pane, stable offset during card changes, technique selection, seeking/dragging the last timeline cue, and Mobile mode. Older projects open with the title disabled.
+For the v1.5.0 additions, verify:
+
+- User-theme creation, distribution controls and JSON transfer; deleting a theme preserves applied cue settings and the key 9 baseline.
+- Motion-library save, audition, apply, rename, delete and JSON import. Applied cues remain independent of collection edits.
+- Global Palette, Palette fine-tune and Fonts; cue key 7; chronological global/cue Undo/Redo; palettes and cut structure after reopening JSON.
+- Installed-font listing and fallback name entry; title sizing in 0.5% steps.
+- Reset project clears current media, cues and history while retaining shared user themes and motions.
+
+Also check stable center-pane offset during card changes, technique selection, seeking/dragging the last timeline cue, and Mobile mode.
 
 ## Create the upload folder
 

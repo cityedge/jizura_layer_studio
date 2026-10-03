@@ -41,27 +41,29 @@ J.MOODS = {
 })();
 
 J.omakase = (project, rnd = Math.random, options = {}) => {
-  const theme = J.normalizeTheme(options.theme ?? project.theme), T = J.THEMES[theme], switches = J.themeSwitches(theme);
-  if (T) project = { ...project, ...switches };
-  const themePart = d => !!(T && d && ((T.set && d.set === T.set) || (T.wa && d.wa)));
+  const theme = J.normalizeTheme(options.theme ?? project.theme, project), T = J.THEMES[theme];
+  const userTheme = J.userThemeFor(project, theme), custom = userTheme ? J.prepareUserThemeDraw(project, userTheme, rnd, options) : null;
+  const switches = custom ? custom.switches : J.themeSwitches(theme);
+  if (T || custom) project = { ...project, ...switches };
+  const themePart = d => !!(d && (custom ? custom.sets.has(d.set) || (custom.wa && d.wa) : T && ((T.set && d.set === T.set) || (T.wa && d.wa))));
   const pick = a => a[Math.floor(rnd() * a.length) % a.length];
   const range = r => +(r[0] + (r[1] - r[0]) * rnd()).toFixed(2);
   const moodOk = k => !J.MOODS[k].set || (J.setOn && J.setOn(project, J.MOODS[k].set));
   let moods = Object.keys(J.MOODS).filter(k => k !== project.mood && moodOk(k));
   if (T) { const allowed = T.moods.filter(moodOk); moods = allowed.filter(k => k !== project.mood); if (!moods.length) moods = allowed; }
   // with the ホラー switch on, おまかせ leans to the ホラー mood (it may repeat)
-  const mood = options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : !T && moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
+  const mood = custom ? custom.mood : options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : !T && moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood] || J.MOODS.chaos;
   // a set tied to a mood (ホラー) is only used in that mood
   const moodSetOk = d => themePart(d) || !(d && d.set) || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set;
   // style: mostly one that suits the mood, sometimes anything; never the same twice in a row
   // (only styles the 追加分 / 和風 switches allow)
-  const okStyle = k => J.STYLES[k] && (!J.randomOk || J.randomOk(project, 'style', k)) && moodSetOk(J.STYLES[k]);
-  const moodStyles = [...new Set([...(M.styles || []), ...J.STYLE_ORDER.filter(k => (J.STYLES[k].moods || []).includes(mood))])].filter(okStyle);
-  let pool = (moodStyles.length && rnd() < 0.72 ? moodStyles : J.STYLE_ORDER.filter(okStyle)).filter(k => k !== project.style);
+  const { allowed: stylePool, preferred: moodStyles } = J.moodStyleCandidates(project, mood, themePart);
+  const okStyle = k => stylePool.includes(k);
+  let pool = (moodStyles.length && rnd() < 0.72 ? moodStyles : stylePool).filter(k => k !== project.style);
   if (T) { const themed = J.STYLE_ORDER.filter(k => okStyle(k) && themePart(J.STYLES[k]) && k !== project.style); if (themed.length && rnd() < 0.8) pool = themed; }
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style && okStyle(k));
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style);
-  const style = pick(pool);
+  const style = custom ? custom.style : pick(pool);
   const fx = Object.assign({}, project.fx);
   for (const k of Object.keys(M.fx)) fx[k] = range(M.fx[k]);
   fx.koma = pick(T?.koma || { horror: [15, 10, 0], glitch: [15, 15, 10], pop: [15, 15, 10, 0], calm: [0, 0, 15], editorial: [0, 15], emotional: [15, 0], graphic: [15, 15, 0] }[mood] || [15, 10, 0]);
@@ -74,7 +76,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
     const order = J.order(g).filter(k => !(J.registry(g)[k] || {}).special && (!J.randomOk || J.randomOk(project, g, k)) && moodSetOk(J.registry(g)[k]));
     const hand = ['layout', 'enter', 'exit'].includes(g) && Array.isArray(M[g]) ? M[g] : [];   // (M.fx holds slider ranges, not a list)
     const prefer = mood === 'chaos' ? null : new Set([...hand, ...J.taggedWith(g, mood)]);
-    if (prefer && T) for (const k of order) if (themePart(J.registry(g)[k])) prefer.add(k);
+    if (prefer && (T || custom)) for (const k of order) if (themePart(J.registry(g)[k])) prefer.add(k);
     const on = {};
     // entries of a set tied to another mood are switched off explicitly (a missing key would count as enabled)
     for (const k of J.order(g)) if (!moodSetOk(J.registry(g)[k])) on[k] = false;
@@ -98,6 +100,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
   if (mood === 'chaos' && rnd() < 0.2) fonts.display = 'dot';
   // colours: style palette most of the time, a fresh accent / ghost pair otherwise
   const colors = Object.assign({}, project.colors, { enabled: false, accentOn: false });
+  delete colors.palette; delete colors.paletteStyle;
   if (rnd() < 0.38) {
     const bg = J.STYLES[style].schemes[0].bg;
     Object.assign(colors, J.randomPalette(bg, rnd), { accentOn: true });
@@ -106,6 +109,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
   // keep locked lines, drop other per-line picks
   const overrides = {};
   for (const [i, o] of Object.entries(project.overrides || {})) if (o.lock) overrides[i] = o;
-  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9), ...switches, lookTheme: theme };
+  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9), ...switches,
+    ...(custom ? { lookTheme: custom.lookTheme, themeSnapshots: custom.themeSnapshots } : { lookTheme: theme }) };
 };
 })();

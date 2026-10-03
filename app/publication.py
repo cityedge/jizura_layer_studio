@@ -40,5 +40,5 @@ def body(source, lang, version):
     source, count = re.subn(r'<dialog id="termsDlg".*?</dialog>', lambda _: terms, source, count=1, flags=re.S)
     if count != 1:
         raise ValueError('About dialog not found')
-    source = source.replace('<button id="btnTerms"', f'<button id="btnGuide" type="button" class="ghost guide-open">{guide_label}</button>\n      <button id="btnTerms"', 1)
+    source = source.replace('<!-- PUBLICATION_GUIDE_BUTTON -->', f'<button id="btnGuide" type="button" class="ghost guide-open">{guide_label}</button>', 1)
     return source + '\n' + read('app/guide.ja.html' if ja else 'app/guide.en.html').replace('@VERSION@', escape(version))

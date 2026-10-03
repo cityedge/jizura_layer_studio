@@ -60,6 +60,7 @@ J.rng = seed => {                    // mulberry32 stream
   f.int = (lo, hi) => Math.floor(lo + (hi - lo + 1) * f());
   f.pick = arr => arr[Math.floor(f() * arr.length) % arr.length];
   f.chance = p => f() < p;
+  f.state = () => s; // Replay a layout's initial state without consuming a draw.
   f.wpick = list => {               // [{w, v}] or [[v,w]]
     let tot = 0; for (const it of list) tot += Array.isArray(it) ? it[1] : it.w;
     let x = f() * tot;

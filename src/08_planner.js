@@ -341,7 +341,7 @@ J.plan = (project, audio) => {
     let nC = Math.round(D / L);
     const maxC = chunks.length + (chunks.length >= 2 && D > 2.0 ? 1 : 0);
     nC = J.clamp(nC, 1, Math.max(1, maxC));
-    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
+    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
     if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
@@ -358,20 +358,27 @@ J.plan = (project, audio) => {
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
     // a locked line keeps its own cuts too (the cut count would otherwise follow the 細かさ slider or おまかせ)
-    if (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
-      units = ov.lockedCuts.map(c => ({ text: c.utext, w: [...c.utext].length + 1.6, recap: !!c.recap }));
+    const compactText = text => text.replace(/\s/gu, '');
+    const validLocked = ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && J.LAYOUTS[c.layout]
+      && (ln.text.includes(c.utext.trim()) || compactText(ln.text).includes(compactText(c.utext))));
+    if (validLocked)
+      units = ov.lockedCuts.map(c => ({ text: c.utext, w: c.fraction ?? ([...c.utext].length + 1.6), recap: !!c.recap }));
     // ロック: a locked line keeps exactly what it showed when it was locked (layouts, motion, decorations, colours,
     // accents) — rerolling other lines changes the shared "recently used" state, so the seed alone is not enough
-    if (autoSpecs?.length && autoSpecs.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
+    // localLookFor already checks the original cue text/key. Joining Japanese
+    // chunks can omit source spaces, so substring matching here rejects valid
+    // snapshots and attaches their settings to a different cut structure.
+    const validAuto = autoSpecs?.length && autoSpecs.every(c => c && typeof c.utext === 'string' && J.LAYOUTS[c.layout] && c.fraction > 0);
+    if (validAuto)
       units = autoSpecs.map(c => ({ text: c.utext, w: c.fraction ?? ([...c.utext].length + 1.6), recap: !!c.recap }));
     if (project._cueUnits?.[li]?.length)
       units = project._cueUnits[li].map(c => ({ text: c.utext, w: c.fraction, recap: !!c.recap }));
     const unitTotal = units.reduce((a, u) => a + u.w, 0);
-    const lockSpecs = autoSpecs || (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length === units.length
+    const lockSpecs = (validAuto ? autoSpecs : null) || (validLocked && ov.lockedCuts.length === units.length
       && ov.lockedCuts.every((c, k2) => c && c.utext === units[k2].text && J.LAYOUTS[c.layout]) ? ov.lockedCuts : null);
     let acc = s; const bounds = [s];
     units.forEach((u, k) => { acc += D * u.w / unitTotal; bounds.push(k === units.length - 1 ? visEnd : acc); });
-    if (!autoSpecs && !project._cueUnits?.[li]) for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
+    if (!autoSpecs && !project._cueUnits?.[li] && !(ov.lock && lockSpecs?.every(c => c.fraction > 0))) for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
     // scheme per line
     if (nSchemes > 1 && li > 0 && (U ? U.sectionStart(li) && rng.chance(0.25 + fx.bgSwitch) : rng.chance(fx.bgSwitch * (ln.impact ? 1.8 : 1)))) schemeIdx = (schemeIdx + 1 + rng.int(0, nSchemes - 2)) % nSchemes;
     const emphLine = ln.impact || ln.emph.length > 0;
@@ -549,7 +556,7 @@ J.plan = (project, audio) => {
       if (UU) UU.remember(li, k, txt, cut);
       if (zones) splitCut(cut, halves, zones, st, dur, LS);
       // 文字整列: effects don't pile up — one decoration, no text treatment on top of it
-      if (plan.typeset) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
+      if (plan.typeset && !ov.randomDraw?.library) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
       plan.cuts.push(cut);
       const evMark = plan.events.length;
       // history = what the draw gave (with the usual join), so a per-cut pick never shifts the later cuts

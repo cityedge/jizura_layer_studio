@@ -67,7 +67,7 @@ const el = (tag, text, cls) => { const e = document.createElement(tag); if (text
 function button(id, text, fn) { const b = el('button', text); b.type = 'button'; b.id = id; b.addEventListener('click', fn); return b; }
 function fileInput(id, text, accept, fn) {
   const label = el('label', text, 'file'), input = el('input'); input.type = 'file'; input.id = id; input.accept = accept;
-  input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; try { await fn(f, Array.from(input.files)); } catch (e) { status(e.message, true); } finally { input.value = ''; } });
+  input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; const epoch = J.projectSessionEpoch; try { await fn(f, Array.from(input.files)); } catch (e) { if (epoch === J.projectSessionEpoch) status(e.message, true); } finally { input.value = ''; } });
   label.append(input); return label;
 }
 const cueDrafts = new Map();
@@ -137,12 +137,14 @@ async function loadSpectrumPair(frontFile, matteFile) {
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
 async function selectSpectrumFront(file, selected) {
+  const epoch = J.projectSessionEpoch;
   const fronts = selected.filter(f => !/_matte_dark\.[^.]+$/i.test(f.name));
   if (fronts.length !== 1) throw new Error(tr('フロント1本を選んでください。対応マットは任意です。', 'Select one front video, optionally with its matching matte.'));
   const front = fronts[0], matte = J.findSpectrumMatte(selected, front);
   if (matte) return loadSpectrumPair(front, matte);
   if (selected.length > 1) throw new Error(tr('同名_matte_darkの組み合わせが見つかりません。', 'No matching _matte_dark pair was found.'));
   await loadMedia('front', front, true);
+  if (epoch !== J.projectSessionEpoch) return;
   status(session.matte ? tr('フロントとマットで合成します。', 'Compositing with front and matte.') : tr('フロントを読み込みました。マットなし：RGB 000000だけを透明にして合成します。', 'Front loaded. No matte: only RGB 000000 is transparent.'));
 }
 function spectrumControls(panel) {
@@ -188,6 +190,21 @@ function clearDownloads() {
   $('layerDownloads')?.replaceChildren();
   downloadUrls.forEach(url => URL.revokeObjectURL(url)); downloadUrls = [];
 }
+// Called by the single project-reset transaction, including confirm() fallback.
+// Release project assets before replanning so old durations cannot leak back in.
+J.resetLayerProjectSession = () => {
+  for (const key of ['background', 'front', 'matte']) {
+    session.generation[key] = (session.generation[key] || 0) + 1;
+    session[key]?.dispose(); session[key] = null;
+    $('layerName-' + key).textContent = tr('未選択', 'None');
+    $('layerFile-' + key).value = '';
+  }
+  spectrumPreview = null; renderer = null;
+  session.preview = 'composite'; $('layerPreview').value = 'composite';
+  cueDrafts.clear(); cueSignature = ''; showingCueError = false; J.layerCueEditsInvalid = false;
+  simpleProject = null; simpleMaterials = null; simpleInvalidDraft = false;
+  clearDownloads(); status(''); $('layerProgress').value = 0;
+};
 function offerDownloads(files, title) {
   clearDownloads();
   const prefix = (title || 'jizura_layers').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
@@ -506,7 +523,9 @@ function boot() {
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
-    const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
+    const epoch = J.projectSessionEpoch, bytes = await file.arrayBuffer();
+    if (epoch !== J.projectSessionEpoch) return;
+    const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, exportRange: null });
     J.ui.project.simpleExport.duration = null;
@@ -584,7 +603,6 @@ function boot() {
   const left = document.querySelector('.col-left');
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
-  $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

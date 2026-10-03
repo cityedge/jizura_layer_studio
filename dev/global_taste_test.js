@@ -44,7 +44,7 @@ test('global baseline changes only with global controls, handles legacy JSON, an
   delete p.globalLook;
   p = J.prepareCueReroll(p,J.plan(p),1,null,'global');
   assert.deepEqual(copy(p.globalLook),baseline);
-  assert.deepEqual(Object.keys(p.overrides[1]).sort(), ['cueLook','drawSerial','reroll','seed']);
+  assert.deepEqual(Object.keys(p.overrides[1]).sort(), ['cueLook','drawSerial','motionRecipeVersion','reroll','seed']);
   Object.assign(p,J.omakase(p,J.rng(984)));
   const next=J.globalLookBaseline(p,J.plan(p));
   assert.notEqual(next.context,baseline.context);

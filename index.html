@@ -476,6 +476,34 @@ button.small.primary { padding: 4px 12px; }
 .omakase-theme select { min-width:0; max-width:170px; }
 .easy-hero > .omakase-theme { margin-bottom:8px; }
 .easy-hero > .omakase-theme select { flex:1; max-width:none; }
+.omakase-theme { flex-wrap:wrap; }
+.panel-about { padding:16px; border-top:1px solid var(--line); }
+/* Phone mode has the same theme controls in the Easy panel below. */
+#app.is-mobile .transport .omakase-theme { display:none; }
+.user-theme-dialog { box-sizing:border-box; width:min(850px,calc(100vw - 28px)); max-height:calc(100dvh - 28px); overflow-y:auto; padding:18px; background:var(--panel); color:var(--text); border:1px solid var(--line2); border-radius:8px; }
+.user-theme-dialog::backdrop { background:#0009; }
+.user-theme-dialog h2 { font-size:16px; margin:0 0 10px; }
+.user-theme-dialog h3 { font-size:12px; margin:0; }
+.user-theme-dialog .note { font-size:11px; overflow-wrap:anywhere; }
+.user-theme-toolbar, .user-theme-actions, .user-theme-group-heading { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:10px 0; }
+.user-theme-toolbar > select { flex:1; min-width:120px; max-width:100%; }
+.user-theme-name { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12px; }
+.user-theme-name input { flex:1; min-width:0; }
+.user-theme-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.user-theme-weight { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 0; font-size:12px; }
+.user-theme-weight span { overflow-wrap:anywhere; }
+.user-theme-weight select { width:65px; flex-shrink:0; }
+.user-theme-weight .user-theme-help { flex:1; min-width:0; border:0; border-radius:0; background:none; padding:3px 0; text-align:left; font-size:12px; font-weight:inherit; white-space:normal; overflow-wrap:anywhere; text-decoration:underline dotted var(--muted); text-underline-offset:4px; cursor:help; }
+.user-theme-weight .user-theme-help:hover, .user-theme-weight .user-theme-help:focus-visible { color:var(--amber); }
+.user-theme-hint { position:fixed; z-index:30; box-sizing:border-box; width:min(360px,calc(100vw - 40px)); max-height:45dvh; overflow-y:auto; padding:12px; border:1px solid var(--line2); border-radius:6px; background:var(--panel); color:var(--text); box-shadow:0 6px 24px #0009; font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
+.user-theme-distribution, .user-theme-distribution label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12px; }
+.user-theme-distribution { margin-top:14px; }
+.user-theme-distribution select { min-width:0; max-width:100%; }
+.user-theme-actions { justify-content:flex-end; }
+.user-theme-footer { position:sticky; bottom:-18px; margin:12px -4px -4px; padding:1px 4px 4px; border-top:1px solid var(--line2); background:var(--panel); }
+.user-theme-footer .note:empty { display:none; }
+#userThemeStatus.error { color:#ff9696; }
+@media(max-width:560px) { .user-theme-columns { grid-template-columns:minmax(0,1fr); } }
 #layerExport { background:var(--accent, #f5a50c); color:#171310; font-weight:700; white-space:normal; }
 #simpleExport { width:100%; margin-top:12px; white-space:normal; }
 .simple-export-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
@@ -484,6 +512,15 @@ button.small.primary { padding: 4px 12px; }
 .simple-export-controls label.simple-audio { flex-direction:row; align-items:center; }
 #simpleExportInfo.error { color:#ff9696; }
 #simpleSettingsOpen { width:100%; margin-top:6px; }
+.local-font-open { margin-top:6px; max-width:100%; white-space:normal; font-size:11px; }
+.local-font-picker { width:min(560px,calc(100vw - 28px)); max-height:calc(100dvh - 28px); overflow-y:auto; padding:18px; background:var(--panel); color:var(--text); border:1px solid var(--line2); border-radius:8px; }
+.local-font-picker::backdrop { background:#0009; }
+.local-font-picker h2 { font-size:16px; margin:0 0 10px; }
+.local-font-picker .note { font-size:11px; overflow-wrap:anywhere; }
+.local-font-picker input, .local-font-picker select { width:100%; margin-bottom:8px; }
+.local-font-picker select { height:200px; }
+.local-font-sample { font-size:24px; padding:12px; border:1px solid var(--line); overflow-wrap:anywhere; }
+.local-font-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
 .simple-settings-dialog { width:min(1000px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-sizing:border-box; overflow:auto; padding:20px; background:var(--panel,#191b21); color:var(--text,#eee); border:1px solid var(--line2,#444); border-radius:8px; }
 .simple-settings-dialog::backdrop { background:#060608b8; }
 .simple-settings-dialog h2 { font-size:16px; margin:0 0 8px; }
@@ -583,6 +620,24 @@ dialog.filler-dialog p { font-size:12px; }
 .layer-cue.is-filler > strong { color: var(--cyan, #00ddd0); }
 .layer-cue > .filler-badge { grid-column: 1 / -1; }
 @media (max-width: 480px) { .filler-grid { grid-template-columns: 1fr; } .filler-type { gap: 8px; } }
+/* Motion library: flowing controls and one modal scrollbar on small screens. */
+dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: #15161b; color: #ddd; border: 1px solid #444; border-radius: 8px; padding: 20px; }
+.motion-library::backdrop { background: #000b; }
+.motion-library h2 { margin-top: 0; font-size: 18px; }
+.motion-library p { line-height: 1.6; overflow-wrap: anywhere; }
+.motion-library-grid { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 20px; }
+.motion-library-grid > div { min-width: 0; }
+.motion-library select, .motion-library input:not([type=range]):not([type=file]) { box-sizing: border-box; width: 100%; margin: 6px 0; }
+.motion-library select { min-height: 160px; }
+.motion-library option { padding: 5px; }
+.motion-library canvas { display: block; max-width: 100%; height: auto; margin: 0 auto; background: repeating-conic-gradient(#222 0% 25%, #303030 0% 50%) 0 / 24px 24px; }
+.motion-library-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.motion-library-actions input[type=range] { flex: 1 1 100px; min-width: 60px; }
+.motion-library-footer { justify-content: flex-end; }
+.motion-library .error { color: #ffa5a5; }
+@media (max-width: 650px) { .motion-library-grid { grid-template-columns: minmax(0, 1fr); } dialog.motion-library { padding: 12px; } }
+#app.is-mobile .transport { flex-wrap: wrap; }
+#app.is-mobile #btnMotionLibrary { flex: 0 0 100%; }
 
 </style>
 </head>
@@ -598,7 +653,7 @@ dialog.filler-dialog p { font-size:12px; }
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.4.1</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.0</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -615,9 +670,8 @@ dialog.filler-dialog p { font-size:12px; }
     <div class="acts">
       <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="プロジェクトを .json で保存">保存</button>
-      <button id="btnReset" class="ghost" title="歌詞・曲・設定・履歴をすべて消して、最初の状態に戻します">初期化</button>
+      <button id="btnReset" class="ghost" title="現在のプロジェクトを初期化します。共通ライブラリは残します">プロジェクト初期化</button>
       <button id="btnGuide" type="button" class="ghost guide-open">利用ガイド</button>
-      <button id="btnTerms" class="ghost terms-open" title="出力物の権利とライセンス">利用について</button>
     </div>
   </header>
 
@@ -694,7 +748,7 @@ dialog.filler-dialog p { font-size:12px; }
       <div class="tl-bar">
         <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない</span>
         <span class="tl-btns">
-          <button id="btnUndoEdit" class="ghost small" title="歌詞・タイミングの変更を元に戻す（Ctrl+Z）" disabled>元に戻す</button>
+          <button id="btnUndoEdit" class="ghost small" title="字幕編集・演出変更を操作順に元に戻す（Ctrl+Z）" disabled>元に戻す</button>
           <button id="tlOut" class="ghost small icon-txt" title="縮小" aria-label="タイムラインを縮小">−</button>
           <button id="tlIn" class="ghost small icon-txt" title="拡大（タイムライン上でホイールでも）" aria-label="タイムラインを拡大">＋</button>
           <button id="tlFit" class="ghost small" title="全体を表示">全体</button>
@@ -742,8 +796,10 @@ dialog.filler-dialog p { font-size:12px; }
           <h3>ここだけ変える</h3>
           <div class="easy-grid">
             <button id="eStyle" title="スタイルだけ別のものに">スタイル</button>
-            <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色</button>
             <button id="eMood" title="動き・グリッチ・使う手法の雰囲気だけ">雰囲気</button>
+            <button id="eFullPalette" title="テイストを保ち、背景色・文字色を含む全体配色を変更">配色</button>
+            <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色微調整</button>
+            <button id="eFonts" title="スタイル・雰囲気に沿って全体の書体の組み合わせを変更">書体</button>
             <button id="eCut" title="レイアウトと動きの組み合わせだけ">構成</button>
           </div>
         </div>
@@ -854,29 +910,31 @@ dialog.filler-dialog p { font-size:12px; }
         <button class="terms-open linkish" style="margin-top:10px">書き出した動画・画像の権利とライセンスについて</button>
         <p class="note" id="codecNote">書き出しはこのブラウザの中で行われます（Chrome / Edge 推奨）。</p>
       </div>
+      <footer class="panel-about"><button id="btnTerms" class="ghost terms-open" title="出力物の権利とライセンス">利用について</button></footer>
     </section>
   </main>
 </div>
 
 <dialog id="resetDlg" class="terms" aria-labelledby="resetTitle">
   <form method="dialog">
-    <h2 id="resetTitle">初期化</h2>
-    <p>次のものをすべて消して、最初の状態に戻します。<strong>元に戻すことはできません。</strong></p>
+    <h2 id="resetTitle">プロジェクト初期化</h2>
+    <p>現在のプロジェクトを初期状態に戻します。<strong>未保存の変更は失われ、元に戻せません。</strong></p>
     <ul class="reset-list">
-      <li>歌詞・曲名・アーティスト</li>
-      <li>読み込んだ曲（このブラウザに残していた分も）</li>
-      <li>タイミング・行ごとの指定・書き出す範囲</li>
-      <li>スタイル・演出・配色・書体などの設定</li>
-      <li>案の履歴（◀ ▶）と、歌詞・タイミングの「元に戻す」の履歴</li>
+      <li>字幕・SRT・フィラー・パート区切り・プロジェクト名</li>
+      <li>演出・配色・書体・個別指定・ロック・全体のテイストの基準</li>
+      <li>音源・背景・外部スペアナの読み込みと解析結果</li>
+      <li>スペアナ・透明度・出力範囲・簡易動画・タイトルの設定</li>
+      <li>再生位置・案の履歴・編集のUndo/Redo・出力の一時保存リンク</li>
     </ul>
-    <p class="terms-sub">表示モード（かんたん／詳細）・プレビューの音量・画面の言語はそのままです。保存したプロジェクトファイル（.json）も消えません。</p>
-    <div class="terms-foot"><span></span><span class="row"><button value="cancel" class="ghost">やめる</button><button value="reset" class="danger">初期化する</button></span></div>
+    <p><strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど、プロジェクトをまたいで使うデータは残します。</p>
+    <p class="terms-sub">画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、保存済み動画は削除しません。ブラウザの自動保存は初期状態に置き換えます。</p>
+    <div class="terms-foot"><span></span><span class="row"><button value="cancel" class="ghost">やめる</button><button value="reset" class="danger">プロジェクトを初期化</button></span></div>
   </form>
 </dialog>
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.4.1</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.0</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1357,62 +1415,72 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
 <dialog id="guideDlg" class="terms publication-dialog" aria-labelledby="guideTitle">
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.4.1 詳細ユーザーマニュアル（Markdown）</a>：おまかせ、書体、演出、手法、行・カット編集、フィラー、合成、保存を詳しく説明しています。以下は短い操作ガイドです。</p>
-    <p class="terms-main">他の動画に重ねるための、字幕フロントと二値／グレーマット、または背景・音源まで合成したMP4を作るツールです。</p>
+    <p>字幕の演出を作り、背景・音源付きの動画、または編集ソフトで重ねるフロント／マット動画として保存できます。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.5.0 詳細ユーザーマニュアル（Markdown）</a>には、各設定・合成手順・保存データを詳しく掲載しています。</p>
+    <h3>まず1本作る</h3>
     <ol class="guide-steps">
-      <li><strong>字幕を用意する</strong><p>「SRTを読み込む」でUTF-8のSRTを選びます。開始・終了・改行・字幕のない区間を保持します。「SRTの本文・開始・終了を編集」で修正できます。SRTを使わず字幕を直接入力することもできます。</p></li>
-      <li><strong>演出と背景を確認する</strong><p>「おまかせ」で演出を作り、行ごとの設定で調整します。作業用背景に画像・動画を読み込むと、重ねた見え方を確認できます。背景と音源は、フロント／マットのペア出力には入りません。</p></li>
-      <li><strong>必要ならスペアナを重ねる</strong><p>「スペアナの入力」で「音源から生成」または「外部動画」を選びます。音源からは64本のバーを生成し、感度・拍動・戻る速さと上下の色を調整できます。色は最大高さに固定し、低いバーには下端付近の色だけを表示します。解析後はプレビューと出力で同じ動きを使います。</p><p>外部動画はフロントと「同名_matte_dark.mp4」をまとめて選択できます。マットがなければRGB 000000だけを透過します。「なし」で合成を止めます。基本は画面幅65%、左・下に各3%の余白。位置と縦横倍率を調整でき、字幕が手前、開始は0秒です。</p></li>
-      <li><strong>外周ブルームは自動除去</strong><p>後処理で外側に追加されたブルームは、明るさに関係なく常に除去します。文字・図形・スパーク本体と、その内側の明るさの変化は保持します。調整項目はなく、旧プロジェクトのしきい値も無視します。</p></li>
-      <li><strong>MP4を2本保存する</strong><p>画面比・解像度・fpsを選び、「マット＋フロント MP4を出力」を押します。ブラウザに複数ダウンロードの確認が出たら許可してください。保存されない場合は、出力後の個別保存リンクを使えます。2本とも無音で、ZIP圧縮はしません。書き出し中はタブを開いたままにしてください。</p></li>
-      <li><strong>動画編集ソフトで重ねる</strong><p>二値モードでは背景にマットを「比較（暗）」で重ね、その結果にフロントを「比較（明）」で重ねます。半透明モードでは「乗算」→「加算」を使います。2本の開始位置・サイズを揃えてください。マットをアルファに使う場合は白が透明、黒が不透明になるよう反転します。</p></li>
+      <li><strong>字幕と素材を読み込む</strong><p>「SRTを読み込む」でUTF-8のSRTを選び、音源と作業用背景（画像・動画）を読み込みます。SRTなしで字幕を直接入力することもできます。保存済みプロジェクトを再開する場合はJSONを開き、素材だけを読み直してください。SRTを読み直すと、復元した字幕・フィラー・個別演出を置き換えます。</p></li>
+      <li><strong>おまかせで演出を作る</strong><p>テーマを選んで「おまかせ」を押します。テーマなしも選べます。プレビューで気になる字幕へ移動し、数字キーまたは字幕ガチャのボタンで調整します。</p></li>
+      <li><strong>出力方法を選ぶ</strong><p>背景・音源込みで完成させるなら「簡易動画設定…」から時間・音声・タイトルを設定し、「簡易動画MP4を出力」。編集ソフトで重ねるなら「マット＋フロント MP4を出力」です。先に短い範囲で確認してください。</p></li>
+      <li><strong>プロジェクトも保存する</strong><p>上部の「保存」でJSONを保存します。字幕・演出・各設定は復元できますが、素材ファイルの本体は含みません。</p></li>
     </ol>
-    <p>PC画面では中央ペイン全体を縦スクロールし、スクロールバーは常に表示します。カードの増減でもプレビューサイズと先頭からのスクロール量を維持します。詳細モードの候補一覧は下へ展開するので、中央ペインをスクロールして選んでください。タイムライン上のホイールは拡大・縮小用です。スマホモードは従来のページスクロールを使います。</p>
-    <p>プレビューの「速度」で1倍・0.8倍・2/3倍・0.5倍を選べます。曲の音程を維持し、字幕・背景動画・スペアナも同じ速度で再生します。MP4出力や字幕時刻には影響せず、速度はJSONに保存しません。音程補正で音の質感が多少変わる場合があります。タップ同期中は1倍固定です。</p>
-    <p>通常画面のプルダウン・チェック・スライダーをマウスで変更すると、操作後に数字キーなどのショートカットへ戻れます。文字・数値入力、ダイアログ、キーボードでの設定操作はフォーカスを維持します。プレビュー画面やタイムラインのクリックでも入力欄から戻れます。</p>
-    <p>音声が不調な場合は、速度メニュー末尾の「旧1×」で元のWeb Audio方式を使えます。通常の読み込み・再生失敗や10秒の再生開始待ちでも、同じ位置から旧1倍再生へ自動切替し、通知します。旧方式でも失敗したら停止します。通常の速度項目を選べば元に戻せます。MP4出力には影響しません。</p>
-    <p>内蔵スペアナは曲全体を粗く調べ、250〜4,000Hzを含む範囲を自動設定します。「自動音域」に結果を表示し、曲全体で固定します。音源の上限を超えず、推定できない場合は標準範囲を使います。FFTサイズと拍動処理は維持し、色・配置・感度の変更で音域は変わりません。</p>
-    <h3>おまけ機能：簡易動画MP4</h3>
-    <p>「簡易動画設定…」で出力時間・「音源を含めない」・タイトルを設定します。変更はその場で保存されます。タイトル表示は初期値オフ。本文、フォント、太字・斜体、サイズ・色、黒いふち、半透明黒下地、位置を調整でき、ダイアログの時刻スライダーで確認できます。</p><p>「全部」は出力全編、オフならタイムラインの開始・終了秒を指定します。実際の出力範囲と重なる区間の冒頭・末尾に各1秒のフェードを入れられ、2秒未満では短縮します。タイトルは最前面、下地は背景直上で字幕・スペアナより下です。二値モードでも下地は半透明です。背景付きプレビューと簡易動画だけに反映し、レイヤー出力には含みません。設定はJSONに保存します。</p>
-    <p>ペア出力の説明下にある「簡易動画MP4を出力」で、静止画／動画背景→タイトルの黒下地→スペアナ→字幕→タイトル文字を重ねた1本を保存できます。背景なしは黒です。背景動画は0秒から同期し、終端後は最後のフレームを保持します。音声は別途読み込んだ曲だけを使い、背景動画の音声は含めません。内部生成・外部動画のどちらのスペアナも併用できます。</p>
-    <p>出力時間は素材の読み込み・変更時に字幕・スペアナ・デコード済み音源・背景動画の最長へ自動更新し、手動でも修正できます。背景動画は映像トラックの終了時刻を使います。「音源を含めない」を選んでも音源長は計算対象です。終了した音源は無音、字幕・スペアナは非表示となります。範囲出力でも素材は元の時刻に揃います。動画背景は対応するデコーダーが必要で、非対応の場合は理由を表示します。</p>
-    <p>解像度・fps・画質・書き出し範囲は既存の設定を使います。範囲がある場合はその時間帯を切り出し、実際の映像の秒数をボタン下に表示します。音声付き出力にはAACエンコード対応が必要です。プレビュー音量は出力に反映せず、音源は元の音量で保存します。</p>
-    <p>SRT編集欄の「先頭に字幕を追加」「この後に追加」「削除」で通常字幕を個別に増減でき、Ctrl+Zで戻せます。空欄はスロットを残して描画なし。全角スペースは有効な本文で、半角スペースで区分できます。時刻が不正な間は出力を停止し、修正するとエラーは消えます。</p>
-    <p>空白文字フィラーは全角スペース2〜5個を半角スペースで3〜4区分に分けます。文字は見えず、演出によって台紙や装飾が描かれます。</p>
-    <h3>SRTは編集の出発点</h3>
-    <p>「先頭に字幕を追加」の横の「-0.1秒」「+0.1秒」で、フィラーを含む全字幕の開始・終了を移動できます。開始は0秒より前にせず、終了だけを前へ動かす場合は表示時間が短くなります。長さが0以下になる、または未入力・不正な時刻がある場合は全件を変更せず止めます。Ctrl+Zで戻せます。元SRTや音源の拍グリッドは変更しません。</p>
-    <p>読み込んだ字幕は自由に編集できます。タイムラインの帯をクリックすると再生位置が移動します。上部の開始ハンドルのドラッグ、行一覧の開始秒の入力で開始を動かすと、表示時間を維持して終了も移動します。「SRTの本文・開始・終了を編集」で本文や終了だけを変更することもできます。変更は「元に戻す」／Ctrl+Zで取り消せ、プロジェクトJSONに保存できます。元のSRTファイルは変更しません。タップ同期はSRT未使用時のみ利用できます。同期中にSRTを読み込むと、同期と再生を終了します。</p>
-    <h3>空白区間にフィラーを追加する</h3>
-    <p>SRT読み込み後の「フィラーを追加…」で設定ダイアログが開きます。閾値はプリ／ポストギャップを引いた残りに適用します。初期値は5秒・プリ0.3秒・ポスト0.5秒なので、5.8秒以上の間奏が対象です。前奏はポストのみ、アウトロはプリのみを確保します。終端は音源、なければスペアナ、どちらもなければ通常字幕の末尾です。</p>
-    <p>「普通」の平均長さは通常字幕の表示時間の上位50%（端数切り上げ）の平均。短めは0.75倍、長めは1.5倍で、個々の長さに変化を付けます。図形文字は通常字幕の平均文字数に合わせ、繰り返しや混在などを抽選します。歌詞は長さに関係なく全文を抽選します。各種類はチェックと0〜10の重みで選べ、初期状態は全種類オン、重みは空白3・歌詞8・時刻2・図形1・指定テキスト0です。</p>
-    <p>指定テキストは任意の本文を入力し、全文をそのまま使います。初期値は空欄。オン・重み1以上で本文が空ならエラーで止まり、既存フィラーは保持されます。重み0は抽選対象外です。</p>
-    <p>本文の <code>[timestamp]</code> は開始時刻（例：02 05 853）に追従します。通常字幕にも手入力できます。フィラーは編集用の仮置きで、本文を変えてもフィラーのままです。再生成すると手編集分もすべて置き換えます。通常字幕とその演出は保持します。一括削除・Ctrl+Z・JSON保存にも対応します。</p>
-    <h3>スペアナ動画を作るツール</h3>
-    <p><a href="https://github.com/cityedge/audio-spectrum-overlay-maker" target="_blank" rel="noopener noreferrer">Audio Spectrum Overlay Maker</a>は、cityedgeが開発した、本アプリに読み込むスペアナ動画を作るツールです。スペアナ素材を用意するときにご利用ください。</p>
-    <h3>FPSとスペアナ</h3>
-    <p>「音源から生成」の「初期設定に戻す」は、上下の色を白、感度を+8dB、拍動を100%、戻る速さを140msに戻します。位置・倍率・自動音域は維持します。</p>
-    <p>標準は30fpsです。字幕は15枚／秒（2コマ打ち）・10枚／秒（3コマ打ち）・フルから選べます。既存プロジェクトの24fpsや旧コマ打ちは保持します。スペアナは字幕のコマ打ちに影響されず、書き出し時に表示時刻でフレームを選びます。30fps素材を30fpsで素材のフレーム境界から出力すると、各フレームが順番に1回ずつ使われます。29.97fps・可変fpsや異なるfpsでは間引き・繰り返しがあります。対応しない素材はエラーを表示します。</p>
-    <h3>パートと字幕の再抽選</h3>
-    <p>全体のおまかせ・ここだけ変える・シャッフル・案の履歴は、最初の字幕の0.5秒前（最短0秒）へ移動します。フィラー・空白文字も含み、完全な空欄は除外します。かんたん・スマホモードでは自動再生し、詳細モードでは再生／停止状態を維持します。</p>
-    <p>「字幕」欄では本文を保護したまま区切りだけ編集できます。字幕の行でEnter／「区切り追加」を押すと行頭なら上、それ以外なら下に区切りを追加し、空行でBackspace・Delete／「区切り削除」を押すと結合します。手動指定は自動判定より優先し、Ctrl+ZとJSON保存に対応します。↵は字幕本文内の改行です。区切り指定は直後の字幕に付属し、その字幕の削除やフィラーの再生成では一緒に消えます。</p>
-    <p>通常字幕の無字幕時間が3秒以上ならパートを自動で区切ります。フィラーは判定から除き、「字幕」欄の空行で境界を確認できます。統一感はパート単位で働き、字幕間のつなぎは同じパートで前の終了と次の開始が一致する場合だけ候補になります。</p>
-    <p>中央の字幕ガチャは、0：ランダム、1：全体変更、2：スタイル変更、3：雰囲気変更、4：演出変更、5：配色変更、6：微調整、9：全体のテイストです。ボタンでも操作できます。0はスタイル・雰囲気の枠を外し、適合条件と過密を避ける制限の中で抽選します。0の後も2〜5で部分変更でき、6で保持した基礎設定へ復帰して抽選します。5は色だけを変更し、カット構成や動きを保持します。</p>
-    <p>9は字幕の個別テイスト・手動演出・カット数指定を解除し、最後に全体へ適用したスタイル・雰囲気・配色・書体・候補・統一感で再抽選します。元と同じ演出の復元ではありません。全体設定の変更で基準を更新し、字幕ガチャでは更新しません。基準はJSONに保存し、旧JSONでは残っている全体設定を使います。</p>
-    <p>本文・開始／終了・他字幕は保持し、前後のつなぎだけ変わる場合があります。2〜4は担当範囲の手動指定も置き換え、対象外の指定は維持します。通常の6は手動指定を維持します。0は統一感による候補制限を外しますが、追加分・ホラーなどの使用許可は守ります。ロック中は対象外。再生中は0.3秒前から再生し直し、停止中は字幕の頭で停止します。Ctrl＋ZとJSON保存に対応します。</p>
-    <p>Space：再生／停止。左右：2秒移動。Shift＋左右：字幕移動（左は現在の字幕の頭、開始直後なら前の字幕）。A／D：1フレーム移動。Shift＋A／D：1秒移動。R：全体のおまかせ。入力欄・ダイアログ内ではこれらの通常操作を行いません。</p>
-    <h3>おまかせ・字幕ガチャのテーマ</h3>
-    <p>中央のおまかせ付近、またはかんたんモードで「なし・文字PV・キネティック・和風・ホラー・ポップ・バラード」を選べます。選択だけでは演出は変わりません。全体のおまかせは必要なセットをオンにし、字幕ガチャ1〜3では対象字幕の内部だけで有効にします。2は雰囲気・配色、3はスタイル・書体・配色を維持するため、テーマへ一式を寄せるときは1を使います。</p>
-    <p>4・6は字幕に適用済みの設定、9は最後の全体設定とテーマを使います。テーマ選択だけでは9の復帰先は変わりません。0・5は選択中のテーマで制限しません。設定はJSONに保存され、旧JSONはテーマなしです。</p>
-    <h3>飾りの数字・時刻を隠す</h3>
-    <p>「字幕レイヤー」のチェックでNo.01やタイムコードなどを非表示にできます。字幕本文の数字や[timestamp]は残します。枠やRECなど数字以外の装飾は対象外です。初期値はオフ。プレビュー・全出力に共通で反映し、JSONへ保存します。演出の再抽選は行いません。</p>
-    <h3>保存と復元</h3>
-    <p>上部の「保存」でプロジェクトJSONを保存できます。字幕・演出・スペアナ配置などの設定を保持しますが、背景・スペアナ・曲の実ファイルは含みません。再度開くときは音源・背景・外部スペアナを選び直してください。音源・フォント本体はブラウザへ保存しません。追加書体はPCへインストールして名前を指定します。JSONを開くと案内が表示されます。字幕・フィラーは復元されるため、SRTの再読み込みは不要です。言語切り替え前にも保存しておくと安心です。</p>
-    <h3>透明度モード</h3><p>「二値（従来）／半透明（グレーマット）」はプレビューと全出力で共通です。旧JSONは二値で開きます。スペアナは常に二値で、半透明字幕はその手前へ合成します。簡易動画は半透明を保って背景へ合成できます。</p><p>半透明ペアはファイル名に _alpha が付き、フロントは透明度を掛けた色、マットは白＝透明・黒＝不透明です。背景へマットを「乗算」、フロントを「加算」で合成します（front + background × matte / 255）。フロントへ再びアルファを掛けないでください。比較（暗）→比較（明）は二値モード用です。フロント単独では半透明を再現できません。</p><h3>加算がなく、差の絶対値がある場合</h3><p>背景から手前へ、①背景（通常）→②グレーマット（乗算）→③全画面の白ベタ（差の絶対値）→④対応する半透明フロント（差の絶対値）→⑤全画面の白ベタ（差の絶対値）の順に重ねます。全レイヤーは不透明度100%、白ベタ2枚も同じサイズと区間に揃えます。</p><p>各RGB成分で「背景×マット＋フロント」が1以下なら加算と一致します。正しいプリマルチプライ済みのペアは通常この条件を満たしますが、色補正や圧縮誤差もあるため短い範囲で確認してください。「除外」は別の演算です。詳しい式と手順は詳細マニュアルの「動画編集ソフトで合成する」を参照してください。</p><h3>出力の特徴</h3>
-    <p>「フロントだけ MP4を出力」は黒背景の無音MP4を1本保存します。スペアナは含み、音源と作業用背景は含みません。マットの画素生成・エンコードを省略します。後から別に作ったペアのマットとの一致は保証しないため、対応マットが必要ならペアで出力してください。</p>
-    <p>半透明モードでは「背景色の不透明度」を0〜100%で調整できます（初期値40%）。上げるほど濃くなり、混色にも透明度を引き継ぎます。プレビュー・全出力に共通で反映し、プロジェクトJSONに保存します。背景色を使う文字・前景・つなぎ・画面加工にも適用します。別の配色項目や固定色、スペアナは対象外です。0%でも混ぜた文字色などは残り、100%でも演出のフェードは残ります。塗りの重なりでは濃くなります。保存配色・抽選・二値モードは変わりません。</p>
-    <p>フロントの真っ黒は空白です。字幕の黒い描画色はRGB 030303として処理します。二値モードでは、圧縮前の最終フロントで黒以外の場所だけマットが黒になります。二値モードでは半透明を保存しません。MP4圧縮後は色や輪郭がわずかに変わる場合があります。</p>
-    <p>Chrome / EdgeのPC版を推奨します。MP4出力にはWebCodecsとH.264エンコードの対応が必要です。長時間・高解像度ではメモリを多く使うため、まず短い範囲で確認してください。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.4.1</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <h3>全体のテイストを調整する</h3>
+    <p>「シャッフル」は現在の設定で構成を引き直します。かんたんモードの「ここだけ変える」は、スタイル・雰囲気・配色・配色微調整・書体・構成の6種類です。</p>
+    <p>全体の「配色」は主カラーを含む色全体を、明暗・彩度の傾向を保って変更します。「配色微調整」は従来のアクセント・ズレ色A/Bだけの変更。「書体」はスタイル・雰囲気に沿った役割別の組み合わせを選びます。配色・書体の変更は個別ガチャ済みの字幕にも反映し、ロックされた字幕、動き、カット構成、時刻は保持します。</p>
+    <h3>字幕ガチャ</h3>
+    <ul>
+      <li><strong>0 ランダム：</strong>スタイル・雰囲気の枠を外し、成立条件と過密を避ける制限の中で抽選。</li>
+      <li><strong>1 全体変更：</strong>選択中のテーマで、対象字幕のスタイル・雰囲気・配色・書体・構成を再抽選。</li>
+      <li><strong>2 スタイル変更：</strong>雰囲気・配色を保持し、スタイル・書体・関連演出を変更。</li>
+      <li><strong>3 雰囲気変更：</strong>スタイル・書体・配色を保持し、動き・装飾などを変更。</li>
+      <li><strong>4 演出変更：</strong>スタイル・雰囲気・書体・配色を保持し、構図・動き・構成を広く変更。</li>
+      <li><strong>5 配色変更：</strong>テイストに縛られず色だけを変更。</li>
+      <li><strong>6 微調整：</strong>字幕自身の基礎設定と狭い候補で再抽選。0の後は保持していた基礎設定へ復帰。</li>
+      <li><strong>7 書体変更：</strong>テイストに縛られず書体だけを変更。等幅の装飾書体は保持。</li>
+      <li><strong>9 全体のテイスト：</strong>個別指定を解除し、最後の全体設定で再抽選。元の演出そのものの復元ではありません。</li>
+    </ul>
+    <p>本文・時刻・他字幕は保持し、対象前後のつなぎだけ変わる場合があります。2〜4は担当範囲の手動指定も置き換えます。書体変更では字幅や折り返しが変わります。ロック中は字幕ガチャの対象外。Ctrl+Zで戻せます。0の後も2〜5・7で部分変更できます。</p>
+    <p>Ctrl+Zは字幕編集・ガチャ・ライブラリ適用・全体の配色や書体変更などを操作順に取り消します。Ctrl+Shift+Z／Ctrl+Yでやり直せます。案の履歴ボタンは本文・時刻を変えず見た目を比較します。素材読み込み・出力設定・共通ライブラリ管理はUndoの対象外です。</p>
+    <h3>テーマとユーザーテーマ</h3>
+    <p>システムテーマは「なし・文字PV・キネティック・和風・ホラー・ポップ・バラード」。選ぶだけでは演出は変わりません。全体のおまかせは必要な演出セットを有効にし、字幕ガチャ1〜3では対象字幕の内部だけで有効にします。4・6は適用済みの字幕設定、9は最後の全体設定、0・5・7は選択テーマから独立します。</p>
+    <p>「ユーザーテーマ…」→「新規」で作成します。スタイルと雰囲気それぞれに0〜10のウェイトを指定し、「変更を保存」後に選びます。0は除外、各群に最低1つは正の値が必要です。「ランダムにスタイルを選ぶ」「ランダムに雰囲気を選ぶ」が当たると、その群の使用可能な全候補から均等に選び、個別ウェイト0の候補も対象です。</p>
+    <p>名前のホバー・フォーカス・タップで説明を表示します。スタイルの「雰囲気から決める」は、その回の雰囲気による従来の抽選です。「参考にする雰囲気」→「雰囲気の分布を使う」はスタイルを近似ウェイトに展開し、雰囲気を選んだもの1・他0へ上書きします。「全部入り」は雰囲気名で、ランダム枠とは別です。</p>
+    <p>テーマは複製・編集・削除でき、共通ライブラリとプロジェクトJSONに保存します。「テーマJSONを保存／読み込む」で持ち出せます。読み込み後は「変更を保存」。適用済み設定は独立して保持するため、ライブラリから削除・同名で再作成しても字幕ガチャの基準は変わりません。</p>
+    <h3>モーションライブラリ</h3>
+    <p>「おまかせ」の右の「モーションライブラリ…」を開くと、一覧は未選択で、保存対象のモーションを自動試写します。「モーション保存」で対象字幕全体の演出と初期設定を保存。名前は任意で、空欄ならmotion001などを重複しない通し番号で付けます。古いデータで設定情報がない場合は試写・保存できません。字幕ガチャ1・0などで再生成してください。</p>
+    <p>適用先の字幕へ移動して開き直し、一覧から選ぶと新しい歌詞で試写します。「適用」までプロジェクトは変わりません。文字数・時間などの条件に合わなければ理由を表示して適用を止めます。ロック中は適用不可。「中央を空ける」の有無は保存元と揃えてください。</p>
+    <p>試写は無音・素材背景なしで、透明部分を市松模様で表示します。字幕未選択時や「サンプルで試写」では、保存元の文字数・単語構造からサンプル文字を作ります。保存ボタンは開いたときの対象字幕を保存します。適用後は対象の先頭へ移動し、再生中に開いていた場合は0.3秒前から再生。Ctrl+Zで取り消せます。</p>
+    <p>配色・書体・演出とカットの比率は引き継ぎ、配置は新しい文字数・画面サイズで再計算します。元の歌詞・素材本体は保存しません。適用後の2〜4・6は保存元の基礎設定、1は選択中テーマ、9は適用先の全体設定を使います。6は完全復元ではありません。</p>
+    <p>共通ライブラリは最大500件。「名前変更」「削除」は適用済みの字幕に影響せず、プロジェクト初期化でも保持します。プロジェクトJSONには適用済み設定だけが入り、一覧全体は「ライブラリJSONを保存／読み込む」で持ち出します。同じID・同じ内容は重複追加せず、同じIDでも内容が違えば別件で追加（入力20MBまで）。ブラウザのデータ削除に備え、専用JSONをバックアップしてください。</p>
+    <h3>字幕・パート・フィラー</h3>
+    <p>SRT編集欄で本文・開始・終了を修正し、「先頭に字幕を追加」「この後に追加」「削除」で増減します。「-0.1秒／+0.1秒」は全字幕を移動します。負の開始は0秒で止まり、長さ0以下や不正な時刻があれば全件を変更せずエラーにします。空欄は描画なし、全角スペースは有効な本文です。</p>
+    <p>通常字幕の無字幕時間3秒以上でパートを自動分割します。「字幕」欄では本文を保護したまま区切りだけ編集できます。Enterは行頭なら上、それ以外なら下へ区切り追加。空行でBackspace／Deleteを押すと結合します。手動区切りは自動判定より優先し、統一感はパート単位で働きます。字幕間のつなぎは同じパートで前の終了と次の開始が一致するときだけ候補になります。</p>
+    <p>「フィラーを追加…」はSRTの空白区間へ仮の字幕を生成します。初期値は閾値5秒・プリ0.3秒・ポスト0.5秒で、通常は5.8秒以上の間奏が対象。初期ウェイトは空白文字3・歌詞8・タイムスタンプ2・図形1・指定テキスト0です。全種類0、または指定テキストが有効・重み1以上で空欄ならエラーになります。</p>
+    <p><code>[timestamp]</code>は字幕の開始時刻に追従します。再生成では手編集したフィラーも置き換え、通常字幕は保持します。SRTの編集・区切り・フィラーはUndoとJSON保存に対応。元SRTは変更しません。タップ同期はSRT未使用時のみ利用できます。</p>
+    <h3>プレビュー・書体</h3>
+    <p>Space：再生／停止。左右：2秒移動。Shift＋左右：字幕移動。A／D：1フレーム、Shift＋A／D：1秒移動。R：全体のおまかせ。入力欄やダイアログでは通常のショートカットを実行しません。</p>
+    <p>速度は1倍・0.8倍・2/3倍・0.5倍。音程を維持し、出力速度には影響しません。音声が不調なら「旧1×」を選べます。通常再生の失敗時も旧方式へ自動切替します。全体の再抽選は最初の字幕の0.5秒前へ、字幕ガチャは再生中なら対象の0.3秒前、停止中なら開始時刻へ移動します。</p>
+    <p>PCでは中央ペイン全体を縦スクロールし、演出カードの増減でもプレビューサイズとスクロール位置を維持します。スマホはページ全体をスクロールします。</p>
+    <p>詳細設定と簡易動画タイトルには、PCのインストール済みフォントを一覧・絞り込み・見本から選ぶ補助ボタンがあります。対応ブラウザと許可が必要です。取得できない場合は名前を入力してください。フォント本体と一覧は保存せず、利用するPCにも同じフォントが必要です。内蔵書体はGoogle Fontsから取得するものがあります。</p>
+    <h3>スペアナ</h3>
+    <p>「音源から生成」は64本のバーを作り、250〜4,000Hzを含む範囲を基本に、音源の上限内で音域を自動設定します。グラデーションは最大高さを基準に固定し、低いバーには下端付近の色だけが見えます。</p>
+    <p>「初期設定に戻す」は両端を白、感度+8dB、拍動100%、戻る速さ140msに戻し、位置・倍率・音域は保持します。「外部動画」はフロントと対応する <code>_matte_dark.mp4</code> をまとめて選択できます。マットなしならRGB 000000だけを透過します。</p>
+    <p>基本位置は画面幅65%、左・下3%の余白。字幕がスペアナより手前です。スペアナは字幕のコマ打ちから独立します。外部素材の作成には <a href="https://github.com/cityedge/audio-spectrum-overlay-maker" target="_blank" rel="noopener noreferrer">Audio Spectrum Overlay Maker</a> も利用できます。</p>
+    <h3>透明度と出力</h3>
+    <p>「二値（従来）／半透明（グレーマット）」はプレビューと全出力に共通です。スペアナは常に二値。半透明モードの「背景色の不透明度」は0〜100%、初期値40%。背景色を使う図形・文字・混色にも反映します。0%でも混ぜた文字色などは残り、重なった部分は濃くなる場合があります。外周ブルームは自動除去します。</p>
+    <p><strong>簡易動画MP4：</strong>背景・スペアナ・字幕・音源を1本に合成します。「簡易動画設定…」に時間・音源除外・タイトルがあります。時間は素材変更時に最長へ更新し、手動修正も可能。音源を除外しても長さ計算には含めます。背景動画終了後は最終フレームを保持し、背景動画の音声は使いません。</p>
+    <p>タイトルは全編または開始・終了秒で指定し、書体・太字／斜体・0.5%刻みのサイズ・色・ふち・位置・半透明黒下地を調整します。前後各1秒のフェードは短区間では短縮します。タイトル文字は最前面、下地は背景直上で字幕・スペアナより下。背景付きプレビューと簡易動画だけに入り、レイヤー出力には入りません。</p>
+    <p><strong>マット＋フロント：</strong>字幕・スペアナの無音MP4を2本保存します。背景素材・音源・タイトルは含みません。複数ダウンロードを許可し、保存できない場合は出力後の個別リンクを使います。</p>
+    <p>二値の合成は背景→マット「比較（暗）」→フロント「比較（明）」。半透明は背景→グレーマット「乗算」→対応フロント「加算」です。開始位置とサイズを揃えます。マットは白＝透明、黒＝不透明。半透明フロントはプリマルチプライ済みなのでアルファを二重に掛けないでください。</p>
+    <p><strong>加算がなく、差の絶対値がある場合：</strong>背景から手前へ、①背景（通常）→②グレーマット（乗算）→③全画面白ベタ（差の絶対値）→④半透明フロント（差の絶対値）→⑤全画面白ベタ（差の絶対値）。全レイヤーの不透明度は100%、サイズ・区間を揃えます。各RGB成分の「背景×マット＋フロント」が1以下なら加算と一致します。「除外」は別の演算です。</p>
+    <p><strong>フロントだけ：</strong>マット生成を省いて黒背景の無音動画を1本出力します。後から出力したマットとの一致は保証しません。半透明の再現には対応ペアが必要です。二値フロントの空白は黒、黒い描画要素はRGB 030303として扱いますが、圧縮後の値には誤差があります。</p>
+    <p>MP4出力はChrome／EdgeのPC版を推奨します。WebCodecs・H.264、音声付き簡易動画にはAAC対応が必要です。書き出し中はタブを開いたままにしてください。高解像度・長時間ではメモリを多く使います。</p>
+    <h3>保存・再開・プロジェクト初期化</h3>
+    <p>現在の字幕・設定はブラウザへ自動保存しますが、バックアップには「保存」でJSONを書き出してください。JSONを開けば編集済み字幕とフィラーも戻ります。音源・背景・外部スペアナは別途読み込みます。音源・フォント本体はブラウザへ保存しません。</p>
+    <p><strong>「プロジェクト初期化」</strong>は現在の字幕・フィラー・区切り・演出・ロック・素材の読み込み・スペアナ・透明度・出力・タイトル設定・再生位置・履歴を初期状態へ戻します。出力の一時保存リンクも消え、自動保存は初期状態に置き換わります。確認後はUndoできません。</p>
+    <p><strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど曲をまたいで使うデータと、画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、出力動画も削除しません。共通データの削除はそれぞれの管理画面で行います。</p>
+    <p>「利用について」は右ペイン最下部にあります。権利・ライセンス・素材の取り扱いを確認できます。</p>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -1541,6 +1609,7 @@ J.rng = seed => {                    // mulberry32 stream
   f.int = (lo, hi) => Math.floor(lo + (hi - lo + 1) * f());
   f.pick = arr => arr[Math.floor(f() * arr.length) % arr.length];
   f.chance = p => f() < p;
+  f.state = () => s; // Replay a layout's initial state without consuming a draw.
   f.wpick = list => {               // [{w, v}] or [[v,w]]
     let tot = 0; for (const it of list) tot += Array.isArray(it) ? it[1] : it.w;
     let x = f() * tot;
@@ -2680,6 +2749,8 @@ J.resolveStyle = (project) => {
   const base = J.STYLES[project.style] || J.STYLES.noir;
   const st = JSON.parse(JSON.stringify(base));
   const ov = project.colors || {};
+  if (Array.isArray(ov.palette) && ov.palette.length && ov.paletteStyle === project.style && J.paletteForStyle)
+    st.schemes = J.paletteForStyle(st.schemes, ov.palette);
   // base colours (background / text) replace the main scheme only
   if (ov.enabled) st.schemes[0] = Object.assign({}, st.schemes[0], pickDefined(ov, ['bg', 'fg', 'sub']));
   // accent + chromatic ghost colours apply to every scheme; accent is re-lit per background for contrast
@@ -4430,7 +4501,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.4.1', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.5.0', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4509,7 +4580,7 @@ J.plan = (project, audio) => {
     let nC = Math.round(D / L);
     const maxC = chunks.length + (chunks.length >= 2 && D > 2.0 ? 1 : 0);
     nC = J.clamp(nC, 1, Math.max(1, maxC));
-    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
+    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
     if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
@@ -4526,20 +4597,27 @@ J.plan = (project, audio) => {
     let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
     // a locked line keeps its own cuts too (the cut count would otherwise follow the 細かさ slider or おまかせ)
-    if (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
-      units = ov.lockedCuts.map(c => ({ text: c.utext, w: [...c.utext].length + 1.6, recap: !!c.recap }));
+    const compactText = text => text.replace(/\s/gu, '');
+    const validLocked = ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && J.LAYOUTS[c.layout]
+      && (ln.text.includes(c.utext.trim()) || compactText(ln.text).includes(compactText(c.utext))));
+    if (validLocked)
+      units = ov.lockedCuts.map(c => ({ text: c.utext, w: c.fraction ?? ([...c.utext].length + 1.6), recap: !!c.recap }));
     // ロック: a locked line keeps exactly what it showed when it was locked (layouts, motion, decorations, colours,
     // accents) — rerolling other lines changes the shared "recently used" state, so the seed alone is not enough
-    if (autoSpecs?.length && autoSpecs.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
+    // localLookFor already checks the original cue text/key. Joining Japanese
+    // chunks can omit source spaces, so substring matching here rejects valid
+    // snapshots and attaches their settings to a different cut structure.
+    const validAuto = autoSpecs?.length && autoSpecs.every(c => c && typeof c.utext === 'string' && J.LAYOUTS[c.layout] && c.fraction > 0);
+    if (validAuto)
       units = autoSpecs.map(c => ({ text: c.utext, w: c.fraction ?? ([...c.utext].length + 1.6), recap: !!c.recap }));
     if (project._cueUnits?.[li]?.length)
       units = project._cueUnits[li].map(c => ({ text: c.utext, w: c.fraction, recap: !!c.recap }));
     const unitTotal = units.reduce((a, u) => a + u.w, 0);
-    const lockSpecs = autoSpecs || (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length === units.length
+    const lockSpecs = (validAuto ? autoSpecs : null) || (validLocked && ov.lockedCuts.length === units.length
       && ov.lockedCuts.every((c, k2) => c && c.utext === units[k2].text && J.LAYOUTS[c.layout]) ? ov.lockedCuts : null);
     let acc = s; const bounds = [s];
     units.forEach((u, k) => { acc += D * u.w / unitTotal; bounds.push(k === units.length - 1 ? visEnd : acc); });
-    if (!autoSpecs && !project._cueUnits?.[li]) for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
+    if (!autoSpecs && !project._cueUnits?.[li] && !(ov.lock && lockSpecs?.every(c => c.fraction > 0))) for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
     // scheme per line
     if (nSchemes > 1 && li > 0 && (U ? U.sectionStart(li) && rng.chance(0.25 + fx.bgSwitch) : rng.chance(fx.bgSwitch * (ln.impact ? 1.8 : 1)))) schemeIdx = (schemeIdx + 1 + rng.int(0, nSchemes - 2)) % nSchemes;
     const emphLine = ln.impact || ln.emph.length > 0;
@@ -4717,7 +4795,7 @@ J.plan = (project, audio) => {
       if (UU) UU.remember(li, k, txt, cut);
       if (zones) splitCut(cut, halves, zones, st, dur, LS);
       // 文字整列: effects don't pile up — one decoration, no text treatment on top of it
-      if (plan.typeset) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
+      if (plan.typeset && !ov.randomDraw?.library) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
       plan.cuts.push(cut);
       const evMark = plan.events.length;
       // history = what the draw gave (with the usual join), so a per-cut pick never shifts the later cuts
@@ -5275,27 +5353,29 @@ J.MOODS = {
 })();
 
 J.omakase = (project, rnd = Math.random, options = {}) => {
-  const theme = J.normalizeTheme(options.theme ?? project.theme), T = J.THEMES[theme], switches = J.themeSwitches(theme);
-  if (T) project = { ...project, ...switches };
-  const themePart = d => !!(T && d && ((T.set && d.set === T.set) || (T.wa && d.wa)));
+  const theme = J.normalizeTheme(options.theme ?? project.theme, project), T = J.THEMES[theme];
+  const userTheme = J.userThemeFor(project, theme), custom = userTheme ? J.prepareUserThemeDraw(project, userTheme, rnd, options) : null;
+  const switches = custom ? custom.switches : J.themeSwitches(theme);
+  if (T || custom) project = { ...project, ...switches };
+  const themePart = d => !!(d && (custom ? custom.sets.has(d.set) || (custom.wa && d.wa) : T && ((T.set && d.set === T.set) || (T.wa && d.wa))));
   const pick = a => a[Math.floor(rnd() * a.length) % a.length];
   const range = r => +(r[0] + (r[1] - r[0]) * rnd()).toFixed(2);
   const moodOk = k => !J.MOODS[k].set || (J.setOn && J.setOn(project, J.MOODS[k].set));
   let moods = Object.keys(J.MOODS).filter(k => k !== project.mood && moodOk(k));
   if (T) { const allowed = T.moods.filter(moodOk); moods = allowed.filter(k => k !== project.mood); if (!moods.length) moods = allowed; }
   // with the ホラー switch on, おまかせ leans to the ホラー mood (it may repeat)
-  const mood = options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : !T && moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood];
+  const mood = custom ? custom.mood : options.mood && J.MOODS[options.mood] && moodOk(options.mood) ? options.mood : !T && moodOk('horror') && rnd() < 0.55 ? 'horror' : pick(moods), M = J.MOODS[mood] || J.MOODS.chaos;
   // a set tied to a mood (ホラー) is only used in that mood
   const moodSetOk = d => themePart(d) || !(d && d.set) || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set;
   // style: mostly one that suits the mood, sometimes anything; never the same twice in a row
   // (only styles the 追加分 / 和風 switches allow)
-  const okStyle = k => J.STYLES[k] && (!J.randomOk || J.randomOk(project, 'style', k)) && moodSetOk(J.STYLES[k]);
-  const moodStyles = [...new Set([...(M.styles || []), ...J.STYLE_ORDER.filter(k => (J.STYLES[k].moods || []).includes(mood))])].filter(okStyle);
-  let pool = (moodStyles.length && rnd() < 0.72 ? moodStyles : J.STYLE_ORDER.filter(okStyle)).filter(k => k !== project.style);
+  const { allowed: stylePool, preferred: moodStyles } = J.moodStyleCandidates(project, mood, themePart);
+  const okStyle = k => stylePool.includes(k);
+  let pool = (moodStyles.length && rnd() < 0.72 ? moodStyles : stylePool).filter(k => k !== project.style);
   if (T) { const themed = J.STYLE_ORDER.filter(k => okStyle(k) && themePart(J.STYLES[k]) && k !== project.style); if (themed.length && rnd() < 0.8) pool = themed; }
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style && okStyle(k));
   if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== project.style);
-  const style = pick(pool);
+  const style = custom ? custom.style : pick(pool);
   const fx = Object.assign({}, project.fx);
   for (const k of Object.keys(M.fx)) fx[k] = range(M.fx[k]);
   fx.koma = pick(T?.koma || { horror: [15, 10, 0], glitch: [15, 15, 10], pop: [15, 15, 10, 0], calm: [0, 0, 15], editorial: [0, 15], emotional: [15, 0], graphic: [15, 15, 0] }[mood] || [15, 10, 0]);
@@ -5308,7 +5388,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
     const order = J.order(g).filter(k => !(J.registry(g)[k] || {}).special && (!J.randomOk || J.randomOk(project, g, k)) && moodSetOk(J.registry(g)[k]));
     const hand = ['layout', 'enter', 'exit'].includes(g) && Array.isArray(M[g]) ? M[g] : [];   // (M.fx holds slider ranges, not a list)
     const prefer = mood === 'chaos' ? null : new Set([...hand, ...J.taggedWith(g, mood)]);
-    if (prefer && T) for (const k of order) if (themePart(J.registry(g)[k])) prefer.add(k);
+    if (prefer && (T || custom)) for (const k of order) if (themePart(J.registry(g)[k])) prefer.add(k);
     const on = {};
     // entries of a set tied to another mood are switched off explicitly (a missing key would count as enabled)
     for (const k of J.order(g)) if (!moodSetOk(J.registry(g)[k])) on[k] = false;
@@ -5332,6 +5412,7 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
   if (mood === 'chaos' && rnd() < 0.2) fonts.display = 'dot';
   // colours: style palette most of the time, a fresh accent / ghost pair otherwise
   const colors = Object.assign({}, project.colors, { enabled: false, accentOn: false });
+  delete colors.palette; delete colors.paletteStyle;
   if (rnd() < 0.38) {
     const bg = J.STYLES[style].schemes[0].bg;
     Object.assign(colors, J.randomPalette(bg, rnd), { accentOn: true });
@@ -5340,7 +5421,8 @@ J.omakase = (project, rnd = Math.random, options = {}) => {
   // keep locked lines, drop other per-line picks
   const overrides = {};
   for (const [i, o] of Object.entries(project.overrides || {})) if (o.lock) overrides[i] = o;
-  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9), ...switches, lookTheme: theme };
+  return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9), ...switches,
+    ...(custom ? { lookTheme: custom.lookTheme, themeSnapshots: custom.themeSnapshots } : { lookTheme: theme }) };
 };
 })();
 
@@ -5360,6 +5442,139 @@ J.normalizeTheme = value => typeof value === 'string' && Object.hasOwn(J.THEMES,
 J.themeSwitches = theme => {
   const T = J.THEMES[J.normalizeTheme(theme)];
   return { ...(T?.set ? { [T.set]: true } : {}), ...(T?.wa ? { wa: true, extra: true } : {}) };
+};
+})();
+
+/* User themes are editable recipes. Applied recipes are immutable, shared once
+   inside a project; cue/global looks refer to them without consulting the library. */
+(() => {
+'use strict';
+const has = (o, k) => !!o && Object.hasOwn(o, k);
+J.USER_THEME_RANDOM = 'random';
+J.USER_THEME_FROM_MOOD = 'fromMood';
+J.newUserThemeId = () => 'user-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+J.normalizeUserTheme = value => {
+  if (!value || typeof value !== 'object' || typeof value.id !== 'string' || !/^user-[\w-]{1,100}$/.test(value.id)) return null;
+  const name = typeof value.name === 'string' ? value.name.replace(/[\x00-\x1f]/g, '').trim().slice(0, 80) : '';
+  if (!name) return null;
+  const weights = (input, keys) => Object.fromEntries(['random', ...keys].filter(k => has(input, k) && Number.isInteger(input[k]) && input[k] > 0 && input[k] <= 10).map(k => [k, input[k]]));
+  const styles = weights(value.styles, ['fromMood', ...J.STYLE_ORDER]), moods = weights(value.moods, Object.keys(J.MOODS));
+  if (!Object.keys(styles).length || !Object.keys(moods).length) return null;
+  return { id: value.id, name, styles, moods };
+};
+J.normalizeUserThemes = values => {
+  const out = [], seen = new Set();
+  for (const value of Array.isArray(values) ? values : []) {
+    const t = J.normalizeUserTheme(value);
+    if (t && !seen.has(t.id)) { seen.add(t.id); out.push(t); }
+  }
+  return out;
+};
+J.mergeUserThemeLists = (existing, incoming) => {
+  const themes = J.normalizeUserThemes(existing), idMap = {};
+  const content = t => JSON.stringify({ ...t, id: '' });
+  for (const t of J.normalizeUserThemes(incoming)) {
+    const found = themes.find(x => x.id === t.id);
+    if (!found) { themes.push(t); idMap[t.id] = t.id; }
+    else if (content(found) === content(t)) idMap[t.id] = t.id;
+    else {
+      // Reimporting a conflicting revision reuses its previous imported copy.
+      const same = themes.find(x => content(x) === content(t));
+      const added = same || { ...t, id: J.newUserThemeId() };
+      if (!same) themes.push(added);
+      idMap[t.id] = added.id;
+    }
+  }
+  return { themes, idMap };
+};
+J.parseUserThemeFile = value => {
+  if (value?.format !== 'jizura-user-themes' || ![1, 2].includes(value.version) || !Array.isArray(value.themes)) throw new Error('Invalid user theme file');
+  for (const t of value.themes) {
+    if (!J.normalizeUserTheme(t)) throw new Error('Invalid theme or empty weights');
+    for (const weights of [t.styles, t.moods]) if (!weights || Object.values(weights).some(w => !Number.isInteger(w) || w < 0 || w > 10)) throw new Error('Invalid weight');
+  }
+  const themes = J.normalizeUserThemes(value.themes);
+  if (themes.length !== value.themes.length) throw new Error('Duplicate theme ID');
+  return themes;
+};
+// Older apps must reject, rather than silently drop, the new draw instruction.
+J.userThemesFile = themes => ({ format: 'jizura-user-themes', version: themes.some(t => t.styles.fromMood > 0) ? 2 : 1, themes });
+J.normalizeThemeSnapshots = values => Object.fromEntries(Object.entries(values && typeof values === 'object' && !Array.isArray(values) ? values : {})
+  .filter(([id, t]) => /^saved-[\w-]{1,100}$/.test(id) && J.normalizeUserTheme(t))
+  .map(([id, t]) => [id, J.normalizeUserTheme(t)]));
+const systemNormalize = J.normalizeTheme;
+J.normalizeTheme = (value, project) => systemNormalize(value) || (typeof value === 'string' && project?.userThemes?.some(t => t.id === value) ? value : '');
+J.normalizeLookTheme = (value, project) => systemNormalize(value) || (typeof value === 'string' && /^saved-[\w-]+$/.test(value) && has(project?.themeSnapshots, value) ? value : '');
+J.appliedThemeName = (value, project) => {
+  const key = J.normalizeLookTheme(value, project), t = J.THEMES[key];
+  return t ? J.layerText(t.name, t.en) : project?.themeSnapshots?.[key]?.name || '';
+};
+J.userThemeFor = (project, value = project.theme) => J.normalizeUserTheme(project.userThemes?.find(t => t.id === value));
+J.themeDrawSwitches = draw => Object.fromEntries(['extra', 'wa', 'horror', 'typo', 'kinetic'].filter(k => draw[k] === true).map(k => [k, true]));
+J.moodStyleCandidates = (project, mood, themePart = () => false) => {
+  const M = J.MOODS[mood] || J.MOODS.chaos;
+  const allowed = J.STYLE_ORDER.filter(k => {
+    const d = J.STYLES[k];
+    return d && (!J.randomOk || J.randomOk(project, 'style', k)) &&
+      (themePart(d) || !d.set || !Object.values(J.MOODS).some(m => m.set === d.set) || M.set === d.set);
+  });
+  const preferred = [...new Set([...(M.styles || []), ...J.STYLE_ORDER.filter(k => (J.STYLES[k].moods || []).includes(mood))])].filter(k => allowed.includes(k));
+  return { allowed, preferred };
+};
+const moodContext = (project, mood) => J.MOODS[mood]?.set ? { ...project, [J.MOODS[mood].set]: true } : project;
+J.chooseStyleFromMood = (project, mood, rnd) => {
+  const pick = a => a[Math.min(a.length - 1, Math.floor(rnd() * a.length))];
+  // A manually edited cue may never have had a mood assigned. Keep it unset,
+  // and use the same available-style pool as the ordinary random entry.
+  if (!has(J.MOODS, mood)) return pick(J.STYLE_ORDER.filter(k => J.randomOk(project, 'style', k)));
+  const { allowed, preferred } = J.moodStyleCandidates(moodContext(project, mood), mood);
+  let pool = (preferred.length && rnd() < 0.72 ? preferred : allowed).filter(k => k !== project.style);
+  if (!pool.length) pool = allowed.filter(k => k !== project.style);
+  if (!pool.length) pool = allowed;
+  return pick(pool);
+};
+J.approximateMoodStyleWeights = (project, mood) => {
+  if (!has(J.MOODS, mood)) throw new Error('Unknown reference mood');
+  const { allowed, preferred } = J.moodStyleCandidates(moodContext(project, mood), mood), n = preferred.length;
+  if (!n) return { weights: { random: 1 }, preferredCount: 0, availableCount: allowed.length, mainShare: 0 };
+  // Equal weights preserve the uniform draw within the preferred pool. Search
+  // all integer pairs and prefer a smaller total on ties; never exclude a main
+  // candidate just to make the branch ratio look more accurate.
+  let best;
+  for (let weight = 1; weight <= 10; weight++) for (let random = 1; random <= 10; random++) {
+    const total = n * weight + random, mainShare = n * weight / total, error = Math.abs(mainShare - 0.72);
+    if (!best || error < best.error - 1e-12 || (Math.abs(error - best.error) < 1e-12 && total < best.total)) best = { weight, random, total, mainShare, error };
+  }
+  return { weights: { random: best.random, ...Object.fromEntries(preferred.map(k => [k, best.weight])) }, preferredCount: n, availableCount: allowed.length, mainShare: best.mainShare };
+};
+J.prepareUserThemeDraw = (project, theme, rnd, options = {}) => {
+  const choose = (weights, allowed) => {
+    const entries = Object.entries(weights), total = entries.reduce((n, [, w]) => n + w, 0);
+    let at = rnd() * total, key = entries.at(-1)[0];
+    for (const [k, w] of entries) { at -= w; if (at < 0) { key = k; break; } }
+    if (key !== 'random') return key;
+    if (!allowed.length) throw new Error(J.layerText('ランダム抽選に使える候補がありません。', 'No candidates are available for the random draw.'));
+    return allowed[Math.min(allowed.length - 1, Math.floor(rnd() * allowed.length))];
+  };
+  // Each random bucket uses the existing switches, not sets enabled by the other
+  // dimension's explicit choice. Explicit choices never lose their stated weight.
+  const mood = has(options, 'mood') ? (has(J.MOODS, options.mood) ? options.mood : null) : choose(theme.moods, Object.keys(J.MOODS).filter(k => !J.MOODS[k].set || J.setOn(project, J.MOODS[k].set)));
+  const pickedStyle = has(J.STYLES, options.style) ? options.style : choose(theme.styles, J.STYLE_ORDER.filter(k => J.randomOk(project, 'style', k)));
+  const style = pickedStyle === 'fromMood' ? J.chooseStyleFromMood(project, mood, rnd) : pickedStyle;
+  const switches = {}, sets = new Set(); let wa = false;
+  for (const d of [J.STYLES[style], J.MOODS[mood]].filter(Boolean)) {
+    if (d.extra) switches.extra = true;
+    if (d.wa) { wa = true; switches.wa = true; switches.extra = true; }
+    if (d.set) { sets.add(d.set); switches[d.set] = true; }
+  }
+  const themeSnapshots = { ...(project.themeSnapshots || {}) }, serialized = JSON.stringify(theme);
+  let lookTheme = Object.keys(themeSnapshots).find(id => JSON.stringify(themeSnapshots[id]) === serialized);
+  if (!lookTheme) {
+    const stem = 'saved-' + J.sid(serialized).toString(16); lookTheme = stem;
+    for (let n = 1; has(themeSnapshots, lookTheme); n++) lookTheme = stem + '-' + n;
+    themeSnapshots[lookTheme] = JSON.parse(serialized);
+  }
+  return { mood, style, switches, sets, wa, themeSnapshots, lookTheme };
 };
 })();
 
@@ -36768,7 +36983,7 @@ J.defaultProject = () => {
   p.layerMode = 'binary';
   p.layerBackgroundOpacity = J.normalizeBackgroundOpacity();
   p.hideDecorativeText = false;
-  p.theme = ''; p.lookTheme = '';
+  p.theme = ''; p.lookTheme = ''; p.userThemes = []; p.themeSnapshots = {};
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
@@ -36776,8 +36991,10 @@ J.upgradeLayerProject = (project, source) => {
   project.layerMode = J.normalizeLayerMode(source?.layerMode);
   project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(source?.layerBackgroundOpacity);
   project.hideDecorativeText = source?.hideDecorativeText === true;
-  project.theme = J.normalizeTheme(source?.theme);
-  project.lookTheme = J.normalizeTheme(source?.lookTheme);
+  project.userThemes = J.normalizeUserThemes(source?.userThemes);
+  project.themeSnapshots = J.normalizeThemeSnapshots(source?.themeSnapshots);
+  project.theme = J.normalizeTheme(source?.theme, project);
+  project.lookTheme = J.normalizeLookTheme(source?.lookTheme, project);
   // Preserve the old onTwos-only project format without changing saved motion cadence.
   if (source?.fx && source.fx.koma == null) project.fx.koma = source.fx.onTwos === false ? 0 : 12;
   if (source?.layerOnly && !source.layerEffectsVersion) {
@@ -37925,21 +38142,30 @@ J.captureLocalLooks = (p, current, audio) => {
   });
   p.localLooks = { context: J.localLookContext(p, audio), lines };
 };
+J.rekeyLocalLooks = (p, current, audio) => {
+  p.localLooks.context = J.localLookContext(p, audio);
+  for (const ln of current.lines) {
+    const key = p.subtitleCues?.[ln.index]?.id ?? ('line-' + ln.index), entry = p.localLooks.lines[key];
+    if (entry) entry.key = cueKey(ln.text, ln.start, ln.end, ln.part, p.overrides?.[ln.index] || {});
+  }
+};
 J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
+  ['font', '書体変更', 'Fonts'],
   ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
 J.cueRerollKey = mode => mode === 'global' ? '9' : mode === 'random' ? '0' : String(J.cueRerollModes.findIndex(m => m[0] === mode) + 1);
 const ruleKeys = ['style', 'mood', 'fonts', 'colors', 'fx', 'enabled', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'lookTheme'];
 const ruleFrom = p => Object.fromEntries(ruleKeys.map(k => [k, clone(p[k] ?? null)]));
+J.cueAppearanceRule = (p, style) => ({ ...ruleFrom(p), palette: clone(style.schemes), palettes: [], unifyMode: 'local' });
 const globalKeys = [...ruleKeys, 'seed', 'unify', 'typeset'];
 // Local overrides are deliberately absent from the signature. Global controls,
 // including manual edits and history navigation, establish the latest baseline.
 J.globalLookBaseline = (p, current) => {
   const values = Object.fromEntries(globalKeys.map(k => [k, clone(p[k] ?? null)]));
-  values.lookTheme = J.normalizeTheme(values.lookTheme);
+  values.lookTheme = J.normalizeLookTheme(values.lookTheme, p);
   const signature = { ...values, enabled: poolContext(values.enabled) };
   // No-theme signatures match projects saved before themes were introduced.
   if (!signature.lookTheme) delete signature.lookTheme;
@@ -38061,7 +38287,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   const next = clone(p);
   J.captureLocalLooks(next, current, audio);
   next.overrides ||= {};
-  const target = next.overrides[index] = { ...clone(mode === 'fine' ? baseOverride(ov) : ov), seed: (ov.seed | 0) + (mode === 'color' ? 0 : 1), drawSerial: (ov.drawSerial | 0) + 1, reroll: true };
+  const target = next.overrides[index] = { ...clone(mode === 'fine' ? baseOverride(ov) : ov), seed: (ov.seed | 0) + (['color','font'].includes(mode) ? 0 : 1), drawSerial: (ov.drawSerial | 0) + 1, reroll: true };
   const palettes = current.layerGroups ? Object.fromEntries(current.layerGroups.map(g => [g.kind, g.plan.unifyPalettes])) : { normal: current.unifyPalettes, filler: current.unifyPalettes };
   const key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
   const first = current.cuts.find(c => c.line === index), base = targetPlan(current, index);
@@ -38071,6 +38297,18 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.localLooks.lines[key] = { key: cueKey(ln.text, ln.start, ln.end, ln.part, target), cuts };
     return next;
   };
+  if (mode === 'font') {
+    const fonts = J.drawFontRoles(p, renderLook.style, random, false);
+    // Full-random cues keep their hidden taste, just as with cue color draws.
+    if (!target.randomDraw) {
+      target.cueLook ||= J.cueAppearanceRule(p, renderLook.style);
+      target.cueLook.fonts = { ...target.cueLook.fonts, ...fonts };
+    }
+    const cuts = next.localLooks.lines[key].cuts;
+    for (const cut of cuts) J.retargetCutFonts(cut, fonts, renderLook);
+    if (target.randomDraw) target.randomDraw.cuts = clone(cuts);
+    return storeCuts(cuts);
+  }
   if (mode === 'global') {
     const baseline = J.globalLookBaseline(p, current);
     next.globalLook = baseline;
@@ -38099,7 +38337,8 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'color' && ov.randomDraw) rule.palette = clone(renderLook.style.schemes);
   if (mode !== 'fine') {
     if (mode === 'all' || mode === 'style' || mode === 'mood') {
-      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : {}) });
+      const draw = J.omakase(effective, random, { theme: p.theme, ...(mode === 'style' ? { mood: effective.mood } : mode === 'mood' ? { style: effective.style } : {}) });
+      if (draw.themeSnapshots) next.themeSnapshots = draw.themeSnapshots;
       const themed = { ...effective, ...draw };
       if (mode === 'all') {
         for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
@@ -38111,7 +38350,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
         Object.assign(rule, { mood: draw.mood, fx: draw.fx, enabled: draw.enabled, palettes: [] });
         clearGroups(target, ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat']);
       }
-      Object.assign(rule, J.themeSwitches(p.theme), { lookTheme: draw.lookTheme });
+      Object.assign(rule, J.themeDrawSwitches(draw), { lookTheme: draw.lookTheme });
       rule.unifyMode = 'local';
     } else if (mode === 'motion') {
       rule.enabled = broadPool(effective, effective.mood, random);
@@ -38462,6 +38701,327 @@ J.PreviewAudio = class {
   }
 };
 
+/* Color/font-only draws edit saved cuts, so motion and timing are not rerolled. */
+(() => {
+'use strict';
+const copy = v => JSON.parse(JSON.stringify(v));
+const roles = ['display', 'serif', 'body'];
+const pick = (a, rng) => a[Math.min(a.length - 1, Math.floor(rng() * a.length))];
+const serif = k => ['mincho', 'brush', 'hand'].includes(J.FONTS[k]?.kind);
+const quiet = new Set(['dela', 'pop', 'reggae', 'rampart', 'potta', 'round', 'dot']);
+J.drawFontRoles = (project, style, rng = Math.random, coherent = false) => {
+  const available = Object.keys(J.FONTS).filter(k => !J.FONTS[k].user && J.FONTS[k].kind !== 'mono' && J.randomOk(project, 'font', k));
+  const base = J.STYLES[project.style] || style, result = {};
+  for (const role of roles) {
+    let pool = available.filter(k => role === 'serif' ? serif(k) : role === 'body' ? ['gothic', 'mincho', 'round', 'hand'].includes(J.FONTS[k].kind) : true);
+    if (coherent) {
+      const calm = ['calm', 'editorial', 'emotional'].includes(project.mood);
+      const compatible = pool.filter(k => !calm || !quiet.has(k));
+      if (compatible.length) pool = compatible;
+      const kinds = new Set((base.fonts[role] || []).map(k => J.FONTS[k]?.kind));
+      const related = pool.filter(k => kinds.has(J.FONTS[k].kind));
+      if (related.length) pool = related;
+    }
+    const changed = pool.filter(k => !(style.fonts[role] || []).includes(k));
+    result[role] = pick(changed.length ? changed : pool, rng) || style.fonts[role]?.[0] || 'gothic_med';
+  }
+  return result;
+};
+// Only font-valued fields, never strings such as shape:"round" or mark:"dot".
+const fontField = k => /font/i.test(k) || /^(hand|rf|fo|fb|fs|fc|fr|main|qf|pen|hf|df|sf|gf|fm|nf)$/.test(k);
+J.retargetCutFonts = (cut, fonts, fallback) => {
+  cut.renderLook = copy(cut.renderLook || fallback);
+  const old = cut.renderLook.style.fonts;
+  const replace = (value, key) => {
+    if (key === '_motionPlan') return copy(value); // immutable generation inputs
+    if (typeof value === 'string' && J.FONTS[value] && fontField(key)) {
+      if (J.FONTS[value].kind === 'mono') return value;
+      const role = /small|tile|fill|cap|^(fs|sf|gf|df|rf)$/i.test(key) ? 'body'
+        : (old.serif || []).includes(value) && !(old.display || []).includes(value) ? 'serif' : 'display';
+      return fonts[role];
+    }
+    if (Array.isArray(value)) return value.map(v => replace(v, key));
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k,v]) => [k, replace(v,k)]));
+    return value;
+  };
+  for (const key of ['params', 'twinParams', 'bgP', 'treatP', 'transP']) if (cut[key]) cut[key] = replace(cut[key], '');
+  for (const role of roles) cut.renderLook.style.fonts[role] = [fonts[role]];
+  return cut;
+};
+const colorKeys = ['bg','fg','sub','accent','accent2','ink','dim','ghostA','ghostB'];
+J.paletteForStyle = (source, palette) => source.map((s,i) => {
+  const d = palette[i % palette.length], result = { ...s };
+  for (const k of colorKeys) if (/^#[\da-f]{6}$/i.test(d?.[k])) result[k] = d[k];
+  if (s.grad) result.grad = Array.isArray(d?.grad) && d.grad.length === 2 && d.grad.every(c => /^#[\da-f]{6}$/i.test(c)) ? copy(d.grad) : [result.accent, J.mix(result.accent, '#000000', .7)];
+  return result;
+});
+J.drawRelatedPalette = (schemes, rng = Math.random) => {
+  // Rotate the whole system together. Retain its light/dark and saturation
+  // structure; small neutral tints also give monochrome packs a useful variant.
+  const turn = (45 + rng() * 80) * (rng() < .5 ? -1 : 1), neutralHue = rng() * 360;
+  const shift = hex => {
+    const [h,s,l] = J.toHsl(hex);
+    return J.hsl(s < .04 ? neutralHue : h + turn, s < .04 ? .07 : s, l);
+  };
+  return schemes.map(s => {
+    const d = { ...s };
+    for (const k of colorKeys) if (s[k]) d[k] = shift(s[k]);
+    if (s.grad) d.grad = s.grad.map(shift);
+    // Preserve existing low-contrast ornaments; maintain readable text where
+    // the original has readable contrast instead of flattening intentional dim ink.
+    for (const k of ['fg','sub','accent','ghostA','ghostB']) if (s[k])
+      d[k] = J.fitContrast(d[k], d.bg, Math.min(k === 'fg' ? 4.5 : 2.4, J.contrast(s[k],s.bg)));
+    if (s.ink === s.fg) d.ink = d.fg;
+    return d;
+  });
+};
+const accentPalette = (schemes, colors) => schemes.map(s => {
+  const d = { ...s, accent:J.fitContrast(colors.accent,s.bg,2.4), ghostA:J.fitContrast(colors.ghostA,s.bg,1.35), ghostB:J.fitContrast(colors.ghostB,s.bg,1.35) };
+  if (s.ink === s.accent) d.ink = d.accent;
+  if (s.grad) d.grad = [d.accent, J.mix(colors.accent,'#000000',.7)];
+  return d;
+});
+J.prepareGlobalAppearance = (p, current, audio, mode, rng = Math.random, accents) => {
+  if (!['color','font','accent'].includes(mode)) throw new Error('Unknown appearance draw');
+  const next = copy(p), style = J.resolveStyle(p);
+  const fonts = mode === 'font' ? J.drawFontRoles(p, style, rng, true) : null;
+  const palette = mode === 'color' ? J.drawRelatedPalette(style.schemes, rng) : null;
+  J.captureLocalLooks(next, current, audio);
+  if (fonts) next.fonts = { ...next.fonts, ...fonts };
+  else if (mode === 'accent') next.colors = { ...next.colors, ...accents, accentOn:true };
+  else next.colors = { ...next.colors, enabled:false, accentOn:false, palette, paletteStyle:p.style };
+  const recolor = schemes => mode === 'accent' ? accentPalette(schemes, accents) : J.paletteForStyle(schemes,palette);
+  next.overrides ||= {};
+  for (const line of current.lines) {
+    if (line.interlude) continue;
+    const key = p.subtitleCues?.[line.index]?.id ?? ('line-' + line.index), entry = next.localLooks.lines[key];
+    if (!entry) continue;
+    const base = current.layerGroups?.find(g => g.indices.includes(line.index))?.plan || current;
+    const cut = current.cuts.find(c => c.line === line.index), fallback = cut?.renderLook || {style:base.style,styleKey:base.styleKey,fx:base.fx,hud:base.hud};
+    const ov = next.overrides[line.index] ||= {};
+    if (ov.lock) {
+      ov.lockedCuts = copy(entry.cuts);
+      for (const c of ov.lockedCuts) c.renderLook ||= copy(fallback);
+      continue;
+    }
+    const updateRule = rule => {
+      const r = rule || J.cueAppearanceRule(p, fallback.style);
+      if (fonts) r.fonts = { ...r.fonts, ...fonts };
+      else { r.palette = recolor(r.palette || fallback.style.schemes); r.colors = copy(next.colors); }
+      return r;
+    };
+    // Ordinary cues continue inheriting the global rule, including future
+    // global style/mood changes. Only rewrite rules already local to a cue.
+    if (ov.cueLook) ov.cueLook = updateRule(ov.cueLook);
+    for (const c of entry.cuts) {
+      if (fonts) J.retargetCutFonts(c, fonts, fallback);
+      else { c.renderLook = copy(c.renderLook || fallback); c.renderLook.style.schemes = recolor(c.renderLook.style.schemes); }
+    }
+    if (ov.randomDraw) {
+      ov.randomDraw.cuts = copy(entry.cuts);
+      if (ov.randomDraw.restore?.cueLook) ov.randomDraw.restore.cueLook = updateRule(ov.randomDraw.restore.cueLook);
+    }
+  }
+  J.rekeyLocalLooks(next, current, audio);
+  return next;
+};
+})();
+
+/* Portable motion recipes. Layouts replay their initial RNG with new text and
+   geometry; concrete cuts remain independent of the shared browser library. */
+(() => {
+'use strict';
+const copy = x => JSON.parse(JSON.stringify(x)), tr = J.layerText;
+const fail = (ja, en) => { throw new Error(tr(ja, en)); };
+for (const [id, def] of Object.entries(J.LAYOUTS)) {
+  const plan = def.plan;
+  if (!plan) continue;
+  def.plan = function(rng, ctx, style) {
+    const seed = rng.state?.(), params = plan.call(this, rng, ctx, style);
+    if (params && Number.isInteger(seed)) params._motionPlan = { version: 1, layout: id, seed, fontRoles: copy(style.fonts) };
+    return params;
+  };
+}
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject, omakase = J.omakase, reroll = J.prepareCueReroll;
+J.defaultProject = () => ({ ...defaults(), motionRecipeVersion: 1 });
+J.upgradeLayerProject = (p, source) => { upgrade(p, source); p.motionRecipeVersion = !source || source.motionRecipeVersion === 1 ? 1 : 0; };
+J.omakase = (...args) => ({ ...omakase(...args), motionRecipeVersion: 1 });
+J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
+  const next = reroll(p, current, index, audio, mode);
+  if (!['color', 'font'].includes(mode)) next.overrides[index].motionRecipeVersion = 1;
+  if (next.overrides[index].randomDraw && !['color', 'font'].includes(mode)) delete next.overrides[index].randomDraw.libraryName;
+  J.rekeyLocalLooks(next, current, audio);
+  return next;
+};
+const fontField = k => /font/i.test(k) || /^(hand|rf|fo|fb|fs|fc|fr|main|qf|pen|hf|df|sf|gf|fm|nf)$/.test(k);
+function fontValues(value, path = [], key = '', out = []) {
+  if (key === '_motionPlan') return out;
+  if (typeof value === 'string' && fontField(key) && J.FONTS[value]) out.push([path, value]);
+  else if (value && typeof value === 'object') for (const [k, v] of Object.entries(value)) fontValues(v, [...path, k], Array.isArray(value) ? key : k, out);
+  return out;
+}
+function replayParams(recipe, text, W, H, dur, style) {
+  const d = J.LAYOUTS[recipe.layout], n = J.glyphCount(text);
+  if (!d) fail('レイアウトがありません。', 'Missing layout.');
+  const initialStyle = recipe.fontRoles ? { ...style, fonts: copy(recipe.fontRoles) } : style;
+  const params = d.plan(J.rng(recipe.seed), { text, n, W, H, dur }, initialStyle);
+  for (const [path, value] of recipe.fonts) {
+    let obj = params;
+    for (const key of path.slice(0, -1)) obj = obj?.[key];
+    if (obj && Object.hasOwn(obj, path.at(-1))) obj[path.at(-1)] = value;
+  }
+  return params;
+}
+function recorded(params, layout) {
+  const p = params?._motionPlan;
+  if (p?.version !== 1 || p.layout !== layout || !Number.isInteger(p.seed)) fail('設定情報がありません。字幕を再生成してから保存してください。', 'No generation settings. Regenerate this subtitle before saving.');
+  return { layout, seed: p.seed, fonts: fontValues(params), ...(p.fontRoles ? { fontRoles: copy(p.fontRoles) } : {}) };
+}
+J.captureMotionRecipe = (p, current, index) => {
+  const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
+  if (!ln || !ln.text.length || ln.interlude) fail('保存できる字幕を選択してください。', 'Select a subtitle to save.');
+  if (p.motionRecipeVersion !== 1 && ov.motionRecipeVersion !== 1) fail('設定情報がありません。字幕を再生成してから保存してください。', 'No generation settings. Regenerate this subtitle before saving.');
+  const cuts = J.lineSnapshot(current, index), base = current.layerGroups?.find(g => g.indices.includes(index))?.plan || current;
+  if (!cuts?.length || cuts.length > 128) fail('保存できるカットがありません。', 'No supported cuts to save.');
+  const rule = ov.cueLook || J.cueAppearanceRule(p, base.style);
+  const recipe = { version: 1, rule: copy(rule), lang: current.lang, duration: ln.visEnd - ln.start,
+    centerFree: !!p.centerFree, centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
+    themeSnapshot: copy(p.themeSnapshots?.[rule.lookTheme] || null), cuts: [] };
+  cuts.forEach((c, i) => {
+    const layoutPlan = recorded(c.params, c.layout), twinPlan = c.twinParams ? recorded(c.twinParams, c.layout) : null;
+    const shape = { chars: J.glyphCount(c.utext), words: J.chunkText(c.utext).map(w => J.glyphCount(w)), whitespace: J.isWhitespaceText(c.utext) };
+    const renderLook = c.renderLook || { style: base.style, styleKey: base.styleKey, fx: base.fx, hud: base.hud };
+    delete c.utext; delete c.params; delete c.twinParams;
+    recipe.cuts.push({ ...c, renderLook: copy(renderLook), layoutPlan, twinPlan, shape });
+  });
+  return J.validateMotionRecipe(recipe);
+};
+// Bounded plain JSON only. Never execute imported code or merge prototype keys.
+J.validateMotionRecipe = input => {
+  if (!input || JSON.stringify(input).length > 2000000) fail('モーションデータが不正または大きすぎます。', 'Invalid or oversized motion data.');
+  function walk(x, depth = 0) {
+    if (depth > 24) throw new Error('Invalid motion depth');
+    if (typeof x === 'number' && !Number.isFinite(x)) throw new Error('Invalid motion number');
+    if (typeof x === 'string' && x.length > 50000) throw new Error('Invalid motion string');
+    if (x && typeof x === 'object') for (const [k, v] of Object.entries(x)) {
+      if (['__proto__', 'prototype', 'constructor'].includes(k)) throw new Error('Invalid motion key');
+      walk(v, depth + 1);
+    }
+  }
+  walk(input);
+  const r = copy(input);
+  if (r.version !== 1 || !Array.isArray(r.cuts) || !r.cuts.length || r.cuts.length > 128 || !(r.duration > 0 && r.duration <= 3600) || !J.STYLES[r.rule?.style]) throw new Error('Unsupported motion recipe');
+  for (const c of r.cuts) {
+    for (const [key, registry] of [['layout', J.LAYOUTS], ['enter', J.ENTER], ['exit', J.EXIT], ['hold', J.HOLD], ['bg', J.BG], ['treat', J.TREAT], ['cam', J.CAMERA]])
+      if (!Object.hasOwn(registry, c[key])) throw new Error('Unknown motion component: ' + key);
+    if (c.trans && !Object.hasOwn(J.TRANS, c.trans)) throw new Error('Unknown transition');
+    if (!Array.isArray(c.decor) || c.decor.some(d => !Object.hasOwn(J.DECOR, d.id))) throw new Error('Unknown decoration');
+    if (!(c.fraction > 0 && c.fraction <= 3600) || !Number.isInteger(c.shape?.chars) || c.shape.chars < 1 || c.shape.chars > 5000) throw new Error('Invalid motion duration/text shape');
+    if (!Array.isArray(c.shape.words) || c.shape.words.length > 5000 || c.shape.words.some(n => !Number.isInteger(n) || n < 1 || n > 5000) || c.shape.words.reduce((a, n) => a + n, 0) > 5000) throw new Error('Invalid sample word lengths');
+    if (!c.renderLook?.style?.schemes?.length || !c.renderLook.style.fonts || !c.renderLook.fx) throw new Error('Missing motion appearance');
+    for (const spec of [c.layoutPlan, c.twinPlan].filter(Boolean)) {
+      if (spec.layout !== c.layout || !Number.isInteger(spec.seed) || !Array.isArray(spec.fonts)) throw new Error('Missing layout initial state');
+      if (spec.fontRoles && (typeof spec.fontRoles !== 'object' || Array.isArray(spec.fontRoles) || Object.entries(spec.fontRoles).some(([role, v]) => !['display', 'serif', 'body', 'mono'].includes(role) || !Array.isArray(v) || !v.length || v.some(k => typeof k !== 'string' || !(Object.hasOwn(J.FONTS, k) || J.SAFE_FONT_KEY.test(k)))))) throw new Error('Invalid initial font roles');
+      for (const item of spec.fonts) if (!Array.isArray(item) || !Array.isArray(item[0]) || !item[0].length || item[0].length > 20 || item[0].some(k => typeof k !== 'string' || ['__proto__', 'prototype', 'constructor'].includes(k)) || typeof item[1] !== 'string') throw new Error('Invalid font path');
+    }
+    if (!c.layoutPlan) throw new Error('Missing layout recipe');
+  }
+  if (!Array.isArray(r.userFonts) || r.userFonts.some(f => !f || !J.SAFE_FONT_KEY.test(f.key) || typeof f.family !== 'string')) throw new Error('Invalid installed font references');
+  if (r.themeSnapshot && !J.normalizeUserTheme(r.themeSnapshot)) throw new Error('Invalid theme snapshot');
+  return r;
+};
+function distribute(text, cuts) {
+  const parts = /[A-Za-z]/.test(text) && /\s/.test(text.trim()) ? text.match(/\S+\s*/gu) : Array.from(text);
+  const regular = cuts.filter(c => !c.recap), total = regular.reduce((a, c) => a + c.shape.chars, 0);
+  if (!parts || parts.length < regular.length) fail('字幕が短すぎて、保存されたカット数に分割できません。', 'This subtitle is too short for the saved cut count.');
+  const prefix = [0]; for (const part of parts) prefix.push(prefix.at(-1) + J.glyphCount(part));
+  let from = 0, accum = 0, k = 0;
+  return cuts.map(c => {
+    if (c.recap) return text;
+    accum += c.shape.chars; k++;
+    let to = parts.length;
+    if (k !== regular.length) {
+      const target = prefix.at(-1) * accum / total; let best = Infinity;
+      for (let j = from + 1; j <= parts.length - (regular.length - k); j++) {
+        const distance = Math.abs(prefix[j] - target);
+        if (distance < best) { best = distance; to = j; }
+      }
+    }
+    const s = J.trimText(parts.slice(from, to).join('')); from = to; return s;
+  });
+}
+J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = null) => {
+  const recipe = J.validateMotionRecipe(input), ln = current.lines.find(l => l.index === index);
+  if (!ln || !ln.text.length || ln.interlude) fail('適用先の字幕を選択してください。', 'Select a destination subtitle.');
+  if (project.overrides?.[index]?.lock) fail('この字幕はロック中です。', 'This subtitle is locked.');
+  if (!!project.centerFree !== recipe.centerFree) fail('「中央を空ける」の設定が保存元と異なります。', 'The “Keep center clear” setting differs from the saved motion.');
+  const next = copy(project), text = sampleUnits || distribute(ln.text, recipe.cuts), duration = ln.visEnd - ln.start;
+  const cuts = J.fitRandomCueCuts(recipe.cuts, duration);
+  cuts.forEach((c, i) => {
+    c.utext = text[i]; c.params = {}; c.twinParams = null;
+    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.minDur && c.fraction < d.minDur) fail('字幕の時間が登場／退場の条件に合いません。', 'Duration does not meet entrance/exit requirements.');
+    if (c.fraction < 0.12) fail('字幕の時間が短すぎます。', 'The subtitle duration is too short.');
+  });
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  const rule = copy(recipe.rule);
+  if (recipe.themeSnapshot) {
+    next.themeSnapshots ||= {};
+    const stem = 'saved-motion-' + J.h(J.sid(JSON.stringify(recipe.themeSnapshot)), 15).toString(16);
+    let key = stem;
+    for (let n = 1; next.themeSnapshots[key] && JSON.stringify(next.themeSnapshots[key]) !== JSON.stringify(recipe.themeSnapshot); n++) key = stem + '-' + n;
+    next.themeSnapshots[key] = copy(recipe.themeSnapshot); rule.lookTheme = key;
+  }
+  next.overrides[index] = { cueLook: rule, motionRecipeVersion: 1, seed: project.overrides?.[index]?.seed || 0,
+    randomDraw: { library: true, restore: { cueLook: copy(rule), motionRecipeVersion: 1 }, text: ln.text, cuts } };
+  // First obtain the destination's actual split text and zones from the planner.
+  delete next.localLooks.lines[project.subtitleCues?.[index]?.id ?? ('line-' + index)];
+  const draft = J.plan(next, audio), generated = draft.cuts.filter(c => c.line === index && c.utext != null);
+  if (generated.length !== cuts.length) fail('この字幕にはカット構成を適用できません。', 'This cut structure cannot be applied to this subtitle.');
+  cuts.forEach((c, i) => {
+    const actual = generated[i], saved = recipe.cuts[i], st = c.renderLook.style;
+    const n = Math.max(J.glyphCount(actual.text), actual.companion ? J.glyphCount(actual.companion.text) : 0);
+    if (J.LAYOUTS[c.layout].fits && !J.LAYOUTS[c.layout].fits(n)) fail('この文字数ではレイアウトを適用できません。', 'This layout does not support this text length.');
+    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.maxChars && n > d.maxChars) fail('字幕の文字数が登場／退場の条件に合いません。', 'Text length does not meet entrance/exit requirements.');
+    c.params = replayParams(saved.layoutPlan, actual.text, actual.zone?.w || draft.W, actual.zone?.h || draft.H, c.fraction, st);
+    c.twinParams = actual.companion ? replayParams(saved.twinPlan || saved.layoutPlan, actual.companion.text, actual.companion.zone.w, actual.companion.zone.h, c.fraction, st) : null;
+    for (const k of ['layoutPlan', 'twinPlan', 'shape']) delete c[k];
+  });
+  const key = project.subtitleCues?.[index]?.id ?? ('line-' + index);
+  next.localLooks.lines[key] = { cuts: copy(cuts) };
+  J.rekeyLocalLooks(next, current, audio);
+  // Font records contain installed-family names, never font binaries.
+  const fonts = new Map((next.userFonts || []).map(f => [f.key, f]));
+  for (const f of recipe.userFonts || []) {
+    if (fonts.has(f.key) && fonts.get(f.key).family !== f.family) fail('同じ識別子の別フォントが使われています。', 'A different font uses the same identifier.');
+    fonts.set(f.key, copy(f));
+  }
+  next.userFonts = [...fonts.values()];
+  return next;
+};
+J.motionSampleProject = input => {
+  const r = J.validateMotionRecipe(input), p = J.defaultProject(), alphabet = Array.from(r.lang === 'en' ? 'JIZURALayerStudio' : '字面光景音楽世界未来');
+  const word = n => Array.from({length:n}, (_, i) => alphabet[i % alphabet.length]).join('');
+  const units = r.cuts.map(c => c.shape.whitespace ? '　'.repeat(c.shape.chars) : c.shape.words?.length ? c.shape.words.map(word).join(' ') : word(c.shape.chars));
+  const text = units.filter((_, i) => !r.cuts[i].recap).join(' ');
+  Object.assign(p, { ...copy(r.rule), aspect: r.aspect, centerFree: r.centerFree, centerDir: r.centerDir, lang: r.lang,
+    subtitleCues: [{ id: 'motion-sample', text, start: 0, end: r.duration }], overrides: {} });
+  p.userFonts = copy(r.userFonts || []);
+  return J.prepareMotionApply(p, J.plan(p), 0, r, null, units);
+};
+J.motionLibraryKey = 'jizura.layers.motions.v1';
+J.parseMotionLibrary = data => {
+  if (data?.format !== 'jizura-motion-library' || data.version !== 1 || !Array.isArray(data.items) || data.items.length > 500) throw new Error(tr('モーションライブラリJSONではありません。', 'Not a supported motion library JSON.'));
+  const ids = new Set();
+  return data.items.map(item => {
+    if (typeof item.id !== 'string' || !/^[\w-]{1,100}$/.test(item.id) || typeof item.name !== 'string' || !item.name.trim() || item.name.length > 120) throw new Error('Invalid motion name or ID');
+    if (ids.has(item.id)) throw new Error('Duplicate motion ID');
+    ids.add(item.id);
+    return { id: item.id, name: item.name, recipe: J.validateMotionRecipe(item.recipe) };
+  });
+};
+})();
+
 /* ============================================================
    JIZURA — editor UI
    ============================================================ */
@@ -38578,15 +39138,29 @@ function initOmakaseThemes() {
     const select = document.createElement('select'); select.id = id;
     select.setAttribute('aria-label', J.layerText('おまかせ・字幕ガチャのテーマ', 'Theme for auto-compose and subtitle draws'));
     select.title = J.layerText('おまかせ・字幕ガチャ1〜3に適用。選択だけでは現在の演出や9の復帰先は変わりません。', 'Applies to auto-compose and cue draws 1–3. Selecting alone does not change effects or the baseline for key 9.');
-    select.add(new Option(J.layerText('テーマなし', 'No theme'), ''));
-    for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
-    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value); syncOmakaseThemes(); flushSave(); });
+    select.addEventListener('change', () => { S.project.theme = J.normalizeTheme(select.value, S.project); syncOmakaseThemes(); flushSave(); });
     label.append(caption, select); anchor.before(label);
+    J.addUserThemeManagerButton?.(label, id);
   }
   syncOmakaseThemes();
 }
 function syncOmakaseThemes() {
-  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) $(id).value = J.normalizeTheme(S.project.theme);
+  for (const id of ['omakaseTheme', 'omakaseThemeEasy']) if ($(id)) {
+    const select = $(id), signature = JSON.stringify((S.project.userThemes || []).map(t => [t.id, t.name]));
+    if (select.dataset.themes !== signature) {
+      select.replaceChildren(new Option(J.layerText('テーマなし', 'No theme'), ''));
+      for (const [key, theme] of Object.entries(J.THEMES)) select.add(new Option(J.layerText(theme.name, theme.en), key));
+      const group = document.createElement('optgroup'); group.label = J.layerText('ユーザーテーマ', 'User themes');
+      const seen = new Map();
+      for (const theme of S.project.userThemes || []) {
+        const n = (seen.get(theme.name) || 0) + 1; seen.set(theme.name, n);
+        group.append(new Option(theme.name + (n > 1 ? ` (${n})` : ''), theme.id));
+      }
+      if (group.children.length) select.append(group);
+      select.dataset.themes = signature;
+    }
+    select.value = J.normalizeTheme(S.project.theme, S.project);
+  }
 }
 /* プレビュー音量: remembered per browser */
 function initVolume() {
@@ -38625,9 +39199,17 @@ function mergeProject(p) {
     if (typeof v === 'boolean') o.colors[k] = v;
     else if (typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)) o.colors[k] = v;
   }
+  const palette = p?.colors?.palette, paletteStyle = p?.colors?.paletteStyle;
+  if (Array.isArray(palette) && palette.length && palette.length <= 64 && Object.hasOwn(J.STYLES, paletteStyle)) {
+    // Keep the complete scheme (including gradients), but accept only known
+    // fields from our palette schema; never inject arbitrary imported objects.
+    o.colors.palette = J.paletteForStyle(J.STYLES[paletteStyle].schemes, palette);
+    o.colors.paletteStyle = paletteStyle;
+  }
   o.userFonts = J.registerProjectFonts(p && p.userFonts);
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
+  J.mergeUserThemeLibrary?.(o);
   return o;
 }
 const SET_UI = { horror: { name: 'ホラー', badge: 'ホ' }, typo: { name: '文字PV系', badge: '文' }, kinetic: { name: 'キネティック', badge: 'キ' } };
@@ -39068,7 +39650,7 @@ function rerollCurrentCut(kind) {
   groups.forEach(g => {
     const allowNone = g === 'decor' || g === 'trans';
     const key = pickEnabledTech(g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
-    if (key) setCutTech(cut.line, k, g, key);
+    if (key) setCutTech(cut.line, k, g, key, false);
   });
   markCutQuiet(cut.line, k, groups, true);
   closeCutPick();
@@ -39085,9 +39667,10 @@ function updateCutInfo() {
   if ($('cueRollTarget')) {
     const rule = target && S.project.overrides?.[target.index]?.cueLook;
     const style = J.STYLES[rule?.style || S.project.style]?.name || '', mood = J.MOODS[rule?.mood || S.project.mood]?.name || '';
-    const randomLabel = target && S.project.overrides?.[target.index]?.randomDraw ? J.layerText('ランダム · ', 'Random · ') : '';
-    const theme = J.THEMES[J.normalizeTheme(rule?.lookTheme ?? S.project.lookTheme)];
-    const themeLabel = theme ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + J.layerText(theme.name, theme.en) : '';
+    const draw = target && S.project.overrides?.[target.index]?.randomDraw;
+    const randomLabel = draw ? (draw.libraryName ? J.layerText('ライブラリ：', 'Library: ') + draw.libraryName + ' · ' : J.layerText('ランダム · ', 'Random · ')) : '';
+    const themeName = J.appliedThemeName(rule?.lookTheme ?? S.project.lookTheme, S.project);
+    const themeLabel = themeName ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + themeName : '';
     const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
@@ -39317,10 +39900,12 @@ function editLine(li, ln) {
   inp.addEventListener('blur', () => finish(true));
 }
 
-/* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
-// separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
+/* ---------------- 編集の取り消し（Ctrl+Z） ---------------- */
+// Global look changes and cue edits must share chronological undo. Otherwise
+// old per-cue snapshots can undo a later global palette/font change piecemeal.
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -39328,12 +39913,13 @@ function edGo(d) {
   const o = JSON.parse(from.pop()), cur = JSON.parse(edSnap());
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
+  if (o.look) Object.assign(S.project, o.look);
   S.project.subtitleCues = o.subtitleCues || null;
   S.project.localLooks = o.localLooks || null;
   S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
-  replan(); flushSave(); updateEditBtns();
+  fontKey = ''; syncUI(); replan(); commit(); flushSave(); updateEditBtns();
   toast(d < 0 ? '元に戻しました' : 'やり直しました');
 }
 // 歌詞を消す: lyrics + everything tied to line numbers (times, per-line settings, export range); undoable
@@ -39348,20 +39934,27 @@ function clearLyrics() {
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
-// 初期化: back to a blank project — song (also the copy kept in this browser), settings and both histories go
+// Reset only the current project/session. Shared libraries and app preferences
+// are never cleared; flushSave replaces only LS_KEY with the new blank project.
+J.projectSessionEpoch = 0;
 let audioNameDefault = '';
 async function resetAll() {
-  if (S.exporting) return;
+  if (S.exporting || J.layerSession?.busy) return;
+  J.projectSessionEpoch++;
   if (S.tap) stopTap();
   pause();
   S.project = mergeProject(null); S.project.lyrics = '';
   S.audio = null; AP.clear(); audioSeq++; setPreviewRate(1); if ($('audioFile')) $('audioFile').value = '';
+  J.resetLayerProjectSession?.();
+  J.resetNativeSpectrumSession?.();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
-  TL.z = 1; TL.off = 0;
+  TL.z = 1; TL.off = 0; TL.drag = -1; TL.dragView = null;
+  S.loop = 'all'; S.loopHold = null; cueRerollHold = null; syncLoopBtn();
+  if ($('fileProject')) $('fileProject').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
-  toast('初期化しました');
+  toast(J.layerText('プロジェクトを初期化しました。共通ライブラリは保持しています。', 'Project reset. Shared libraries have been kept.'));
 }
 function updateEditBtns() { const u = $('btnUndoEdit'); if (u) u.disabled = !ED.undo.length; }
 
@@ -39412,13 +40005,15 @@ function bindRangeUI() {
   }));
 }
 function setOv(i, patch) {
+  pushEdit();
   const cur = Object.assign({}, S.project.overrides[i] || {}, patch);
   for (const k of Object.keys(cur)) if (cur[k] === undefined || cur[k] === false || cur[k] === '') delete cur[k];
   if (Object.keys(cur).length) S.project.overrides[i] = cur; else delete S.project.overrides[i];
 }
 function setCutLayout(i, k, layout) { setCutTech(i, k, 'layout', layout); }
-function setCutTech(i, k, group, key) {
+function setCutTech(i, k, group, key, edit = true) {
   if (i == null || i < 0 || k == null || k < 0) return;
+  if (edit) pushEdit();
   const cur = Object.assign({}, S.project.overrides[i] || {});
   const cutTech = Object.assign({}, cur.cutTech || {});
   const slot = Object.assign({}, cutTech[k] || cutTech[String(k)] || {});
@@ -39451,7 +40046,7 @@ function drawStyleGrid() {
       const b = document.createElement('button'); b.className = 'stile'; b.dataset.k = k;
       b.title = J.STYLES[k].desc;
       b.innerHTML = `<canvas width="192" height="108"></canvas><span>${J.STYLES[k].name}</span><span class="badges">${setBadges(J.STYLES[k])}</span>`;
-      b.addEventListener('click', () => { remember(); S.project.style = k; S.project.colors.enabled = false; syncUI(); replan(); commit(); });
+      b.addEventListener('click', () => { remember(); S.project.style = k; S.project.colors.enabled = false; delete S.project.colors.palette; delete S.project.colors.paletteStyle; syncUI(); replan(); commit(); });
       g.appendChild(b);
     });
   }
@@ -39483,14 +40078,14 @@ function renderFontRoles() {
   [['display', '見出し'], ['serif', '明朝枠'], ['body', '小さな文字']].forEach(([role, label]) => {
     const row = document.createElement('div'); row.className = 'font-row';
     row.innerHTML = `<span class="muted">${label}</span><select aria-label="${label}のフォント">${fontSelectOptions(S.project.fonts[role])}</select>`;
-    row.querySelector('select').addEventListener('change', e => { if (e.target.value) S.project.fonts[role] = e.target.value; else delete S.project.fonts[role]; fontKey = ''; replan(); });
+    row.querySelector('select').addEventListener('change', e => { pushEdit(); if (e.target.value) S.project.fonts[role] = e.target.value; else delete S.project.fonts[role]; fontKey = ''; replan(); });
     box.appendChild(row);
   });
 }
 const BASE_KEYS = [['fg', '文字'], ['sub', '補助']];
 const ACCENT_KEYS = [['accent', 'アクセント'], ['ghostA', 'ズレ色A'], ['ghostB', 'ズレ色B']];
 function renderColors() {
-  const st = J.STYLES[S.project.style] || J.STYLES.noir, sc = st.schemes[0];
+  const st = J.resolveStyle(S.project), sc = st.schemes[0];
   const c = S.project.colors;
   $('colorOn').checked = !!c.enabled;
   $('accentOn').checked = !!c.accentOn;
@@ -39500,11 +40095,14 @@ function renderColors() {
       const l = document.createElement('label');
       const v = (c[flag] && c[k]) || c[k] || sc[k];
       l.innerHTML = `${label}<input type="color" value="${toColorInput(v)}">`;
+      let editing = false;
       l.querySelector('input').addEventListener('input', e => {
+        if (!editing) { pushEdit(); editing = true; }
         c[k] = e.target.value.toUpperCase();
         if (!c[flag]) { c[flag] = true; $(flag === 'enabled' ? 'colorOn' : 'accentOn').checked = true; }
         replanSoon(60); drawSwatch();
       });
+      l.querySelector('input').addEventListener('change', () => { editing = false; });
       row.appendChild(l);
     });
   };
@@ -39521,21 +40119,30 @@ function drawSwatch() {
 function randomPalette() {
   remember();
   const c = S.project.colors;
-  const sc0 = J.STYLES[S.project.style].schemes[0];
+  const sc0 = J.resolveStyle(S.project).schemes[0];
   const bg = c.enabled && c.bg ? c.bg : sc0.bg;
   let p, guard = 0;
   do { p = J.randomPalette(bg); } while (guard++ < 6 && p.ghostA === c.ghostA && p.ghostB === c.ghostB);
-  Object.assign(c, { accent: p.accent, ghostA: p.ghostA, ghostB: p.ghostB, accentOn: true });
+  S.project = J.prepareGlobalAppearance(S.project, S.plan, audioLike(), 'accent', Math.random, p);
   renderColors(); replan(); commit();
   toast('配色：アクセント・ズレ色A/Bを変更', [p.accent, p.ghostA, p.ghostB]);
+}
+function rerollAppearance(mode) {
+  if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
+  try {
+    const next = J.prepareGlobalAppearance(S.project, S.plan, audioLike(), mode);
+    remember(); S.project = next; fontKey = ''; syncUI(); replan(); commit(); flushSave();
+    toast(mode === 'color' ? J.layerText('配色：全体の配色セットを変更', 'Palette: changed the whole color system') : J.layerText('書体：全体の書体の組み合わせを変更', 'Fonts: changed the global font combination'));
+    restartPreview();
+  } catch (e) { toast(e.message); }
 }
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
 // only the "look" is tracked — lyrics, timing and output settings are never rolled back
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic'];
 const H = { list: [], i: -1 };
 const lookSnap = () => JSON.stringify({ ...Object.fromEntries(HKEYS.map(k => [k, S.project[k] ?? null])), _cueIds: S.project.subtitleCues?.map(c => c.id) || null });
-function remember() {            // call before changing the look: makes sure the current look is on the stack
+function remember(edit = true) { // call before changing the look
+  if (edit) pushEdit();
   const s = lookSnap();
   if (H.i >= 0 && H.list[H.i] === s) return;
   H.list = H.list.slice(0, H.i + 1); H.list.push(s); H.i = H.list.length - 1;
@@ -39548,8 +40155,9 @@ function commit() {              // call after changing the look
 }
 function histGo(d) {
   if (S.exporting) return;
-  remember();                    // hand edits made since the last step become a stop of their own
+  remember(false);               // hand edits made since the last step become a stop of their own
   const j = H.i + d; if (j < 0 || j >= H.list.length) return;
+  pushEdit();
   H.i = j;
   const look = JSON.parse(H.list[j]);
   if (look._cueIds && S.project.subtitleCues) {
@@ -39668,20 +40276,23 @@ function rerollPart(part) {
   const P = S.project;
   let msg = '';
   if (part === 'style') {
-    if (J.normalizeTheme(P.theme)) {
+    if (J.normalizeTheme(P.theme, P)) {
       const r = J.omakase(P, Math.random, { mood: P.mood });
-      Object.assign(P, J.themeSwitches(P.theme), { style: r.style, lookTheme: r.lookTheme });
+      Object.assign(P, J.themeDrawSwitches(r), { style: r.style, lookTheme: r.lookTheme });
+      if (r.themeSnapshots) P.themeSnapshots = r.themeSnapshots;
     } else {
       let pool = J.STYLE_ORDER.filter(k => k !== P.style && J.randomOk(P, 'style', k));
       if (!pool.length) pool = J.STYLE_ORDER.filter(k => k !== P.style);
       P.style = pool[Math.floor(Math.random() * pool.length)]; P.lookTheme = '';
     }
     P.colors.enabled = false;
+    delete P.colors.palette; delete P.colors.paletteStyle;
     msg = `スタイル：${J.STYLES[P.style].name}`;
   } else if (part === 'mood') {
     const keepE = lockedEnabled(), keepP = lockedParams();
-    const r = J.omakase(P);
-    Object.assign(P, J.themeSwitches(P.theme), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
+    const r = J.omakase(P, Math.random, { style: P.style });
+    Object.assign(P, J.themeDrawSwitches(r), { mood: r.mood, fx: r.fx, enabled: r.enabled, lookTheme: r.lookTheme });
+    if (r.themeSnapshots) P.themeSnapshots = r.themeSnapshots;
     restoreEnabled(keepE); restoreParams(keepP);
     msg = `雰囲気：${J.MOODS[r.mood].name}`;
   } else if (part === 'cut') {
@@ -39760,7 +40371,9 @@ function renderFx() {
       + `<button type="button" class="icon ghost lk pro-only" data-lk="${k}" aria-pressed="${lk}" title="${lk ? LOCK_TITLE_OFF : LOCK_TITLE_ON}">${ICON.lock}</button>`;
     const inp = row.querySelector('input'), out = row.querySelector('output');
     row.querySelector('.lk').addEventListener('click', () => toggleParamLock(k));
-    inp.addEventListener('input', () => { S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
+    let editing = false;
+    inp.addEventListener('input', () => { if (!editing) { pushEdit(); editing = true; } S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
+    inp.addEventListener('change', () => { editing = false; });
     box.appendChild(row);
   });
   lockBtn('flash', $('fxFlash').closest('label'));
@@ -40177,7 +40790,7 @@ function bind() {
     if (b.dataset.tab === 'tech') kickPreviewLoop();
     loadThumbFonts();
   }));
-  $('fxFlash').addEventListener('change', e => { S.project.fx.flash = e.target.checked; replan(); });
+  $('fxFlash').addEventListener('change', e => { pushEdit(); S.project.fx.flash = e.target.checked; replan(); });
   $('techFilter').addEventListener('input', () => renderTech());
   const setSwitch = (cls, key, on, msgOn, msgOff) => document.querySelectorAll('.' + cls).forEach(el => el.addEventListener('change', e => {
     remember();
@@ -40193,10 +40806,10 @@ function bind() {
   setSwitch('horror-toggle', 'horror', true, 'ホラーの演出：使う（おまかせの雰囲気に「ホラー」が加わります）', 'ホラーの演出：使わない');
   setSwitch('unify-toggle', 'unify', true, '統一感：オン（パートごとにそろえ、キメ・モーフ・太さも使います）', '統一感：オフ');
   setSwitch('typeset-toggle', 'typeset', true, '文字整列：オン（字間・助詞・英字・0.2秒先・効果控えめ）', '文字整列：オフ');
-  $('fxKoma').addEventListener('change', e => { const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
-  $('fxHud').addEventListener('change', e => { S.project.fx.hud = e.target.value; replan(); });
-  $('seed').addEventListener('change', e => { S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
-  $('btnSeed').addEventListener('click', () => { S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
+  $('fxKoma').addEventListener('change', e => { pushEdit(); const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
+  $('fxHud').addEventListener('change', e => { pushEdit(); S.project.fx.hud = e.target.value; replan(); });
+  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
+  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
   const colorToggle = (flag, keys) => e => {
     remember();
     const c = S.project.colors; c[flag] = e.target.checked;
@@ -40208,6 +40821,7 @@ function bind() {
   $('btnRandPalette').addEventListener('click', randomPalette);
   $('btnAddFont').addEventListener('click', () => {
     const name = J.safeFamily($('localFont').value); if (!name) return;
+    pushEdit();
     const key = 'local_' + J.sid(name).toString(16);
     const weight = /bold|太|black|heavy|w[6-9]|[6-9]00/i.test(name) ? 700 : 400;
     const label = name + J.layerText('（PC）', ' (PC)');
@@ -40258,6 +40872,8 @@ function bind() {
   $('eMood').addEventListener('click', () => rerollPart('mood'));
   $('eCut').addEventListener('click', () => rerollPart('cut'));
   $('ePalette').addEventListener('click', () => { randomPalette(); restartPreview(); });
+  $('eFullPalette').addEventListener('click', () => rerollAppearance('color'));
+  $('eFonts').addEventListener('click', () => rerollAppearance('font'));
   // 利用について（出力物の権利・ライセンス）
   const dlg = $('termsDlg');
   const openTerms = () => {
@@ -40267,19 +40883,23 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.4.1' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.0' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
+    if (S.exporting || J.layerSession?.busy) return;
     const dlg = $('resetDlg');
-    if (!dlg || typeof dlg.showModal !== 'function') { if (window.confirm('歌詞・曲・設定・履歴をすべて消して、最初の状態に戻します。元に戻すことはできません。')) resetAll(); return; }
+    if (!dlg || typeof dlg.showModal !== 'function') { if (window.confirm(J.layerText('現在のプロジェクト・素材の読み込み・設定・履歴を初期化します。元に戻せません。共通ライブラリ・画面設定・PC上のファイルは削除しません。', 'Reset the current project, loaded media, settings and history? This cannot be undone. Shared libraries, interface preferences and files on your PC are kept.'))) resetAll(); return; }
     dlg.returnValue = ''; dlg.showModal();
   });
   $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') resetAll(); });
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
+    const epoch = J.projectSessionEpoch;
     try {
-      const next = mergeProject(JSON.parse(await f.text()));
+      const content = await f.text();
+      if (epoch !== J.projectSessionEpoch) return;
+      const next = mergeProject(JSON.parse(content));
       if (S.tap) stopTap();
       pause();
       S.project = next;
@@ -40289,7 +40909,7 @@ function bind() {
       syncUI(); replan(); commit(); updateEditBtns(); flushSave();
       warnLegacyFonts(); showProjectLoadNotice();
     }
-    catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
+    catch (err) { if (epoch !== J.projectSessionEpoch) return; showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
   J.cueRerollModes.forEach(([mode, ja, en], i) => {
@@ -40324,7 +40944,7 @@ function bind() {
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
-    else if (!e.shiftKey && /^[0-6]$/.test(e.key) && /^(Digit|Numpad)[0-6]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
+    else if (!e.shiftKey && /^[0-7]$/.test(e.key) && /^(Digit|Numpad)[0-7]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
@@ -40443,7 +41063,19 @@ function boot() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
 // Shared editor hooks used by the layer interface
-J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo };
+J.uiApi = { toast, replan, syncUI, syncOmakaseThemes, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo,
+  audioLike, cueRerollTarget,
+  applyMotionProject(project, index, resume) {
+    if (S.exporting) return;
+    pushEdit(); remember(); S.project = project; fontKey = ''; syncUI(); replan(); commit(); flushSave();
+    const ln = S.plan.lines.find(l => l.index === index);
+    if (ln) {
+      cueRerollHold = { plan: S.plan, index, start: ln.start, end: ln.end };
+      seek(Math.max(0, ln.start - (resume ? 0.3 : 0)), true); refreshLoopHold(ln.start + 0.001);
+      if (resume) play();
+    }
+  },
+};
 })();
 
 /* Editing-only media references never enter the serialized project. */
@@ -40515,7 +41147,7 @@ const el = (tag, text, cls) => { const e = document.createElement(tag); if (text
 function button(id, text, fn) { const b = el('button', text); b.type = 'button'; b.id = id; b.addEventListener('click', fn); return b; }
 function fileInput(id, text, accept, fn) {
   const label = el('label', text, 'file'), input = el('input'); input.type = 'file'; input.id = id; input.accept = accept;
-  input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; try { await fn(f, Array.from(input.files)); } catch (e) { status(e.message, true); } finally { input.value = ''; } });
+  input.addEventListener('change', async () => { const f = input.files?.[0]; if (!f) return; const epoch = J.projectSessionEpoch; try { await fn(f, Array.from(input.files)); } catch (e) { if (epoch === J.projectSessionEpoch) status(e.message, true); } finally { input.value = ''; } });
   label.append(input); return label;
 }
 const cueDrafts = new Map();
@@ -40585,12 +41217,14 @@ async function loadSpectrumPair(frontFile, matteFile) {
   status(tr('対応マットを自動読込: ', 'Matching matte loaded: ') + matteFile.name);
 }
 async function selectSpectrumFront(file, selected) {
+  const epoch = J.projectSessionEpoch;
   const fronts = selected.filter(f => !/_matte_dark\.[^.]+$/i.test(f.name));
   if (fronts.length !== 1) throw new Error(tr('フロント1本を選んでください。対応マットは任意です。', 'Select one front video, optionally with its matching matte.'));
   const front = fronts[0], matte = J.findSpectrumMatte(selected, front);
   if (matte) return loadSpectrumPair(front, matte);
   if (selected.length > 1) throw new Error(tr('同名_matte_darkの組み合わせが見つかりません。', 'No matching _matte_dark pair was found.'));
   await loadMedia('front', front, true);
+  if (epoch !== J.projectSessionEpoch) return;
   status(session.matte ? tr('フロントとマットで合成します。', 'Compositing with front and matte.') : tr('フロントを読み込みました。マットなし：RGB 000000だけを透明にして合成します。', 'Front loaded. No matte: only RGB 000000 is transparent.'));
 }
 function spectrumControls(panel) {
@@ -40636,6 +41270,21 @@ function clearDownloads() {
   $('layerDownloads')?.replaceChildren();
   downloadUrls.forEach(url => URL.revokeObjectURL(url)); downloadUrls = [];
 }
+// Called by the single project-reset transaction, including confirm() fallback.
+// Release project assets before replanning so old durations cannot leak back in.
+J.resetLayerProjectSession = () => {
+  for (const key of ['background', 'front', 'matte']) {
+    session.generation[key] = (session.generation[key] || 0) + 1;
+    session[key]?.dispose(); session[key] = null;
+    $('layerName-' + key).textContent = tr('未選択', 'None');
+    $('layerFile-' + key).value = '';
+  }
+  spectrumPreview = null; renderer = null;
+  session.preview = 'composite'; $('layerPreview').value = 'composite';
+  cueDrafts.clear(); cueSignature = ''; showingCueError = false; J.layerCueEditsInvalid = false;
+  simpleProject = null; simpleMaterials = null; simpleInvalidDraft = false;
+  clearDownloads(); status(''); $('layerProgress').value = 0;
+};
 function offerDownloads(files, title) {
   clearDownloads();
   const prefix = (title || 'jizura_layers').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
@@ -40954,7 +41603,9 @@ function boot() {
   const panel = el('section', null, 'layer-panel'); panel.id = 'layerPanel';
   const inputs = el('div', null, 'layer-controls');
   inputs.append(fileInput('layerSrt', tr('SRTを読み込む', 'Import SRT'), '.srt', async file => {
-    const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()));
+    const epoch = J.projectSessionEpoch, bytes = await file.arrayBuffer();
+    if (epoch !== J.projectSessionEpoch) return;
+    const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, exportRange: null });
     J.ui.project.simpleExport.duration = null;
@@ -41032,7 +41683,6 @@ function boot() {
   const left = document.querySelector('.col-left');
   left.prepend(panel);
   $('lineList').closest('.sec').classList.add('layer-cut-list');
-  $('resetDlg').addEventListener('close', () => { if ($('resetDlg').returnValue === 'reset') ['background', 'front', 'matte'].forEach(clearMedia); });
   J.syncLayerUI(); dirty();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
@@ -41134,6 +41784,11 @@ J.mountFillerUI = controls => {
 const $ = id => document.getElementById(id), tr = J.layerText;
 const state = J.nativeSpectrumState = { buffer: null, raw: null, data: null, key: '', pending: false, error: '', progress: 0, controller: null };
 let previewReader = null;
+J.resetNativeSpectrumSession = () => {
+  state.controller?.abort();
+  Object.assign(state, { buffer:null, raw:null, data:null, key:'', pending:false, error:'', progress:0, controller:null });
+  previewReader = null;
+};
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text) e.textContent = text; if (cls) e.className = cls; return e; };
 const ready = () => state.buffer === J.ui.audio?.buffer && state.key === J.nativeMotionKey(J.ui.project) && !!state.data && !state.pending;
 J.nativeSpectrumBlocked = () => J.ui.project.spectrumMode === 'generated' && !ready();
@@ -41251,7 +41906,7 @@ window.addEventListener('pageshow', e => { if (e.persisted) J.syncLayerUI(); });
 const tr = J.layerText, $ = id => document.getElementById(id);
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
 const fields = new Map(), invalid = new Set();
-let dialog, preview, scrub, timeLabel, fontSignature = '', projectRef = null;
+let dialog, preview, scrub, timeLabel, pcFontButton, fontSignature = '', projectRef = null;
 const settings = () => J.ui.project.simpleExport.title;
 const save = () => { J.uiApi.flushSave(); J.ui.need = true; J.syncSimpleExportUI(); };
 J.simpleTitleDraftError = () => {
@@ -41263,6 +41918,7 @@ J.syncSimpleTitleUI = changed => {
   if (!dialog) return;
   if (changed || projectRef !== J.ui.project) { invalid.clear(); projectRef = J.ui.project; fontSignature = ''; }
   const s = settings();
+  if (pcFontButton) pcFontButton.disabled = !s.enabled;
   for (const [key, input] of fields) {
     if (!invalid.has(key) && document.activeElement !== input) {
       if (input.type === 'checkbox') input.checked = s[key]; else input.value = s[key];
@@ -41290,7 +41946,7 @@ J.mountSimpleSettings = (panel, outputControls) => {
     input.id = 'simpleTitle-' + key; input.setAttribute('aria-label', tr(ja, en));
     if (input.tagName === 'INPUT') input.type = type;
     if (options.wide) label.classList.add('simple-wide');
-    if (options.min != null) { input.min = options.min; input.max = options.max; input.step = 'any'; }
+    if (options.min != null) { input.min = options.min; input.max = options.max; input.step = options.step ?? 'any'; }
     if (type === 'textarea') { input.rows = 3; input.maxLength = 2000; }
     if (key === 'family') input.maxLength = 100;
     if (type === 'checkbox') label.append(input, document.createTextNode(tr(ja, en))); else label.append(el('span', tr(ja, en)), input);
@@ -41311,8 +41967,12 @@ J.mountSimpleSettings = (panel, outputControls) => {
   field('fade','フェードイン・アウト（各1秒）','Fade in/out (1 second each)','checkbox',{wide:true});
   const font = field('font','フォント','Font','select',{wide:true});
   field('family','PCのフォント名','Installed PC font family','text',{wide:true});
+  pcFontButton = J.createLocalFontPickerButton(name => {
+    settings().font = 'custom'; settings().family = name; invalid.delete('family'); save();
+  });
+  pcFontButton.id = 'pickTitleFont'; pcFontButton.classList.add('simple-wide'); grid.append(pcFontButton);
   field('bold','太字','Bold','checkbox'); field('italic','イタリック','Italic','checkbox');
-  field('size','文字サイズ（短辺の%）','Font size (% of short side)','number',{min:1,max:30});
+  field('size','文字サイズ（短辺の%）','Font size (% of short side)','number',{min:1,max:30,step:0.5});
   field('color','文字色','Text color','color');
   field('outline','黒いふち','Black outline','checkbox'); field('backing','半透明黒の下地','Translucent black backing','checkbox');
   field('opacity','下地の不透明度（%）','Backing opacity (%)','number',{min:0,max:100,wide:true});
@@ -41347,6 +42007,526 @@ J.mountSimpleSettings = (panel, outputControls) => {
   });
   dialog.addEventListener('close',()=>{cancelAnimationFrame(raf);J.ui.need=true;J.syncSimpleExportUI();$('viewport')?.focus({preventScroll:true});});
 };
+})();
+
+/* Optional installed-family picker. Enumeration happens only after a user click;
+   only the selected family name reaches the project, never font files or the list. */
+(() => {
+'use strict';
+const tr = J.layerText;
+const el = (tag, text) => { const e = document.createElement(tag); if (text != null) e.textContent = text; return e; };
+let dialog, search, list, status, sample, apply, selectFamily, origin, request = 0, families = [];
+function refresh() {
+  const term = search.value.trim().toLocaleLowerCase();
+  const previous = list.value;
+  const shown = families.filter(name => name.toLocaleLowerCase().includes(term));
+  list.replaceChildren(...shown.map(name => new Option(name, name)));
+  list.value = shown.includes(previous) ? previous : (shown[0] || '');
+  apply.disabled = !list.value;
+  sample.style.fontFamily = list.value ? '"' + J.safeFamily(list.value) + '",sans-serif' : 'sans-serif';
+  status.textContent = tr(`${shown.length} / ${families.length} 書体`, `${shown.length} / ${families.length} families`);
+}
+function mount() {
+  if (dialog) return;
+  dialog = el('dialog'); dialog.id = 'localFontPicker'; dialog.className = 'local-font-picker';
+  dialog.setAttribute('aria-labelledby', 'localFontPickerHeading');
+  const heading = el('h2', tr('PCのフォントから選ぶ', 'Choose an installed PC font')); heading.id = 'localFontPickerHeading';
+  const note = el('p', tr('許可した場合に、このPCの書体名を取得します。一覧やフォント本体は保存しません。選べない場合は元の画面でフォント名を入力できます。', 'With your permission, read font family names from this PC. Neither the list nor font files are saved. If unavailable, enter a font name in the original screen.')); note.className = 'note';
+  search = el('input'); search.type = 'search'; search.id = 'localFontSearch'; search.placeholder = tr('書体名で絞り込む', 'Filter font families'); search.setAttribute('aria-label', search.placeholder);
+  list = el('select'); list.id = 'localFontChoices'; list.size = 10; list.setAttribute('aria-label', tr('PCの書体一覧', 'Installed font families'));
+  status = el('p'); status.id = 'localFontStatus'; status.className = 'note'; status.setAttribute('role','status');
+  sample = el('p', 'Aa Bb 123 あいうえお 字幕'); sample.className = 'local-font-sample';
+  apply = el('button', tr('この書体を使う', 'Use this font')); apply.id = 'localFontUse'; apply.type = 'button';
+  const close = el('button', tr('キャンセル', 'Cancel')); close.type = 'button'; close.id = 'localFontCancel';
+  const actions = el('div'); actions.className = 'local-font-actions'; actions.append(close, apply);
+  dialog.append(heading, note, search, list, status, sample, actions); document.body.append(dialog);
+  search.addEventListener('input', refresh);
+  list.addEventListener('change', () => { apply.disabled = !list.value; sample.style.fontFamily = '"' + J.safeFamily(list.value) + '",sans-serif'; });
+  close.addEventListener('click', () => dialog.close());
+  apply.addEventListener('click', () => {
+    if (!list.value) return;
+    const name = list.value, callback = selectFamily;
+    dialog.close(); callback?.(name);
+  });
+  dialog.addEventListener('close', () => {
+    request++; families = []; list.replaceChildren(); search.value = ''; selectFamily = null;
+    origin?.focus({preventScroll:true}); origin = null;
+  });
+}
+J.createLocalFontPickerButton = onSelect => {
+  const button = el('button', tr('PCのフォントから選ぶ…', 'Choose installed PC font…')); button.type = 'button'; button.className = 'local-font-open';
+  button.addEventListener('click', async () => {
+    mount(); const seq = ++request; selectFamily = onSelect; origin = button;
+    families = []; search.value = ''; search.disabled = true; list.replaceChildren(); list.disabled = true; apply.disabled = true; sample.style.fontFamily = 'sans-serif';
+    status.textContent = tr('フォント一覧を取得中…', 'Reading installed fonts…'); dialog.showModal();
+    try {
+      if (!window.isSecureContext || typeof window.queryLocalFonts !== 'function') {
+        status.textContent = tr('この環境では一覧を取得できません。対応するPC版ブラウザのHTTPS公開サイトで利用するか、フォント名を直接入力してください。', 'Font enumeration is unavailable here. Use the HTTPS site in a supported desktop browser, or enter the font name manually.'); return;
+      }
+      const fonts = await window.queryLocalFonts();
+      if (seq !== request || !dialog.open) return;
+      families = [...new Set(fonts.map(f => typeof f.family === 'string' ? J.safeFamily(f.family) : '').filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      search.disabled = list.disabled = false; refresh();
+      if (!families.length) status.textContent = tr('利用できる書体がありません。フォント名の直接入力も使えます。', 'No font families were returned. You can enter a font name manually.');
+      search.focus();
+    } catch (e) {
+      if (seq !== request || !dialog.open) return;
+      status.textContent = e.name === 'NotAllowedError'
+        ? tr('フォントへのアクセスが許可されませんでした。フォント名の直接入力を使うか、ブラウザのサイト設定で許可して再度開いてください。', 'Font access was not allowed. Enter a name manually, or allow access in browser site settings and reopen the picker.')
+        : tr('フォント一覧を取得できませんでした。フォント名を直接入力してください。', 'Could not read installed fonts. Enter the font name manually.');
+    }
+  });
+  return button;
+};
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('localFont'), add = document.getElementById('btnAddFont');
+  if (!input || !add) return;
+  const button = J.createLocalFontPickerButton(name => { input.value = name; add.click(); }); button.id = 'pickEffectFont';
+  input.closest('.row').after(button);
+});
+})();
+
+/* Browser-wide editable library, portable project definitions, and a draft modal.
+   Never edit applied snapshots or replan merely because the library changed. */
+(() => {
+'use strict';
+const tr = J.layerText, clone = x => JSON.parse(JSON.stringify(x));
+const KEY = 'jizura.layers.userThemes.v1';
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+// Summaries of each pack's palettes, font roles and recipe biases, not promises
+// of a particular draw. Keep these aligned with 04_styles / 11p_styles / horror3.
+const styleHints = {
+  noir: ['白黒に琥珀・シアンの色ずれ、太いゴシック。縦組みや幅を詰めた文字、横に流れる配置を好み、文字が集まる・切り込む登場と、砕ける・漂う退場に寄りやすい。', 'Black and white with amber/cyan separation and heavy sans-serif type. Favors vertical, condensed and scrolling arrangements, assembling or sliced entrances, and exploding or drifting exits.'],
+  crimson: ['深紅・ピンクに白黒と青緑、太いゴシック。巨大文字や散らした配置を好み、文字の乱れ・切断・グリッチで信号が壊れるような印象を作りやすい。', 'Crimson and pink with black, white and mint accents, using heavy sans-serif type. Favors oversized or scattered text, scrambling, slices and glitch exits for a damaged-signal feel.'],
+  caution: ['黄・赤・黒に青の差し色、太い明朝とゴシック。円環や書体を混ぜた配置を好み、回転・飛び出し・散開に、矢印や計器風の装飾を組み合わせやすい。', 'Yellow, red and black with blue accents and heavy serif/sans type. Favors rings and mixed typography, spins, pops and scattering, with arrows and instrument-like ornaments.'],
+  magenta: ['鮮やかなピンク・白・青と太い丸文字。波打つ文字や注釈付きの配置を好み、弾む・落ちる登場と、散らばる・縮む退場で元気な印象になりやすい。', 'Vivid pink, white and blue with bold rounded type. Favors wavy text and annotated layouts, popping or dropping entrances, and scattering or shrinking exits for an energetic feel.'],
+  paper: ['生成り・藍・マゼンタと太い明朝、強めの紙の質感。積み重ねや大小の文字を混ぜる配置を好み、ワイプや伸縮で現れ、漂うように消える傾向。', 'Cream, navy and magenta with bold Mincho serif type and strong paper texture. Favors stacked and mixed-size text, wipe or stretch entrances, and drifting exits.'],
+  hud: ['炭色・白・橙と太いゴシック、粒子感や発光。円やリング状の配置を好み、ぼかし・タイプ表示・文字の集合に、格子や計器風の装飾を添えやすい。', 'Charcoal, white and orange with heavy sans-serif type, grain and glow. Favors circles and rings, blur, typing and assembly, with grids and instrument-style ornaments.'],
+  mint: ['黒・青緑・ライムと太いゴシック、走査線や強めの色ずれ。ラベルや反復配置を好み、文字の入れ替わり・点滅・切断で端末画面のような印象になりやすい。', 'Black, teal and lime with heavy sans-serif type, scanlines and pronounced color separation. Favors labels and repeated text, scrambling, flickering and sliced exits for a terminal-like feel.'],
+  specimen: ['墨色・生成りに控えめな金茶、明朝中心で色ずれは弱め。辞書の注釈や縦組みを好み、タイプ表示やぼかし、引き出し線で組版を見せる傾向。', 'Ink, cream and muted gold-brown with Mincho serif type and restrained color separation. Favors dictionary-like annotations, vertical text, typing and blur, with leader lines emphasizing typography.'],
+  transit: ['オリーブ・黄・黒に白文字、太いゴシック。大小の混在や斜め・散開配置を好み、回転・落下・伸縮と矢印や図形で標識のような印象を作りやすい。', 'Olive, yellow and black with white, bold sans-serif text. Favors mixed sizes, diagonals and scattered layouts, with spins, drops, stretches, arrows and shapes for a signage feel.'],
+  blueprint: ['鮮青・白・黒と太いゴシック。斜めの配置や大きな文字、ラベルを好み、ワイプ・切断・伸縮に図形やストライプを組み合わせやすい。', 'Strong blue, white and black with heavy sans-serif type. Favors diagonal layouts, large text and labels, using wipes, slices and stretching alongside shapes and stripes.'],
+  rouge: ['明るいグレー・黒と赤のグラデーション、太いゴシック。巨大文字やカプセル状の配置を好み、ズームで現れて縮む動きや、ワイプに寄りやすい。', 'Light gray and black with red gradients and heavy sans-serif type. Favors oversized text and capsule layouts, zooming entrances, shrinking exits and wipes.'],
+  mono: ['灰色・白を基調に赤青や緑の強い色ずれ、太い明朝。円環・カプセル・反復配置を好み、文字の集合やぼかし、爆散・グリッチの退場を使いやすい。', 'Gray and white with strong red/blue or green separation and bold Mincho serif type. Favors rings, capsules and repeated layouts, assembly or blur entrances, and exploding or glitch exits.'],
+  sakura: ['桜色・梅紫と丸文字・明朝の組み合わせ。縦組みや吊り下げ配置を好み、ぼかしながら現れ、溶ける・浮かぶように消える演出や、花びら・光のぼけを選びやすい。', 'Cherry pink and plum with rounded and Mincho serif type. Favors vertical or hanging layouts, blurred entrances, dissolving or rising exits, petals and soft bokeh.'],
+  ocean: ['濃紺・シアンと細いゴシック。泡や奥行きのある配置、せり上がる文字を好み、波紋・浮遊粒子・発光・波のゆがみを組み合わせやすい。', 'Deep navy and cyan with light sans-serif type. Favors bubbles, depth and rising text, with ripples, floating particles, glow and wave distortion.'],
+  sunset: ['橙・ピンク・菫色と太い明朝。大きな文字や弧を描く配置、ズームやせり上がる登場を好み、縦グラデーションや光の筋、フィルムが焼けるような光を使いやすい。', 'Orange, pink and violet with bold Mincho serif type. Favors large or arched text, zooming and rising entrances, vertical gradients, light sweeps and film-burn effects.'],
+  forest: ['苔色・生成り・茶と手書き風の文字・明朝、紙の質感。縦の段組みや吊り下げ配置を好み、線を描く登場、にじみ、手描きの下線や囲みを使いやすい。', 'Moss, cream and brown with handwritten and Mincho serif type and paper texture. Favors vertical columns and hanging layouts, drawn strokes, ink bleeds and scribbled underlines or circles.'],
+  vapor: ['薄紫・ピンク・水色と明朝・ドット文字。鏡像や遠近配置、残像を伴う登場・退場を好み、レトロな格子やVHSの揺れ・色にじみを使いやすい。', 'Lavender, pink and cyan with Mincho serif and pixel type. Favors mirrored and perspective layouts, echoing entrances/exits, retro grids and VHS rolling or color smearing.'],
+  newsprint: ['更紙の灰色・墨・赤と見出し向けの明朝、網点や版ずれ。段組み・両端揃え・大きな頭文字を好み、タイプ表示や覆って消す動きで新聞の紙面に寄せやすい。', 'Newsprint gray, ink and red with headline serif type, halftones and print misregistration. Favors columns, justified text and drop caps, typing entrances and covering wipes for a newspaper feel.'],
+  synth80: ['マゼンタ・シアンのネオン色と立体的な太い書体、強い発光と走査線。ネオン看板や遠近配置を好み、点灯・ズーム・残像とレトロな格子を組み合わせやすい。', 'Neon magenta and cyan with dimensional bold type, strong glow and scanlines. Favors neon signs and perspective layouts, lighting up, zooming and echoes with retro grids.'],
+  kraft: ['クラフト紙・生成りに朱と藍、太い見出し文字と手書き風の本文。テープ・ラベル・切符の配置を好み、スタンプのような登場や折り畳む退場で紙の工作に寄せやすい。', 'Kraft brown and cream with vermilion/navy accents, bold headlines and handwritten body type. Favors tape, labels and tickets, stamped entrances and folding exits for a paper-craft feel.'],
+  candy: ['ミント・ピンク・黄・紫のパステルと丸く太い文字。泡や弾む行、伸び縮みする配置を好み、バウンドやゴムのような動きに紙吹雪・ハート・星を添えやすい。', 'Mint, pink, yellow and purple pastels with bold rounded type. Favors bubbles, bouncing lines and elastic layouts, rubbery motion, confetti, hearts and stars.'],
+  acid: ['黒・黄緑・マゼンタと荒い形の書体・ドット文字、強い色ずれ。ドット状や降り注ぐ配置を好み、グリッチ・ちらつき・画素のずれ・激しい揺れで壊れた映像に寄せやすい。', 'Black, acid green and magenta with irregular and pixel type and strong color separation. Favors dot-matrix or raining text, glitch, flicker, pixel drift and hard shake for a broken-video feel.'],
+  sumi: ['和紙の生成り・墨・朱と筆文字。縦組みや印章、漢字を大きく見せる配置を好み、墨のにじみ・筆順のような登場に、落款や筆跡を添えやすい。', 'Washi cream, ink and vermilion with brush lettering. Favors vertical text, seals and featured kanji, ink-bleed or drawn-stroke entrances, stamp marks and brush ornaments.'],
+  gold: ['漆黒・金・象牙色と細めの明朝。枠で囲む配置や中央の文字を好み、字間の変化やぼかし、金色のグラデーション・きらめき・光の筋に寄りやすい。', 'Black, gold and ivory with delicate Mincho serif type. Favors framed or centered text, changing letter spacing, blur, gold gradients, sparkles and light sweeps.'],
+  hrRuin: ['褪せた緑灰色・錆色と明朝、ざらついた質感。侵食やにじみのある文字、廊下・点滅する照明・カビ、埃や亀裂を好み、廃墟のような不穏さに寄せやすい。', 'Faded green-gray and rust with Mincho serif type and coarse grain. Favors eroded or bleeding text, corridors, failing lamps, mold, dust and cracks for an abandoned-place atmosphere.'],
+  hrNightRec: ['黒・白・赤とゴシック、強い粒子と走査線。監視カメラや砂嵐のテレビ風配置を好み、縦揺れ・点滅・映像途絶やノイズで古い録画に寄せやすい。', 'Black, white and red with sans-serif type, heavy grain and scanlines. Favors CCTV and static-TV layouts, vertical rolling, flickering, signal loss and noise for an old-recording feel.'],
+  hrCurse: ['黄ばんだ紙・褪せた墨・暗い赤と手書き風の文字・筆文字。壁の落書きや行方不明の張り紙風配置を好み、にじみ・侵食・滴り・引っかき傷で不気味な手紙に寄せやすい。', 'Yellowed paper, faded ink and dark red with handwritten and brush type. Favors wall scrawls and missing-person notices, ink bleed, erosion, drips and scratches for an unsettling letter-like feel.'],
+};
+const moodHints = {
+  glitch: ['切断・文字の入れ替わり・ちらつきなど、破損した信号のような動き。グリッチと色ずれを強めに使います。', 'Sliced, scrambled and flickering text with strong glitch and color separation, like a damaged signal.'],
+  calm: ['緩やかな動きと控えめな装飾。ぼかし・ワイプ・浮遊などを好み、激しい揺れやグリッチを抑えます。', 'Gentler motion and restrained ornaments. Favors blur, wipes and drifting, with less jitter and glitch.'],
+  pop: ['弾む・落ちる・回転するなど、元気な動き。装飾が多めで、文字を次々と切り替える傾向です。', 'Energetic pops, drops and spins, with more ornaments and frequent text changes.'],
+  graphic: ['斜め配置・ラベル・図形など、グラフィックな構成。ワイプや切断で切り替え、装飾を多めに使います。', 'Graphic arrangements with diagonal text, labels and shapes. Favors wipes and slices with plentiful ornaments.'],
+  editorial: ['組版・縦組み・注釈など、誌面のような構成。動きは比較的控えめで、タイプ表示やワイプを好みます。', 'Page-like typography, vertical text and annotations. Relatively restrained movement, favoring typing and wipes.'],
+  emotional: ['大きな文字や重なり、集合・浮遊・ぼかしなどで余韻を作ります。色ずれや質感も比較的強めです。', 'Large or layered text with assembly, drifting and blur for expressive motion. Color separation and texture can be strong.'],
+  horror: ['不規則なちらつき、文字の乱れ、暗い質感などで不穏さを出します。ホラー用の演出セットも使います。', 'Uneasy flicker, scrambled text and dark textures. Also enables the horror expression set.'],
+  chaos: ['特定の系統を優先せず、使用可能な演出と幅広い強度から抽選します。', 'No preferred family: draws broadly from available techniques and a wide range of effect strengths.'],
+};
+J.userThemeHint = (group, key) => {
+  if (key === 'random') return tr('この枠が当たると、使用可能な全候補から均等に選びます。個別ウェイトが0の候補も出ます。', 'When this entry wins, choose uniformly from all available candidates, including those with individual weight zero.');
+  if (group === 'styles' && key === 'fromMood') return tr('その回の雰囲気を使い、相性のよいスタイルを優先する従来の抽選を行います。2キーでは現在の字幕の雰囲気を使い、未設定ならランダムに選びます。', 'Use the draw’s mood and the original preference for compatible styles. Key 2 uses the current cue’s mood; an unset mood falls back to a random available style.');
+  if (group === 'moods') return tr(...(moodHints[key] || ['', '']));
+  return styleHints[key] ? tr(...styleHints[key]) : J.STYLES[key]?.desc || '';
+};
+let library, dialog, list, name, editor, status, file, referenceMood, distributionInfo, hint, hintAnchor, hintPinned = false, drafts = [], active = '', origin, save, remove, duplicate, session = 0;
+function hideHint() {
+  hintAnchor?.removeAttribute('aria-describedby'); hintAnchor = null; hintPinned = false;
+  if (hint) hint.hidden = true;
+}
+function showHint(anchor, group, key) {
+  hideHint(); hintAnchor = anchor; hint.textContent = J.userThemeHint(group, key); hint.hidden = false;
+  anchor.setAttribute('aria-describedby', hint.id);
+  const r = anchor.getBoundingClientRect(), box = hint.getBoundingClientRect();
+  hint.style.left = Math.max(16, Math.min(r.left, window.innerWidth - box.width - 16)) + 'px';
+  const below = r.bottom + 6;
+  hint.style.top = Math.max(16, Math.min(below + box.height <= window.innerHeight - 16 ? below : r.top - box.height - 6, window.innerHeight - box.height - 16)) + 'px';
+}
+const read = () => {
+  if (!library) { try { library = J.normalizeUserThemes(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { library = []; } }
+  return library;
+};
+const persist = themes => {
+  library = clone(themes);
+  try { localStorage.setItem(KEY, JSON.stringify(library)); return true; } catch { return false; }
+};
+J.mergeUserThemeLibrary = project => {
+  const merged = J.mergeUserThemeLists(read(), project.userThemes);
+  if (merged.idMap[project.theme]) project.theme = merged.idMap[project.theme];
+  project.userThemes = clone(merged.themes);
+  project.theme = J.normalizeTheme(project.theme, project);
+  persist(merged.themes);
+};
+const current = () => drafts.find(t => t.id === active);
+const error = message => { status.textContent = message; status.classList.add('error'); };
+const clearStatus = () => { status.textContent = ''; status.classList.remove('error'); };
+function validDrafts() {
+  for (const t of drafts) {
+    if (!t.name.trim()) { error(tr('テーマ名を入力してください。', 'Enter a theme name.')); active = t.id; render(); return null; }
+    for (const [key, label] of [['styles', tr('スタイル', 'Style')], ['moods', tr('雰囲気', 'Mood')]]) {
+      if (!Object.values(t[key]).some(w => w > 0)) {
+        error(tr(`「${t.name}」の${label}は、少なくとも1項目を1以上にしてください。`, `“${t.name}”: set at least one ${label.toLowerCase()} weight above zero.`)); active = t.id; render(); return null;
+      }
+    }
+  }
+  return J.normalizeUserThemes(drafts);
+}
+function renderList() {
+  list.replaceChildren(); const seen = new Map();
+  for (const t of drafts) {
+    const label = t.name.trim() || tr('名称未設定', 'Unnamed'), n = (seen.get(label) || 0) + 1; seen.set(label, n);
+    list.add(new Option(label + (n > 1 ? ` (${n})` : ''), t.id));
+  }
+  list.value = active;
+}
+function render() {
+  hideHint(); if (distributionInfo) distributionInfo.textContent = '';
+  renderList(); const t = current(); editor.hidden = !t; remove.disabled = duplicate.disabled = !t;
+  if (!t) return;
+  name.value = t.name;
+  for (const select of editor.querySelectorAll('select[data-group]')) select.value = String(t[select.dataset.group][select.dataset.key] || 0);
+}
+function mount() {
+  if (dialog) return;
+  dialog = el('dialog', null, 'user-theme-dialog'); dialog.id = 'userThemeDialog';
+  const heading = el('h2', tr('ユーザーテーマ', 'User themes')); heading.id = 'userThemeHeading'; dialog.setAttribute('aria-labelledby', heading.id);
+  const note = el('p', tr('スタイルと雰囲気の抽選ウェイトを設定します。名前にホバー／タップすると説明を表示。「変更を保存」後、テーマを選び、おまかせ／字幕ガチャ1で適用します。', 'Set style and mood draw weights. Hover or tap a name for help. Save changes, then select the theme and apply Auto-compose or cue draw 1.'), 'note');
+  const toolbar = el('div', null, 'user-theme-toolbar');
+  list = el('select'); list.id = 'userThemeList'; list.setAttribute('aria-label', tr('編集するユーザーテーマ', 'User theme to edit'));
+  const button = (ja, en, id, action) => { const b = el('button', tr(ja, en)); b.type = 'button'; b.id = id; b.addEventListener('click', action); return b; };
+  const add = button('新規', 'New', 'userThemeAdd', () => {
+    const t = { id: J.newUserThemeId(), name: tr('新しいテーマ', 'New theme'), styles: { random: 1 }, moods: { random: 1 } };
+    drafts.push(t); active = t.id; clearStatus(); render(); name.focus(); name.select();
+  });
+  duplicate = button('複製', 'Duplicate', 'userThemeDuplicate', () => {
+    const t = clone(current()); t.id = J.newUserThemeId(); t.name = (t.name + tr(' のコピー', ' copy')).slice(0, 80);
+    drafts.push(t); active = t.id; clearStatus(); render(); name.focus(); name.select();
+  });
+  remove = button('削除', 'Delete', 'userThemeDelete', () => {
+    const index = drafts.findIndex(t => t.id === active); drafts.splice(index, 1); active = drafts[Math.min(index, drafts.length - 1)]?.id || ''; clearStatus(); render();
+  });
+  toolbar.append(list, add, duplicate, remove);
+  editor = el('div'); editor.id = 'userThemeEditor';
+  const label = el('label', tr('テーマ名', 'Theme name'), 'user-theme-name'); name = el('input'); name.id = 'userThemeName'; name.maxLength = 80; label.append(name);
+  const help = el('p', tr('0は通常の抽選から除外。ランダムの枠が当たると、その群の0の項目も含む使用可能な全候補から均等に選びます。指定した候補に必要な演出セットは適用先だけで有効になります。', 'Zero excludes a direct choice. When a random entry wins, choose uniformly from every available candidate in that group, including zero-weight items. Sets required by explicit choices are enabled only in the scope being changed.'), 'note');
+  const distribution = el('div', null, 'user-theme-distribution');
+  const referenceLabel = el('label', tr('参考にする雰囲気', 'Reference mood'));
+  referenceMood = el('select'); referenceMood.id = 'userThemeReferenceMood';
+  for (const [key, mood] of Object.entries(J.MOODS)) referenceMood.add(new Option(mood.name, key));
+  referenceLabel.append(referenceMood);
+  const applyDistribution = button('雰囲気の分布を使う', 'Use mood distribution', 'userThemeApplyDistribution', () => {
+    const t = current(); if (!t) return;
+    const result = J.approximateMoodStyleWeights(J.ui.project, referenceMood.value);
+    t.styles = result.weights; t.moods = { [referenceMood.value]: 1 }; clearStatus(); render();
+    distributionInfo.textContent = result.preferredCount
+      ? tr(`主候補${result.preferredCount}種を直接選ぶ割合：約${(result.mainShare * 100).toFixed(1)}%。残りはランダムです。ここから自由に調整できます。`, `Direct preferred-pool share (${result.preferredCount} styles): about ${(result.mainShare * 100).toFixed(1)}%. The rest is random. Adjust the weights as desired.`)
+      : tr('優先候補がないため、スタイル欄は「ランダムにスタイルを選ぶ」だけを1にしました。', 'No preferred styles: only Choose a random style is set to 1 in the style group.');
+  });
+  distribution.append(referenceLabel, applyDistribution);
+  const distributionHelp = el('p', tr('両方の欄を上書きします。スタイルは近似配分、雰囲気は選択したものを1、ほかを0にします。現在の使用設定を基準にし、ホラー参照時は必要セットを含めます。展開後のランダム候補は元の抽選と異なる場合があります。', 'Replaces both groups: approximate style weights, and the selected mood at 1 with all others at 0. Uses current set switches, including the required set for a Horror reference. The resulting random pool may differ from the original draw.'), 'note');
+  distributionInfo = el('p', '', 'note'); distributionInfo.id = 'userThemeDistributionInfo'; distributionInfo.setAttribute('role', 'status');
+  const columns = el('div', null, 'user-theme-columns');
+  for (const [group, ja, en, keys, registry] of [['styles', 'スタイルのウェイト', 'Style weights', J.STYLE_ORDER, J.STYLES], ['moods', '雰囲気のウェイト', 'Mood weights', Object.keys(J.MOODS), J.MOODS]]) {
+    const section = el('section'), h = el('h3', tr(ja, en));
+    const clear = button('すべて0', 'Zero all', 'userThemeZero-' + group, () => { current()[group] = {}; clearStatus(); render(); });
+    const header = el('div', null, 'user-theme-group-heading'); header.append(h, clear); section.append(header);
+    for (const key of ['random', ...(group === 'styles' ? ['fromMood'] : []), ...keys]) {
+      const text = key === 'random' ? (group === 'styles' ? tr('ランダムにスタイルを選ぶ', 'Choose a random style') : tr('ランダムに雰囲気を選ぶ', 'Choose a random mood')) : key === 'fromMood' ? tr('雰囲気から決める', 'Choose from mood') : registry[key].name;
+      const row = el('div', null, 'user-theme-weight');
+      const info = el('button', text, 'user-theme-help'); info.type = 'button'; info.id = `userThemeHelp-${group}-${key}`;
+      info.setAttribute('aria-label', tr(`${text}の説明`, `About ${text}`));
+      info.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') showHint(info, group, key); });
+      info.addEventListener('pointerleave', e => { if (!hintPinned && document.activeElement !== info && !hint.contains(e.relatedTarget)) hideHint(); });
+      info.addEventListener('focus', () => showHint(info, group, key));
+      info.addEventListener('blur', () => { if (hintAnchor === info) hideHint(); });
+      info.addEventListener('click', () => { if (hintAnchor === info && hintPinned) hideHint(); else { showHint(info, group, key); hintPinned = true; } });
+      row.append(info);
+      const weight = el('select'); weight.dataset.group = group; weight.dataset.key = key; weight.id = `userTheme-${group}-${key}`;
+      weight.setAttribute('aria-label', tr(`${text}のウェイト`, `${text} weight`));
+      for (let i = 0; i <= 10; i++) weight.add(new Option(String(i), String(i)));
+      weight.addEventListener('change', () => { const t = current(); if (t) { t[group][key] = Number(weight.value); clearStatus(); distributionInfo.textContent = ''; } });
+      row.append(weight); section.append(row);
+    }
+    columns.append(section);
+  }
+  editor.append(label, help, distribution, distributionHelp, distributionInfo, columns);
+  const files = el('div', null, 'user-theme-toolbar');
+  const exportButton = button('テーマJSONを保存', 'Export themes JSON', 'userThemeExport', () => {
+    const themes = validDrafts(); if (!themes) return;
+    J.saveFile('jizura-user-themes.json', JSON.stringify(J.userThemesFile(themes), null, 2));
+    status.classList.remove('error'); status.textContent = tr('ダイアログ内の全テーマを保存しました。', 'Exported all themes in this dialog.');
+  });
+  file = el('input'); file.type = 'file'; file.accept = '.json,application/json'; file.hidden = true; file.id = 'userThemeFile';
+  const importButton = button('テーマJSONを読み込む', 'Import themes JSON', 'userThemeImport', () => file.click());
+  file.addEventListener('change', async () => {
+    const f = file.files?.[0]; if (!f) return;
+    const opened = session;
+    try {
+      if (f.size > 2 * 1024 * 1024) throw new Error('Too large');
+      const imported = J.parseUserThemeFile(JSON.parse(await f.text()));
+      if (!dialog.open || opened !== session) return;
+      // Validate drafts first so an import cannot silently discard unfinished edits.
+      const valid = validDrafts(); if (!valid) return;
+      const merged = J.mergeUserThemeLists(valid, imported); drafts = clone(merged.themes);
+      active = imported.length ? merged.idMap[imported[0].id] : active; render();
+      status.classList.remove('error'); status.textContent = tr('読み込みました。「変更を保存」でライブラリへ反映します。', 'Imported. Save changes to update the library.');
+    } catch { if (dialog.open && opened === session) error(tr('ユーザーテーマJSONを読み込めません。形式・ウェイト（0〜10）・各群の合計を確認してください。', 'Cannot import themes. Check the file format, weights (0–10), and nonzero totals for both groups.')); }
+    finally { if (opened === session) file.value = ''; }
+  });
+  files.append(exportButton, importButton, file);
+  const storage = el('p', tr('全テーマをブラウザ共通ライブラリとプロジェクトJSONへ保存します。削除・編集しても適用済み字幕や9の基準は変わりません。同名テーマは別IDで管理します。', 'All themes are saved in the browser library and project JSON. Editing or deleting them leaves applied cues and key 9’s baseline intact. Same-name themes have separate IDs.'), 'note');
+  status = el('p', '', 'note'); status.id = 'userThemeStatus'; status.setAttribute('role', 'status');
+  const actions = el('div', null, 'user-theme-actions');
+  const cancel = button('キャンセル', 'Cancel', 'userThemeCancel', () => dialog.close());
+  save = button('変更を保存', 'Save changes', 'userThemeSave', () => {
+    const themes = validDrafts(); if (!themes) return;
+    const stored = persist(themes), p = J.ui.project;
+    p.userThemes = clone(themes); p.theme = J.normalizeTheme(p.theme, p);
+    J.uiApi.syncOmakaseThemes(); J.uiApi.flushSave(); dialog.close();
+    J.uiApi.toast(stored ? tr('ユーザーテーマを保存しました。', 'User themes saved.') : tr('ブラウザへ保存できませんでした。テーマJSONを保存して保管してください。', 'Browser storage failed. Export themes JSON to keep a backup.'));
+  }); save.classList.add('primary'); actions.append(cancel, save);
+  const footer = el('div', null, 'user-theme-footer'); footer.append(files, status, actions);
+  hint = el('div', null, 'user-theme-hint'); hint.id = 'userThemeHint'; hint.setAttribute('role', 'tooltip'); hint.hidden = true;
+  hint.addEventListener('pointerleave', () => { if (!hintPinned && document.activeElement !== hintAnchor) hideHint(); });
+  dialog.append(heading, note, toolbar, editor, storage, footer, hint); document.body.append(dialog);
+  dialog.addEventListener('click', e => { if (!e.target.closest('.user-theme-help') && !hint.contains(e.target)) hideHint(); });
+  dialog.addEventListener('scroll', hideHint);
+  window.addEventListener('resize', hideHint);
+  dialog.addEventListener('keydown', e => { if (e.key === 'Escape' && !hint.hidden) { e.preventDefault(); e.stopPropagation(); hideHint(); } });
+  list.addEventListener('change', () => { active = list.value; clearStatus(); render(); });
+  name.addEventListener('input', () => { if (current()) { current().name = name.value; clearStatus(); renderList(); } });
+  dialog.addEventListener('close', () => { hideHint(); session++; drafts = []; active = ''; file.value = ''; origin?.focus({preventScroll:true}); origin = null; });
+}
+J.addUserThemeManagerButton = (parent, suffix) => {
+  const b = el('button', tr('ユーザーテーマ…', 'User themes…')); b.type = 'button'; b.className = 'small'; b.id = 'manageThemes-' + suffix;
+  b.addEventListener('click', () => {
+    if (J.ui.exporting || J.ui.tap || J.layerSession?.busy) return;
+    J.uiApi.pause(); mount(); session++; origin = b; drafts = clone(read()); active = drafts.some(t => t.id === J.ui.project.theme) ? J.ui.project.theme : drafts[0]?.id || '';
+    referenceMood.value = Object.hasOwn(J.MOODS, J.ui.project.mood) ? J.ui.project.mood : 'calm';
+    status.textContent = ''; status.classList.remove('error'); render(); dialog.showModal();
+  }); parent.append(b);
+};
+})();
+
+/* Shared library management and isolated, silent audition. Only Apply edits a cue. */
+(() => {
+'use strict';
+const tr = J.layerText, clone = x => JSON.parse(JSON.stringify(x));
+const el = (tag, text) => { const e = document.createElement(tag); if (text != null) e.textContent = text; return e; };
+const uid = () => 'motion-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+const bundle = (items, serial = nextNumber) => ({ format: 'jizura-motion-library', version: 1, nextNumber: serial, items });
+let dialog, opener, select, name, save, rename, remove, apply, status, targetLabel, saveNote, sampleButton, canvas, playButton, scrub;
+let items = [], nextNumber = 1, target, source, candidate, audition, active = '', wasPlaying, epoch = 0, raf = 0, running = false, elapsed = 0, last = 0;
+const current = () => items.find(i => i.id === active);
+function message(text, error = false) { status.textContent = text; status.classList.toggle('error', error); }
+function read() {
+  const raw = localStorage.getItem(J.motionLibraryKey);
+  const data = raw ? JSON.parse(raw) : null;
+  nextNumber = Number.isSafeInteger(data?.nextNumber) && data.nextNumber > 0 ? data.nextNumber : 1;
+  return data ? J.parseMotionLibrary(data) : [];
+}
+function persist(next, serial = nextNumber) {
+  // Commit storage before updating the visible list; quota failure must not lose data.
+  localStorage.setItem(J.motionLibraryKey, JSON.stringify(bundle(next, serial))); items = next; nextNumber = serial;
+}
+function automaticNumber() {
+  let serial = nextNumber;
+  for (const item of items) {
+    const match = /^motion(\d+)$/i.exec(item.name), n = match ? Number(match[1]) : 0;
+    if (Number.isSafeInteger(n) && n >= serial && n < Number.MAX_SAFE_INTEGER - 1) serial = n + 1;
+  }
+  return serial;
+}
+function stop() { running = false; cancelAnimationFrame(raf); raf = 0; playButton.textContent = tr('再生', 'Play'); }
+function paint() {
+  if (!audition) return;
+  const ctx = canvas.getContext('2d'), lang = J.lang;
+  try {
+    J.setLang(audition.plan.lang);
+    audition.renderer.draw(audition.plan, audition.start + Math.min(elapsed, audition.duration - .001), false);
+    ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(audition.renderer.layer, 0, 0);
+    scrub.value = String(elapsed);
+  } catch (e) { stop(); candidate = null; apply.disabled = true; message(e.message, true); return false; }
+  finally { J.setLang(lang); }
+  return true;
+}
+function tick(now) {
+  if (!running || !dialog.open) return;
+  elapsed = (elapsed + Math.min(.1, (now - last) / 1000)) % audition.duration; last = now; paint();
+  if (running) raf = requestAnimationFrame(tick);
+}
+function run() { if (!audition) return; running = true; last = performance.now(); playButton.textContent = tr('停止', 'Pause'); raf = requestAnimationFrame(tick); }
+function restoreFonts() { J.registerProjectFonts(J.ui.project.userFonts || []); }
+function preview(p, index, audio) {
+  stop(); audition = null; elapsed = 0;
+  // Install only the project's font references. The caller restores the main
+  // project's registry on close; no font file is read or stored here.
+  const refs = new Map((J.ui.project.userFonts || []).map(f => [f.key, f]));
+  for (const f of p.userFonts || []) refs.set(f.key, f);
+  J.registerProjectFonts([...refs.values()]);
+  const lang = J.lang;
+  let plan;
+  try { plan = J.plan(p, audio); } finally { J.setLang(lang); }
+  const ln = plan.lines.find(l => l.index === index);
+  if (!ln) throw new Error(tr('試写できる字幕がありません。', 'No subtitle to preview.'));
+  const scale = Math.min(560 / plan.W, 320 / plan.H, 1);
+  canvas.width = Math.max(2, Math.round(plan.W * scale)); canvas.height = Math.max(2, Math.round(plan.H * scale));
+  audition = { plan, start: ln.start, duration: Math.max(.01, ln.visEnd - ln.start), renderer: new J.LayerRenderer(canvas.width, canvas.height, p.layerMode, p.layerBackgroundOpacity, p.hideDecorativeText) };
+  scrub.min = '0'; scrub.max = String(audition.duration); scrub.step = '.01'; scrub.disabled = false; playButton.disabled = false;
+  const token = ++epoch;
+  Promise.resolve(J.ensureFonts?.(ln.text, J.fontsOfPlan(plan))).then(() => { if (dialog.open && epoch === token) paint(); }).catch(() => {});
+  if (!paint()) throw new Error(tr('このモーションの試写に失敗しました。', 'Could not render this motion.'));
+  run();
+}
+function refreshList() {
+  select.replaceChildren();
+  for (const item of items) { const option = el('option', item.name); option.value = item.id; select.append(option); }
+  if (!items.some(i => i.id === active)) active = '';
+  select.value = active; if (!active) select.selectedIndex = -1;
+  select.disabled = !items.length;
+  name.value = current()?.name || '';
+  rename.disabled = remove.disabled = sampleButton.disabled = !current();
+}
+function choose(useSample = false) {
+  stop(); epoch++; candidate = null; audition = null; apply.disabled = true; playButton.disabled = true; scrub.disabled = true;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  const item = current();
+  rename.disabled = remove.disabled = sampleButton.disabled = !item;
+  if (!item && !source) {
+    message(tr('一覧からモーションを選ぶと試写できます。', 'Select a library motion to preview it.')); return;
+  }
+  if (item) name.value = item.name;
+  try {
+    if (!item) {
+      const lang = J.lang; let p;
+      const original = J.ui.project;
+      // A locked cue may still be saved/auditioned; unlock only this private draft.
+      const draft = { ...original, overrides: { ...original.overrides, [target.index]: { ...original.overrides?.[target.index], lock: false } } };
+      try { p = J.prepareMotionApply(draft, J.ui.plan, target.index, source, J.uiApi.audioLike()); }
+      finally { J.setLang(lang); }
+      preview(p, target.index, J.uiApi.audioLike());
+      message(tr('保存対象のモーションを試写中です。名前は空欄のままでも保存できます。', 'Previewing the motion to save. Leave the name blank for automatic numbering.'));
+      return;
+    }
+    if (target && !useSample) {
+      const lang = J.lang;
+      try { candidate = J.prepareMotionApply(J.ui.project, J.ui.plan, target.index, item.recipe, J.uiApi.audioLike()); }
+      finally { J.setLang(lang); }
+      candidate.overrides[target.index].randomDraw.libraryName = item.name;
+      J.rekeyLocalLooks(candidate, J.ui.plan, J.uiApi.audioLike());
+      preview(candidate, target.index, J.uiApi.audioLike()); apply.disabled = false;
+      message(tr('選択中の字幕で試写中です。「適用」までは元の演出を変更しません。', 'Previewing the selected subtitle. The project changes only when you Apply.'));
+    } else {
+      const lang = J.lang; let p;
+      try { p = J.motionSampleProject(item.recipe); } finally { J.setLang(lang); }
+      p.layerMode = J.ui.project.layerMode; p.layerBackgroundOpacity = J.ui.project.layerBackgroundOpacity;
+      preview(p, 0, null); message(tr('サンプルテキストで試写中です。字幕を選んで開くと適用できます。', 'Previewing sample text. Open with a subtitle selected to apply.'));
+    }
+  } catch (e) {
+    candidate = null; apply.disabled = true; stop(); restoreFonts();
+    message(tr('適用できません：', 'Cannot apply: ') + e.message + (target && !useSample ? tr('「サンプルで試写」で動きを確認できます。', ' Use “Preview sample” to view the motion.') : ''), true);
+  }
+}
+function safely(action) { try { action(); } catch (e) { message(e.message, true); } }
+function mount() {
+  if (dialog) return;
+  dialog = el('dialog'); dialog.id = 'motionLibraryDialog'; dialog.className = 'motion-library';
+  const heading = el('h2', tr('モーションライブラリ', 'Motion library')); heading.id = 'motionLibraryHeading'; dialog.setAttribute('aria-labelledby', heading.id);
+  targetLabel = el('p'); targetLabel.id = 'motionLibraryTarget';
+  const hint = el('p', tr('字幕1つ分の演出を保存し、別の歌詞へ適用します。文字数に合わせて配置を再計算します。試写は無音・素材背景なしです。', 'Save one subtitle’s motion and reuse it with new lyrics. Layout is recalculated for the new text. Previews are silent, without media backgrounds.')); hint.className = 'muted';
+  const layout = el('div'); layout.className = 'motion-library-grid'; const editor = el('div'), viewer = el('div');
+  select = el('select'); select.id = 'motionLibraryList'; select.size = 8; select.setAttribute('aria-label', tr('保存済みモーション', 'Saved motions'));
+  const label = el('label', tr('モーション名', 'Motion name')); name = el('input'); name.id = 'motionLibraryName'; name.maxLength = 120; name.placeholder = tr('空欄なら自動採番（motion001…）', 'Blank: auto-number (motion001…)'); label.htmlFor = name.id;
+  const row = el('div'); row.className = 'motion-library-actions';
+  function button(text, id, parent, handler) { const b = el('button', text); b.id = id; b.type = 'button'; b.addEventListener('click', handler); parent.append(b); return b; }
+  save = button(tr('モーション保存', 'Save motion'), 'motionLibrarySave', row, () => safely(() => {
+    if (!source) throw new Error(saveNote.textContent);
+    const typed = name.value.trim(), serial = automaticNumber();
+    const title = typed || 'motion' + String(serial).padStart(3, '0');
+    if (items.length >= 500) throw new Error(tr('最大500件です。', 'Up to 500 motions are supported.'));
+    const item = { id: uid(), name: title, recipe: clone(source) }; persist([...items, item], typed ? nextNumber : serial + 1); active = item.id; refreshList(); choose();
+  }));
+  rename = button(tr('名前変更', 'Rename'), 'motionLibraryRename', row, () => safely(() => {
+    if (!current()) return; const title = name.value.trim(); if (!title) throw new Error(tr('名前を入力してください。', 'Enter a name.'));
+    persist(items.map(i => i.id === active ? { ...i, name: title } : i)); refreshList(); message(tr('名前を変更しました。', 'Renamed.'));
+  }));
+  remove = button(tr('削除', 'Delete'), 'motionLibraryDelete', row, () => safely(() => {
+    if (!current() || !confirm(tr('このモーションを共通ライブラリから削除しますか？適用済みの字幕は変わりません。', 'Delete this motion from the shared library? Applied subtitles stay unchanged.'))) return;
+    persist(items.filter(i => i.id !== active)); refreshList(); choose();
+  }));
+  saveNote = el('p'); saveNote.id = 'motionLibrarySaveNote'; saveNote.className = 'muted'; save.setAttribute('aria-describedby', saveNote.id);
+  editor.append(select, label, name, row, saveNote);
+  canvas = el('canvas'); canvas.id = 'motionLibraryPreview'; canvas.width = 560; canvas.height = 315; canvas.setAttribute('aria-label', tr('モーション試写', 'Motion preview'));
+  const controls = el('div'); controls.className = 'motion-library-actions';
+  playButton = button(tr('再生', 'Play'), 'motionLibraryPlay', controls, () => running ? stop() : run());
+  scrub = el('input'); scrub.type = 'range'; scrub.setAttribute('aria-label', tr('試写位置', 'Preview position')); scrub.addEventListener('input', () => { stop(); elapsed = Number(scrub.value); paint(); }); controls.append(scrub);
+  sampleButton = button(tr('サンプルで試写', 'Preview sample'), 'motionLibrarySample', controls, () => choose(true));
+  button(tr('選択字幕で試写', 'Preview selected cue'), 'motionLibraryCue', controls, () => choose()).disabled = false;
+  viewer.append(canvas, controls); layout.append(editor, viewer);
+  status = el('p'); status.id = 'motionLibraryStatus'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+  const storage = el('div'); storage.className = 'motion-library-actions';
+  button(tr('ライブラリJSONを保存', 'Export library JSON'), 'motionLibraryExport', storage, () => safely(() => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(bundle(items), null, 2)], { type: 'application/json' }));
+    const a = el('a'); a.href = url; a.download = 'jizura-motion-library.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }));
+  const file = el('input'); file.type = 'file'; file.accept = '.json,application/json'; file.hidden = true; file.id = 'motionLibraryFile';
+  button(tr('ライブラリJSONを読み込む', 'Import library JSON'), 'motionLibraryImport', storage, () => file.click()); storage.append(file);
+  file.addEventListener('change', async () => {
+    const f = file.files?.[0], token = epoch; file.value = ''; if (!f) return;
+    try {
+      if (f.size > 20000000) throw new Error(tr('JSONは20MB以下にしてください。', 'JSON must be 20 MB or smaller.'));
+      const data = JSON.parse(await f.text()), imported = J.parseMotionLibrary(data); if (!dialog.open || epoch !== token) return;
+      const next = clone(items); let added = 0;
+      for (const item of imported) {
+        const old = next.find(i => i.id === item.id);
+        if (old && JSON.stringify(old.recipe) === JSON.stringify(item.recipe)) continue;
+        next.push({ ...item, id: old ? uid() : item.id }); added++;
+      }
+      if (next.length > 500) throw new Error(tr('最大500件です。', 'Up to 500 motions are supported.'));
+      const serial = Number.isSafeInteger(data.nextNumber) && data.nextNumber > 0 ? data.nextNumber : 1;
+      persist(next, Math.max(nextNumber, serial)); refreshList(); choose(); message(tr(`${added}件を追加しました。`, `Added ${added} motions.`));
+    } catch (e) { message(e.message, true); }
+  });
+  const footer = el('div'); footer.className = 'motion-library-actions motion-library-footer';
+  button(tr('閉じる', 'Close'), 'motionLibraryClose', footer, () => dialog.close());
+  apply = button(tr('適用', 'Apply'), 'motionLibraryApply', footer, () => safely(() => {
+    if (!candidate || !target) return;
+    const next = candidate, index = target.index, resume = wasPlaying;
+    dialog.close(); J.registerProjectFonts(next.userFonts || []); J.uiApi.applyMotionProject(next, index, resume);
+  })); apply.className = 'primary';
+  dialog.append(heading, targetLabel, hint, layout, status, storage, footer); document.body.append(dialog);
+  select.addEventListener('change', () => { active = select.value; choose(); });
+  dialog.addEventListener('close', () => { stop(); epoch++; audition = candidate = source = null; restoreFonts(); opener?.focus({ preventScroll: true }); });
+}
+function boot() {
+  opener = el('button', tr('モーションライブラリ…', 'Motion library…')); opener.type = 'button'; opener.id = 'btnMotionLibrary'; opener.className = 'small';
+  document.getElementById('btnOmakase').after(opener);
+  opener.addEventListener('click', () => {
+    if (J.ui.exporting || J.ui.tap || J.layerSession?.busy) return;
+    mount(); target = J.uiApi.cueRerollTarget(); wasPlaying = J.ui.playing; J.uiApi.pause(); epoch++;
+    source = null; active = ''; let error = '';
+    try { items = read(); } catch (e) { items = []; error = tr('ライブラリを読み込めません。ブラウザの保存内容を確認してください。', 'Cannot read the library. Check browser storage.'); }
+    try { source = J.captureMotionRecipe(J.ui.project, J.ui.plan, target?.index); }
+    catch (e) { saveNote.textContent = e.message; }
+    save.disabled = !source || !!error;
+    if (source) saveNote.textContent = tr('保存は現在選択中の字幕を対象にします。名前変更・削除はライブラリだけを変更します。', 'Save captures the selected subtitle. Rename and Delete affect only the library.');
+    targetLabel.textContent = target ? tr(`対象：字幕 ${target.index + 1}「${target.text}」`, `Target: subtitle ${target.index + 1} “${target.text}”`) : tr('対象字幕なし：サンプルを試写できます。', 'No subtitle selected: browse sample previews.');
+    document.getElementById('motionLibraryCue').disabled = !target;
+    refreshList(); dialog.showModal(); choose(); if (error) message(error, true);
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 
 /* Finish pointer-operated controls without stealing keyboard/text editing focus. */

@@ -116,7 +116,7 @@ J.defaultProject = () => {
   p.layerMode = 'binary';
   p.layerBackgroundOpacity = J.normalizeBackgroundOpacity();
   p.hideDecorativeText = false;
-  p.theme = ''; p.lookTheme = '';
+  p.theme = ''; p.lookTheme = ''; p.userThemes = []; p.themeSnapshots = {};
   return p;
 };
 // Old layer releases forced these controls off and hid them from the UI.
@@ -124,8 +124,10 @@ J.upgradeLayerProject = (project, source) => {
   project.layerMode = J.normalizeLayerMode(source?.layerMode);
   project.layerBackgroundOpacity = J.normalizeBackgroundOpacity(source?.layerBackgroundOpacity);
   project.hideDecorativeText = source?.hideDecorativeText === true;
-  project.theme = J.normalizeTheme(source?.theme);
-  project.lookTheme = J.normalizeTheme(source?.lookTheme);
+  project.userThemes = J.normalizeUserThemes(source?.userThemes);
+  project.themeSnapshots = J.normalizeThemeSnapshots(source?.themeSnapshots);
+  project.theme = J.normalizeTheme(source?.theme, project);
+  project.lookTheme = J.normalizeLookTheme(source?.lookTheme, project);
   // Preserve the old onTwos-only project format without changing saved motion cadence.
   if (source?.fx && source.fx.koma == null) project.fx.koma = source.fx.onTwos === false ? 0 : 12;
   if (source?.layerOnly && !source.layerEffectsVersion) {

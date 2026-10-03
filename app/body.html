@@ -25,8 +25,8 @@
     <div class="acts">
       <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="プロジェクトを .json で保存">保存</button>
-      <button id="btnReset" class="ghost" title="歌詞・曲・設定・履歴をすべて消して、最初の状態に戻します">初期化</button>
-      <button id="btnTerms" class="ghost terms-open" title="出力物の権利とライセンス">利用について</button>
+      <button id="btnReset" class="ghost" title="現在のプロジェクトを初期化します。共通ライブラリは残します">プロジェクト初期化</button>
+      <!-- PUBLICATION_GUIDE_BUTTON -->
     </div>
   </header>
 
@@ -103,7 +103,7 @@
       <div class="tl-bar">
         <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない</span>
         <span class="tl-btns">
-          <button id="btnUndoEdit" class="ghost small" title="歌詞・タイミングの変更を元に戻す（Ctrl+Z）" disabled>元に戻す</button>
+          <button id="btnUndoEdit" class="ghost small" title="字幕編集・演出変更を操作順に元に戻す（Ctrl+Z）" disabled>元に戻す</button>
           <button id="tlOut" class="ghost small icon-txt" title="縮小" aria-label="タイムラインを縮小">−</button>
           <button id="tlIn" class="ghost small icon-txt" title="拡大（タイムライン上でホイールでも）" aria-label="タイムラインを拡大">＋</button>
           <button id="tlFit" class="ghost small" title="全体を表示">全体</button>
@@ -151,8 +151,10 @@
           <h3>ここだけ変える</h3>
           <div class="easy-grid">
             <button id="eStyle" title="スタイルだけ別のものに">スタイル</button>
-            <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色</button>
             <button id="eMood" title="動き・グリッチ・使う手法の雰囲気だけ">雰囲気</button>
+            <button id="eFullPalette" title="テイストを保ち、背景色・文字色を含む全体配色を変更">配色</button>
+            <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色微調整</button>
+            <button id="eFonts" title="スタイル・雰囲気に沿って全体の書体の組み合わせを変更">書体</button>
             <button id="eCut" title="レイアウトと動きの組み合わせだけ">構成</button>
           </div>
         </div>
@@ -263,23 +265,25 @@
         <button class="terms-open linkish" style="margin-top:10px">書き出した動画・画像の権利とライセンスについて</button>
         <p class="note" id="codecNote">書き出しはこのブラウザの中で行われます（Chrome / Edge 推奨）。</p>
       </div>
+      <footer class="panel-about"><button id="btnTerms" class="ghost terms-open" title="出力物の権利とライセンス">利用について</button></footer>
     </section>
   </main>
 </div>
 
 <dialog id="resetDlg" class="terms" aria-labelledby="resetTitle">
   <form method="dialog">
-    <h2 id="resetTitle">初期化</h2>
-    <p>次のものをすべて消して、最初の状態に戻します。<strong>元に戻すことはできません。</strong></p>
+    <h2 id="resetTitle">プロジェクト初期化</h2>
+    <p>現在のプロジェクトを初期状態に戻します。<strong>未保存の変更は失われ、元に戻せません。</strong></p>
     <ul class="reset-list">
-      <li>歌詞・曲名・アーティスト</li>
-      <li>読み込んだ曲（このブラウザに残していた分も）</li>
-      <li>タイミング・行ごとの指定・書き出す範囲</li>
-      <li>スタイル・演出・配色・書体などの設定</li>
-      <li>案の履歴（◀ ▶）と、歌詞・タイミングの「元に戻す」の履歴</li>
+      <li>字幕・SRT・フィラー・パート区切り・プロジェクト名</li>
+      <li>演出・配色・書体・個別指定・ロック・全体のテイストの基準</li>
+      <li>音源・背景・外部スペアナの読み込みと解析結果</li>
+      <li>スペアナ・透明度・出力範囲・簡易動画・タイトルの設定</li>
+      <li>再生位置・案の履歴・編集のUndo/Redo・出力の一時保存リンク</li>
     </ul>
-    <p class="terms-sub">表示モード（かんたん／詳細）・プレビューの音量・画面の言語はそのままです。保存したプロジェクトファイル（.json）も消えません。</p>
-    <div class="terms-foot"><span></span><span class="row"><button value="cancel" class="ghost">やめる</button><button value="reset" class="danger">初期化する</button></span></div>
+    <p><strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど、プロジェクトをまたいで使うデータは残します。</p>
+    <p class="terms-sub">画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、保存済み動画は削除しません。ブラウザの自動保存は初期状態に置き換えます。</p>
+    <div class="terms-foot"><span></span><span class="row"><button value="cancel" class="ghost">やめる</button><button value="reset" class="danger">プロジェクトを初期化</button></span></div>
   </form>
 </dialog>
 <dialog id="termsDlg" class="terms" aria-labelledby="termsTitle">
