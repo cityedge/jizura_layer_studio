@@ -15,7 +15,7 @@ FILES = [
     'CHANGELOG.md', 'build.py', 'tools/package_release.py', 'dev/layer_test.js', 'dev/filler_test.js', 'dev/simple_export_test.js', 'dev/native_spectrum_test.js',
     'dev/transition_test.js', 'dev/coverage_review_test.js', 'dev/global_taste_test.js', 'dev/preview_audio_test.js', 'dev/text_test.js', 'dev/local_fonts_test.js',
     'dev/background_color_test.js', 'dev/theme_test.js',
-    'dev/user_theme_test.js', 'dev/appearance_test.js', 'dev/motion_library_test.js',
+    'dev/user_theme_test.js', 'dev/appearance_test.js', 'dev/motion_library_test.js', 'dev/motion_pitch_test.js',
 ]
 PATTERNS = ['src/*.js', 'app/*.py', 'app/*.js', 'app/*.html', 'app/*.css',
             'vendor/*.js', 'vendor/*.txt', 'vendor/*.tgz', 'docs/*.md']

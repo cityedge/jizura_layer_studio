@@ -1,15 +1,21 @@
 # Manual publication
 
-## Publishing v1.5.0
+## Publishing v1.5.1
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.0.zip` to your Release. Use the 1.5.0 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.1.zip` to your Release. Use the 1.5.1 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
 
-After publication, check the **v1.5.0** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 1–7/9/0, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.4.1. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.5.1** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 0–9, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.5.0. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 
 
-For the v1.5.0 additions, verify:
+For the v1.5.1 changes, verify:
+
+- Apply global motion pitch with Auto-compose or the Motion pitch partial-change button. Apply the separate cue value with key 8, and confirm global application clears local pitch overrides except on locked cues.
+- Subtitle timestamps, audio and beats remain unchanged at ×0.3, ×1.0 and ×1.2. Undo/Redo, JSON reopening and motion-library save/apply retain pitch.
+- Palette changes the primary color across the style's supported range, while Palette fine-tune retains it. Include the Horror theme in this check.
+
+Also verify the v1.5.0 additions:
 
 - User-theme creation, distribution controls and JSON transfer; deleting a theme preserves applied cue settings and the key 9 baseline.
 - Motion-library save, audition, apply, rename, delete and JSON import. Applied cues remain independent of collection edits.

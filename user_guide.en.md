@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.5.0 User Manual
+# JIZURA Layer Studio v1.5.1 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.5.0. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.5.1. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -46,7 +46,7 @@ This manual describes the retained features of v1.5.0. Features removed from the
 | Task | Features |
 |---|---|
 | Prepare subtitles | UTF-8 SRT import, editable text/start/end, direct text entry, LRC start times |
-| Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–7/9, styles, layouts, motion, ornaments and transitions |
+| Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–9, motion pitch, styles, layouts, motion, ornaments and transitions |
 | Constrain choices | Technique checkboxes, expression sets, line locks, parameter and technique-group locks |
 | Follow music | Beat/energy analysis, BPM override, tap synchronization, timeline editing |
 | Fill gaps | Editable placeholders in SRT intros, interludes and outros |
@@ -288,18 +288,35 @@ Whole-project Auto-compose, partial changes, Shuffle and look-history navigation
 
 **Shuffle** rerolls composition using current settings. Use it when you like the general palette and mood but want a different arrangement. Locked lines retain their structure.
 
-Easy mode offers six partial changes:
+Easy mode offers seven partial changes:
 
 | Button | Changes |
 |---|---|
 | Style | Select another style |
 | Mood | Effect settings and candidate techniques |
-| Palette | Shift the whole palette, including background and text, while retaining its light/dark and saturation character |
+| Palette | Choose the main color across all schemes in the current style and change the whole palette, including background and text |
 | Palette fine-tune | The previous Palette action: accent and ghost A/B colors |
 | Fonts | Select display, serif and body fonts following the current style and mood |
 | Arrangement | Layout and motion combinations |
+| Motion pitch | Apply the value above Auto-compose globally, clearing local pitch overrides and keeping locked cues |
 
 Palette and Palette fine-tune sit side by side. Global palette/font actions include locally rerolled cues and skip locked cues. They preserve lyrics, timing, motion and cut structure, and are saved in project JSON and look history. Fonts can change glyph widths, wrapping and fitting; mono ornament fonts stay unchanged. These global changes also update key 9's baseline. Cue keys 5 and 7 independently redraw colors/fonts without following style or mood preferences.
+
+Palette includes the style's light and dark schemes rather than retaining the current main color's brightness. It selects native or hue-shifted colors and avoids nearly unchanged main colors when alternatives exist. For example, Horror's Late-night recording can switch between near-black and light gray. Styles with a narrow native color range have less variation. Style and mood themselves stay the same.
+
+### Motion pitch
+
+Lower **Motion pitch** to slow the choreography. ×1.0 retains the original behavior; the range is ×0.3–×1.2 in 0.1 steps. This does not change audio pitch, preview playback speed or output FPS. It affects previews and every video export.
+
+Set the global value directly above Auto-compose (above the central playback controls in Detailed mode). Editing the number alone changes no artwork. Auto-compose redraws globally at this value. The Motion pitch button under partial changes applies it while retaining the current taste. Both keep locked cues and clear other local pitch overrides.
+
+Set a separate cue value beside **8 Motion pitch**, then press 8 or its button to apply it to the current subtitle. A local value overrides the global value instead of multiplying it. Spin-button use or Enter after typing returns focus to the preview. Draws 0–7 and 9 retain the applied pitch: 9 restores taste, not pitch. Ctrl+Z undoes an application.
+
+Choreography is generated for a virtual duration equal to real subtitle duration multiplied by pitch, then stretched to the real interval. Automatic cut counts can decrease. Explicit, random and library cut structures, and older data without generation inputs, retain their structure. Fonts, palette and technique choices are retained where possible; compatibility constraints can require substitutes.
+
+Subtitle boundaries, audio, background video, spectra and the beat grid remain unchanged. Beat-driven motions use real beats, and cut snapping occurs on the real timeline. Duration-relative motion and direct beat responses do not all slow by exactly the selected multiplier.
+
+Project JSON and browser autosave contain both input values and applied global/local pitches. Older JSON uses ×1.0. Motion library recipes retain the source pitch for audition and application.
 
 ### Themes for Auto-compose and subtitle draws
 
@@ -447,6 +464,7 @@ The subtitle draw buttons and number keys affect only the current subtitle. A li
 | 5 | Colors | Palette only; preserves cut structure, motion, timing and screen events |
 | 6 | Fine-tune | Narrow redraw within the subtitle's current style, mood, palette and technique pool |
 | 7 | Fonts | Draw eligible built-in fonts by role, independently of style, mood and theme; preserve palette, motion and cut structure |
+| 8 | Motion pitch | Apply the adjacent input value to this cue; preserve taste and adjust automatic cut structure and choreography timing |
 | 9 | Global taste | Clear local choices and redraw effects/cut structure in the latest global framework |
 
 9 creates a new draw using the global style, mood, fonts, palette, technique pool and Unified look; it does not restore the exact original animation. It clears local taste, manual techniques and forced cut counts. 6 uses the cue's own retained base; 9 returns to the global base, which subsequent 6 draws also use.
@@ -950,6 +968,7 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Aspect, resolution, fps, export range and spectrum layout | Yes |
 | Opacity mode, background color opacity and decorative-number hiding | Yes |
 | Pending theme, applied global/cue settings, key-9 baseline, cue draws and part breaks | Yes |
+| Applied global/cue motion pitches and both pitch input values | Yes; older JSON without these settings uses ×1.0 |
 | User-theme library and shared applied-theme snapshots | Yes; the library is also stored in browser storage |
 | Applied library motions | Yes; independent of later library edits/deletion |
 | The full motion library | No; use dedicated library JSON export/import |

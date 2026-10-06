@@ -1,3 +1,11 @@
+## 1.5.1 — 2026-10-06
+
+- 演出ピッチ（×0.3〜×1.2、0.1刻み、初期値×1.0）を追加。全体のおまかせ・ここだけ変える、字幕8＋独立した数値入力に対応。仮想時間で生成・描画し、字幕時刻・素材・拍を保持。ロック・個別ガチャ・JSON・履歴・ライブラリに対応し、日英マニュアル本文と利用ガイドを更新。
+- Add motion pitch (×0.3–×1.2 in 0.1 steps, default ×1.0): global Auto-compose/partial application and cue key 8 with a separate numeric input. Plan and render on a virtual choreography clock without shifting cues, media or beats. Preserve locks, other cue draws, JSON, history and library workflows; update both language manuals and embedded guides.
+
+- 全体の「配色」で、スタイル内の全配色セットを主カラーの候補にするよう修正。現在の色の明暗に固定せず、ホラーの黒系・明るい灰色系なども選択可能に。近似色の連続を抑え、元のスタイル配色から毎回再生成してコントラスト補正の累積を防止。日英の説明を更新。
+- Global Palette now chooses the main color across every native style scheme, including light/dark Horror variants. Avoid nearly unchanged main colors and regenerate from native definitions to prevent accumulated contrast adjustments. Update both language guides.
+
 ## 1.5.0 — 2026-10-03
 
 - 公開前レビューの修正：全体配色のJSON・自動保存復元、個別編集と全体変更を混ぜたUndo/Redo、スペースを含む日本語の保存済みカット構成、ライブラリ再選択時の管理ボタン、書体変更後のモーション再生成時の配置保持を修正。Undoの説明を日英マニュアル・利用ガイドへ反映。

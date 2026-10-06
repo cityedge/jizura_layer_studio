@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.5.0**
+**Animated subtitle layers · cityedge fork · v1.5.1**
 
 **Motion library…** saves a subtitle’s motion for previewing and applying to new lyrics. Export/import the shared collection as dedicated JSON. [Instructions](user_guide.en.md#motion-library)
 
@@ -11,7 +11,9 @@ Subtitle draw **9 / Global taste** clears local choices and redraws the current 
 
 Edit SRT part breaks in the subtitle summary: Enter adds a separator above the cue at its start, otherwise below, and Backspace/Delete removes a blank separator. Text and timing stay protected; Undo and JSON persistence are supported.
 
-Subtitle draws: **1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 Fine-tune / 7 Fonts / 9 Global taste / 0 Random**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 or 7 to replace specific groups or 6 to return to the retained base settings. Global controls offer coherent Fonts, whole Palette changes including the main color, and the original Palette fine-tune. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
+Subtitle draws: **1 Everything / 2 Style / 3 Mood / 4 Performance / 5 Colors / 6 Fine-tune / 7 Fonts / 8 Motion pitch / 9 Global taste / 0 Random**. Random explores compatible combinations outside style/mood preferences, with limits on effect density. After Random, use 2–5 or 7 to replace specific groups or 6 to return to the retained base settings. Global controls offer coherent Fonts, whole Palette changes including the main color, and the original Palette fine-tune. Use **Export front MP4 only** to skip matte generation and encoding when you do not need a matte.
+
+**Motion pitch** ranges from ×0.3 to ×1.2, adjusting choreography while keeping subtitle timing, audio and beats. Apply the global value with Auto-compose or partial changes; set a separate cue value beside key 8. [Motion pitch instructions](user_guide.en.md#motion-pitch)
 
 [Open English app](en/index.html) · [日本語](README.md) · **[Detailed user manual](user_guide.en.md)** · [Quick workflow](docs/LAYER_WORKFLOW.en.md) · [Manual publication](docs/PUBLISHING.en.md)
 

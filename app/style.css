@@ -459,6 +459,16 @@ button.small.primary { padding: 4px 12px; }
 .easy-hero > .omakase-theme { margin-bottom:8px; }
 .easy-hero > .omakase-theme select { flex:1; max-width:none; }
 .omakase-theme { flex-wrap:wrap; }
+.motion-pitch-control { display:flex; align-items:center; flex-wrap:wrap; gap:5px; font-size:11px; min-width:0; }
+.motion-pitch-control input { width:70px; min-width:0; }
+.motion-pitch-control input::-webkit-inner-spin-button { opacity:1; }
+.easy-hero > .motion-pitch-control { margin:0 0 8px; justify-content:space-between; }
+.easy-hero > .motion-pitch-control > span:first-child { margin-right:auto; }
+.cue-pitch-group { display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; max-width:100%; }
+.cue-pitch-group .motion-pitch-control { flex-wrap:nowrap; }
+#app.is-mobile #motionPitchGlobalPro { display:none; }
+#app.is-mobile .col-stage > .motion-pitch-control { display:none; }
+#app.is-easy .col-stage > .motion-pitch-control { display:none; }
 .panel-about { padding:16px; border-top:1px solid var(--line); }
 /* Phone mode has the same theme controls in the Easy panel below. */
 #app.is-mobile .transport .omakase-theme { display:none; }

@@ -11,8 +11,9 @@
       <li><strong>Save the project too</strong><p>Save in the header writes JSON with lyrics, effects and settings. Media file contents are not included.</p></li>
     </ol>
     <h3>Change the overall look</h3>
-    <p>Shuffle redraws the arrangement using current settings. Simple mode offers six partial changes: Style, Mood, Palette, Palette fine-tune, Fonts and Arrangement.</p>
-    <p>Palette shifts the entire color system, including the main color, while retaining light/dark and saturation tendencies. Palette fine-tune is the previous accent/ghost A/B action. Fonts chooses role-based combinations following style and mood. Global color/font actions include locally drawn cues and preserve locked cues, motion, cut structure and timing.</p>
+    <p>Shuffle redraws the arrangement using current settings. Simple mode offers seven partial changes: Style, Mood, Palette, Palette fine-tune, Fonts, Arrangement and Motion pitch.</p>
+    <p>Motion pitch ranges from ×0.3 to ×1.2 (default ×1.0). Set the value above Auto-compose, then apply it using Auto-compose or the Motion pitch partial-change button. Editing the number alone changes no artwork. Subtitle timing, audio and beats remain unchanged; automatic cut counts and motion timing adapt. Explicit, random and library cut structures, and locked cues, are retained.</p>
+    <p>Palette chooses the main color across all of the style's light/dark schemes, using native or hue-shifted colors and avoiding nearly unchanged main colors when alternatives exist. Palette fine-tune is the previous accent/ghost A/B action. Fonts chooses role-based combinations following style and mood. Global color/font actions include locally drawn cues and preserve locked cues, motion, cut structure and timing.</p>
     <h3>Subtitle draws</h3>
     <ul>
       <li><strong>0 Random:</strong> Explore beyond style/mood preferences, within compatibility and effect-density limits.</li>
@@ -23,10 +24,12 @@
       <li><strong>5 Colors:</strong> Change only colors, without style/mood constraints.</li>
       <li><strong>6 Fine-tune:</strong> Draw within the cue's base settings and narrow candidate pool. After 0, return to the retained base settings.</li>
       <li><strong>7 Fonts:</strong> Change only fonts, without style/mood constraints. Keep mono ornament fonts.</li>
+      <li><strong>8 Motion pitch:</strong> Apply the adjacent input value to the current cue. This overrides rather than multiplies the global pitch.</li>
       <li><strong>9 Global taste:</strong> Clear local choices and redraw using the latest global settings. This does not restore the exact original animation.</li>
     </ul>
     <p>Lyrics, times and other cues stay fixed; adjacent joins can change. Keys 2–4 replace manual choices in their scope. Font changes can affect widths and wrapping. Locked cues cannot be drawn. Ctrl+Z undoes changes. After 0, keys 2–5 and 7 can still refine parts.</p>
     <p>Ctrl+Z reverses cue edits/draws, library applications and global Palette/Fonts changes in chronological order. Ctrl+Shift+Z / Ctrl+Y redoes them. Proposal history compares looks without reverting lyrics or timing. Media loading, output settings and shared-library management are outside this undo history.</p>
+    <p>Draws 0–7 and 9 retain the applied pitch. Global Auto-compose and Motion pitch clear unlocked local pitch overrides. JSON, autosave and motion library recipes store pitch; older data uses ×1.0.</p>
     <h3>Themes and user themes</h3>
     <p>System themes are No theme, Lyric video, Kinetic, Japanese, Horror, Pop and Ballad. Selecting alone changes no artwork. Auto-compose enables required expression sets globally; keys 1–3 enable them only inside the cue. Keys 4/6 use applied cue settings, 9 uses the global baseline, and 0/5/7 ignore the selected theme.</p>
     <p>Open User themes and choose New. Set 0–10 style and mood weights, Save changes, then select the theme. Zero excludes an entry; each group needs a positive weight. If Choose a random style/mood wins, it chooses uniformly from all eligible candidates in that group, including individually zero-weighted entries.</p>

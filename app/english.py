@@ -1,6 +1,7 @@
 """English copy for the browser edition. The Japanese source stays authoritative."""
 
 BODY = {
+    'title="上の演出ピッチを全体に適用。ロックした字幕は維持">演出ピッチ</button>': 'title="Apply the motion pitch above to every unlocked cue">Motion pitch</button>',
     '<button value="cancel" class="ghost">やめる</button>': '<button value="cancel" class="ghost">Cancel</button>',
     'title="現在のプロジェクトを初期化します。共通ライブラリは残します">プロジェクト初期化</button>': 'title="Reset the current project and keep shared libraries">Reset project</button>',
     '<h2 id="resetTitle">プロジェクト初期化</h2>': '<h2 id="resetTitle">Reset project</h2>',
@@ -14,7 +15,7 @@ BODY = {
     '画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、保存済み動画は削除しません。ブラウザの自動保存は初期状態に置き換えます。': 'Interface language, display mode and preview volume are kept. Original media, saved JSON and exported videos on your PC are not deleted. Browser autosave is replaced with the blank project.',
     '<button value="reset" class="danger">プロジェクトを初期化</button>': '<button value="reset" class="danger">Reset project</button>',
     '配色微調整': 'Palette fine-tune',
-    'title="テイストを保ち、背景色・文字色を含む全体配色を変更"': 'title="Keep the overall taste while changing background, text and other palette colors"',
+    'title="スタイル内の全配色セットから主カラーを選び直す"': 'title="Choose the main color across every palette scheme in the current style"',
     'title="スタイル・雰囲気に沿って全体の書体の組み合わせを変更">書体</button>': 'title="Change the global font combination within the current style and mood">Fonts</button>',
     '文字PV系の部品を使う': 'Use typographic parts',
     'キネティックの部品を使う': 'Use kinetic parts',

@@ -477,6 +477,16 @@ button.small.primary { padding: 4px 12px; }
 .easy-hero > .omakase-theme { margin-bottom:8px; }
 .easy-hero > .omakase-theme select { flex:1; max-width:none; }
 .omakase-theme { flex-wrap:wrap; }
+.motion-pitch-control { display:flex; align-items:center; flex-wrap:wrap; gap:5px; font-size:11px; min-width:0; }
+.motion-pitch-control input { width:70px; min-width:0; }
+.motion-pitch-control input::-webkit-inner-spin-button { opacity:1; }
+.easy-hero > .motion-pitch-control { margin:0 0 8px; justify-content:space-between; }
+.easy-hero > .motion-pitch-control > span:first-child { margin-right:auto; }
+.cue-pitch-group { display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; max-width:100%; }
+.cue-pitch-group .motion-pitch-control { flex-wrap:nowrap; }
+#app.is-mobile #motionPitchGlobalPro { display:none; }
+#app.is-mobile .col-stage > .motion-pitch-control { display:none; }
+#app.is-easy .col-stage > .motion-pitch-control { display:none; }
 .panel-about { padding:16px; border-top:1px solid var(--line); }
 /* Phone mode has the same theme controls in the Easy panel below. */
 #app.is-mobile .transport .omakase-theme { display:none; }
@@ -653,7 +663,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.0</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.1</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -797,10 +807,11 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
           <div class="easy-grid">
             <button id="eStyle" title="スタイルだけ別のものに">スタイル</button>
             <button id="eMood" title="動き・グリッチ・使う手法の雰囲気だけ">雰囲気</button>
-            <button id="eFullPalette" title="テイストを保ち、背景色・文字色を含む全体配色を変更">配色</button>
+            <button id="eFullPalette" title="スタイル内の全配色セットから主カラーを選び直す">配色</button>
             <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色微調整</button>
             <button id="eFonts" title="スタイル・雰囲気に沿って全体の書体の組み合わせを変更">書体</button>
             <button id="eCut" title="レイアウトと動きの組み合わせだけ">構成</button>
+            <button id="eMotionPitch" class="field-wide" title="上の演出ピッチを全体に適用。ロックした字幕は維持">演出ピッチ</button>
           </div>
         </div>
         <div class="easy-sec">
@@ -934,7 +945,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.0</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.1</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1416,7 +1427,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
     <p>字幕の演出を作り、背景・音源付きの動画、または編集ソフトで重ねるフロント／マット動画として保存できます。</p>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.5.0 詳細ユーザーマニュアル（Markdown）</a>には、各設定・合成手順・保存データを詳しく掲載しています。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.5.1 詳細ユーザーマニュアル（Markdown）</a>には、各設定・合成手順・保存データを詳しく掲載しています。</p>
     <h3>まず1本作る</h3>
     <ol class="guide-steps">
       <li><strong>字幕と素材を読み込む</strong><p>「SRTを読み込む」でUTF-8のSRTを選び、音源と作業用背景（画像・動画）を読み込みます。SRTなしで字幕を直接入力することもできます。保存済みプロジェクトを再開する場合はJSONを開き、素材だけを読み直してください。SRTを読み直すと、復元した字幕・フィラー・個別演出を置き換えます。</p></li>
@@ -1425,8 +1436,9 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
       <li><strong>プロジェクトも保存する</strong><p>上部の「保存」でJSONを保存します。字幕・演出・各設定は復元できますが、素材ファイルの本体は含みません。</p></li>
     </ol>
     <h3>全体のテイストを調整する</h3>
-    <p>「シャッフル」は現在の設定で構成を引き直します。かんたんモードの「ここだけ変える」は、スタイル・雰囲気・配色・配色微調整・書体・構成の6種類です。</p>
-    <p>全体の「配色」は主カラーを含む色全体を、明暗・彩度の傾向を保って変更します。「配色微調整」は従来のアクセント・ズレ色A/Bだけの変更。「書体」はスタイル・雰囲気に沿った役割別の組み合わせを選びます。配色・書体の変更は個別ガチャ済みの字幕にも反映し、ロックされた字幕、動き、カット構成、時刻は保持します。</p>
+    <p>「シャッフル」は現在の設定で構成を引き直します。かんたんモードの「ここだけ変える」は、スタイル・雰囲気・配色・配色微調整・書体・構成・演出ピッチの7種類です。</p>
+    <p>演出ピッチは×0.3〜×1.2（初期値×1.0）。「おまかせで作る」の上で値を設定し、「おまかせ」または「ここだけ変える」の「演出ピッチ」で全体へ適用します。入力だけでは現在の演出は変わりません。字幕時刻・音源・拍は保持し、自動カット数や動きを調整します。手動・ランダム・ライブラリのカット構成と、ロック中の字幕は維持します。</p>
+    <p>全体の「配色」は、スタイル内の明暗を含む全配色セットから主カラーを選び直します。元の配色や色相を変えた配色を使い、主カラーがほとんど変わらない候補を避けます。「配色微調整」は従来のアクセント・ズレ色A/Bだけの変更。「書体」はスタイル・雰囲気に沿った役割別の組み合わせを選びます。配色・書体の変更は個別ガチャ済みの字幕にも反映し、ロックされた字幕、動き、カット構成、時刻は保持します。</p>
     <h3>字幕ガチャ</h3>
     <ul>
       <li><strong>0 ランダム：</strong>スタイル・雰囲気の枠を外し、成立条件と過密を避ける制限の中で抽選。</li>
@@ -1437,10 +1449,12 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
       <li><strong>5 配色変更：</strong>テイストに縛られず色だけを変更。</li>
       <li><strong>6 微調整：</strong>字幕自身の基礎設定と狭い候補で再抽選。0の後は保持していた基礎設定へ復帰。</li>
       <li><strong>7 書体変更：</strong>テイストに縛られず書体だけを変更。等幅の装飾書体は保持。</li>
+      <li><strong>8 演出ピッチ：</strong>隣の数値欄の値を現在の字幕へ適用。全体値と掛け合わせず、個別値を優先。</li>
       <li><strong>9 全体のテイスト：</strong>個別指定を解除し、最後の全体設定で再抽選。元の演出そのものの復元ではありません。</li>
     </ul>
     <p>本文・時刻・他字幕は保持し、対象前後のつなぎだけ変わる場合があります。2〜4は担当範囲の手動指定も置き換えます。書体変更では字幅や折り返しが変わります。ロック中は字幕ガチャの対象外。Ctrl+Zで戻せます。0の後も2〜5・7で部分変更できます。</p>
     <p>Ctrl+Zは字幕編集・ガチャ・ライブラリ適用・全体の配色や書体変更などを操作順に取り消します。Ctrl+Shift+Z／Ctrl+Yでやり直せます。案の履歴ボタンは本文・時刻を変えず見た目を比較します。素材読み込み・出力設定・共通ライブラリ管理はUndoの対象外です。</p>
+    <p>0〜7・9の字幕ガチャでも適用済みの演出ピッチは保持します。全体の「おまかせ」「演出ピッチ」はロック以外の個別ピッチを解除します。JSON・自動保存とモーションライブラリに保存し、旧データは×1.0です。</p>
     <h3>テーマとユーザーテーマ</h3>
     <p>システムテーマは「なし・文字PV・キネティック・和風・ホラー・ポップ・バラード」。選ぶだけでは演出は変わりません。全体のおまかせは必要な演出セットを有効にし、字幕ガチャ1〜3では対象字幕の内部だけで有効にします。4・6は適用済みの字幕設定、9は最後の全体設定、0・5・7は選択テーマから独立します。</p>
     <p>「ユーザーテーマ…」→「新規」で作成します。スタイルと雰囲気それぞれに0〜10のウェイトを指定し、「変更を保存」後に選びます。0は除外、各群に最低1つは正の値が必要です。「ランダムにスタイルを選ぶ」「ランダムに雰囲気を選ぶ」が当たると、その群の使用可能な全候補から均等に選び、個別ウェイト0の候補も対象です。</p>
@@ -1480,7 +1494,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p><strong>「プロジェクト初期化」</strong>は現在の字幕・フィラー・区切り・演出・ロック・素材の読み込み・スペアナ・透明度・出力・タイトル設定・再生位置・履歴を初期状態へ戻します。出力の一時保存リンクも消え、自動保存は初期状態に置き換わります。確認後はUndoできません。</p>
     <p><strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど曲をまたいで使うデータと、画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、出力動画も削除しません。共通データの削除はそれぞれの管理画面で行います。</p>
     <p>「利用について」は右ペイン最下部にあります。権利・ライセンス・素材の取り扱いを確認できます。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.0</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.1</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -4501,7 +4515,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.5.0', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.5.1', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4524,7 +4538,7 @@ J.plan = (project, audio) => {
   const history = [], bgHistory = [], fxHistory = [];
   let schemeIdx = 0;
   const nSchemes = st.schemes.length;
-  const addEvent = (t, type, amp, dur) => plan.events.push({ t, type, amp, dur });
+  const addTimelineEvent = (t, type, amp, dur) => plan.events.push({ t, type, amp, dur });
 
   // title card
   const firstStart = tm.starts.length ? tm.starts[0] : 0;
@@ -4539,6 +4553,7 @@ J.plan = (project, audio) => {
   parsed.lines.forEach((ln, li) => {
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
+    const pitch = J.cueMotionPitch(project, li);
     const rule = ov.cueLook;
     const local = rule && J.cueLookProject ? J.cueLookProject(project, rule) : null;
     const st = local ? J.resolveStyle(local) : globalLook.st;
@@ -4562,10 +4577,10 @@ J.plan = (project, audio) => {
       plan.cuts.push(makeCut({ text: '', lineText: '', line: li, start: s, end: e, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.4, outDur: 0.4,
         params: { variant: 'quiet', showTitle, titleText: showTitle ? [title, artist].filter(Boolean).join('  /  ') : '' }, decor: Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, Object.assign({}, fx, { decor: Math.max(0.6, fx.decor) }), 'interlude', history),
         scheme: schemeIdx, seed: J.h(lineSeed, 405), bg, bgP: J.BG[bg] && J.BG[bg].plan ? J.BG[bg].plan(rng, st) : {}, cam: 'push', camP: {} }));
-      if (en.fx == null || en.fx.chroma !== false) addEvent(s, 'chroma', 1 + fx.chroma, 0.25);
+      if (en.fx == null || en.fx.chroma !== false) addTimelineEvent(s, 'chroma', 1 + fx.chroma, 0.25);
       for (let t = s + 1.2; t < e - 0.8; t += J.clamp(dur / 4, 1.6, 3.2)) {          // a few effect accents so a long interlude keeps moving
         const pick = pickFx(rng, st, en, fx, false, fxHistory, 'mid');
-        if (pick) { const D2 = J.FXE[pick]; addEvent(t, pick, (D2.amp || 1) * 0.6, (D2.dur || 3) / 24); fxHistory.push(pick); }
+        if (pick) { const D2 = J.FXE[pick]; addTimelineEvent(t, pick, (D2.amp || 1) * 0.6, (D2.dur || 3) / 24); fxHistory.push(pick); }
       }
       return;
     }
@@ -4577,10 +4592,10 @@ J.plan = (project, audio) => {
     const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
-    let nC = Math.round(D / L);
-    const maxC = chunks.length + (chunks.length >= 2 && D > 2.0 ? 1 : 0);
+    let nC = Math.round(D * pitch / L);
+    const maxC = chunks.length + (chunks.length >= 2 && D * pitch > 2.0 ? 1 : 0);
     nC = J.clamp(nC, 1, Math.max(1, maxC));
-    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
+    const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'motionPitch', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
     if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
@@ -4626,7 +4641,8 @@ J.plan = (project, audio) => {
     bgHistory.push(lineBg);
     let lineBgP = J.BG[lineBg] && J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {};
     units.forEach((u, k) => {
-      const cs = bounds[k], ce = bounds[k + 1], dur = ce - cs;
+      const cs = bounds[k], ce = bounds[k + 1], dur = (ce - cs) * pitch;
+      const addEvent = (t, type, amp, d) => addTimelineEvent(cs + (t - cs) / pitch, type, amp, d / pitch);
       const halves = zones ? splitHalf(u.text, plan.lang) : null;               // 中央を空ける: 「花が」｜「咲いた」
       const txt = halves ? halves[0] : u.text;
       const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
@@ -4691,7 +4707,7 @@ J.plan = (project, audio) => {
         decor = (decor || []).filter(d => J.DECOR[d.id]);
         weightGrow = !!LS.weightGrow; sch = LS.scheme | 0; cutSeed = LS.seed; LD = J.LAYOUTS[layout];
         bg = LS.bg && J.BG[LS.bg] ? LS.bg : 'none'; if (bg !== 'none') { lineBg = bg; lineBgP = LS.bgP || {}; }
-        inDur = LS.inDur; outDur = LS.outDur;
+        inDur = LS.inDur * pitch; outDur = LS.outDur * pitch;
       }
       // このカットだけの指定: applied on top of the draw with its own random stream, so changing one cut never
       // shifts the other cuts (history below keeps what was drawn, as if nothing had been changed here)
@@ -4736,17 +4752,17 @@ J.plan = (project, audio) => {
       const prevLine = prevCut && parsed.lines[prevCut.line];
       const srtJoin = !Array.isArray(project.subtitleCues) || !prevCut || prevCut.line === li ||
         (prevLine?.part === ln.part && Math.round(prevLine.explicitEnd * 1000) === Math.round(ln.lrc * 1000) && Math.round(prevCut.end * 1000) === Math.round(cs * 1000));
-      const canTrans = srtJoin && prevCut && Math.abs(prevCut.end - cs) < 0.06 && prevCut.layout !== 'interlude' && dur > 0.5 && !prevLockedOther;
+      const canTrans = srtJoin && prevCut && Math.abs(prevCut.end - cs) < 0.06 && prevCut.layout !== 'interlude' && (LS ? ce - cs > 0.05 : dur > 0.5) && !prevLockedOther;
       // 統一感: モーフ — the next part of the same line grows out of this one (shared characters glide, the rest melts)
       if (LS) {                                       // locked: the same join as before, when the cuts still touch
-        if (canTrans && LS.morph) { morph = { dur: LS.morph.dur }; prevCut.exit = 'cut'; prevCut.outDur = 0; }
-        else if (canTrans && LS.trans && J.TRANS[LS.trans]) { trans = LS.trans; transP = LS.transP || {}; transDur = LS.transDur; prevCut.exit = 'cut'; prevCut.outDur = 0; }
+        if (canTrans && LS.morph) { morph = { dur: LS.morph.dur * pitch }; prevCut.exit = 'cut'; prevCut.outDur = 0; }
+        else if (canTrans && LS.trans && J.TRANS[LS.trans]) { trans = LS.trans; transP = LS.transP || {}; transDur = LS.transDur * pitch; prevCut.exit = 'cut'; prevCut.outDur = 0; }
       } else if (canTrans && UU && k > 0 && !kime && (again ? again.morph : rng.chance(u.recap ? 0.85 : 0.4))) {
         morph = { dur: J.clamp(dur * 0.45, 0.28, 0.6) };
         enter = 'cut'; inDur = 0.12; prevCut.exit = 'cut'; prevCut.outDur = 0;
       } else if (canTrans && again && !ov.trans) {    // 統一感: a repeated line joins its cuts the same way as the first time
         if (again.trans && J.TRANS[again.trans]) {
-          trans = again.trans; transP = again.transP || {}; transDur = again.transDur;
+          trans = again.trans; transP = again.transP || {}; transDur = again.transDur * J.normalizeMotionPitch(again.motionPitch);
           enter = 'cut'; inDur = 0.12; prevCut.exit = 'cut'; prevCut.outDur = 0;
         }
       } else if (canTrans) {
@@ -4772,7 +4788,7 @@ J.plan = (project, audio) => {
         transP = TD.plan ? TD.plan(J.rng(J.h(lineSeed, k, 96)), st) : {};
       }
       if (trans && canTrans) {
-        if (J.TRANS[trans]?.overlap && (prevLine?.part !== ln.part || !J.transitionFits(trans, prevCut, dur))) {
+        if (J.TRANS[trans]?.overlap && (prevLine?.part !== ln.part || !J.transitionFits(trans, prevCut, ce - cs))) {
           enter = joinSaved.enter; inDur = joinSaved.inDur; prevCut.exit = joinSaved.prevExit; prevCut.outDur = joinSaved.prevOut;
           trans = null; transP = {}; transDur = 0;
         } else {
@@ -4785,13 +4801,13 @@ J.plan = (project, audio) => {
       if (ov.randomDraw && inDur + outDur > dur * 0.88) {
         const ratio = dur * 0.88 / (inDur + outDur); inDur *= ratio; outDur *= ratio;
       }
-      const cut = makeCut({ text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur, outDur, params, decor, scheme: sch, seed: cutSeed, emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
-        treat, treatP, bg, bgP: techBgP || (bg === lineBg ? lineBgP : {}), cam, camP, trans, transP, transDur, zone: Z, utext: u.text });
+      const cut = makeCut({ text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur: inDur / pitch, outDur: outDur / pitch, params, decor, scheme: sch, seed: cutSeed, emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
+        treat, treatP, bg, bgP: techBgP || (bg === lineBg ? lineBgP : {}), cam, camP, trans, transP, transDur: transDur / pitch, zone: Z, utext: u.text, motionPitch: pitch, motionOrigin: s });
       if (LS?.stagger != null) cut.stagger = LS.stagger;
       if (LS?.renderLook || renderLook) cut.renderLook = LS?.renderLook || renderLook;
       if (kime || (LS && LS.kime)) cut.kime = true;
       if (weightGrow) cut.weightGrow = true;
-      if (morph) cut.morph = morph;
+      if (morph) cut.morph = { dur: morph.dur / pitch };
       if (UU) UU.remember(li, k, txt, cut);
       if (zones) splitCut(cut, halves, zones, st, dur, LS);
       // 文字整列: effects don't pile up — one decoration, no text treatment on top of it
@@ -4833,7 +4849,7 @@ J.plan = (project, audio) => {
         let extra = 0;
         for (const e of mine) if (e.type === 'chroma' || e.type === 'shake' && emph || extra++ < 1) plan.events.push(e);
       }
-      for (let j = evMark; j < plan.events.length; j++) { plan.events[j].line = li; plan.events[j].cut = k; }
+      for (let j = evMark; j < plan.events.length; j++) { plan.events[j].line = li; plan.events[j].cut = k; plan.events[j].motionPitch = pitch; }
     });
     if (local && U) plan.lines[li].rulePalettes = U.palettes();
     // interlude in long gaps
@@ -4999,7 +5015,7 @@ function splitCut(cut, halves, zones, st, dur, LS) {
   const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: J.glyphCount(text), W: z.w, H: z.h, dur }, st);
   cut.text = halves[0]; cut.lineText = halves[0]; cut.words = J.chunkText(halves[0]); cut.zone = Object.assign({}, zones[0]);
   cut.params = LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);   // a locked line keeps its own
-  const delay = Math.min(0.12, dur * 0.08);
+  const delay = Math.min(0.12, dur * 0.08) / J.normalizeMotionPitch(cut.motionPitch);
   const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
     start: cut.start + delay, bg: 'none', bgP: {}, companion: true, trans: null, transP: {}, transDur: 0, morph: cut.morph });
   twin.dur = twin.end - twin.start;
@@ -5010,7 +5026,7 @@ function splitCut(cut, halves, zones, st, dur, LS) {
 J.lineSnapshot = (plan, li) => {
   const cuts = plan.cuts.filter(c => c.line === li && c.utext != null);
   if (!cuts.length) return null;
-  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, stagger: c.stagger, renderLook: c.renderLook, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
+  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, motionPitch: c.motionPitch, stagger: c.stagger, renderLook: c.renderLook, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
     params: c.params, decor: c.decor, treat: c.treat, treatP: c.treatP, bg: c.bg, bgP: c.bgP, cam: c.cam, camP: c.camP, scheme: c.scheme, seed: c.seed,
     trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [] }))));
   // each accent belongs to the cut it plays in (the ones just before a cut start belong to that cut)
@@ -5578,6 +5594,49 @@ J.prepareUserThemeDraw = (project, theme, rnd, options = {}) => {
 };
 })();
 
+/* A virtual choreography clock, independent of SRT, media and beat clocks. */
+(() => {
+'use strict';
+J.normalizeMotionPitch = value => {
+  const n = Number(value);
+  return Number.isFinite(n) && value != null && value !== '' ? Math.round(J.clamp(n, .3, 1.2) * 10) / 10 : 1;
+};
+J.cueMotionPitch = (p, index) => J.normalizeMotionPitch(p.overrides?.[index]?.motionPitch ?? p.motionPitch);
+J.motionDurations = (enter, exit, dur, n) => {
+  let a = J.clamp(dur * .36, .12, .6);
+  if (enter === 'type') a = J.clamp(n * .055 + .1, .15, dur * .65);
+  if (enter === 'assemble') a = J.clamp(dur * .45, .22, .75);
+  if (J.ENTER[enter]?.inDur) a = J.ENTER[enter].inDur(dur, n);
+  if (enter === 'cut') a = .12;
+  let b = exit === 'cut' ? 0 : J.clamp(dur * .3, .14, .55);
+  if (['explode','fall','drift'].includes(exit)) b = J.clamp(dur * .38, .25, .7);
+  if (J.EXIT[exit]?.outDur) b = J.EXIT[exit].outDur(dur, n);
+  if (a + b > dur * .92) { const f = dur * .92 / (a + b); a *= f; b *= f; }
+  return [a, b];
+};
+const clocks = new WeakMap();
+J.motionEnv = (cut, o, plan) => {
+  const pitch = J.normalizeMotionPitch(cut?.motionPitch);
+  if (!cut || pitch === 1 || o.motionClock === false) return { cut, ...o };
+  const origin = cut.motionOrigin ?? cut.start;
+  const time = t => origin + (t - origin) * pitch;
+  // Stable identities preserve the effect modules' WeakMap planning caches.
+  let cached = clocks.get(cut);
+  if (!cached || cached.pitch !== pitch || cached.beats !== plan.beats || cached.cuts !== plan.cuts) {
+    const virtual = { ...cut, start: time(cut.start), end: time(cut.end), dur: cut.dur * pitch,
+      inDur: cut.inDur * pitch, outDur: cut.outDur * pitch, transDur: (cut.transDur || 0) * pitch };
+    if (cut.morph) virtual.morph = { ...cut.morph, dur: cut.morph.dur * pitch };
+    cached = { pitch, beats: plan.beats, cuts: plan.cuts, virtual,
+      virtualBeats: (plan.beats || []).map(time),
+      virtualCuts: (plan.cuts || []).map(c => ({ ...c, start: time(c.start), end: time(c.end), dur: c.dur * pitch })) };
+    clocks.set(cut, cached);
+  }
+  const t = time(o.t), clock = J.komaOf(plan.fx) > 0 ? J.stepDur(plan.fx, plan.fps) : 1 / 30;
+  // Beat/energy are intentionally copied unchanged. Their origin is the real song.
+  return { ...o, cut: cached.virtual, plan: { ...plan, beats: cached.virtualBeats, cuts: cached.virtualCuts }, realT: o.t, t, lt: o.lt * pitch, ltb: o.ltb * pitch, step: Math.floor(t / clock + 1e-6) };
+};
+})();
+
 /* ============================================================
    JIZURA — frame renderer: background, chroma passes, HUD, post FX
    ============================================================ */
@@ -5698,7 +5757,7 @@ class Renderer {
     const events = plan.events;
     let spike = 0, shake = 0, beatPulse = 0;
     for (let i = 0; i < events.length; i++) {
-      const ev = events[i]; if (ev.t > t) break; const dt = (t - ev.t) * 24;
+      const ev = events[i]; if (ev.t > t) break; const dt = (t - ev.t) * 24 * J.normalizeMotionPitch(ev.motionPitch);
       if (dt > 14) continue;
       if (ev.type === 'chroma') spike += ev.amp * Math.pow(0.55, dt);
       else if (ev.type === 'shake') shake += ev.amp * Math.pow(0.62, dt);
@@ -5827,7 +5886,7 @@ class Renderer {
     }
     // ---------- HUD ----------
     if (plan.hud && !opt.noHud && layer !== 'back') {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { motionClock: false, pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
       J.drawHUD(env, plan);
     }
     ctx.restore();
@@ -5918,6 +5977,7 @@ class Renderer {
     ctx.restore();
   }
   makeEnv(ctx, plan, cut, sc, o) {
+    const motion = J.motionEnv(cut, o, plan); cut = motion.cut; o = motion;
     const W = o.zone ? o.zone.w : plan.W, H = o.zone ? o.zone.h : plan.H;   // 中央を空ける: a cut lives in its side band
     const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan, hideDecorativeText: plan.hideDecorativeText === true }, o);
     if (cut) {
@@ -6052,14 +6112,15 @@ class Renderer {
     for (const ev of active) {
       // progress clamped to 0..1 (an event shorter than one output frame is still shown for that frame — k would pass 1)
       const k0 = (t - ev.t) / Math.max(ev.dur, 1e-3), k = Number.isFinite(k0) ? J.clamp(k0, 0, 1) : 0;
-      const st2 = clock30;
+      const mt = ev.t + (t - ev.t) * J.normalizeMotionPitch(ev.motionPitch);
+      const st2 = ev.motionPitch == null || ev.motionPitch === 1 ? clock30 : Math.floor(mt * 30 + 1e-6);
       const D = J.FXE[ev.type];
       if (guard) guard.begin();
       if (D && D.draw) {
         if (D.scratch) copy();
         const bloomBase = opt.layerComposition && ev.type === 'bloomFlash' ? ctx.getImageData(0, 0, cw, ch) : null;
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t: mt, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);
@@ -38122,6 +38183,7 @@ const savedLookContext = context => {
 J.localLookContext = (p, audio) => JSON.stringify(canonical(normalizeLookContext([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
   p.timing?.bpm, p.timing?.offset, p.timing?.snap, p.timing?.lineScale, audio?.duration, audio?.beats,
+  ...(J.normalizeMotionPitch(p.motionPitch) === 1 ? [] : [J.normalizeMotionPitch(p.motionPitch)]),
 ])));
 const cueKey = (text, start, end, part, ov) => JSON.stringify([text, start, end, part, ov]);
 J.localLookFor = (p, ln, ov, index, start, end) => {
@@ -38153,6 +38215,7 @@ J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
   ['font', '書体変更', 'Fonts'],
+  ['pitch', '演出ピッチ', 'Motion pitch'],
   ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
@@ -38314,7 +38377,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.globalLook = baseline;
     // A fresh draw in the global framework: discard local look, explicit techniques,
     // forced cut counts and full-random snapshots; retain cue text and timestamps.
-    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
     const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
     const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
     const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
@@ -38328,7 +38391,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'random') {
     const restore = clone(baseOverride(ov));
     const cuts = J.makeRandomCue(next, current, index, audio, random);
-    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'cueLook'].includes(k)) delete target[k];
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'cueLook', 'motionPitch'].includes(k)) delete target[k];
     target.randomDraw = { restore, text: ln.text, cuts };
     return storeCuts(cuts);
   }
@@ -38341,7 +38404,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
       if (draw.themeSnapshots) next.themeSnapshots = draw.themeSnapshots;
       const themed = { ...effective, ...draw };
       if (mode === 'all') {
-        for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+        for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
         rule = { ...ruleFrom(themed), palette: clone(J.resolveStyle(themed).schemes), palettes: [] };
       } else if (mode === 'style') {
         Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(themed, effective.mood, random), palettes: [] });
@@ -38481,8 +38544,9 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     hud: rng.chance(0.15) ? 'on' : 'off', flash: rng.chance(0.2), koma: rng.pick([0, 0, 15, 10]) };
   fx.onTwos = fx.koma > 0;
   const temp = copy(p), chunks = J.chunkText(ln.text);
-  const count = rng.int(1, Math.max(1, Math.min(6, chunks.length, Math.floor((ln.visEnd - ln.start) / 0.65))));
-  temp.overrides[index] = { seed: original.seed, reroll: true, cuts: count,
+  const pitch = J.cueMotionPitch(p, index);
+  const count = rng.int(1, Math.max(1, Math.min(6, chunks.length, Math.floor((ln.visEnd - ln.start) * pitch / 0.65))));
+  temp.overrides[index] = { seed: original.seed, reroll: true, cuts: count, motionPitch: pitch,
     cueLook: { style: effective.style, mood: effective.mood, fonts, fx, colors: { enabled: false }, palette } };
   // No unification, beat snapping or inherited manual choices in this target's draft.
   // Other cues are restored from the caller's snapshots and never use this draft.
@@ -38491,7 +38555,7 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
   const cuts = J.lineSnapshot(generated, index);
   if (!cuts?.length) throw new Error(J.layerText('この字幕をランダム化できません。', 'This cue cannot be randomized.'));
   cuts.forEach((c, i) => {
-    const src = source[i], dur = c.fraction;
+    const src = source[i], dur = c.fraction * pitch;
     const text = src.text, n = Math.max(J.glyphCount(text), src.companion ? J.glyphCount(src.companion.text) : 0);
     const W = src.zone?.w || generated.W, H = src.zone?.h || generated.H;
     const st = copy(src.renderLook?.style || J.resolveStyle({ ...effective, fonts, colors: { enabled: false } }));
@@ -38539,6 +38603,9 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     c.weightGrow = false; c.kime = false; c.recap = false; c.seed = rng.int(1, 1e9);
     c.scheme = rng.int(0, palette.length - 1);
     c.renderLook = { style: st, styleKey: effective.style, fx: copy(fx), hud: fx.hud === 'on' };
+    c.motionPitch = pitch;
+    for (const key of ['inDur','outDur','transDur']) c[key] /= pitch;
+    for (const e of c.events) { e.dt /= pitch; e.dur /= pitch; }
     durations(c);
   });
   return cuts;
@@ -38755,15 +38822,17 @@ J.paletteForStyle = (source, palette) => source.map((s,i) => {
   if (s.grad) result.grad = Array.isArray(d?.grad) && d.grad.length === 2 && d.grad.every(c => /^#[\da-f]{6}$/i.test(c)) ? copy(d.grad) : [result.accent, J.mix(result.accent, '#000000', .7)];
   return result;
 });
-J.drawRelatedPalette = (schemes, rng = Math.random) => {
-  // Rotate the whole system together. Retain its light/dark and saturation
-  // structure; small neutral tints also give monochrome packs a useful variant.
-  const turn = (45 + rng() * 80) * (rng() < .5 ? -1 : 1), neutralHue = rng() * 360;
+J.drawRelatedPalette = (schemes, rng = Math.random, previous = schemes[0]) => {
+  // Every native scheme can lead the palette, including light/dark variants.
+  // Keep native colors sometimes; otherwise rotate the color system together.
+  // Always start from the style definitions, so contrast repairs do not drift.
+  const native = rng() < .25, turn = native ? 0 : rng() * 360, neutralHue = rng() * 360;
   const shift = hex => {
+    if (native) return hex;
     const [h,s,l] = J.toHsl(hex);
     return J.hsl(s < .04 ? neutralHue : h + turn, s < .04 ? .07 : s, l);
   };
-  return schemes.map(s => {
+  const palette = schemes.map(s => {
     const d = { ...s };
     for (const k of colorKeys) if (s[k]) d[k] = shift(s[k]);
     if (s.grad) d.grad = s.grad.map(shift);
@@ -38774,6 +38843,14 @@ J.drawRelatedPalette = (schemes, rng = Math.random) => {
     if (s.ink === s.fg) d.ink = d.fg;
     return d;
   });
+  // Favor a visibly different main color instead of tiny near-black variations.
+  // The relative threshold also supports styles whose entire range is subdued.
+  const rgb = J.hex(previous.bg);
+  const distances = palette.map(s => Math.hypot(...J.hex(s.bg).map((v,i) => v - rgb[i])));
+  const threshold = Math.min(50, Math.max(...distances) * .5);
+  const candidates = distances.map((d,i) => d >= threshold ? i : -1).filter(i => i >= 0);
+  const first = pick(candidates, rng);
+  return palette.map((_,i) => palette[(first + i) % palette.length]);
 };
 const accentPalette = (schemes, colors) => schemes.map(s => {
   const d = { ...s, accent:J.fitContrast(colors.accent,s.bg,2.4), ghostA:J.fitContrast(colors.ghostA,s.bg,1.35), ghostB:J.fitContrast(colors.ghostB,s.bg,1.35) };
@@ -38785,7 +38862,7 @@ J.prepareGlobalAppearance = (p, current, audio, mode, rng = Math.random, accents
   if (!['color','font','accent'].includes(mode)) throw new Error('Unknown appearance draw');
   const next = copy(p), style = J.resolveStyle(p);
   const fonts = mode === 'font' ? J.drawFontRoles(p, style, rng, true) : null;
-  const palette = mode === 'color' ? J.drawRelatedPalette(style.schemes, rng) : null;
+  const palette = mode === 'color' ? J.drawRelatedPalette((J.STYLES[p.style] || J.STYLES.noir).schemes, rng, style.schemes[0]) : null;
   J.captureLocalLooks(next, current, audio);
   if (fonts) next.fonts = { ...next.fonts, ...fonts };
   else if (mode === 'accent') next.colors = { ...next.colors, ...accents, accentOn:true };
@@ -38872,11 +38949,13 @@ function replayParams(recipe, text, W, H, dur, style) {
   }
   return params;
 }
+J.replayMotionParams = replayParams;
 function recorded(params, layout) {
   const p = params?._motionPlan;
   if (p?.version !== 1 || p.layout !== layout || !Number.isInteger(p.seed)) fail('設定情報がありません。字幕を再生成してから保存してください。', 'No generation settings. Regenerate this subtitle before saving.');
   return { layout, seed: p.seed, fonts: fontValues(params), ...(p.fontRoles ? { fontRoles: copy(p.fontRoles) } : {}) };
 }
+J.recordMotionParams = recorded;
 J.captureMotionRecipe = (p, current, index) => {
   const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
   if (!ln || !ln.text.length || ln.interlude) fail('保存できる字幕を選択してください。', 'Select a subtitle to save.');
@@ -38885,6 +38964,7 @@ J.captureMotionRecipe = (p, current, index) => {
   if (!cuts?.length || cuts.length > 128) fail('保存できるカットがありません。', 'No supported cuts to save.');
   const rule = ov.cueLook || J.cueAppearanceRule(p, base.style);
   const recipe = { version: 1, rule: copy(rule), lang: current.lang, duration: ln.visEnd - ln.start,
+    motionPitch: J.cueMotionPitch(p, index),
     centerFree: !!p.centerFree, centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
     themeSnapshot: copy(p.themeSnapshots?.[rule.lookTheme] || null), cuts: [] };
   cuts.forEach((c, i) => {
@@ -38910,6 +38990,7 @@ J.validateMotionRecipe = input => {
   }
   walk(input);
   const r = copy(input);
+  r.motionPitch = J.normalizeMotionPitch(r.motionPitch);
   if (r.version !== 1 || !Array.isArray(r.cuts) || !r.cuts.length || r.cuts.length > 128 || !(r.duration > 0 && r.duration <= 3600) || !J.STYLES[r.rule?.style]) throw new Error('Unsupported motion recipe');
   for (const c of r.cuts) {
     for (const [key, registry] of [['layout', J.LAYOUTS], ['enter', J.ENTER], ['exit', J.EXIT], ['hold', J.HOLD], ['bg', J.BG], ['treat', J.TREAT], ['cam', J.CAMERA]])
@@ -38959,7 +39040,7 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
   const cuts = J.fitRandomCueCuts(recipe.cuts, duration);
   cuts.forEach((c, i) => {
     c.utext = text[i]; c.params = {}; c.twinParams = null;
-    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.minDur && c.fraction < d.minDur) fail('字幕の時間が登場／退場の条件に合いません。', 'Duration does not meet entrance/exit requirements.');
+    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.minDur && c.fraction * recipe.motionPitch < d.minDur) fail('字幕の時間が登場／退場の条件に合いません。', 'Duration does not meet entrance/exit requirements.');
     if (c.fraction < 0.12) fail('字幕の時間が短すぎます。', 'The subtitle duration is too short.');
   });
   J.captureLocalLooks(next, current, audio);
@@ -38972,8 +39053,8 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
     for (let n = 1; next.themeSnapshots[key] && JSON.stringify(next.themeSnapshots[key]) !== JSON.stringify(recipe.themeSnapshot); n++) key = stem + '-' + n;
     next.themeSnapshots[key] = copy(recipe.themeSnapshot); rule.lookTheme = key;
   }
-  next.overrides[index] = { cueLook: rule, motionRecipeVersion: 1, seed: project.overrides?.[index]?.seed || 0,
-    randomDraw: { library: true, restore: { cueLook: copy(rule), motionRecipeVersion: 1 }, text: ln.text, cuts } };
+  next.overrides[index] = { cueLook: rule, motionRecipeVersion: 1, motionPitch: recipe.motionPitch, seed: project.overrides?.[index]?.seed || 0,
+    randomDraw: { library: true, restore: { cueLook: copy(rule), motionRecipeVersion: 1, motionPitch: recipe.motionPitch }, text: ln.text, cuts } };
   // First obtain the destination's actual split text and zones from the planner.
   delete next.localLooks.lines[project.subtitleCues?.[index]?.id ?? ('line-' + index)];
   const draft = J.plan(next, audio), generated = draft.cuts.filter(c => c.line === index && c.utext != null);
@@ -38983,8 +39064,9 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
     const n = Math.max(J.glyphCount(actual.text), actual.companion ? J.glyphCount(actual.companion.text) : 0);
     if (J.LAYOUTS[c.layout].fits && !J.LAYOUTS[c.layout].fits(n)) fail('この文字数ではレイアウトを適用できません。', 'This layout does not support this text length.');
     for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.maxChars && n > d.maxChars) fail('字幕の文字数が登場／退場の条件に合いません。', 'Text length does not meet entrance/exit requirements.');
-    c.params = replayParams(saved.layoutPlan, actual.text, actual.zone?.w || draft.W, actual.zone?.h || draft.H, c.fraction, st);
-    c.twinParams = actual.companion ? replayParams(saved.twinPlan || saved.layoutPlan, actual.companion.text, actual.companion.zone.w, actual.companion.zone.h, c.fraction, st) : null;
+    c.motionPitch = recipe.motionPitch;
+    c.params = replayParams(saved.layoutPlan, actual.text, actual.zone?.w || draft.W, actual.zone?.h || draft.H, c.fraction * recipe.motionPitch, st);
+    c.twinParams = actual.companion ? replayParams(saved.twinPlan || saved.layoutPlan, actual.companion.text, actual.companion.zone.w, actual.companion.zone.h, c.fraction * recipe.motionPitch, st) : null;
     for (const k of ['layoutPlan', 'twinPlan', 'shape']) delete c[k];
   });
   const key = project.subtitleCues?.[index]?.id ?? ('line-' + index);
@@ -39020,6 +39102,126 @@ J.parseMotionLibrary = data => {
     return { id: item.id, name: item.name, recipe: J.validateMotionRecipe(item.recipe) };
   });
 };
+})();
+
+/* Pitch-only edits keep the current appearance and seeded layout recipes. */
+(() => {
+'use strict';
+const copy = x => JSON.parse(JSON.stringify(x));
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject, omakase = J.omakase, reroll = J.prepareCueReroll;
+J.defaultProject = () => ({ ...defaults(), motionPitch: 1, motionPitchSetting: 1, cuePitchSetting: 1 });
+J.upgradeLayerProject = (p, source) => {
+  upgrade(p, source);
+  for (const key of ['motionPitch','motionPitchSetting','cuePitchSetting']) p[key] = J.normalizeMotionPitch(source?.[key] ?? (key === 'motionPitchSetting' ? source?.motionPitch : 1));
+  for (const ov of Object.values(source?.overrides || {})) if (ov && ov.motionPitch != null) ov.motionPitch = J.normalizeMotionPitch(ov.motionPitch);
+};
+const freezeLocks = p => {
+  for (const [i, ov] of Object.entries(p.overrides || {})) if (ov.lock) ov.motionPitch = J.cueMotionPitch(p, i);
+};
+J.omakase = (p, ...args) => {
+  const draft = copy(p); freezeLocks(draft);
+  const draw = omakase(draft, ...args);
+  draw.motionPitch = J.normalizeMotionPitch(p.motionPitchSetting ?? p.motionPitch);
+  // Auto-compose adopts the global pitch, preserving locked cues' previous clocks.
+  draw.overrides = copy(draw.overrides || draft.overrides || {});
+  for (const ov of Object.values(draw.overrides)) if (!ov.lock) delete ov.motionPitch;
+  return draw;
+};
+const targetPlan = (plan, i) => plan.layerGroups?.find(g => g.indices.includes(i))?.plan || plan;
+const lookFor = (p, current, i, c) => c.renderLook || (() => {
+  const base = targetPlan(current, i);
+  return { style: base.style, styleKey: base.styleKey, fx: base.fx, hud: base.hud };
+})();
+function retime(c, old, actual, pitch, base, fixed) {
+  const n = Math.max(J.glyphCount(actual.text), J.glyphCount(actual.companion?.text || ''));
+  const dur = c.fraction * pitch, oldPitch = J.normalizeMotionPitch(old.motionPitch);
+  const compatible = !J.LAYOUTS[old.layout].fits || J.LAYOUTS[old.layout].fits(n);
+  if (compatible) {
+    c.layout = old.layout;
+    const replay = (params, text, zone) => {
+      if (!params?._motionPlan) return copy(params);
+      return J.replayMotionParams(J.recordMotionParams(params, old.layout), text, zone?.w || base.W, zone?.h || base.H, dur, old.renderLook.style);
+    };
+    c.params = replay(old.params, actual.text, actual.zone);
+    c.twinParams = actual.companion ? replay(old.twinParams || old.params, actual.companion.text, actual.companion.zone) : null;
+  }
+  for (const k of ['bg','bgP','hold','cam','camP','treat','treatP','decor','seed','scheme','stagger','weightGrow','kime','renderLook']) c[k] = copy(old[k]);
+  for (const k of ['enter','exit']) {
+    const d = (k === 'enter' ? J.ENTER : J.EXIT)[old[k]];
+    c[k] = (!d.minDur || dur >= d.minDur) && (!d.maxChars || n <= d.maxChars) ? old[k] : 'cut';
+  }
+  const ds = fixed ? [old.inDur * oldPitch, old.outDur * oldPitch] : J.motionDurations(c.enter, c.exit, dur, n);
+  c.inDur = c.enter === 'cut' ? Math.min(.12, dur * .2) / pitch : ds[0] / pitch;
+  c.outDur = c.exit === 'cut' ? 0 : ds[1] / pitch;
+  if (c.inDur + c.outDur > c.fraction * .92) {
+    const f = c.fraction * .92 / (c.inDur + c.outDur); c.inDur *= f; c.outDur *= f;
+  }
+  c.trans = old.trans; c.transP = copy(old.transP || {});
+  c.transDur = Math.min((old.transDur || 0) * oldPitch / pitch, c.fraction * .45);
+  c.morph = old.morph ? { dur: Math.min(old.morph.dur * oldPitch / pitch, c.fraction * .45) } : null;
+  c.events = (old.events || []).map(e => ({ ...e,
+    dt: e.dt < 0 ? e.dt * oldPitch / pitch : e.dt * c.fraction / old.fraction,
+    dur: e.dur * oldPitch / pitch,
+  })).filter(e => e.dt < c.fraction).map(e => ({ ...e, dur: Math.min(e.dur, c.fraction - e.dt) }));
+  c.motionPitch = pitch;
+  return c;
+}
+J.prepareMotionPitch = (p, current, audio, value, index = null) => {
+  const pitch = J.normalizeMotionPitch(value), next = copy(p), all = index == null;
+  const targets = current.lines.filter(l => !l.interlude && l.text?.length && (all || l.index === index));
+  if (!targets.length) throw new Error(J.layerText('この位置に変更できる字幕はありません。', 'There is no subtitle to change here.'));
+  if (!all && p.overrides?.[index]?.lock) throw new Error(J.layerText('この字幕はロック中です。', 'This subtitle is locked.'));
+  J.captureLocalLooks(next, current, audio);
+  next.overrides ||= {};
+  if (all) { freezeLocks(next); next.motionPitch = pitch; }
+  const edits = [];
+  for (const ln of targets) {
+    const i = ln.index, ov = next.overrides[i] ||= {}, key = p.subtitleCues?.[i]?.id ?? ('line-' + i);
+    const old = J.lineSnapshot(current, i), base = targetPlan(current, i);
+    if (!old?.length) continue;
+    old.forEach(c => { c.renderLook = copy(lookFor(p, current, i, c)); });
+    if (ov.lock) { ov.lockedCuts = copy(old); continue; }
+    if (all) delete ov.motionPitch; else ov.motionPitch = pitch;
+    // Explicit/random/library compositions retain their saved cut structure.
+    // Old projects without generation inputs also retain their concrete geometry.
+    const fixed = !!(ov.randomDraw || ov.cuts > 0 || ov.single || old.some(c => !c.params?._motionPlan));
+    edits.push({ ln, i, ov, key, old, base, fixed });
+  }
+  J.rekeyLocalLooks(next, current, audio);
+  // One generation pass for the entire operation, even on a long song.
+  const draft = copy(next); draft._cueUnits = {};
+  for (const { i, ov, key, old, fixed } of edits) {
+    delete draft.localLooks.lines[key];
+    delete draft.overrides[i].randomDraw;
+    const look = old[0].renderLook;
+    const rule = ov.cueLook || J.cueAppearanceRule(p, look.style);
+    draft.overrides[i].cueLook = { ...copy(rule), palette: copy(look.style.schemes), fx: copy(look.fx),
+      fonts: Object.fromEntries(Object.entries(look.style.fonts).map(([r, v]) => [r, v[0]])) };
+    if (fixed) draft._cueUnits[i] = old;
+  }
+  const fresh = edits.length ? J.plan(draft, audio) : null;
+  for (const { i, ov, key, old, base, fixed } of edits) {
+    const generated = fresh.cuts.filter(c => c.line === i && c.utext != null);
+    const cuts = J.lineSnapshot(fresh, i);
+    if (!cuts?.length) throw new Error(J.layerText('演出ピッチを変更できません。', 'Unable to change motion pitch.'));
+    // Map the new cut's position to the previous composition, without reseeding.
+    let start = 0; const edges = old.map(c => { start += c.fraction; return start; });
+    let offset = 0;
+    cuts.forEach((c, k) => {
+      const pos = offset + c.fraction * .5;
+      const slot = fixed ? k : Math.max(0, edges.findIndex(t => t >= pos));
+      retime(c, old[Math.min(slot, old.length - 1)], generated[k], pitch, base, fixed);
+      offset += c.fraction;
+    });
+    if (ov.randomDraw) ov.randomDraw.cuts = copy(cuts);
+    next.localLooks.lines[key] = { cuts };
+  }
+  J.rekeyLocalLooks(next, current, audio);
+  return next;
+};
+J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => mode === 'pitch'
+  ? J.prepareMotionPitch(p, current, audio, p.cuePitchSetting, index)
+  : reroll(p, current, index, audio, mode);
 })();
 
 /* ============================================================
@@ -39161,6 +39363,50 @@ function syncOmakaseThemes() {
     }
     select.value = J.normalizeTheme(S.project.theme, S.project);
   }
+}
+function syncMotionPitchInputs() {
+  for (const id of ['motionPitchGlobal','motionPitchGlobalPro']) if ($(id)) $(id).value = J.normalizeMotionPitch(S.project.motionPitchSetting);
+  if ($('cuePitchValue')) $('cuePitchValue').value = J.normalizeMotionPitch(S.project.cuePitchSetting);
+}
+function motionPitchInput(id, key, caption) {
+  const label = document.createElement('label'); label.className = 'motion-pitch-control';
+  const text = document.createElement('span'); text.textContent = caption;
+  const input = document.createElement('input'); input.type = 'number'; input.id = id;
+  input.min = '.3'; input.max = '1.2'; input.step = '.1'; input.inputMode = 'decimal';
+  input.setAttribute('aria-label', caption);
+  input.title = J.layerText('×0.3〜×1.2。字幕時刻・音源・拍は変更しません。', '×0.3–×1.2. Subtitle timing, audio and beats stay unchanged.');
+  input.addEventListener('change', () => { S.project[key] = J.normalizeMotionPitch(input.value); syncMotionPitchInputs(); flushSave(); });
+  // Keep native spin buttons; commit a pointer step without leaving shortcuts
+  // captured by the numeric field. Clicking the text itself remains editable.
+  input.addEventListener('pointerdown', e => { input.dataset.spin = String(e.offsetX >= input.clientWidth - 20); });
+  input.addEventListener('pointerup', () => {
+    if (input.dataset.spin === 'true') setTimeout(() => {
+      input.dispatchEvent(new Event('change'));
+      if (document.activeElement === input) $('viewport').focus({ preventScroll: true });
+    }, 0);
+    delete input.dataset.spin;
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); input.dispatchEvent(new Event('change')); input.blur(); $('viewport').focus({ preventScroll: true }); }
+  });
+  const times = document.createElement('span'); times.textContent = '×';
+  label.append(text, times, input); return label;
+}
+function initMotionPitchInputs() {
+  const easy = motionPitchInput('motionPitchGlobal', 'motionPitchSetting', J.layerText('演出ピッチ', 'Motion pitch'));
+  easy.title = J.layerText('「おまかせで作る」と「ここだけ変える」の演出ピッチで全体に適用', 'Apply globally with Auto-compose or the Motion pitch button');
+  $('btnOmakaseBig').before(easy);
+  $('btnOmakase').closest('.transport').before(motionPitchInput('motionPitchGlobalPro', 'motionPitchSetting', J.layerText('全体の演出ピッチ', 'Global motion pitch')));
+  syncMotionPitchInputs();
+}
+function applyGlobalMotionPitch() {
+  if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
+  try {
+    const next = J.prepareMotionPitch(S.project, S.plan, audioLike(), S.project.motionPitchSetting);
+    pushEdit(); remember(); S.project = next; syncUI(); replan(); commit(); flushSave();
+    toast(J.layerText('演出ピッチを全体に適用：×', 'Applied global motion pitch: ×') + S.project.motionPitch);
+    restartPreview();
+  } catch (e) { toast(e.message); }
 }
 /* プレビュー音量: remembered per browser */
 function initVolume() {
@@ -39671,7 +39917,7 @@ function updateCutInfo() {
     const randomLabel = draw ? (draw.libraryName ? J.layerText('ライブラリ：', 'Library: ') + draw.libraryName + ' · ' : J.layerText('ランダム · ', 'Random · ')) : '';
     const themeName = J.appliedThemeName(rule?.lookTheme ?? S.project.lookTheme, S.project);
     const themeLabel = themeName ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + themeName : '';
-    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
+    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel} · ×${J.cueMotionPitch(S.project, target.index)}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
   const cut = J.cutAt(S.plan, S.t);
@@ -39903,7 +40149,7 @@ function editLine(li, ln) {
 /* ---------------- 編集の取り消し（Ctrl+Z） ---------------- */
 // Global look changes and cue edits must share chronological undo. Otherwise
 // old per-cue snapshots can undo a later global palette/font change piecemeal.
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'lang', 'unify', 'typeset'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'motionPitch', 'motionPitchSetting', 'cuePitchSetting', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
 const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
@@ -40698,6 +40944,7 @@ function updateTap() {
 /* ---------------- sync all inputs from project ---------------- */
 function syncUI() {
   syncOmakaseThemes();
+  syncMotionPitchInputs();
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
   $('lyrics').value = S.project.lyrics;
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
@@ -40874,6 +41121,7 @@ function bind() {
   $('ePalette').addEventListener('click', () => { randomPalette(); restartPreview(); });
   $('eFullPalette').addEventListener('click', () => rerollAppearance('color'));
   $('eFonts').addEventListener('click', () => rerollAppearance('font'));
+  $('eMotionPitch').addEventListener('click', applyGlobalMotionPitch);
   // 利用について（出力物の権利・ライセンス）
   const dlg = $('termsDlg');
   const openTerms = () => {
@@ -40883,7 +41131,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.0' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.1' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -40922,7 +41170,12 @@ function bind() {
     if (mode === 'random') {
       b.title = J.layerText('制約と過密を考慮して幅広く抽選。6で基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. 6 returns to base settings (Ctrl+Z to undo).');
     }
-    $('cueRollButtons').append(b);
+    if (mode === 'pitch') {
+      const group = document.createElement('span'); group.className = 'cue-pitch-group';
+      b.title = J.layerText('隣の値を現在の字幕に適用。演出ピッチ以外はできるだけ維持', 'Apply the adjacent value to this cue, retaining its appearance and techniques where possible');
+      group.append(b, motionPitchInput('cuePitchValue', 'cuePitchSetting', J.layerText('字幕用', 'Cue value')));
+      $('cueRollButtons').append(group);
+    } else $('cueRollButtons').append(b);
   });
   document.addEventListener('keydown', e => {
     if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return;
@@ -40944,7 +41197,7 @@ function bind() {
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
-    else if (!e.shiftKey && /^[0-7]$/.test(e.key) && /^(Digit|Numpad)[0-7]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
+    else if (!e.shiftKey && /^[0-8]$/.test(e.key) && /^(Digit|Numpad)[0-8]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
@@ -41046,7 +41299,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
-  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';

@@ -75,6 +75,28 @@ test('all style palettes remain valid and new omakase clears the global palette'
   const p=fixture(), n=J.prepareGlobalAppearance(p,J.plan(p),null,'color',J.rng(2));
   const fresh=J.omakase(n,J.rng(2)); assert.ok(!fresh.colors.palette);
 });
+test('whole palette reaches every native style main color, including horror light schemes',()=>{
+  for(const [key,style] of Object.entries(J.STYLES)){
+    let previous=style.schemes[0]; const seen=new Set();
+    for(let i=0;i<256;i++){
+      const cols=J.drawRelatedPalette(style.schemes,J.rng(811+i*719),previous);
+      assert.equal(cols.length,style.schemes.length); previous=cols[0]; seen.add(previous.bg);
+    }
+    for(const scheme of style.schemes)assert.ok(seen.has(scheme.bg),key+' main color '+scheme.bg+' must be reachable');
+  }
+});
+test('horror palette changes the primary tone without changing motion or fine-tune behavior',()=>{
+  let p=fixture();p.style='hrNightRec';p.mood='horror';p.horror=true;p.theme='horror';
+  p.colors={enabled:false,accentOn:false};
+  const before=J.plan(p), initial=before.style.schemes[0].bg;
+  const n=J.prepareGlobalAppearance(p,before,null,'color',J.rng(15)), after=J.plan(n);
+  assert.ok(Math.abs(J.lum(after.style.schemes[0].bg)-J.lum(initial))>.5);
+  assert.deepEqual(motion(after),motion(before));
+  assert.equal(n.style,p.style);assert.equal(n.mood,p.mood);assert.equal(n.theme,p.theme);
+  assert.deepEqual(copy(J.plan(copy(n)).cuts),copy(after.cuts));
+  const fine=J.prepareGlobalAppearance(n,after,null,'accent',J.rng(2),J.randomPalette(after.style.schemes[0].bg,J.rng(2)));
+  assert.equal(J.plan(fine).style.schemes[0].bg,after.style.schemes[0].bg);
+});
 test('appearance-only draws keep manual cut geometry, fillers and center-free twins',()=>{
   for(const mode of ['color','font'])for(const local of [false,true]){
     const p=fixture(); p.centerFree=true; p.subtitleCues[1].filler=true;

@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.5.0. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.5.1. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -22,11 +22,13 @@ Load an image/video as a preview background. Songs support preview and timing. N
 
 ## Themes and cue draws
 
+Lower Motion pitch when choreography feels too fast. The range is ×0.3–×1.2, default ×1.0. Apply the value above Auto-compose through Auto-compose or the global Motion pitch button. A separate value beside 8 applies only to the current cue through key 8 or its button. Editing an input alone changes no artwork. Global application clears unlocked local pitch overrides; draws 0–7/9 preserve applied pitch. Automatic cut counts and motion adapt while cue times, media and beats remain unchanged. Preview and all exports use this setting, stored in project JSON, autosave and motion recipes. See [motion pitch](../user_guide.en.md#motion-pitch).
+
 Themes are No theme, Lyric video, Kinetic, Japanese, Horror, Pop, Ballad and saved user themes. Selecting alone leaves the composition unchanged. Global Auto-compose enables necessary sets globally. Cue keys 1–3 consider the theme and enable its required sets only inside that cue. Keys 4/6 use the applied cue base; 9 restores the last global settings and theme; 0/5/7 ignore the pending theme. See [draw scopes](../user_guide.en.md#automatic-parts-and-subtitle-rerolls).
 
 User themes… assigns style and mood weights from 0–10. Hover/tap names for explanations. From mood uses the chosen mood's style distribution. Use mood distribution approximates style weights and replaces mood weights with 1 for the chosen mood and 0 for all others. Save, select the theme and use Auto-compose or cue key 1 to apply it. Manage the shared collection through the dialog or dedicated JSON. Applied settings remain independent of theme edits, deletion or reuse of the same name. See [user themes](../user_guide.en.md#creating-and-transferring-user-themes).
 
-Global change controls offer Fonts consistent with the style/mood, Palette changes including the main color while preserving light/dark and saturation structure, and the original Palette fine-tune. Cue key 7 changes only that cue's fonts independently of style/mood; key 5 changes only its colors.
+Global change controls offer Fonts consistent with the style/mood, Palette changes choosing the main color across all of the style's light/dark schemes, and the original Palette fine-tune. Palette uses native or hue-shifted schemes and avoids nearly unchanged main colors when alternatives exist. Cue key 7 changes only that cue's fonts independently of style/mood; key 5 changes only its colors.
 
 Undo / Ctrl+Z follows the order of cue edits and global changes. Previous/next proposal buttons navigate composition proposals. Media, export settings and shared-library actions are outside cue-edit Undo.
 
