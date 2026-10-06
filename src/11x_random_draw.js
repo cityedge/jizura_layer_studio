@@ -48,8 +48,9 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     hud: rng.chance(0.15) ? 'on' : 'off', flash: rng.chance(0.2), koma: rng.pick([0, 0, 15, 10]) };
   fx.onTwos = fx.koma > 0;
   const temp = copy(p), chunks = J.chunkText(ln.text);
-  const count = rng.int(1, Math.max(1, Math.min(6, chunks.length, Math.floor((ln.visEnd - ln.start) / 0.65))));
-  temp.overrides[index] = { seed: original.seed, reroll: true, cuts: count,
+  const pitch = J.cueMotionPitch(p, index);
+  const count = rng.int(1, Math.max(1, Math.min(6, chunks.length, Math.floor((ln.visEnd - ln.start) * pitch / 0.65))));
+  temp.overrides[index] = { seed: original.seed, reroll: true, cuts: count, motionPitch: pitch,
     cueLook: { style: effective.style, mood: effective.mood, fonts, fx, colors: { enabled: false }, palette } };
   // No unification, beat snapping or inherited manual choices in this target's draft.
   // Other cues are restored from the caller's snapshots and never use this draft.
@@ -58,7 +59,7 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
   const cuts = J.lineSnapshot(generated, index);
   if (!cuts?.length) throw new Error(J.layerText('この字幕をランダム化できません。', 'This cue cannot be randomized.'));
   cuts.forEach((c, i) => {
-    const src = source[i], dur = c.fraction;
+    const src = source[i], dur = c.fraction * pitch;
     const text = src.text, n = Math.max(J.glyphCount(text), src.companion ? J.glyphCount(src.companion.text) : 0);
     const W = src.zone?.w || generated.W, H = src.zone?.h || generated.H;
     const st = copy(src.renderLook?.style || J.resolveStyle({ ...effective, fonts, colors: { enabled: false } }));
@@ -106,6 +107,9 @@ J.makeRandomCue = (p, current, index, audio, rng) => {
     c.weightGrow = false; c.kime = false; c.recap = false; c.seed = rng.int(1, 1e9);
     c.scheme = rng.int(0, palette.length - 1);
     c.renderLook = { style: st, styleKey: effective.style, fx: copy(fx), hud: fx.hud === 'on' };
+    c.motionPitch = pitch;
+    for (const key of ['inDur','outDur','transDur']) c[key] /= pitch;
+    for (const e of c.events) { e.dt /= pitch; e.dur /= pitch; }
     durations(c);
   });
   return cuts;

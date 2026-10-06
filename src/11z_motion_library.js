@@ -43,11 +43,13 @@ function replayParams(recipe, text, W, H, dur, style) {
   }
   return params;
 }
+J.replayMotionParams = replayParams;
 function recorded(params, layout) {
   const p = params?._motionPlan;
   if (p?.version !== 1 || p.layout !== layout || !Number.isInteger(p.seed)) fail('設定情報がありません。字幕を再生成してから保存してください。', 'No generation settings. Regenerate this subtitle before saving.');
   return { layout, seed: p.seed, fonts: fontValues(params), ...(p.fontRoles ? { fontRoles: copy(p.fontRoles) } : {}) };
 }
+J.recordMotionParams = recorded;
 J.captureMotionRecipe = (p, current, index) => {
   const ln = current.lines.find(l => l.index === index), ov = p.overrides?.[index] || {};
   if (!ln || !ln.text.length || ln.interlude) fail('保存できる字幕を選択してください。', 'Select a subtitle to save.');
@@ -56,6 +58,7 @@ J.captureMotionRecipe = (p, current, index) => {
   if (!cuts?.length || cuts.length > 128) fail('保存できるカットがありません。', 'No supported cuts to save.');
   const rule = ov.cueLook || J.cueAppearanceRule(p, base.style);
   const recipe = { version: 1, rule: copy(rule), lang: current.lang, duration: ln.visEnd - ln.start,
+    motionPitch: J.cueMotionPitch(p, index),
     centerFree: !!p.centerFree, centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
     themeSnapshot: copy(p.themeSnapshots?.[rule.lookTheme] || null), cuts: [] };
   cuts.forEach((c, i) => {
@@ -81,6 +84,7 @@ J.validateMotionRecipe = input => {
   }
   walk(input);
   const r = copy(input);
+  r.motionPitch = J.normalizeMotionPitch(r.motionPitch);
   if (r.version !== 1 || !Array.isArray(r.cuts) || !r.cuts.length || r.cuts.length > 128 || !(r.duration > 0 && r.duration <= 3600) || !J.STYLES[r.rule?.style]) throw new Error('Unsupported motion recipe');
   for (const c of r.cuts) {
     for (const [key, registry] of [['layout', J.LAYOUTS], ['enter', J.ENTER], ['exit', J.EXIT], ['hold', J.HOLD], ['bg', J.BG], ['treat', J.TREAT], ['cam', J.CAMERA]])
@@ -130,7 +134,7 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
   const cuts = J.fitRandomCueCuts(recipe.cuts, duration);
   cuts.forEach((c, i) => {
     c.utext = text[i]; c.params = {}; c.twinParams = null;
-    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.minDur && c.fraction < d.minDur) fail('字幕の時間が登場／退場の条件に合いません。', 'Duration does not meet entrance/exit requirements.');
+    for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.minDur && c.fraction * recipe.motionPitch < d.minDur) fail('字幕の時間が登場／退場の条件に合いません。', 'Duration does not meet entrance/exit requirements.');
     if (c.fraction < 0.12) fail('字幕の時間が短すぎます。', 'The subtitle duration is too short.');
   });
   J.captureLocalLooks(next, current, audio);
@@ -143,8 +147,8 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
     for (let n = 1; next.themeSnapshots[key] && JSON.stringify(next.themeSnapshots[key]) !== JSON.stringify(recipe.themeSnapshot); n++) key = stem + '-' + n;
     next.themeSnapshots[key] = copy(recipe.themeSnapshot); rule.lookTheme = key;
   }
-  next.overrides[index] = { cueLook: rule, motionRecipeVersion: 1, seed: project.overrides?.[index]?.seed || 0,
-    randomDraw: { library: true, restore: { cueLook: copy(rule), motionRecipeVersion: 1 }, text: ln.text, cuts } };
+  next.overrides[index] = { cueLook: rule, motionRecipeVersion: 1, motionPitch: recipe.motionPitch, seed: project.overrides?.[index]?.seed || 0,
+    randomDraw: { library: true, restore: { cueLook: copy(rule), motionRecipeVersion: 1, motionPitch: recipe.motionPitch }, text: ln.text, cuts } };
   // First obtain the destination's actual split text and zones from the planner.
   delete next.localLooks.lines[project.subtitleCues?.[index]?.id ?? ('line-' + index)];
   const draft = J.plan(next, audio), generated = draft.cuts.filter(c => c.line === index && c.utext != null);
@@ -154,8 +158,9 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
     const n = Math.max(J.glyphCount(actual.text), actual.companion ? J.glyphCount(actual.companion.text) : 0);
     if (J.LAYOUTS[c.layout].fits && !J.LAYOUTS[c.layout].fits(n)) fail('この文字数ではレイアウトを適用できません。', 'This layout does not support this text length.');
     for (const d of [J.ENTER[c.enter], J.EXIT[c.exit]]) if (d.maxChars && n > d.maxChars) fail('字幕の文字数が登場／退場の条件に合いません。', 'Text length does not meet entrance/exit requirements.');
-    c.params = replayParams(saved.layoutPlan, actual.text, actual.zone?.w || draft.W, actual.zone?.h || draft.H, c.fraction, st);
-    c.twinParams = actual.companion ? replayParams(saved.twinPlan || saved.layoutPlan, actual.companion.text, actual.companion.zone.w, actual.companion.zone.h, c.fraction, st) : null;
+    c.motionPitch = recipe.motionPitch;
+    c.params = replayParams(saved.layoutPlan, actual.text, actual.zone?.w || draft.W, actual.zone?.h || draft.H, c.fraction * recipe.motionPitch, st);
+    c.twinParams = actual.companion ? replayParams(saved.twinPlan || saved.layoutPlan, actual.companion.text, actual.companion.zone.w, actual.companion.zone.h, c.fraction * recipe.motionPitch, st) : null;
     for (const k of ['layoutPlan', 'twinPlan', 'shape']) delete c[k];
   });
   const key = project.subtitleCues?.[index]?.id ?? ('line-' + index);

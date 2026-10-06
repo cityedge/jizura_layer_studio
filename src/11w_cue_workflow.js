@@ -65,6 +65,7 @@ const savedLookContext = context => {
 J.localLookContext = (p, audio) => JSON.stringify(canonical(normalizeLookContext([
   ...['style','mood','seed','fx','enabled','fonts','colors','extra','wa','horror','typo','kinetic','lang','unify','typeset','centerDir','centerFree','aspect','fps'].map(k => p[k]),
   p.timing?.bpm, p.timing?.offset, p.timing?.snap, p.timing?.lineScale, audio?.duration, audio?.beats,
+  ...(J.normalizeMotionPitch(p.motionPitch) === 1 ? [] : [J.normalizeMotionPitch(p.motionPitch)]),
 ])));
 const cueKey = (text, start, end, part, ov) => JSON.stringify([text, start, end, part, ov]);
 J.localLookFor = (p, ln, ov, index, start, end) => {
@@ -96,6 +97,7 @@ J.cueRerollModes = [
   ['all', '全体変更', 'Everything'], ['style', 'スタイル変更', 'Style'], ['mood', '雰囲気変更', 'Mood'],
   ['motion', '演出変更', 'Performance'], ['color', '配色変更', 'Colors'], ['fine', '微調整', 'Fine-tune'],
   ['font', '書体変更', 'Fonts'],
+  ['pitch', '演出ピッチ', 'Motion pitch'],
   ['global', '全体のテイスト', 'Global taste'],
   ['random', 'ランダム', 'Random'],
 ];
@@ -257,7 +259,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     next.globalLook = baseline;
     // A fresh draw in the global framework: discard local look, explicit techniques,
     // forced cut counts and full-random snapshots; retain cue text and timestamps.
-    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
     const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
     const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
     const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
@@ -271,7 +273,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
   if (mode === 'random') {
     const restore = clone(baseOverride(ov));
     const cuts = J.makeRandomCue(next, current, index, audio, random);
-    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'cueLook'].includes(k)) delete target[k];
+    for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'cueLook', 'motionPitch'].includes(k)) delete target[k];
     target.randomDraw = { restore, text: ln.text, cuts };
     return storeCuts(cuts);
   }
@@ -284,7 +286,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
       if (draw.themeSnapshots) next.themeSnapshots = draw.themeSnapshots;
       const themed = { ...effective, ...draw };
       if (mode === 'all') {
-        for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll'].includes(k)) delete target[k];
+        for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
         rule = { ...ruleFrom(themed), palette: clone(J.resolveStyle(themed).schemes), palettes: [] };
       } else if (mode === 'style') {
         Object.assign(rule, { style: draw.style, fonts: draw.fonts, enabled: broadPool(themed, effective.mood, random), palettes: [] });

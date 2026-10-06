@@ -118,7 +118,7 @@ class Renderer {
     const events = plan.events;
     let spike = 0, shake = 0, beatPulse = 0;
     for (let i = 0; i < events.length; i++) {
-      const ev = events[i]; if (ev.t > t) break; const dt = (t - ev.t) * 24;
+      const ev = events[i]; if (ev.t > t) break; const dt = (t - ev.t) * 24 * J.normalizeMotionPitch(ev.motionPitch);
       if (dt > 14) continue;
       if (ev.type === 'chroma') spike += ev.amp * Math.pow(0.55, dt);
       else if (ev.type === 'shake') shake += ev.amp * Math.pow(0.62, dt);
@@ -247,7 +247,7 @@ class Renderer {
     }
     // ---------- HUD ----------
     if (plan.hud && !opt.noHud && layer !== 'back') {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { motionClock: false, pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
       J.drawHUD(env, plan);
     }
     ctx.restore();
@@ -338,6 +338,7 @@ class Renderer {
     ctx.restore();
   }
   makeEnv(ctx, plan, cut, sc, o) {
+    const motion = J.motionEnv(cut, o, plan); cut = motion.cut; o = motion;
     const W = o.zone ? o.zone.w : plan.W, H = o.zone ? o.zone.h : plan.H;   // 中央を空ける: a cut lives in its side band
     const env = Object.assign({ ctx, W, H, sc, st: plan.style, fx: plan.fx, fps: plan.fps, cut, plan, hideDecorativeText: plan.hideDecorativeText === true }, o);
     if (cut) {
@@ -472,14 +473,15 @@ class Renderer {
     for (const ev of active) {
       // progress clamped to 0..1 (an event shorter than one output frame is still shown for that frame — k would pass 1)
       const k0 = (t - ev.t) / Math.max(ev.dur, 1e-3), k = Number.isFinite(k0) ? J.clamp(k0, 0, 1) : 0;
-      const st2 = clock30;
+      const mt = ev.t + (t - ev.t) * J.normalizeMotionPitch(ev.motionPitch);
+      const st2 = ev.motionPitch == null || ev.motionPitch === 1 ? clock30 : Math.floor(mt * 30 + 1e-6);
       const D = J.FXE[ev.type];
       if (guard) guard.begin();
       if (D && D.draw) {
         if (D.scratch) copy();
         const bloomBase = opt.layerComposition && ev.type === 'bloomFlash' ? ctx.getImageData(0, 0, cw, ch) : null;
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t: mt, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.effectCanvas(this.tiny, w, h, opt), tmp2: (w, h) => this.effectCanvas(this.small2 || (this.small2 = mk(2, 2)), w, h, opt) });
         } catch (e) { console.warn('fx', ev.type, e); }
         if (bloomBase) {
           const result = ctx.getImageData(0, 0, cw, ch);

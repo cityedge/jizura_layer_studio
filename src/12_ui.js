@@ -138,6 +138,50 @@ function syncOmakaseThemes() {
     select.value = J.normalizeTheme(S.project.theme, S.project);
   }
 }
+function syncMotionPitchInputs() {
+  for (const id of ['motionPitchGlobal','motionPitchGlobalPro']) if ($(id)) $(id).value = J.normalizeMotionPitch(S.project.motionPitchSetting);
+  if ($('cuePitchValue')) $('cuePitchValue').value = J.normalizeMotionPitch(S.project.cuePitchSetting);
+}
+function motionPitchInput(id, key, caption) {
+  const label = document.createElement('label'); label.className = 'motion-pitch-control';
+  const text = document.createElement('span'); text.textContent = caption;
+  const input = document.createElement('input'); input.type = 'number'; input.id = id;
+  input.min = '.3'; input.max = '1.2'; input.step = '.1'; input.inputMode = 'decimal';
+  input.setAttribute('aria-label', caption);
+  input.title = J.layerText('×0.3〜×1.2。字幕時刻・音源・拍は変更しません。', '×0.3–×1.2. Subtitle timing, audio and beats stay unchanged.');
+  input.addEventListener('change', () => { S.project[key] = J.normalizeMotionPitch(input.value); syncMotionPitchInputs(); flushSave(); });
+  // Keep native spin buttons; commit a pointer step without leaving shortcuts
+  // captured by the numeric field. Clicking the text itself remains editable.
+  input.addEventListener('pointerdown', e => { input.dataset.spin = String(e.offsetX >= input.clientWidth - 20); });
+  input.addEventListener('pointerup', () => {
+    if (input.dataset.spin === 'true') setTimeout(() => {
+      input.dispatchEvent(new Event('change'));
+      if (document.activeElement === input) $('viewport').focus({ preventScroll: true });
+    }, 0);
+    delete input.dataset.spin;
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); input.dispatchEvent(new Event('change')); input.blur(); $('viewport').focus({ preventScroll: true }); }
+  });
+  const times = document.createElement('span'); times.textContent = '×';
+  label.append(text, times, input); return label;
+}
+function initMotionPitchInputs() {
+  const easy = motionPitchInput('motionPitchGlobal', 'motionPitchSetting', J.layerText('演出ピッチ', 'Motion pitch'));
+  easy.title = J.layerText('「おまかせで作る」と「ここだけ変える」の演出ピッチで全体に適用', 'Apply globally with Auto-compose or the Motion pitch button');
+  $('btnOmakaseBig').before(easy);
+  $('btnOmakase').closest('.transport').before(motionPitchInput('motionPitchGlobalPro', 'motionPitchSetting', J.layerText('全体の演出ピッチ', 'Global motion pitch')));
+  syncMotionPitchInputs();
+}
+function applyGlobalMotionPitch() {
+  if (S.exporting || S.tap || J.layerSession?.busy || J.layerCueEditsInvalid) return;
+  try {
+    const next = J.prepareMotionPitch(S.project, S.plan, audioLike(), S.project.motionPitchSetting);
+    pushEdit(); remember(); S.project = next; syncUI(); replan(); commit(); flushSave();
+    toast(J.layerText('演出ピッチを全体に適用：×', 'Applied global motion pitch: ×') + S.project.motionPitch);
+    restartPreview();
+  } catch (e) { toast(e.message); }
+}
 /* プレビュー音量: remembered per browser */
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
@@ -647,7 +691,7 @@ function updateCutInfo() {
     const randomLabel = draw ? (draw.libraryName ? J.layerText('ライブラリ：', 'Library: ') + draw.libraryName + ' · ' : J.layerText('ランダム · ', 'Random · ')) : '';
     const themeName = J.appliedThemeName(rule?.lookTheme ?? S.project.lookTheme, S.project);
     const themeLabel = themeName ? ' · ' + J.layerText('基準テーマ：', 'Base theme: ') + themeName : '';
-    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel}` : J.layerText('（対象なし）', ' (no cue)'));
+    const label = J.layerText('字幕ガチャ', 'Subtitle draws') + (target ? ` #${target.index + 1} · ${randomLabel}${style}${mood ? ' / ' + mood : ''}${themeLabel} · ×${J.cueMotionPitch(S.project, target.index)}` : J.layerText('（対象なし）', ' (no cue)'));
     if ($('cueRollTarget').textContent !== label) { $('cueRollTarget').textContent = label; $('cueRollTarget').title = label; }
   }
   const cut = J.cutAt(S.plan, S.t);
@@ -879,7 +923,7 @@ function editLine(li, ln) {
 /* ---------------- 編集の取り消し（Ctrl+Z） ---------------- */
 // Global look changes and cue edits must share chronological undo. Otherwise
 // old per-cue snapshots can undo a later global palette/font change piecemeal.
-const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'lang', 'unify', 'typeset'];
+const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'motionPitch', 'motionPitchSetting', 'cuePitchSetting', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
 const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
@@ -1674,6 +1718,7 @@ function updateTap() {
 /* ---------------- sync all inputs from project ---------------- */
 function syncUI() {
   syncOmakaseThemes();
+  syncMotionPitchInputs();
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
   $('lyrics').value = S.project.lyrics;
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
@@ -1850,6 +1895,7 @@ function bind() {
   $('ePalette').addEventListener('click', () => { randomPalette(); restartPreview(); });
   $('eFullPalette').addEventListener('click', () => rerollAppearance('color'));
   $('eFonts').addEventListener('click', () => rerollAppearance('font'));
+  $('eMotionPitch').addEventListener('click', applyGlobalMotionPitch);
   // 利用について（出力物の権利・ライセンス）
   const dlg = $('termsDlg');
   const openTerms = () => {
@@ -1898,7 +1944,12 @@ function bind() {
     if (mode === 'random') {
       b.title = J.layerText('制約と過密を考慮して幅広く抽選。6で基礎設定へ戻す（Ctrl+Zで取り消し）', 'Draw broadly within compatibility and density limits. 6 returns to base settings (Ctrl+Z to undo).');
     }
-    $('cueRollButtons').append(b);
+    if (mode === 'pitch') {
+      const group = document.createElement('span'); group.className = 'cue-pitch-group';
+      b.title = J.layerText('隣の値を現在の字幕に適用。演出ピッチ以外はできるだけ維持', 'Apply the adjacent value to this cue, retaining its appearance and techniques where possible');
+      group.append(b, motionPitchInput('cuePitchValue', 'cuePitchSetting', J.layerText('字幕用', 'Cue value')));
+      $('cueRollButtons').append(group);
+    } else $('cueRollButtons').append(b);
   });
   document.addEventListener('keydown', e => {
     if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return;
@@ -1920,7 +1971,7 @@ function bind() {
     else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewLayout'); }
     else if (e.code === 'KeyP' && !e.shiftKey) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'reviewBackground'); }
     else if (!e.shiftKey && e.key === '9' && /^(Digit|Numpad)9$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, 'global'); }
-    else if (!e.shiftKey && /^[0-7]$/.test(e.key) && /^(Digit|Numpad)[0-7]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
+    else if (!e.shiftKey && /^[0-8]$/.test(e.key) && /^(Digit|Numpad)[0-8]$/.test(e.code)) { e.preventDefault(); if (!e.repeat) rerollCue(null, e.code.endsWith('0') ? 'random' : J.cueRerollModes[Number(e.code.slice(-1)) - 1][0]); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
@@ -2022,7 +2073,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
-  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';

@@ -52,15 +52,17 @@ J.paletteForStyle = (source, palette) => source.map((s,i) => {
   if (s.grad) result.grad = Array.isArray(d?.grad) && d.grad.length === 2 && d.grad.every(c => /^#[\da-f]{6}$/i.test(c)) ? copy(d.grad) : [result.accent, J.mix(result.accent, '#000000', .7)];
   return result;
 });
-J.drawRelatedPalette = (schemes, rng = Math.random) => {
-  // Rotate the whole system together. Retain its light/dark and saturation
-  // structure; small neutral tints also give monochrome packs a useful variant.
-  const turn = (45 + rng() * 80) * (rng() < .5 ? -1 : 1), neutralHue = rng() * 360;
+J.drawRelatedPalette = (schemes, rng = Math.random, previous = schemes[0]) => {
+  // Every native scheme can lead the palette, including light/dark variants.
+  // Keep native colors sometimes; otherwise rotate the color system together.
+  // Always start from the style definitions, so contrast repairs do not drift.
+  const native = rng() < .25, turn = native ? 0 : rng() * 360, neutralHue = rng() * 360;
   const shift = hex => {
+    if (native) return hex;
     const [h,s,l] = J.toHsl(hex);
     return J.hsl(s < .04 ? neutralHue : h + turn, s < .04 ? .07 : s, l);
   };
-  return schemes.map(s => {
+  const palette = schemes.map(s => {
     const d = { ...s };
     for (const k of colorKeys) if (s[k]) d[k] = shift(s[k]);
     if (s.grad) d.grad = s.grad.map(shift);
@@ -71,6 +73,14 @@ J.drawRelatedPalette = (schemes, rng = Math.random) => {
     if (s.ink === s.fg) d.ink = d.fg;
     return d;
   });
+  // Favor a visibly different main color instead of tiny near-black variations.
+  // The relative threshold also supports styles whose entire range is subdued.
+  const rgb = J.hex(previous.bg);
+  const distances = palette.map(s => Math.hypot(...J.hex(s.bg).map((v,i) => v - rgb[i])));
+  const threshold = Math.min(50, Math.max(...distances) * .5);
+  const candidates = distances.map((d,i) => d >= threshold ? i : -1).filter(i => i >= 0);
+  const first = pick(candidates, rng);
+  return palette.map((_,i) => palette[(first + i) % palette.length]);
 };
 const accentPalette = (schemes, colors) => schemes.map(s => {
   const d = { ...s, accent:J.fitContrast(colors.accent,s.bg,2.4), ghostA:J.fitContrast(colors.ghostA,s.bg,1.35), ghostB:J.fitContrast(colors.ghostB,s.bg,1.35) };
@@ -82,7 +92,7 @@ J.prepareGlobalAppearance = (p, current, audio, mode, rng = Math.random, accents
   if (!['color','font','accent'].includes(mode)) throw new Error('Unknown appearance draw');
   const next = copy(p), style = J.resolveStyle(p);
   const fonts = mode === 'font' ? J.drawFontRoles(p, style, rng, true) : null;
-  const palette = mode === 'color' ? J.drawRelatedPalette(style.schemes, rng) : null;
+  const palette = mode === 'color' ? J.drawRelatedPalette((J.STYLES[p.style] || J.STYLES.noir).schemes, rng, style.schemes[0]) : null;
   J.captureLocalLooks(next, current, audio);
   if (fonts) next.fonts = { ...next.fonts, ...fonts };
   else if (mode === 'accent') next.colors = { ...next.colors, ...accents, accentOn:true };
