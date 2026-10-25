@@ -161,6 +161,9 @@ J.NativeSpectrumReader = class {
       ctx.fillRect(rect.x + cell * (i + .225), rect.y + rect.height - height, cell * .55, height);
     }
     const pixels = ctx.getImageData(0, 0, this.w, this.h).data;
+    // Keep Canvas coverage and straight RGB; flattening before making the edge
+    // opaque baked a black fringe into the spectrum even in Alpha mode.
+    if (this.mode === 'alpha') return J.alphaLayerPixels(pixels);
     // Preserve intentional black bars as 030303; empty pixels stay RGB=0/alpha=0.
     for (let i = 0; i < pixels.length; i += 4) {
       if (!pixels[i + 3]) continue;
@@ -174,8 +177,12 @@ J.NativeSpectrumReader = class {
   async pixels(t, signal, layout) { aborted(signal); return this.framePixels(t, layout); }
   async close() {}
 };
-J.createSpectrumReader = (spectrum, w, h, t0, fps, total, signal) => spectrum.kind === 'generated'
-  ? Promise.resolve(new J.NativeSpectrumReader(spectrum, w, h))
-  : J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+J.createSpectrumReader = async (spectrum, w, h, t0, fps, total, signal, mode = 'binary') => {
+  const reader = spectrum.kind === 'generated'
+    ? new J.NativeSpectrumReader(spectrum, w, h)
+    : await J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+  reader.mode = J.normalizeLayerMode(mode);
+  return reader;
+};
 J.spectrumSourceDuration = s => s?.kind === 'generated' ? s.data.duration : s ? J.spectrumDuration(s.front, s.matte) : 0;
 })();

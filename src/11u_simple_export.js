@@ -189,7 +189,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
     let reader = null, backgroundReader = null, encoder = null, error = null, count = 0, audioPhase = false;
     try {
       abort(signal);
-      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal, project.layerMode);
       if (background?.video) backgroundReader = await J.VideoBackgroundReader.create(background, span, fps, signal);
       const target = new Mp4Muxer.ArrayBufferTarget(), mux = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: w, height: h, frameRate: fps },
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });

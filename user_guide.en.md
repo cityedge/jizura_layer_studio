@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.5.1 User Manual
+# JIZURA Layer Studio v1.5.2 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.5.1. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.5.2. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -233,7 +233,9 @@ Speed affects preview only: MP4 speed, duration and audio, cue times, and beat a
 
 Legacy 1×, at the bottom of the menu, plays decoded audio through the original Web Audio path at normal speed. Select it manually if standard playback behaves poorly. Switching during playback retains the current position, with a possible brief audio gap. A standard-player loading/playback failure, or a 10-second startup timeout, automatically switches to Legacy 1× and displays a message. This also changes slow playback to normal speed. If legacy playback fails too, playback stops. Select a regular speed to return to the standard player. Tap sync retains the legacy engine if selected.
 
-The loop button cycles through whole piece → line → cut → off. Line looping repeats that line's cut interval; cut looping repeats the current cut. Use these while refining one moment.
+Looping defaults to Off. The button cycles through off → whole piece → line → cut → off. The choice is saved in browser localStorage and restored on startup, separate from project JSON and preserved by Reset project. If storage is unavailable, each startup uses Off. Line looping repeats that line's cut interval; cut looping repeats the current cut.
+
+Whole-piece looping plays to the end of the loaded audio and returns to zero, including lyric-free intros and outros. Without audio it uses the animation duration. The seek slider and timeline cover whichever is longer: audio or animation. Animations extending beyond the song remain accessible with looping off or with line/cut loops; whole-piece looping still returns at the song's end.
 
 | Timeline action | Result |
 |---|---|
@@ -276,7 +278,7 @@ This applies to backgrounds, transitions and post effects, including text or for
 
 Color mixtures interpolate both premultiplied color and opacity. At the default setting, mixing the 40%-opaque background color with opaque text color gives about 45% opacity at a 9% text-color ratio, or 52% at 20%. Fades and gradient opacity multiply the result, while overlapping fills can become more opaque. This does not set a fixed opacity for the entire finished frame. At 0%, mixed text/accent color contributions remain; at 100%, the effect's own fades still apply.
 
-Spectra remain binary in both modes. Their visible bars are opaque; translucent subtitles blend over them. Exterior bloom removal remains active. Background-dependent blend effects are not guaranteed to reproduce every original JIZURA result exactly.
+In Alpha mode, native spectrum interiors remain opaque while antialiased edges retain coverage. External spectra use grayscale matte coverage and recover straight RGB from the black-backed front. External video without a matte and Binary mode retain the previous processing. This does not reconstruct black outlines already baked into a video. Translucent subtitles blend over spectra. Exterior bloom removal remains active.
 
 This does not change the opacity of imported background media. See [Exporting MP4](#exporting-mp4) for layer files and [Compositing in a video editor](#compositing-in-a-video-editor) for blending them. Simple video export performs the opacity-aware composition inside this app.
 
@@ -719,10 +721,10 @@ The app matches the `_matte_dark` naming convention among the files you actually
 | Loaded media | Behavior |
 |---|---|
 | Front only | Exact RGB 000000 becomes transparent; nearby black values remain |
-| Front + matte | Dark matte regions are opaque, except exact black front pixels remain transparent |
+| Front + matte | Binary uses dark matte regions except RGB-zero front pixels; Alpha uses continuous matte coverage |
 | Matte only | Nothing is composited |
 
-Input matte RGB average below 128 is treated as opaque. Match front/matte dimensions and durations. Use nonzero colors for meaningful black spectrum artwork.
+Binary mode treats input matte RGB average below 128 as opaque, except RGB-zero front pixels. Alpha uses continuous coverage (1 − matte / 255) and unpremultiplies the black-backed front RGB, preserving black artwork with nonzero coverage. Match front/matte dimensions and durations.
 
 Subtitles appear in front of the spectrum. Both use time zero; nothing is shown after the spectrum ends. There is no spectrum offset or trimming control, so prepare shifted material externally.
 
@@ -974,6 +976,7 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | The full motion library | No; use dedicated library JSON export/import |
 | Simple video duration, audio inclusion, title text/formatting/interval/fades | Yes |
 | Preview speed | No; starts at 1× |
+| Preview loop mode (Off/whole piece/line/cut) | No; stored as a browser preference, initially Off |
 | Audio/background/spectrum media binaries | No |
 | PC font binaries | No |
 | Durable undo/look history or rendered MP4 files | No |
@@ -989,9 +992,9 @@ Autosave depends on origin, browser/profile and local-file location. Clearing br
 | Lyrics, SRT, fillers, parts and project name | Clear |
 | Effects, local choices, locks, key 9 baseline, spectrum/opacity/export/title settings | Restore defaults |
 | Loaded audio, backgrounds, external spectra and analysis data | Release; ignore pending load results |
-| Playhead, speed, loop, look history, edit Undo/Redo, temporary download links | Reset |
+| Playhead, speed, look history, edit Undo/Redo, temporary download links | Reset |
 | Shared libraries, including user themes | **Keep**; delete items in their management screens |
-| Interface language, display mode and preview volume | Keep |
+| Interface language, display mode, preview volume and loop mode | Keep |
 | Original media, saved JSON and exported videos on your PC | Leave untouched |
 
 Applied project settings and baselines are cleared; their shared library items remain. This is separate from clearing site data in browser settings.

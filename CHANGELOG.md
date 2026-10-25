@@ -1,3 +1,14 @@
+## 1.5.2 — 2026-10-25
+
+- プレビューループの初期値をOFFに変更。OFF・全体・行・カットの選択をブラウザのlocalStorageに保存し、次回起動時に復元。プロジェクトJSONには含めず、プロジェクト初期化でも保持。日英マニュアル・利用ガイドを更新。
+- Default preview looping to Off. Remember Off/whole-piece/line/cut in browser localStorage and restore on startup. Keep this preference across project resets, separate from project JSON. Update both manuals and in-app guides.
+
+- 全体プレビューループを音源の終了時刻で折り返すよう修正。SRTの最終字幕に終端を制限せず、字幕のない後奏まで再生して0秒へ戻る。シークバー・タイムラインも曲全体に対応し、行／カットループと出力時間は維持。
+- Loop the entire preview song through lyric-free outros and return to zero, instead of stopping at the final SRT cue. Extend preview seeking/timeline coverage to the full song; retain line/cut loops and export timing.
+
+- 半透明モードの内製スペアナで、縁のアンチエイリアスを不透明な黒混じりの画素に変換せず、元の透明度を保持。外部スペアナはマットのグレーを保持し、黒背景に合成済みの色を補正。プレビュー・簡易動画・フロント／マット出力に共通で反映。二値モードは従来の処理を保持。
+- Preserve native spectrum edge coverage in Alpha mode instead of baking dark opaque fringes. Retain external grayscale matte coverage and unpremultiply its black-backed front RGB. Apply consistently to previews, simple videos and front/matte exports; retain Binary behavior.
+
 ## 1.5.1 — 2026-10-06
 
 - 演出ピッチ（×0.3〜×1.2、0.1刻み、初期値×1.0）を追加。全体のおまかせ・ここだけ変える、字幕8＋独立した数値入力に対応。仮想時間で生成・描画し、字幕時刻・素材・拍を保持。ロック・個別ガチャ・JSON・履歴・ライブラリに対応し、日英マニュアル本文と利用ガイドを更新。

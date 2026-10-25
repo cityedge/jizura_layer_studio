@@ -80,6 +80,7 @@ J.drawNativeSpectrumPixels = (w, h, t) => {
   if (!ready()) return null;
   if (!previewReader || previewReader.w !== w || previewReader.h !== h || previewReader.spectrum.data !== state.data)
     previewReader = new J.NativeSpectrumReader({ data: state.data, settings: J.ui.project.nativeSpectrum }, w, h);
+  previewReader.mode = J.normalizeLayerMode(J.ui.project.layerMode);
   return previewReader.framePixels(t, J.ui.project.spectrumLayout, J.ui.project.nativeSpectrum);
 };
 J.mountNativeSpectrumUI = panel => {

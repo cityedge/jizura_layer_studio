@@ -6,6 +6,7 @@
 if (!document.getElementById('app')) return;          // engine-only pages (tests)
 const $ = id => document.getElementById(id);
 const LS_KEY = 'jizura.layers.project.v1';
+const LOOP_KEY = 'jizura.previewLoop';
 const HUD_CHARS = '0123456789:./-_()【】・No.LYRICRECUNTITLEDXYlinebpminterlude—─／ ';
 const ICON = {
   dice: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="10.5" cy="10.5" r="1" fill="currentColor"/><circle cx="10.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="10.5" r="1" fill="currentColor"/></svg>',
@@ -15,16 +16,30 @@ const ICON = {
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: false, loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
+function initLoop() {
+  S.loop = false;
+  try {
+    const saved = localStorage.getItem(LOOP_KEY);
+    if (saved && LOOP_CYCLE.includes(saved)) S.loop = saved;
+  } catch (_) {} // Storage may be disabled; keep the safe first-run default.
+}
 let cueRerollHold = null;
 const LOOP_COPY = {
-  all:  { ja: 'ループ', en: 'Loop', titleJa: '全体を繰り返し', titleEn: 'Loop the whole piece' },
+  all:  { ja: 'ループ', en: 'Loop', titleJa: '曲の最後まで再生して0秒から繰り返し（音源なしでは演出の最後まで）', titleEn: 'Loop the song from zero to its end (use the animation end without audio)' },
   line: { ja: '行ループ', en: 'Line loop', titleJa: 'この行を繰り返し', titleEn: 'Loop this line' },
   cut:  { ja: 'カットループ', en: 'Cut loop', titleJa: 'このカットを繰り返し', titleEn: 'Loop this cut' },
   off:  { ja: 'ループ', en: 'Loop', titleJa: '繰り返しなし', titleEn: 'No loop' },
 };
 const isEn = () => document.documentElement.lang === 'en';
+function audioDuration() {
+  const d = S.audio?.duration;
+  return Number.isFinite(d) && d > 0 ? d : 0;
+}
+// Keep planning/export timing intact, but make the entire song reachable in preview.
+// Retain any cues beyond the audio for manual seeking and line/cut inspection.
+function previewDuration() { return Math.max(S.plan.duration, audioDuration()); }
 function cutAround(t) {
   const c = J.cutAt(S.plan, t);
   if (c) return c;
@@ -35,7 +50,7 @@ function cutAround(t) {
 }
 function loopRange(t) {
   const T = t != null ? t : S.t;
-  const endAll = S.plan.duration;
+  const endAll = S.loop === 'all' && audioDuration() ? audioDuration() : previewDuration();
   if (S.loop === 'cut') {
     const cut = cutAround(T);
     return cut ? { start: cut.start, end: cut.end } : { start: 0, end: endAll };
@@ -50,7 +65,7 @@ function loopRange(t) {
   return { start: 0, end: endAll };
 }
 function refreshLoopHold(t) {
-  S.loopHold = (S.loop === 'line' || S.loop === 'cut') ? loopRange(t != null ? t : S.t) : null;
+  S.loopHold = S.plan && (S.loop === 'line' || S.loop === 'cut') ? loopRange(t != null ? t : S.t) : null;
 }
 function activeLoopRange() {
   if ((S.loop === 'line' || S.loop === 'cut') && S.loopHold) return S.loopHold;
@@ -286,7 +301,7 @@ function replan() {
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
   langNote();
-  if (S.t > S.plan.duration) S.t = 0;
+  if (S.t > previewDuration()) S.t = 0;
   refreshLoopHold();
   renderLines(); sizeViewport(); drawTimeline(); updateTimeUI();
   lastCutIdx = -2;
@@ -385,7 +400,7 @@ function tick(now) {
     const range = activeLoopRange();
     if (t >= range.end - 1e-3) {
       if (S.loop && !S.tap) { seek(range.start); t = range.start; }
-      else { pause(); t = Math.min(t, S.plan.duration - 1e-3); if (S.tap) stopTap(); }
+      else { pause(); t = Math.min(t, range.end - 1e-3); if (S.tap) stopTap(); }
     }
     S.t = t; S.need = true;
     followTlPlayhead();
@@ -394,8 +409,8 @@ function tick(now) {
 }
 function updateTimeUI() {
   $('timeNow').textContent = J.fmtTime(S.t);
-  $('timeDur').textContent = J.fmtTime(S.plan.duration);
-  if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, S.plan.duration) * 10000));
+  $('timeDur').textContent = J.fmtTime(previewDuration());
+  if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, previewDuration()) * 10000));
 }
 function play() {
   refreshLoopHold();
@@ -411,7 +426,7 @@ function pause() {
 }
 function seek(t, keepCueTarget = false) {
   if (!keepCueTarget) cueRerollHold = null;
-  S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
+  S.t = J.clamp(t, 0, Math.max(0, previewDuration() - 1e-3));
   if (S.audio) { if (S.playing) AP.play(S.t, S.previewRate, S.previewEngine); }
   else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   refreshLoopHold();
@@ -449,7 +464,7 @@ const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
   if (TL.dragView) return TL.dragView;
-  const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
+  const D = Math.max(0.001, previewDuration()), vd = D / TL.z;
   TL.off = J.clamp(TL.off, 0, Math.max(0, D - vd));
   return { D, vd, off: TL.off };
 }
@@ -970,7 +985,7 @@ async function resetAll() {
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0; TL.drag = -1; TL.dragView = null;
-  S.loop = 'all'; S.loopHold = null; cueRerollHold = null; syncLoopBtn();
+  S.loopHold = null; cueRerollHold = null; syncLoopBtn();
   if ($('fileProject')) $('fileProject').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
@@ -1767,11 +1782,12 @@ function bind() {
   $('btnLoop').addEventListener('click', () => {
     const i = LOOP_CYCLE.indexOf(S.loop);
     S.loop = LOOP_CYCLE[(i < 0 ? 0 : i + 1) % LOOP_CYCLE.length];
+    try { localStorage.setItem(LOOP_KEY, S.loop || 'off'); } catch (_) {}
     syncLoopBtn(); S.need = true;
   });
   $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
   const sc = $('scrub');
-  sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
+  sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * previewDuration()); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
   let drag = false, raf = 0, pendingDrag = null;
@@ -2073,6 +2089,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
+  initLoop();
   bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode

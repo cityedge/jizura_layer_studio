@@ -41,6 +41,7 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
+      spectrumPreview.mode = mode;
       pixels = J.composeLayerPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels, mode);
     }
   }

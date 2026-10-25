@@ -215,6 +215,19 @@ J.binaryPixels = (rgba, matte = null) => {
   }
   return out;
 };
+// External front RGB is already flattened against black. Recover straight RGB
+// using its inverse matte so source-over does not multiply edge coverage twice.
+J.spectrumAlphaPixels = (rgba, matte) => {
+  if (!matte) return J.binaryPixels(rgba);
+  const out = new Uint8ClampedArray(rgba.length);
+  for (let i = 0; i < rgba.length; i += 4) {
+    const alpha = Math.round(255 - (matte[i] + matte[i + 1] + matte[i + 2]) / 3);
+    if (!alpha) continue;
+    for (let k = 0; k < 3; k++) out[i + k] = Math.round(rgba[i + k] * 255 / alpha);
+    out[i + 3] = alpha;
+  }
+  return out;
+};
 J.overPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
   for (let i = 0; i < front.length; i += 4) if (front[i + 3]) {
@@ -222,7 +235,7 @@ J.overPixels = (back, front) => {
   }
   return out;
 };
-// Source-over in straight RGBA. Binary spectra remain opaque wherever present.
+// Source-over in straight RGBA, including antialiased spectrum edges.
 J.alphaOverPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
   for (let i = 0; i < front.length; i += 4) {
@@ -383,7 +396,9 @@ J.SpectrumReader = class {
       if (matteSample) matteSample.draw(b, r.x, r.y, r.width, r.height);
       else b.drawImage(this.matte.el, r.x, r.y, r.width, r.height);
     }
-    return J.binaryPixels(a.getImageData(0, 0, this.w, this.h).data, this.matte ? b.getImageData(0, 0, this.w, this.h).data : null);
+    const rgba = a.getImageData(0, 0, this.w, this.h).data;
+    const matte = this.matte ? b.getImageData(0, 0, this.w, this.h).data : null;
+    return this.mode === 'alpha' ? J.spectrumAlphaPixels(rgba, matte) : J.binaryPixels(rgba, matte);
   }
   async pixels(t, signal, layout) {
     if (t < 0 || t >= J.spectrumDuration(this.front, this.matte)) return new Uint8ClampedArray(this.w * this.h * 4);
@@ -406,7 +421,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     const writers = [];
     let reader = null;
     try {
-      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal, project.layerMode);
       for (const name of frontOnly ? ['front'] : ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
