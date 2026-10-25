@@ -663,7 +663,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.1</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.2</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -745,7 +745,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
         <button id="btnPlay" class="play" aria-label="Play">▶</button>
         <span id="timeNow" class="tc">00:00.00</span><span class="tc muted">/</span><span id="timeDur" class="tc muted">00:00.00</span>
         <input id="scrub" type="range" min="0" max="10000" value="0" aria-label="Playback position">
-        <button id="btnLoop" class="ghost small" aria-pressed="true" title="Loop the whole piece">Loop</button>
+        <button id="btnLoop" class="ghost small" aria-pressed="false" title="No loop">Loop</button>
         <span class="vol"><button id="btnMute" class="ghost small" aria-pressed="false" title="Click to mute / unmute (preview only — exports keep the original level)">Vol</button><input id="vol" type="range" min="0" max="100" value="80" aria-label="Preview volume"></span>
         <span class="hist-btns">
           <button id="btnPrev" class="ghost small icon-txt" title="Previous variation" aria-label="Previous">◀</button>
@@ -938,14 +938,14 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
       <li>Playhead, look history, edit Undo/Redo and temporary export download links</li>
     </ul>
     <p><strong>Shared libraries are kept.</strong> User themes and other data used across projects are not deleted.</p>
-    <p class="terms-sub">Interface language, display mode and preview volume are kept. Original media, saved JSON and exported videos on your PC are not deleted. Browser autosave is replaced with the blank project.</p>
+    <p class="terms-sub">Interface language, display mode, preview volume and loop mode are kept. Original media, saved JSON and exported videos on your PC are not deleted. Browser autosave is replaced with the blank project.</p>
     <div class="terms-foot"><span></span><span class="row"><button value="cancel" class="ghost">Cancel</button><button value="reset" class="danger">Reset project</button></span></div>
   </form>
 </dialog>
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.1</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.2</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1427,7 +1427,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio user guide</h2>
     <p>Create animated lyrics and export a finished video with background/audio, or front/matte layers for a video editor.</p>
-    <p><a class="full-manual" href="user_guide.en.md" target="_blank" rel="noopener">v1.5.1 Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
+    <p><a class="full-manual" href="user_guide.en.md" target="_blank" rel="noopener">v1.5.2 Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
     <h3>Make your first video</h3>
     <ol class="guide-steps">
       <li><strong>Load lyrics and media</strong><p>Import a UTF-8 SRT, audio and a preview background (image/video). You can also type lyrics without SRT. To resume a project, open its JSON and reload only the media. Reimporting SRT replaces restored cues, fillers and local effects.</p></li>
@@ -1472,6 +1472,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Add fillers generates placeholders in SRT gaps. Defaults are a 5s threshold, 0.3s pre-gap and 0.5s post-gap: normally a gap of at least 5.8s. Default weights are Whitespace 3, Lyrics 8, Timestamp 2, Symbols 1 and Custom text 0. All-zero weights, or enabled positive-weight Custom text with no text, are errors.</p>
     <p><code>[timestamp]</code> follows the cue's start time. Regeneration replaces edited fillers too, but retains normal cues. Cue edits, parts and fillers support Undo and JSON. Original SRT files remain unchanged. Tap sync is available only without SRT.</p>
     <h3>Preview and fonts</h3>
+    <p>Looping defaults to Off. Off/whole-piece/line/cut is remembered in browser storage, restored on startup and kept by Reset project, separate from project JSON. Whole-piece looping plays to the song's end and returns to zero, including lyric-free intros/outros. Without audio, it uses the animation end. Line/cut loops repeat only their selected interval.</p>
     <p>Space: play/pause. Left/right: 2 seconds. Shift-left/right: cue navigation. A/D: one frame; Shift-A/D: one second. R: global Auto-compose. Ordinary shortcuts do not run in inputs or dialogs.</p>
     <p>Preview rates are 1×, 0.8×, 2/3× and 0.5×, with pitch preservation; exports keep their original speed. Use Legacy 1× if audio is unstable. Playback failures also fall back to it. Global draws seek to 0.5s before the first cue. Local draws seek 0.3s before the target when playing, or to its start when paused.</p>
     <p>On desktop, scroll the whole center pane. Changing card counts preserves preview size and scroll position. Phone mode scrolls the page.</p>
@@ -1481,7 +1482,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Reset to defaults restores white at both ends, +8dB sensitivity, 100% pulse and 140ms return time, keeping position, scale and frequency range. External video accepts the front and matching <code>_matte_dark.mp4</code> together. Without a matte, only RGB 000000 is transparent.</p>
     <p>Default width is 65% of the frame, with 3% left/bottom margins. Subtitles are in front; spectrum motion is independent of subtitle cadence. <a href="https://github.com/cityedge/audio-spectrum-overlay-maker" target="_blank" rel="noopener noreferrer">Audio Spectrum Overlay Maker</a> can create external spectrum footage.</p>
     <h3>Opacity and exports</h3>
-    <p>Binary (legacy) / Alpha (grayscale matte) applies to preview and every export. Spectra remain binary. In Alpha mode, Background color opacity ranges from 0–100%, default 40%, and follows background-color references in shapes, text and mixtures. Mixed text colors can remain at 0%; overlaps can increase opacity. Exterior bloom is removed automatically.</p>
+    <p>Binary (legacy) / Alpha (grayscale matte) applies to preview and every export. Alpha preserves native spectrum edge coverage and external grayscale mattes. External video without a matte retains the previous processing. In Alpha mode, Background color opacity ranges from 0–100%, default 40%, and follows background-color references in shapes, text and mixtures. Mixed text colors can remain at 0%; overlaps can increase opacity. Exterior bloom is removed automatically.</p>
     <p><strong>Simple video MP4:</strong> Composite background, spectrum, subtitles and audio into one file. Simple video settings holds duration, audio exclusion and title. Duration follows the longest material when materials change and remains manually editable. Excluded audio still counts toward duration. Video backgrounds hold their last frame after ending; their own audio is not used.</p>
     <p>Show a title throughout or between start/end seconds. Set font, bold/italic, size in 0.5% steps, color, outline, position and translucent black backing. Optional one-second fades shorten for brief intervals. Title text is foremost; backing sits above the background and below subtitles/spectrum. Titles appear only in composite preview and simple exports.</p>
     <p><strong>Matte + front:</strong> Save two silent MP4s with subtitles and spectrum, excluding background media, audio and title. Allow multiple downloads or use the individual save links after export.</p>
@@ -1494,7 +1495,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p><strong>Reset project</strong> clears current lyrics, fillers, parts, effects, locks, loaded media, spectrum/opacity/export/title settings, playhead and histories. Temporary export links are removed and autosave becomes the blank project. This cannot be undone after confirmation.</p>
     <p><strong>Shared libraries are kept.</strong> User themes and other cross-project data, interface language, display mode and preview volume remain. Original media, saved JSON and exported files on your PC are not deleted. Delete shared items in their own management screens.</p>
     <p>About / rights is at the bottom of the right pane, with license and material-handling information.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.1</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.2</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -4515,7 +4516,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.5.1', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.5.2', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -37143,6 +37144,19 @@ J.binaryPixels = (rgba, matte = null) => {
   }
   return out;
 };
+// External front RGB is already flattened against black. Recover straight RGB
+// using its inverse matte so source-over does not multiply edge coverage twice.
+J.spectrumAlphaPixels = (rgba, matte) => {
+  if (!matte) return J.binaryPixels(rgba);
+  const out = new Uint8ClampedArray(rgba.length);
+  for (let i = 0; i < rgba.length; i += 4) {
+    const alpha = Math.round(255 - (matte[i] + matte[i + 1] + matte[i + 2]) / 3);
+    if (!alpha) continue;
+    for (let k = 0; k < 3; k++) out[i + k] = Math.round(rgba[i + k] * 255 / alpha);
+    out[i + 3] = alpha;
+  }
+  return out;
+};
 J.overPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
   for (let i = 0; i < front.length; i += 4) if (front[i + 3]) {
@@ -37150,7 +37164,7 @@ J.overPixels = (back, front) => {
   }
   return out;
 };
-// Source-over in straight RGBA. Binary spectra remain opaque wherever present.
+// Source-over in straight RGBA, including antialiased spectrum edges.
 J.alphaOverPixels = (back, front) => {
   const out = new Uint8ClampedArray(back);
   for (let i = 0; i < front.length; i += 4) {
@@ -37311,7 +37325,9 @@ J.SpectrumReader = class {
       if (matteSample) matteSample.draw(b, r.x, r.y, r.width, r.height);
       else b.drawImage(this.matte.el, r.x, r.y, r.width, r.height);
     }
-    return J.binaryPixels(a.getImageData(0, 0, this.w, this.h).data, this.matte ? b.getImageData(0, 0, this.w, this.h).data : null);
+    const rgba = a.getImageData(0, 0, this.w, this.h).data;
+    const matte = this.matte ? b.getImageData(0, 0, this.w, this.h).data : null;
+    return this.mode === 'alpha' ? J.spectrumAlphaPixels(rgba, matte) : J.binaryPixels(rgba, matte);
   }
   async pixels(t, signal, layout) {
     if (t < 0 || t >= J.spectrumDuration(this.front, this.matte)) return new Uint8ClampedArray(this.w * this.h * 4);
@@ -37334,7 +37350,7 @@ J.exportLayerPair = async ({ plan, project, spectrum = null, range = null, signa
     const writers = [];
     let reader = null;
     try {
-      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, t0, fps, total, signal, project.layerMode);
       for (const name of frontOnly ? ['front'] : ['front', 'matte']) {
         const target = new Mp4Muxer.ArrayBufferTarget();
         const mux = new Mp4Muxer.Muxer({ target, video: { codec: codec.mux, width: w, height: h, frameRate: fps }, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
@@ -37888,7 +37904,7 @@ J.exportSimpleVideo = async ({ plan, project, background = null, spectrum = null
     let reader = null, backgroundReader = null, encoder = null, error = null, count = 0, audioPhase = false;
     try {
       abort(signal);
-      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal);
+      if (spectrum) reader = await J.createSpectrumReader(spectrum, w, h, span.t0, fps, span.frames, signal, project.layerMode);
       if (background?.video) backgroundReader = await J.VideoBackgroundReader.create(background, span, fps, signal);
       const target = new Mp4Muxer.ArrayBufferTarget(), mux = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: w, height: h, frameRate: fps },
         ...(audioConfig ? { audio: { codec: 'aac', sampleRate: audioConfig.sampleRate, numberOfChannels: audioConfig.numberOfChannels } } : {}), fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
@@ -38097,6 +38113,9 @@ J.NativeSpectrumReader = class {
       ctx.fillRect(rect.x + cell * (i + .225), rect.y + rect.height - height, cell * .55, height);
     }
     const pixels = ctx.getImageData(0, 0, this.w, this.h).data;
+    // Keep Canvas coverage and straight RGB; flattening before making the edge
+    // opaque baked a black fringe into the spectrum even in Alpha mode.
+    if (this.mode === 'alpha') return J.alphaLayerPixels(pixels);
     // Preserve intentional black bars as 030303; empty pixels stay RGB=0/alpha=0.
     for (let i = 0; i < pixels.length; i += 4) {
       if (!pixels[i + 3]) continue;
@@ -38110,9 +38129,13 @@ J.NativeSpectrumReader = class {
   async pixels(t, signal, layout) { aborted(signal); return this.framePixels(t, layout); }
   async close() {}
 };
-J.createSpectrumReader = (spectrum, w, h, t0, fps, total, signal) => spectrum.kind === 'generated'
-  ? Promise.resolve(new J.NativeSpectrumReader(spectrum, w, h))
-  : J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+J.createSpectrumReader = async (spectrum, w, h, t0, fps, total, signal, mode = 'binary') => {
+  const reader = spectrum.kind === 'generated'
+    ? new J.NativeSpectrumReader(spectrum, w, h)
+    : await J.DecodedSpectrumReader.create(spectrum.front, spectrum.matte, w, h, t0, fps, total, signal);
+  reader.mode = J.normalizeLayerMode(mode);
+  return reader;
+};
 J.spectrumSourceDuration = s => s?.kind === 'generated' ? s.data.duration : s ? J.spectrumDuration(s.front, s.matte) : 0;
 })();
 
@@ -39476,6 +39499,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => mode === 'pitc
 if (!document.getElementById('app')) return;          // engine-only pages (tests)
 const $ = id => document.getElementById(id);
 const LS_KEY = 'jizura.layers.project.v1';
+const LOOP_KEY = 'jizura.previewLoop';
 const HUD_CHARS = '0123456789:./-_()【】 · No.LYRICRECUNTITLEDXYlinebpminterlude—─／ ';
 const ICON = {
   dice: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="10.5" cy="10.5" r="1" fill="currentColor"/><circle cx="10.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="10.5" r="1" fill="currentColor"/></svg>',
@@ -39485,16 +39509,30 @@ const ICON = {
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, previewRate: 1, previewEngine: 'media', t: 0, t0: 0, loop: false, loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
+function initLoop() {
+  S.loop = false;
+  try {
+    const saved = localStorage.getItem(LOOP_KEY);
+    if (saved && LOOP_CYCLE.includes(saved)) S.loop = saved;
+  } catch (_) {} // Storage may be disabled; keep the safe first-run default.
+}
 let cueRerollHold = null;
 const LOOP_COPY = {
-  all:  { ja: 'Loop', en: 'Loop', titleJa: 'Loop the whole piece', titleEn: 'Loop the whole piece' },
+  all:  { ja: 'Loop', en: 'Loop', titleJa: '曲の最後までPlayして0sから繰り返し（音源NoneではEffectsの最後まで）', titleEn: 'Loop the song from zero to its end (use the animation end without audio)' },
   line: { ja: 'Line loop', en: 'Line loop', titleJa: 'Loop this line', titleEn: 'Loop this line' },
   cut:  { ja: 'Cut loop', en: 'Cut loop', titleJa: 'Loop this cut', titleEn: 'Loop this cut' },
   off:  { ja: 'Loop', en: 'Loop', titleJa: 'No loop', titleEn: 'No loop' },
 };
 const isEn = () => document.documentElement.lang === 'en';
+function audioDuration() {
+  const d = S.audio?.duration;
+  return Number.isFinite(d) && d > 0 ? d : 0;
+}
+// Keep planning/export timing intact, but make the entire song reachable in preview.
+// Retain any cues beyond the audio for manual seeking and line/cut inspection.
+function previewDuration() { return Math.max(S.plan.duration, audioDuration()); }
 function cutAround(t) {
   const c = J.cutAt(S.plan, t);
   if (c) return c;
@@ -39505,7 +39543,7 @@ function cutAround(t) {
 }
 function loopRange(t) {
   const T = t != null ? t : S.t;
-  const endAll = S.plan.duration;
+  const endAll = S.loop === 'all' && audioDuration() ? audioDuration() : previewDuration();
   if (S.loop === 'cut') {
     const cut = cutAround(T);
     return cut ? { start: cut.start, end: cut.end } : { start: 0, end: endAll };
@@ -39520,7 +39558,7 @@ function loopRange(t) {
   return { start: 0, end: endAll };
 }
 function refreshLoopHold(t) {
-  S.loopHold = (S.loop === 'line' || S.loop === 'cut') ? loopRange(t != null ? t : S.t) : null;
+  S.loopHold = S.plan && (S.loop === 'line' || S.loop === 'cut') ? loopRange(t != null ? t : S.t) : null;
 }
 function activeLoopRange() {
   if ((S.loop === 'line' || S.loop === 'cut') && S.loopHold) return S.loopHold;
@@ -39756,7 +39794,7 @@ function replan() {
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
   langNote();
-  if (S.t > S.plan.duration) S.t = 0;
+  if (S.t > previewDuration()) S.t = 0;
   refreshLoopHold();
   renderLines(); sizeViewport(); drawTimeline(); updateTimeUI();
   lastCutIdx = -2;
@@ -39855,7 +39893,7 @@ function tick(now) {
     const range = activeLoopRange();
     if (t >= range.end - 1e-3) {
       if (S.loop && !S.tap) { seek(range.start); t = range.start; }
-      else { pause(); t = Math.min(t, S.plan.duration - 1e-3); if (S.tap) stopTap(); }
+      else { pause(); t = Math.min(t, range.end - 1e-3); if (S.tap) stopTap(); }
     }
     S.t = t; S.need = true;
     followTlPlayhead();
@@ -39864,8 +39902,8 @@ function tick(now) {
 }
 function updateTimeUI() {
   $('timeNow').textContent = J.fmtTime(S.t);
-  $('timeDur').textContent = J.fmtTime(S.plan.duration);
-  if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, S.plan.duration) * 10000));
+  $('timeDur').textContent = J.fmtTime(previewDuration());
+  if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, previewDuration()) * 10000));
 }
 function play() {
   refreshLoopHold();
@@ -39881,7 +39919,7 @@ function pause() {
 }
 function seek(t, keepCueTarget = false) {
   if (!keepCueTarget) cueRerollHold = null;
-  S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
+  S.t = J.clamp(t, 0, Math.max(0, previewDuration() - 1e-3));
   if (S.audio) { if (S.playing) AP.play(S.t, S.previewRate, S.previewEngine); }
   else S.t0 = performance.now() - S.t * 1000 / S.previewRate;
   refreshLoopHold();
@@ -39919,7 +39957,7 @@ const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
   if (TL.dragView) return TL.dragView;
-  const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
+  const D = Math.max(0.001, previewDuration()), vd = D / TL.z;
   TL.off = J.clamp(TL.off, 0, Math.max(0, D - vd));
   return { D, vd, off: TL.off };
 }
@@ -40440,7 +40478,7 @@ async function resetAll() {
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0; TL.drag = -1; TL.dragView = null;
-  S.loop = 'all'; S.loopHold = null; cueRerollHold = null; syncLoopBtn();
+  S.loopHold = null; cueRerollHold = null; syncLoopBtn();
   if ($('fileProject')) $('fileProject').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
@@ -41237,11 +41275,12 @@ function bind() {
   $('btnLoop').addEventListener('click', () => {
     const i = LOOP_CYCLE.indexOf(S.loop);
     S.loop = LOOP_CYCLE[(i < 0 ? 0 : i + 1) % LOOP_CYCLE.length];
+    try { localStorage.setItem(LOOP_KEY, S.loop || 'off'); } catch (_) {}
     syncLoopBtn(); S.need = true;
   });
   $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
   const sc = $('scrub');
-  sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
+  sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * previewDuration()); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
   let drag = false, raf = 0, pendingDrag = null;
@@ -41375,7 +41414,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.1' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.2' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -41543,6 +41582,7 @@ function warnLegacyFonts() {
 function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
+  initLoop();
   bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
@@ -41618,6 +41658,7 @@ J.drawLayerPreview = (ctx, plan, t, opt) => {
     if (!spectrumPreview || spectrumPreview.front !== session.front || spectrumPreview.matte !== session.matte)
       spectrumPreview = new J.SpectrumReader(session.front, session.matte, w, h);
     if (session.front.el.readyState >= 2 && (!session.matte || session.matte.el.readyState >= 2)) {
+      spectrumPreview.mode = mode;
       pixels = J.composeLayerPixels(spectrumPreview.framePixels(J.ui.project.spectrumLayout), pixels, mode);
     }
   }
@@ -42357,6 +42398,7 @@ J.drawNativeSpectrumPixels = (w, h, t) => {
   if (!ready()) return null;
   if (!previewReader || previewReader.w !== w || previewReader.h !== h || previewReader.spectrum.data !== state.data)
     previewReader = new J.NativeSpectrumReader({ data: state.data, settings: J.ui.project.nativeSpectrum }, w, h);
+  previewReader.mode = J.normalizeLayerMode(J.ui.project.layerMode);
   return previewReader.framePixels(t, J.ui.project.spectrumLayout, J.ui.project.nativeSpectrum);
 };
 J.mountNativeSpectrumUI = panel => {

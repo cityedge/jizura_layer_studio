@@ -9,6 +9,22 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/08d_user_themes.j
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/11r_layers.js'),'utf8'), context);
 const J = context.J, json = x => JSON.parse(JSON.stringify(x));
 
+test('spectrum gray matte preserves coverage without multiplying edge color twice', () => {
+  for (let a = 0; a <= 255; a++) {
+    const front = new Uint8ClampedArray([Math.round(40*a/255), Math.round(160*a/255), a, 255]);
+    const matte = new Uint8ClampedArray([255-a,255-a,255-a,255]);
+    const pixels = J.spectrumAlphaPixels(front, matte), pair = J.alphaPairPixels(pixels);
+    assert.equal(pixels[3], a);
+    assert.deepEqual([...pair.front], [...front]);
+    assert.deepEqual([...pair.matte], [...matte]);
+    const composite = J.alphaOverPixels(new Uint8ClampedArray([220,210,200,255]), pixels);
+    for(let k=0;k<3;k++) assert(Math.abs(composite[k]-(front[k]+[220,210,200][k]*(1-a/255)))<=1);
+  }
+  const dark = new Uint8ClampedArray([0,0,0,255]);
+  assert.deepEqual([...J.spectrumAlphaPixels(dark,new Uint8ClampedArray([0,0,0,255]))],[0,0,0,255]);
+  assert.deepEqual([...J.spectrumAlphaPixels(dark,null)],[...J.binaryPixels(dark)]);
+});
+
 test('opacity mode defaults to legacy binary and survives JSON migration', () => {
   assert.equal(J.defaultProject().layerMode, 'binary');
   assert.equal(J.defaultProject().layerBackgroundOpacity, 40);

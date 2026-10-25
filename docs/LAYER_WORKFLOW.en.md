@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.5.1. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.5.2. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -65,7 +65,7 @@ Choose None, Generate from audio or External video under Spectrum source. Load a
 Import a front video to composite automatically; clear the front to stop compositing. There is no compositing checkbox. Its matte is optional. Select both together to match `speana_sample.mp4` with `speana_sample_matte_dark.mp4`. The app cannot discover unselected sibling files and has no folder picker.
 
 - Without a matte, exactly RGB 000000 after placement/scaling is transparent. Near-black values and compression noise remain.
-- With a matte, size/duration must match. Mean matte RGB below 128 is opaque, while RGB-zero front pixels remain transparent. Use nonzero black in external artwork to retain it.
+- With a matte, size/duration must match. Binary treats mean matte RGB below 128 as opaque except RGB-zero front pixels. Alpha preserves grayscale coverage and unpremultiplies the black-backed front RGB.
 - Add/clear the matte to switch modes. Bloom cleanup does not apply to spectrum media.
 - Both start at zero, subtitles in front; media is empty after its end.
 - Default: 65% frame width, preserved source aspect, 3% left/bottom margins. Independent scales use the base as 100%. Settings persist in JSON; preview/export share placement. Outside-frame content is clipped.
@@ -88,7 +88,7 @@ Only new exterior pixels added by automatic bloom / bloom effects are removed. O
 
 ## Opacity modes
 
-Opacity mode under Subtitle layers controls preview and all exports. Binary (legacy) retains the previous result; Alpha (grayscale matte) preserves partial opacity. Projects save this setting; older JSON defaults to binary. Spectra remain binary, with translucent subtitles composited over them. Exterior bloom removal remains active.
+Opacity mode under Subtitle layers controls preview and all exports. Binary (legacy) retains the previous result; Alpha (grayscale matte) preserves partial opacity, including native spectrum antialiased edges and external grayscale mattes. Projects save this setting; older JSON defaults to binary. Spectra without a matte retain the previous processing. Translucent subtitles are composited over spectra. Exterior bloom removal remains active.
 
 Alpha pairs use `_alpha` filenames. Their front contains premultiplied RGB (color multiplied by opacity). The grayscale matte is white for transparent, black for opaque. Multiply the background by the matte, then add the front: `result = front + background * (matte / 255)`. Do not threshold it, use Darken/Lighten, or multiply the front by alpha again. Front-only output cannot preserve opacity by itself. Simple video composites retained opacity directly onto its background. MP4 compression can alter colors and matte edges.
 

@@ -12,7 +12,7 @@ BODY = {
     'スペアナ・透明度・出力範囲・簡易動画・タイトルの設定': 'Spectrum, opacity, export range, simple-video and title settings',
     '再生位置・案の履歴・編集のUndo/Redo・出力の一時保存リンク': 'Playhead, look history, edit Undo/Redo and temporary export download links',
     '<strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど、プロジェクトをまたいで使うデータは残します。': '<strong>Shared libraries are kept.</strong> User themes and other data used across projects are not deleted.',
-    '画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、保存済み動画は削除しません。ブラウザの自動保存は初期状態に置き換えます。': 'Interface language, display mode and preview volume are kept. Original media, saved JSON and exported videos on your PC are not deleted. Browser autosave is replaced with the blank project.',
+    '画面の言語・表示モード・プレビュー音量・ループ設定は保持します。PC上の素材、保存済みJSON、保存済み動画は削除しません。ブラウザの自動保存は初期状態に置き換えます。': 'Interface language, display mode, preview volume and loop mode are kept. Original media, saved JSON and exported videos on your PC are not deleted. Browser autosave is replaced with the blank project.',
     '<button value="reset" class="danger">プロジェクトを初期化</button>': '<button value="reset" class="danger">Reset project</button>',
     '配色微調整': 'Palette fine-tune',
     'title="スタイル内の全配色セットから主カラーを選び直す"': 'title="Choose the main color across every palette scheme in the current style"',
