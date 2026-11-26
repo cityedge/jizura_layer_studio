@@ -130,6 +130,8 @@ J.prepareTransitionReview = (p, current, index, audio) => {
   const group = current.layerGroups?.find(g => g.indices.includes(index));
   const base = group?.plan || current, localIndex = group ? group.indices.indexOf(index) : index;
   const own = base.cuts.filter(c => c.line === localIndex && c.utext != null);
+  const draw = J.techniqueDrawProject(p);
+  const transitions = J.reviewTransitions.filter(id=>J.drawAllows(draw,'trans',id));
   const eligible = own.find(c => {
     const prev = base.cuts[base.cuts.indexOf(c) - 1];
     if (!prev || prev.layout === 'interlude' || Math.abs(prev.end - c.start) >= 0.06) return false;
@@ -139,7 +141,7 @@ J.prepareTransitionReview = (p, current, index, audio) => {
       if (p.overrides?.[previousIndex]?.lock || before?.part !== ln.part) return false;
       if (Array.isArray(p.subtitleCues) && (Math.round(before.end * 1000) !== Math.round(ln.start * 1000) || Math.round(prev.end * 1000) !== Math.round(c.start * 1000))) return false;
     }
-    return J.reviewTransitions.some(id => J.transitionFits(id, prev, c.dur));
+    return transitions.some(id => J.transitionFits(id, prev, c.dur));
   });
   if (!eligible) throw new Error(J.layerText('この字幕には新しいつなぎを試せる境界がありません。同じパート内で直前の字幕と接し、カットが1秒以上ある字幕で試してください。', 'No eligible join here. Try a cut of at least one second, touching the previous subtitle in the same part.'));
   const next = clone(p);
@@ -147,7 +149,10 @@ J.prepareTransitionReview = (p, current, index, audio) => {
   next.overrides ||= {};
   const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
   const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, 319));
-  const id = rng.pick(J.reviewTransitions.filter(id => id !== eligible.trans));
+  const previous = base.cuts[base.cuts.indexOf(eligible)-1];
+  const options = transitions.filter(id=>J.transitionFits(id,previous,eligible.dur));
+  const other = options.filter(id=>id!==eligible.trans);
+  const id = rng.pick(other.length ? other : options);
   const slot = own.indexOf(eligible), key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
   target.cutTech ||= {};
   target.cutTech[slot] = { ...target.cutTech[slot], trans: id };
@@ -170,7 +175,8 @@ J.prepareCoverageReview = (p, current, index, audio, group) => {
   if (!J.coverageReviewPools[group]) throw new Error('Unknown coverage review group');
   const own = current.cuts.filter(c => c.line === index && c.utext != null), base = targetPlan(current, index);
   const registry = group === 'layout' ? J.LAYOUTS : J.BG;
-  const pool = J.coverageReviewPools[group].filter(id => registry[id] && !registry[id].special &&
+  const draw = J.techniqueDrawProject(p);
+  const pool = J.coverageReviewPools[group].filter(id => J.drawAllows(draw,group,id) && registry[id] && !registry[id].special &&
     (group !== 'layout' || own.every(c => !registry[id].fits || registry[id].fits(Math.max(J.glyphCount(c.text), J.glyphCount(c.companion?.text || ''))))));
   if (!own.length || !pool.length) throw new Error(J.layerText('この字幕に適合するレビュー候補がありません。', 'No compatible review candidates for this subtitle.'));
   const next = clone(p);
@@ -261,7 +267,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     // forced cut counts and full-random snapshots; retain cue text and timestamps.
     for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
     const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
-    const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
+    const fresh = J.planTechniqueDraw(draft, audio, mode), source = targetPlan(fresh, index);
     const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
     const cuts = J.lineSnapshot(fresh, index);
     if (!cuts?.length) throw new Error(J.layerText('この字幕を再抽選できません。', 'This subtitle cannot be rerolled.'));
@@ -339,14 +345,14 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
       const fonts = Object.fromEntries(Object.entries(renderLook.style.fonts).map(([role, faces]) => [role, faces[0]]));
       draft.overrides = { ...next.overrides, [index]: { ...target, cueLook: { ...target.cueLook, fonts, palette: clone(renderLook.style.schemes) } } };
     }
-    fresh = J.plan(draft, audio);
+    fresh = J.planTechniqueDraw(draft, audio, mode);
     if (mode === 'fine' || signature(fresh, index) !== signature(current, index) || attempt === 5) break;
     target.seed++;
   }
   if (target.cueLook) target.cueLook.palettes = clone(fresh.lines.find(l => l.index === index)?.rulePalettes || []);
-  J.captureLocalLooks(next, fresh, audio);
+  const drawnCuts = J.lineSnapshot(fresh, index);
   if (partial) {
-    const cuts = J.mergeCueDrawCuts(previousCuts, J.lineSnapshot(fresh, index), mode);
+    const cuts = J.mergeCueDrawCuts(previousCuts, drawnCuts, mode);
     if (randomDraw) {
       const groups = mode === 'style' ? ['layout', 'bg', 'treat'] : ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat', ...(mode === 'motion' ? ['layout', 'bg'] : [])];
       clearGroups(randomDraw.restore, groups);
@@ -356,7 +362,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     }
     return storeCuts(cuts);
   }
-  return next;
+  return storeCuts(drawnCuts);
 };
 J.firstCuePreviewTime = plan => {
   let first = Infinity;

@@ -177,6 +177,7 @@ button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px;
 .key-badge i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(255,255,255,.5); }
 .overlay-msg { position: absolute; left: 12px; bottom: 12px; background: rgba(12,12,14,0.85); border: 1px solid var(--line2); padding: 6px 10px; border-radius: var(--r); font-size: 12px; }
 .transport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#motionTools { display: inline-flex; align-items: center; gap: 6px; }
 .transport .vol { display: inline-flex; align-items: center; gap: 4px; }
 .transport .preview-speed { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
 .transport .preview-speed select { width: 90px; padding: 4px; font-size: 11px; }
@@ -203,6 +204,16 @@ button.play { width: 40px; height: 34px; padding: 0; font-size: 14px; }
 #timeline { width: 100%; height: 76px; display: block; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); cursor: pointer; touch-action: none; }
 .cutinfo { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; min-height: 26px; flex: none; }
 .cutinfo .cut-roll { margin-left: 2px; }
+#blacklistDialog { width:min(640px,92vw); max-height:85vh; overflow:auto; }
+#blacklistDialog h3 { margin:16px 0 6px; }
+.blacklist-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr)); gap:8px; margin:10px 0; }
+.blacklist-choice { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:5px; padding:6px; border:1px solid var(--line); border-radius:4px; cursor:pointer; }
+.blacklist-choice:has(input:checked) { border-color:var(--cyan); }
+.blacklist-choice canvas { grid-column:1/-1; width:100%; max-height:70px; object-fit:contain; }
+.blacklist-entries { max-height:32vh; overflow:auto; }
+.blacklist-entries>div,.blacklist-actions { display:flex; align-items:center; gap:8px; padding:4px 0; }
+.blacklist-entries>div { justify-content:space-between; border-bottom:1px solid var(--line); }
+.blacklist-actions { flex-wrap:wrap; }
 .chip { font-size: 11px; padding: 2px 8px; border-radius: 2px; border: 1px solid var(--line2); color: var(--text); background: var(--raised); }
 .chip b { font-weight: 500; color: var(--muted); margin-right: 5px; }
 button.chip { cursor: pointer; font: inherit; }
@@ -661,7 +672,8 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 .motion-library .error { color: #ffa5a5; }
 @media (max-width: 650px) { .motion-library-grid { grid-template-columns: minmax(0, 1fr); } dialog.motion-library { padding: 12px; } }
 #app.is-mobile .transport { flex-wrap: wrap; }
-#app.is-mobile #btnMotionLibrary { flex: 0 0 100%; }
+#app.is-mobile #motionTools { flex: 0 0 100%; }
+#app.is-mobile #motionTools button { flex: 1; }
 
 </style>
 </head>
@@ -677,7 +689,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.3</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.4</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Song title (shown on title cards and HUD)" aria-label="Song title">
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
@@ -767,6 +779,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
         </span>
         <button id="btnShuffle" class="accent" title="Shuffle the arrangement, keeping locked lines">Shuffle</button>
         <button id="btnOmakase" class="primary" title="Randomize style, mood, effects and colors (R)">Randomize</button>
+        <span id="motionTools"></span>
       </div>
       <div id="cueRollBar" class="cue-roll-bar"><span id="cueRollTarget"></span><div id="cueRollButtons"></div></div>
       <div class="tl-bar">
@@ -959,7 +972,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">About / rights</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.3</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.4</p></div>
     <p>This is an unofficial derivative of JIZURA by hakoniwa, adapted by cityedge for subtitle layer production. The original author does not maintain this edition.</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">Original JIZURA — hakoniwa</a></p>
     <p>You do not need to place this app’s MIT license notice in exported videos. Check the rights and terms of the lyrics, music, images, videos, fonts and other material you use.</p>
@@ -1441,7 +1454,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio user guide</h2>
     <p>Create animated lyrics and export a finished video with background/audio, or front/matte layers for a video editor.</p>
-    <p><a class="full-manual" href="user_guide.en.md" target="_blank" rel="noopener">v1.5.3 Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v1.5.4 Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
     <h3>Make your first video</h3>
     <ol class="guide-steps">
       <li><strong>Load lyrics and media</strong><p>Import a UTF-8 SRT, audio and a preview background (image/video). You can also type lyrics without SRT. To resume a project, open its JSON and reload only the media. Reimporting SRT replaces restored cues, fillers and local effects.</p></li>
@@ -1474,6 +1487,8 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>Open User themes and choose New. Set 0–10 style and mood weights, Save changes, then select the theme. Zero excludes an entry; each group needs a positive weight. If Choose a random style/mood wins, it chooses uniformly from all eligible candidates in that group, including individually zero-weighted entries.</p>
     <p>Hover, focus or tap names for explanations. Choose from mood uses the traditional style lottery for the drawn mood. Reference mood → Use mood distribution fills approximate style weights and sets that mood to 1, all others to 0. Chaos is a mood name, separate from the random entry.</p>
     <p>Themes support duplicate, edit and delete, and live in a shared browser library plus project JSON. Export/import theme JSON to move the library; Save changes after importing. Applied definitions remain independent, so deleting a theme or recreating its name does not change existing cue-draw baselines.</p>
+    <h3>Technique blacklist</h3>
+    <p>When a cut is on screen, open Blacklist… to the right of Motion library… and select the parts you want to exclude. The list takes effect the next time those kinds of parts are drawn. Choose Allow again to return an entry to the draw. Projects share the list in this browser. Export blacklist JSON and Merge from JSON… let you transfer it to another browser.</p>
     <h3>Motion library</h3>
     <p>Open “Motion library…” to the right of Auto-compose. Initially no library item is selected and the motion to save automatically previews. Click “Save motion” to capture the subtitle’s whole composition and generation settings. A name is optional; blank names receive unique sequential names such as motion001. Older data without generation settings cannot supply this initial preview or be saved; regenerate the cue with 1 or 0 first.</p>
     <p>Seek to the destination subtitle, reopen, and select an item to preview with the new lyrics. Nothing changes until Apply. Incompatible text lengths/durations show a reason and disable Apply. Locked subtitles cannot be replaced. Keep-clear usage must match the source: Center and open custom bands count as enabled. A closed band counts as disabled. Band position and width come from the destination.</p>
@@ -1513,7 +1528,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p><strong>Reset project</strong> clears current lyrics, fillers, parts, effects, locks, loaded media, spectrum/opacity/export/title settings, playhead and histories. Temporary export links are removed and autosave becomes the blank project. This cannot be undone after confirmation.</p>
     <p><strong>Shared libraries are kept.</strong> User themes and other cross-project data, interface language, display mode and preview volume remain. Original media, saved JSON and exported files on your PC are not deleted. Delete shared items in their own management screens.</p>
     <p>About / rights is at the bottom of the right pane, with license and material-handling information.</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.3</span><button value="close" class="primary" autofocus>Close</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.4</span><button value="close" class="primary" autofocus>Close</button></div>
   </form>
 </dialog>
 
@@ -4534,7 +4549,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.5.3', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.5.4', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4715,7 +4730,8 @@ J.plan = (project, audio) => {
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
       // 統一感: a line that comes back (サビ etc.) is shown exactly as the first time
-      const again = UU && !ovAny && !ov.reroll ? UU.again(li, k, txt) : null;
+      const repeat = UU && !ovAny && !ov.reroll ? UU.again(li, k, txt) : null;
+      const again = repeat && (!J.drawAllowsRepeat || J.drawAllowsRepeat(project,repeat)) ? repeat : null;
       if (again) {
         ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP, weightGrow } = again);
         sch = again.scheme; cutSeed = again.seed; LD = J.LAYOUTS[layout];
@@ -38300,6 +38316,8 @@ J.prepareTransitionReview = (p, current, index, audio) => {
   const group = current.layerGroups?.find(g => g.indices.includes(index));
   const base = group?.plan || current, localIndex = group ? group.indices.indexOf(index) : index;
   const own = base.cuts.filter(c => c.line === localIndex && c.utext != null);
+  const draw = J.techniqueDrawProject(p);
+  const transitions = J.reviewTransitions.filter(id=>J.drawAllows(draw,'trans',id));
   const eligible = own.find(c => {
     const prev = base.cuts[base.cuts.indexOf(c) - 1];
     if (!prev || prev.layout === 'interlude' || Math.abs(prev.end - c.start) >= 0.06) return false;
@@ -38309,7 +38327,7 @@ J.prepareTransitionReview = (p, current, index, audio) => {
       if (p.overrides?.[previousIndex]?.lock || before?.part !== ln.part) return false;
       if (Array.isArray(p.subtitleCues) && (Math.round(before.end * 1000) !== Math.round(ln.start * 1000) || Math.round(prev.end * 1000) !== Math.round(c.start * 1000))) return false;
     }
-    return J.reviewTransitions.some(id => J.transitionFits(id, prev, c.dur));
+    return transitions.some(id => J.transitionFits(id, prev, c.dur));
   });
   if (!eligible) throw new Error(J.layerText('この字幕には新しいつなぎを試せる境界がありません。同じパート内で直前の字幕と接し、カットが1秒以上ある字幕で試してください。', 'No eligible join here. Try a cut of at least one second, touching the previous subtitle in the same part.'));
   const next = clone(p);
@@ -38317,7 +38335,10 @@ J.prepareTransitionReview = (p, current, index, audio) => {
   next.overrides ||= {};
   const target = next.overrides[index] = { ...clone(ov), drawSerial: (ov.drawSerial | 0) + 1 };
   const rng = J.rng(J.h(p.seed, index + 1, target.drawSerial, 319));
-  const id = rng.pick(J.reviewTransitions.filter(id => id !== eligible.trans));
+  const previous = base.cuts[base.cuts.indexOf(eligible)-1];
+  const options = transitions.filter(id=>J.transitionFits(id,previous,eligible.dur));
+  const other = options.filter(id=>id!==eligible.trans);
+  const id = rng.pick(other.length ? other : options);
   const slot = own.indexOf(eligible), key = p.subtitleCues?.[index]?.id ?? ('line-' + index);
   target.cutTech ||= {};
   target.cutTech[slot] = { ...target.cutTech[slot], trans: id };
@@ -38340,7 +38361,8 @@ J.prepareCoverageReview = (p, current, index, audio, group) => {
   if (!J.coverageReviewPools[group]) throw new Error('Unknown coverage review group');
   const own = current.cuts.filter(c => c.line === index && c.utext != null), base = targetPlan(current, index);
   const registry = group === 'layout' ? J.LAYOUTS : J.BG;
-  const pool = J.coverageReviewPools[group].filter(id => registry[id] && !registry[id].special &&
+  const draw = J.techniqueDrawProject(p);
+  const pool = J.coverageReviewPools[group].filter(id => J.drawAllows(draw,group,id) && registry[id] && !registry[id].special &&
     (group !== 'layout' || own.every(c => !registry[id].fits || registry[id].fits(Math.max(J.glyphCount(c.text), J.glyphCount(c.companion?.text || ''))))));
   if (!own.length || !pool.length) throw new Error(J.layerText('この字幕に適合するレビュー候補がありません。', 'No compatible review candidates for this subtitle.'));
   const next = clone(p);
@@ -38431,7 +38453,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     // forced cut counts and full-random snapshots; retain cue text and timestamps.
     for (const k of Object.keys(target)) if (!['seed', 'drawSerial', 'reroll', 'motionPitch'].includes(k)) delete target[k];
     const draft = { ...next, ...clone(baseline.values), _unifyPalettes: clone(baseline.palettes) };
-    const fresh = J.plan(draft, audio), source = targetPlan(fresh, index);
+    const fresh = J.planTechniqueDraw(draft, audio, mode), source = targetPlan(fresh, index);
     const look = { style: source.style, styleKey: source.styleKey, fx: source.fx, hud: source.hud };
     const cuts = J.lineSnapshot(fresh, index);
     if (!cuts?.length) throw new Error(J.layerText('この字幕を再抽選できません。', 'This subtitle cannot be rerolled.'));
@@ -38509,14 +38531,14 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
       const fonts = Object.fromEntries(Object.entries(renderLook.style.fonts).map(([role, faces]) => [role, faces[0]]));
       draft.overrides = { ...next.overrides, [index]: { ...target, cueLook: { ...target.cueLook, fonts, palette: clone(renderLook.style.schemes) } } };
     }
-    fresh = J.plan(draft, audio);
+    fresh = J.planTechniqueDraw(draft, audio, mode);
     if (mode === 'fine' || signature(fresh, index) !== signature(current, index) || attempt === 5) break;
     target.seed++;
   }
   if (target.cueLook) target.cueLook.palettes = clone(fresh.lines.find(l => l.index === index)?.rulePalettes || []);
-  J.captureLocalLooks(next, fresh, audio);
+  const drawnCuts = J.lineSnapshot(fresh, index);
   if (partial) {
-    const cuts = J.mergeCueDrawCuts(previousCuts, J.lineSnapshot(fresh, index), mode);
+    const cuts = J.mergeCueDrawCuts(previousCuts, drawnCuts, mode);
     if (randomDraw) {
       const groups = mode === 'style' ? ['layout', 'bg', 'treat'] : ['enter', 'exit', 'hold', 'decor', 'cam', 'trans', 'treat', ...(mode === 'motion' ? ['layout', 'bg'] : [])];
       clearGroups(randomDraw.restore, groups);
@@ -38526,7 +38548,7 @@ J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => {
     }
     return storeCuts(cuts);
   }
-  return next;
+  return storeCuts(drawnCuts);
 };
 J.firstCuePreviewTime = plan => {
   let first = Infinity;
@@ -38584,6 +38606,7 @@ J.fitRandomCueCuts = (source, duration) => {
   });
 };
 J.makeRandomCue = (p, current, index, audio, rng) => {
+  p = J.techniqueDrawProject(p);
   const ln = current.lines.find(l => l.index === index), original = p.overrides[index];
   const effective = original.cueLook ? J.cueLookProject(p, original.cueLook) : p;
   const fonts = {}, faces = Object.keys(J.FONTS).filter(k => !J.randomOk || J.randomOk(p, 'font', k));
@@ -39251,7 +39274,7 @@ J.prepareMotionPitch = (p, current, audio, value, index = null) => {
       fonts: Object.fromEntries(Object.entries(look.style.fonts).map(([r, v]) => [r, v[0]])) };
     if (fixed) draft._cueUnits[i] = old;
   }
-  const fresh = edits.length ? J.plan(draft, audio) : null;
+  const fresh = edits.length ? J.planTechniqueDraw(draft, audio, 'pitch') : null;
   for (const { i, ov, key, old, base, fixed } of edits) {
     const generated = fresh.cuts.filter(c => c.line === i && c.utext != null);
     const cuts = J.lineSnapshot(fresh, i);
@@ -39350,6 +39373,99 @@ J.upgradeLayerProject = (p,source) => {
     }
   }
   return p;
+};
+})();
+
+/* The shared list belongs to this browser. Only an explicitly requested draw
+   gets its filter. Ordinary plans (loading, playback, export, Undo) never do. */
+(() => {
+'use strict';
+const storageKey = 'jizura.layers.blacklist.v1';
+const format = 'jizura-technique-blacklist';
+const filterKey = Symbol('technique draw filter');
+const basic = {layout:'center', enter:'cut', exit:'cut', hold:'still', cam:'push', bg:'none', treat:'none'};
+const styleGroups = ['layout','bg','treat'];
+const moodGroups = ['enter','hold','exit','decor','treat','cam','trans','fx'];
+let entries;
+J.basicTechnique = group => basic[group] || 'none';
+
+J.blacklistEligible = (group,id) => J.GROUP_KEYS.includes(group) && typeof id === 'string' &&
+  Object.hasOwn(J.registry(group), id) && J.order(group).includes(id) &&
+  !J.registry(group)[id].special && id !== basic[group];
+
+function normalize(items) {
+  if (!Array.isArray(items) || items.length > 10000) throw invalidFile();
+  const unique = new Map();
+  for (const pair of items) {
+    if (!Array.isArray(pair) || pair.length !== 2 || !J.blacklistEligible(...pair)) throw invalidFile();
+    unique.set(pair.join(':'), pair.slice());
+  }
+  return [...unique.values()];
+}
+function invalidFile() {
+  return new Error(J.layerText('ブラックリストJSONの形式または手法が無効です。','Invalid blacklist file or unsupported technique.'));
+}
+J.parseBlacklist = file => {
+  if (file?.format !== format || file.version !== 1) throw invalidFile();
+  return normalize(file.entries);
+};
+J.blacklistFile = items => ({format,version:1,entries:normalize(items)});
+J.readBlacklist = () => {
+  if (!entries) {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      entries = raw ? J.parseBlacklist(JSON.parse(raw)) : [];
+    } catch { entries = []; }
+  }
+  return entries.map(pair => pair.slice());
+};
+J.writeBlacklist = items => {
+  const file = J.blacklistFile(items);
+  entries = file.entries;
+  try { localStorage.setItem(storageKey, JSON.stringify(file)); return true; }
+  catch { return false; }
+};
+window.addEventListener?.('storage', e => {
+  if (e.key !== storageKey && e.key !== null) return;
+  entries = null;
+  window.dispatchEvent(new Event('jizura-blacklist-changed'));
+});
+J.techniqueDrawProject = (p,mode) => {
+  const items = J.readBlacklist();
+  const groups = mode === 'style' ? styleGroups : mode === 'mood' ? moodGroups : mode === 'pitch' ? ['layout'] : null;
+  const keys = items.filter(([g]) => !groups || groups.includes(g)).map(pair => pair.join(':'));
+  return keys.length ? {...p, [filterKey]:new Set(keys)} : p;
+};
+J.drawAllows = (p,g,id) => !p[filterKey]?.has(g+':'+id);
+const randomOk = J.randomOk;
+J.randomOk = (p,g,id) => randomOk(p,g,id) && (!p || J.drawAllows(p,g,id));
+// A unification repeat can inherit a technique from a manual or locked cut.
+J.drawAllowsRepeat = (p,cut) => !p[filterKey] || !cut || (
+  ['layout','enter','hold','exit','bg','treat','cam','trans'].every(g=>J.drawAllows(p,g,cut[g])) &&
+  cut.decor.every(d=>J.drawAllows(p,'decor',d.id))
+);
+J.planTechniqueDraw = (p,audio,mode) => J.plan(J.techniqueDrawProject(p,mode),audio);
+J.planGlobalTechniqueDraw = (p,audio) => {
+  const draft = J.techniqueDrawProject(p);
+  const result = J.plan(draft,audio);
+  if (draft !== p) J.captureLocalLooks(p,result,audio);
+  return result;
+};
+// New lyrics and regenerated fillers can share a plan with existing subtitles.
+// Keep the ordinary plan for all unselected cues, including their timed effects.
+J.planAddedTechniques = (p,audio,selected) => {
+  const base = J.plan(p,audio), draft = J.techniqueDrawProject(p);
+  if (draft===p) return base;
+  const targets = base.lines.filter(line=>line.text && selected(line));
+  if (!targets.length) return base;
+  const drawn = J.plan(draft,audio);
+  J.captureLocalLooks(p,base,audio);
+  for (const line of targets) {
+    const key=p.subtitleCues?.[line.index]?.id ?? ('line-'+line.index);
+    const cuts=J.lineSnapshot(drawn,line.index);
+    if (cuts && p.localLooks.lines[key]) p.localLooks.lines[key].cuts=cuts;
+  }
+  return J.plan(p,audio);
 };
 })();
 
@@ -39891,11 +40007,14 @@ function langNote() {
   if (langNote.last !== undefined && langNote.last !== J.lang) { try { renderFontRoles(); } catch (e) {} }   // font menus show the language's faces
   langNote.last = J.lang;
 }
-function replan() {
+function replan(drawTechniques = false) {
   // Imports, project loading and undo can switch to explicit SRT timing mid-tap.
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
-  S.plan = J.plan(S.project, audioLike());
+  const audio=audioLike();
+  if (drawTechniques === true) S.plan=J.planGlobalTechniqueDraw(S.project,audio);
+  else if (typeof drawTechniques==='function') S.plan=J.planAddedTechniques(S.project,audio,drawTechniques);
+  else S.plan=J.plan(S.project,audio);
   if (J.freeAreaMode?.(S.project) === 'custom') J.ensureFreeAreas(S.project,S.plan.lines);
   S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
@@ -39934,7 +40053,7 @@ function warm() {
   idle(step);
 }
 let replanTimer = 0;
-const replanSoon = (ms = 220) => { clearTimeout(replanTimer); replanTimer = setTimeout(replan, ms); };
+const replanSoon = (ms = 220, drawTechniques = false) => { clearTimeout(replanTimer); replanTimer = setTimeout(()=>replan(drawTechniques), ms); };
 let fontKey = '';
 let thumbFonts = null;
 async function ensureFonts() {
@@ -40252,7 +40371,7 @@ function groupName(g, k) {
   const tbl = J.registry(g);
   return (tbl && tbl[k] && tbl[k].name) || k;
 }
-function pickEnabledTech(g, opts) {
+function pickEnabledTech(project, g, opts) {
   opts = opts || {};
   const tbl = J.registry(g) || {};
   const en = (S.project.enabled || {})[g] || {};
@@ -40260,16 +40379,14 @@ function pickEnabledTech(g, opts) {
     const def = tbl[key];
     if (!def || def.special) return false;
     if (en[key] === false) return false;
-    return !J.randomOk || J.randomOk(S.project, g, key);
+    return J.randomOk(project, g, key);
   });
-  if (!keys.length) keys = J.order(g).filter(key => tbl[key] && !tbl[key].special && en[key] !== false);
   if (g === 'layout' && opts.n != null) {
-    const fit = keys.filter(key => !J.LAYOUTS[key].fits || J.LAYOUTS[key].fits(opts.n));
-    if (fit.length) keys = fit;
+    keys = keys.filter(key => !J.LAYOUTS[key].fits || J.LAYOUTS[key].fits(opts.n));
   }
   if (opts.allowNone && !keys.includes('none')) keys = ['none'].concat(keys);
   if (opts.avoid && keys.length > 1) keys = keys.filter(key => key !== opts.avoid);
-  if (!keys.length) return '';
+  if (!keys.length) return J.basicTechnique(g);
   return keys[(Math.random() * keys.length) | 0];
 }
 function rerollCurrentCut(kind) {
@@ -40283,9 +40400,10 @@ function rerollCurrentCut(kind) {
     ? CHIP_GROUPS.map(x => x[0])
     : ['layout', 'enter', 'hold', 'exit', 'cam', 'trans'];
   const t0 = S.t;
+  const draw = J.techniqueDrawProject(S.project);
   groups.forEach(g => {
     const allowNone = g === 'decor' || g === 'trans';
-    const key = pickEnabledTech(g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
+    const key = pickEnabledTech(draw, g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
     if (key) setCutTech(cut.line, k, g, key, false);
   });
   markCutQuiet(cut.line, k, groups, true);
@@ -40902,7 +41020,7 @@ function omakase() {
   const r = J.omakase(S.project);
   Object.assign(S.project, r);
   restoreEnabled(keepE); restoreParams(keepP);
-  fontKey = ''; syncUI(); replan(); commit();
+  fontKey = ''; syncUI(); replan(true); commit();
   toast(`Randomized: ${J.STYLES[r.style].name} × ${J.MOODS[r.mood].name}`, r.colors.accentOn ? [r.colors.accent, r.colors.ghostA, r.colors.ghostB] : null);
   restartPreview();
 }
@@ -40936,7 +41054,7 @@ function rerollPart(part) {
     P.seed = (Math.random() * 1e9) | 0;
     msg = 'Arrangement: rerolled layout and motion';
   }
-  fontKey = ''; syncUI(); replan(); commit();
+  fontKey = ''; syncUI(); replan(true); commit();
   toast(msg);
   restartPreview();
 }
@@ -41066,7 +41184,7 @@ function paintTechCanvas(cv, g, k, t) {
 function techPaneOpen() {
   const pane = $('techLists') && $('techLists').closest('.tabpane');
   const pick = $('cutPick');
-  return (pane && !pane.hidden) || (pick && !pick.hidden);
+  return (pane && !pane.hidden) || (pick && !pick.hidden) || $('blacklistDialog')?.open;
 }
 function ensurePreviewObs() {
   if (previewObs) return previewObs;
@@ -41355,7 +41473,17 @@ function syncUI() {
 
 /* ---------------- wiring ---------------- */
 function bind() {
-  $('lyrics').addEventListener('input', e => { if (Array.isArray(S.project.subtitleCues)) return; S.project.lyrics = e.target.value; replanSoon(260); });
+  $('lyrics').addEventListener('input', e => {
+    if (Array.isArray(S.project.subtitleCues)) return;
+    const remaining = new Map();
+    for (const {text} of S.plan.lines) remaining.set(text, (remaining.get(text) || 0) + 1);
+    S.project.lyrics = e.target.value;
+    replanSoon(260, line => {
+      const count = remaining.get(line.text) || 0;
+      if (count) remaining.set(line.text, count - 1);
+      return count === 0;
+    });
+  });
   $('lyricLang').addEventListener('change', e => {
     remember();
     S.project.lang = e.target.value; replan(); renderFontRoles(); commit(); flushSave();
@@ -41388,7 +41516,7 @@ function bind() {
     try { localStorage.setItem(LOOP_KEY, S.loop || 'off'); } catch (_) {}
     syncLoopBtn(); S.need = true;
   });
-  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
+  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(true); commit(); restartPreview(); });
   const sc = $('scrub');
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * previewDuration()); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
@@ -41448,8 +41576,8 @@ function bind() {
   setSwitch('typeset-toggle', 'typeset', true, 'Typesetting: on (spacing, particles, Latin, 0.2 s lead, fewer effects)', 'Typesetting: off');
   $('fxKoma').addEventListener('change', e => { pushEdit(); const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
   $('fxHud').addEventListener('change', e => { pushEdit(); S.project.fx.hud = e.target.value; replan(); });
-  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
-  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
+  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(true); });
+  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(true); });
   const colorToggle = (flag, keys) => e => {
     remember();
     const c = S.project.colors; c[flag] = e.target.checked;
@@ -41522,7 +41650,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.3' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.4' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -41710,7 +41838,12 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 J.ui = S;
 // Shared editor hooks used by the layer interface
 J.uiApi = { toast, replan, syncUI, syncOmakaseThemes, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo,
-  audioLike, cueRerollTarget,
+  audioLike, cueRerollTarget, queueThumbs,
+  releaseThumbs(container) {
+    for (const cv of container.querySelectorAll('canvas[data-g]')) {
+      previewLive.delete(cv); previewObs?.unobserve(cv);
+    }
+  },
   applyMotionProject(project, index, resume) {
     if (S.exporting) return;
     pushEdit(); remember(); S.project = project; fontKey = ''; syncUI(); replan(); commit(); flushSave();
@@ -41819,7 +41952,7 @@ function syncCueErrors() {
   J.syncFillerUI?.();
   syncSimpleExportUI();
 }
-function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
+function changed(drawTechniques = false) { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(drawTechniques); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
   status(tr('読み込み中…', 'Loading…'));
@@ -42115,7 +42248,8 @@ function cueTable() {
       if (JSON.stringify(d.next) !== JSON.stringify({ start: cue.start, end: cue.end, text: cue.text })) {
         J.uiApi.pushEdit(); J.editLayerCue(J.ui.project, index, d.next);
       }
-      cueDrafts.delete(cue.id); syncCueErrors(); changed();
+      cueDrafts.delete(cue.id); syncCueErrors();
+      changed(!cue.text && d.next.text ? line=>J.ui.project.subtitleCues[line.index].id===cue.id : false);
     };
     [start, end, text].forEach(e => { e.addEventListener('input', readDraft); e.addEventListener('change', save); });
     if (draft) { feedback.textContent = draft.error; for (const input of [start, end]) input.setAttribute('aria-invalid', String(!!draft.error)); }
@@ -42256,7 +42390,7 @@ function boot() {
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, freeAreas: {}, exportRange: null });
     J.ui.project.simpleExport.duration = null;
-    J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
+    J.ui.project.timing.lineTimes = {}; changed(true); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
   }));
   const info = el('p', '', 'note'); info.id = 'layerSrtInfo';
@@ -42364,7 +42498,7 @@ function apply(clear) {
     const p = J.ui.project, settings = read();
     const prepared = clear ? { settings: p.fillerSettings, fillers: [] } : J.prepareFillers(p, settings, media());
     J.uiApi.pushEdit(); J.replaceFillers(p, prepared);
-    $('fillerDlg').close(); J.uiApi.replan(); J.uiApi.flushSave();
+    $('fillerDlg').close(); J.uiApi.replan(clear ? false : line=>p.subtitleCues[line.index].filler); J.uiApi.flushSave();
     J.uiApi.toast(clear ? tr('フィラーを削除しました（Ctrl+Zで戻せます）', 'Fillers removed (Ctrl+Z to undo)') : tr(`${prepared.fillers.length}件のフィラーを生成しました（Ctrl+Zで戻せます）`, `${prepared.fillers.length} fillers generated (Ctrl+Z to undo)`));
   } catch (e) { preview.textContent = e.message; }
 }
@@ -43306,7 +43440,7 @@ function mount() {
 }
 function boot() {
   opener = el('button', tr('モーションライブラリ…', 'Motion library…')); opener.type = 'button'; opener.id = 'btnMotionLibrary'; opener.className = 'small';
-  document.getElementById('btnOmakase').after(opener);
+  document.getElementById('motionTools').append(opener);
   opener.addEventListener('click', () => {
     if (J.ui.exporting || J.ui.tap || J.layerSession?.busy) return;
     mount(); target = J.uiApi.cueRerollTarget(); wasPlaying = J.ui.playing; J.uiApi.pause(); epoch++;
@@ -43322,6 +43456,137 @@ function boot() {
   });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+/* Snapshot the displayed cut on opening. Managing preferences does not edit the project. */
+(() => {
+'use strict';
+const tr = J.layerText;
+const labels = {
+  layout:['レイアウト','Layout'],enter:['登場','Entrance'],hold:['保持','Hold'],exit:['退場','Exit'],
+  decor:['装飾','Decoration'],treat:['文字の加工','Text treatment'],bg:['背景','Background'],
+  cam:['カメラ','Camera'],fx:['画面効果','Screen effect'],trans:['つなぎ','Transition']
+};
+function element(tag, text, cls) {
+  const el = document.createElement(tag);
+  if (text) el.textContent = text;
+  if (cls) el.className = cls;
+  return el;
+}
+function button(text, action) {
+  const el = element('button',text,'small');
+  el.type = 'button';
+  el.addEventListener('click',action);
+  return el;
+}
+function cutItems(plan,cut) {
+  if (!cut || cut.line < 0 || cut.utext == null) return [];
+  const slot = plan.cuts.filter(c=>c.line===cut.line && c.utext!=null).indexOf(cut);
+  const events = J.lineSnapshot(plan,cut.line)?.[slot]?.events || [];
+  const items = [];
+  for (const group of J.GROUP_KEYS) {
+    let ids = [cut[group]];
+    if (group==='decor') ids = cut.decor.map(item=>item.id);
+    if (group==='fx') ids = events.map(event=>event.type);
+    for (const id of new Set(ids)) if (J.blacklistEligible(group,id)) items.push([group,id]);
+  }
+  return items;
+}
+function boot() {
+  const api = J.uiApi;
+  const opener = button(tr('ブラックリスト…','Blacklist…'),open);
+  opener.id = 'btnBlacklist';
+  document.getElementById('motionTools').append(opener);
+  const dialog = element('dialog',null,'terms');
+  dialog.id = 'blacklistDialog';
+  const title = element('h2',tr('演出のブラックリスト','Technique blacklist'));
+  title.id = 'blacklistHeading';dialog.setAttribute('aria-labelledby',title.id);
+  const cutTitle = element('h3');
+  const grid = element('div',null,'blacklist-grid');
+  const note = element('p',tr('次の抽選から除外する部品を選びます。基本の中央配置・カット・静止・ゆっくり寄る・「なし」は候補切れに備えて残ります。','Select parts to exclude from future draws. Center, Cut, Still, Slow push and None are available as fallbacks.'),'note');
+  const add = button(tr('選択した部品を登録','Exclude selected parts'),()=>{
+    const selected = [...grid.querySelectorAll('input:checked')].map(input=>[input.dataset.group,input.value]);
+    save([...J.readBlacklist(),...selected],tr('選択した部品を登録しました。','Selected parts added.'));
+  });
+  const listTitle = element('h3');
+  const list = element('div',null,'blacklist-entries');
+  const status = element('p',null,'note'); status.setAttribute('role','status');
+  const file = element('input');file.type='file';file.accept='.json,application/json';file.hidden=true;
+  const actions = element('div',null,'blacklist-actions');
+  const exportButton = button(tr('ブラックリストJSONを保存','Export blacklist JSON'),async()=>{
+    try {await J.saveFile('jizura-blacklist.json',JSON.stringify(J.blacklistFile(J.readBlacklist()),null,2));}
+    catch (error) {status.textContent=error.message;}
+  });
+  actions.append(exportButton,button(tr('JSONから追加…','Merge from JSON…'),()=>file.click()),button(tr('閉じる','Close'),()=>dialog.close()));
+  dialog.append(title,cutTitle,note,grid,add,listTitle,list,status,file,actions);
+  document.body.append(dialog);
+  let available=[],session=0;
+  function name(group,id) { return tr(...labels[group])+' · '+J.registry(group)[id].name; }
+  function render(checked = new Set()) {
+    api.releaseThumbs(grid);grid.replaceChildren();list.replaceChildren();
+    const entries = J.readBlacklist();
+    const known = new Set(entries.map(pair=>pair.join(':')));
+    add.disabled=true;
+    for (const [group,id] of available) {
+      const label=element('label',null,'blacklist-choice'), input=element('input');
+      input.type='checkbox';input.dataset.group=group;input.value=id;
+      input.disabled=known.has(group+':'+id);
+      input.checked=!input.disabled && checked.has(group+':'+id);
+      if (input.checked) add.disabled=false;
+      const caption=element('span',name(group,id)+(input.disabled?tr('（登録済み）',' (listed)'):''));
+      const canvas=element('canvas');
+      canvas.width=128;canvas.height=72;canvas.dataset.g=group;canvas.dataset.k=id;
+      canvas.setAttribute('aria-hidden','true');
+      label.append(canvas,input,caption);grid.append(label);
+    }
+    if (!available.length) grid.append(element('p',tr('この位置に登録できる部品はありません。','No parts to add at this position.'),'note'));
+    listTitle.textContent=tr('登録済み','Excluded parts')+' ('+entries.length+')';
+    if (!entries.length) list.append(element('p',tr('まだ登録されていません。','No exclusions yet.'),'note'));
+    for (const [group,id] of entries) {
+      const row=element('div'), description=name(group,id);
+      const remove=button(tr('やっぱり使う','Allow again'),()=>{
+        save(J.readBlacklist().filter(([g,k])=>g!==group||k!==id),description+tr(' を抽選対象に戻しました。',' is eligible again.'));
+      });
+      remove.setAttribute('aria-label',remove.textContent+' · '+description);
+      row.append(element('span',description),remove);list.append(row);
+    }
+    api.queueThumbs(grid);
+  }
+  function save(items,message) {
+    const persisted=J.writeBlacklist(items);
+    render();status.textContent=persisted?message:tr('このタブに反映しました。ブラウザに保存できなかったので、JSONで保存してください。','Applied in this tab. Browser storage failed. Export JSON to keep a copy.');
+  }
+  grid.addEventListener('change',()=>{add.disabled=!grid.querySelector('input:checked');});
+  window.addEventListener('jizura-blacklist-changed',()=>{
+    if (dialog.open) render(new Set([...grid.querySelectorAll('input:checked')].map(input=>input.dataset.group+':'+input.value)));
+  });
+  file.addEventListener('change',async()=>{
+    const selected=file.files[0],ticket=session;file.value='';
+    if (!selected) return;
+    try {
+      if (selected.size>1024*1024) throw new Error(tr('1 MB以下のブラックリストJSONを選んでください。','Choose a blacklist JSON file up to 1 MB.'));
+      const imported=J.parseBlacklist(JSON.parse(await selected.text()));
+      if (!dialog.open||ticket!==session) return;
+      const old=J.readBlacklist(), merged=J.blacklistFile([...old,...imported]).entries;
+      save(merged,tr('追加した件数：','New exclusions: ')+(merged.length-old.length));
+    } catch (error) {
+      if (dialog.open && ticket===session) status.textContent=error instanceof SyntaxError
+        ? tr('JSONを読み取れませんでした。ブラックリストJSONを選んでください。','Could not read JSON. Choose a blacklist JSON file.') : error.message;
+    }
+  });
+  dialog.addEventListener('close',()=>{session++;api.releaseThumbs(grid);});
+  function open() {
+    const S=J.ui;
+    if (S.exporting||J.layerSession?.busy) return;
+    const cut=J.cutAt(S.plan,S.t);
+    api.pause();
+    available=cutItems(S.plan,cut);
+    cutTitle.textContent=cut?tr('このカットの部品','Parts in this cut')+' #'+(cut.index+1):tr('この位置にカットはありません','No cut at this position');
+    status.textContent='';
+    dialog.showModal();render();
+  }
+}
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 
 /* Finish pointer-operated controls without stealing keyboard/text editing focus. */

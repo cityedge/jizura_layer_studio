@@ -1,7 +1,9 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.5.3**
+**Animated subtitle layers · cityedge fork · v1.5.4**
 
 **Motion library…** saves a subtitle’s motion for previewing and applying to new lyrics. Export/import the shared collection as dedicated JSON. [Instructions](user_guide.en.md#motion-library)
+
+Open **Blacklist…** beside it to choose individual backgrounds, decorations or other parts to exclude from future draws across projects. [Using the blacklist](user_guide.en.md#excluding-parts-from-future-draws)
 
 Grayscale alpha matte export supports adjustable background-color opacity, optional decorative number/time hiding, and themes for Auto-compose and cue draws. Choose No theme, Lyric video, Kinetic, Japanese, Horror, Pop or Ballad; change one cue's direction and use 9 to restore the global taste.
 

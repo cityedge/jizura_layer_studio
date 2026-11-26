@@ -93,7 +93,7 @@ function syncCueErrors() {
   J.syncFillerUI?.();
   syncSimpleExportUI();
 }
-function changed() { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(); a.flushSave(); }
+function changed(drawTechniques = false) { const a = J.uiApi; a.pause(); a.syncUI(); a.replan(drawTechniques); a.flushSave(); }
 async function loadMedia(key, file, videoOnly) {
   const n = session.generation[key] = (session.generation[key] || 0) + 1;
   status(tr('読み込み中…', 'Loading…'));
@@ -389,7 +389,8 @@ function cueTable() {
       if (JSON.stringify(d.next) !== JSON.stringify({ start: cue.start, end: cue.end, text: cue.text })) {
         J.uiApi.pushEdit(); J.editLayerCue(J.ui.project, index, d.next);
       }
-      cueDrafts.delete(cue.id); syncCueErrors(); changed();
+      cueDrafts.delete(cue.id); syncCueErrors();
+      changed(!cue.text && d.next.text ? line=>J.ui.project.subtitleCues[line.index].id===cue.id : false);
     };
     [start, end, text].forEach(e => { e.addEventListener('input', readDraft); e.addEventListener('change', save); });
     if (draft) { feedback.textContent = draft.error; for (const input of [start, end]) input.setAttribute('aria-invalid', String(!!draft.error)); }
@@ -530,7 +531,7 @@ function boot() {
     cueDrafts.clear(); syncCueErrors();
     J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, freeAreas: {}, exportRange: null });
     J.ui.project.simpleExport.duration = null;
-    J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
+    J.ui.project.timing.lineTimes = {}; changed(true); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
   }));
   const info = el('p', '', 'note'); info.id = 'layerSrtInfo';

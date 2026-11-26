@@ -292,11 +292,14 @@ function langNote() {
   if (langNote.last !== undefined && langNote.last !== J.lang) { try { renderFontRoles(); } catch (e) {} }   // font menus show the language's faces
   langNote.last = J.lang;
 }
-function replan() {
+function replan(drawTechniques = false) {
   // Imports, project loading and undo can switch to explicit SRT timing mid-tap.
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
-  S.plan = J.plan(S.project, audioLike());
+  const audio=audioLike();
+  if (drawTechniques === true) S.plan=J.planGlobalTechniqueDraw(S.project,audio);
+  else if (typeof drawTechniques==='function') S.plan=J.planAddedTechniques(S.project,audio,drawTechniques);
+  else S.plan=J.plan(S.project,audio);
   if (J.freeAreaMode?.(S.project) === 'custom') J.ensureFreeAreas(S.project,S.plan.lines);
   S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
@@ -335,7 +338,7 @@ function warm() {
   idle(step);
 }
 let replanTimer = 0;
-const replanSoon = (ms = 220) => { clearTimeout(replanTimer); replanTimer = setTimeout(replan, ms); };
+const replanSoon = (ms = 220, drawTechniques = false) => { clearTimeout(replanTimer); replanTimer = setTimeout(()=>replan(drawTechniques), ms); };
 let fontKey = '';
 let thumbFonts = null;
 async function ensureFonts() {
@@ -653,7 +656,7 @@ function groupName(g, k) {
   const tbl = J.registry(g);
   return (tbl && tbl[k] && tbl[k].name) || k;
 }
-function pickEnabledTech(g, opts) {
+function pickEnabledTech(project, g, opts) {
   opts = opts || {};
   const tbl = J.registry(g) || {};
   const en = (S.project.enabled || {})[g] || {};
@@ -661,16 +664,14 @@ function pickEnabledTech(g, opts) {
     const def = tbl[key];
     if (!def || def.special) return false;
     if (en[key] === false) return false;
-    return !J.randomOk || J.randomOk(S.project, g, key);
+    return J.randomOk(project, g, key);
   });
-  if (!keys.length) keys = J.order(g).filter(key => tbl[key] && !tbl[key].special && en[key] !== false);
   if (g === 'layout' && opts.n != null) {
-    const fit = keys.filter(key => !J.LAYOUTS[key].fits || J.LAYOUTS[key].fits(opts.n));
-    if (fit.length) keys = fit;
+    keys = keys.filter(key => !J.LAYOUTS[key].fits || J.LAYOUTS[key].fits(opts.n));
   }
   if (opts.allowNone && !keys.includes('none')) keys = ['none'].concat(keys);
   if (opts.avoid && keys.length > 1) keys = keys.filter(key => key !== opts.avoid);
-  if (!keys.length) return '';
+  if (!keys.length) return J.basicTechnique(g);
   return keys[(Math.random() * keys.length) | 0];
 }
 function rerollCurrentCut(kind) {
@@ -684,9 +685,10 @@ function rerollCurrentCut(kind) {
     ? CHIP_GROUPS.map(x => x[0])
     : ['layout', 'enter', 'hold', 'exit', 'cam', 'trans'];
   const t0 = S.t;
+  const draw = J.techniqueDrawProject(S.project);
   groups.forEach(g => {
     const allowNone = g === 'decor' || g === 'trans';
-    const key = pickEnabledTech(g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
+    const key = pickEnabledTech(draw, g, { avoid: kind === 'omakase' ? cutGroupVal(cut, g) : null, allowNone, n });
     if (key) setCutTech(cut.line, k, g, key, false);
   });
   markCutQuiet(cut.line, k, groups, true);
@@ -1303,7 +1305,7 @@ function omakase() {
   const r = J.omakase(S.project);
   Object.assign(S.project, r);
   restoreEnabled(keepE); restoreParams(keepP);
-  fontKey = ''; syncUI(); replan(); commit();
+  fontKey = ''; syncUI(); replan(true); commit();
   toast(`おまかせ：${J.STYLES[r.style].name} × ${J.MOODS[r.mood].name}`, r.colors.accentOn ? [r.colors.accent, r.colors.ghostA, r.colors.ghostB] : null);
   restartPreview();
 }
@@ -1337,7 +1339,7 @@ function rerollPart(part) {
     P.seed = (Math.random() * 1e9) | 0;
     msg = '構成：レイアウトと動きを再抽選';
   }
-  fontKey = ''; syncUI(); replan(); commit();
+  fontKey = ''; syncUI(); replan(true); commit();
   toast(msg);
   restartPreview();
 }
@@ -1467,7 +1469,7 @@ function paintTechCanvas(cv, g, k, t) {
 function techPaneOpen() {
   const pane = $('techLists') && $('techLists').closest('.tabpane');
   const pick = $('cutPick');
-  return (pane && !pane.hidden) || (pick && !pick.hidden);
+  return (pane && !pane.hidden) || (pick && !pick.hidden) || $('blacklistDialog')?.open;
 }
 function ensurePreviewObs() {
   if (previewObs) return previewObs;
@@ -1756,7 +1758,17 @@ function syncUI() {
 
 /* ---------------- wiring ---------------- */
 function bind() {
-  $('lyrics').addEventListener('input', e => { if (Array.isArray(S.project.subtitleCues)) return; S.project.lyrics = e.target.value; replanSoon(260); });
+  $('lyrics').addEventListener('input', e => {
+    if (Array.isArray(S.project.subtitleCues)) return;
+    const remaining = new Map();
+    for (const {text} of S.plan.lines) remaining.set(text, (remaining.get(text) || 0) + 1);
+    S.project.lyrics = e.target.value;
+    replanSoon(260, line => {
+      const count = remaining.get(line.text) || 0;
+      if (count) remaining.set(line.text, count - 1);
+      return count === 0;
+    });
+  });
   $('lyricLang').addEventListener('change', e => {
     remember();
     S.project.lang = e.target.value; replan(); renderFontRoles(); commit(); flushSave();
@@ -1789,7 +1801,7 @@ function bind() {
     try { localStorage.setItem(LOOP_KEY, S.loop || 'off'); } catch (_) {}
     syncLoopBtn(); S.need = true;
   });
-  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); restartPreview(); });
+  $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(true); commit(); restartPreview(); });
   const sc = $('scrub');
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * previewDuration()); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
@@ -1849,8 +1861,8 @@ function bind() {
   setSwitch('typeset-toggle', 'typeset', true, '文字整列：オン（字間・助詞・英字・0.2秒先・効果控えめ）', '文字整列：オフ');
   $('fxKoma').addEventListener('change', e => { pushEdit(); const k = +e.target.value; S.project.fx.koma = k; S.project.fx.onTwos = k > 0; S.project.mood = null; replan(); });
   $('fxHud').addEventListener('change', e => { pushEdit(); S.project.fx.hud = e.target.value; replan(); });
-  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
-  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
+  $('seed').addEventListener('change', e => { pushEdit(); S.project.seed = parseInt(e.target.value, 10) || 0; replan(true); });
+  $('btnSeed').addEventListener('click', () => { pushEdit(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(true); });
   const colorToggle = (flag, keys) => e => {
     remember();
     const c = S.project.colors; c[flag] = e.target.checked;
@@ -2111,7 +2123,12 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 J.ui = S;
 // Shared editor hooks used by the layer interface
 J.uiApi = { toast, replan, syncUI, syncOmakaseThemes, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, pushEdit, edGo,
-  audioLike, cueRerollTarget,
+  audioLike, cueRerollTarget, queueThumbs,
+  releaseThumbs(container) {
+    for (const cv of container.querySelectorAll('canvas[data-g]')) {
+      previewLive.delete(cv); previewObs?.unobserve(cv);
+    }
+  },
   applyMotionProject(project, index, resume) {
     if (S.exporting) return;
     pushEdit(); remember(); S.project = project; fontKey = ''; syncUI(); replan(); commit(); flushSave();

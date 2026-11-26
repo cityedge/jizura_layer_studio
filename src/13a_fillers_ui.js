@@ -27,7 +27,7 @@ function apply(clear) {
     const p = J.ui.project, settings = read();
     const prepared = clear ? { settings: p.fillerSettings, fillers: [] } : J.prepareFillers(p, settings, media());
     J.uiApi.pushEdit(); J.replaceFillers(p, prepared);
-    $('fillerDlg').close(); J.uiApi.replan(); J.uiApi.flushSave();
+    $('fillerDlg').close(); J.uiApi.replan(clear ? false : line=>p.subtitleCues[line.index].filler); J.uiApi.flushSave();
     J.uiApi.toast(clear ? tr('フィラーを削除しました（Ctrl+Zで戻せます）', 'Fillers removed (Ctrl+Z to undo)') : tr(`${prepared.fillers.length}件のフィラーを生成しました（Ctrl+Zで戻せます）`, `${prepared.fillers.length} fillers generated (Ctrl+Z to undo)`));
   } catch (e) { preview.textContent = e.message; }
 }

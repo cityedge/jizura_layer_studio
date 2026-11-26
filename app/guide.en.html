@@ -2,7 +2,7 @@
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio user guide</h2>
     <p>Create animated lyrics and export a finished video with background/audio, or front/matte layers for a video editor.</p>
-    <p><a class="full-manual" href="user_guide.en.md" target="_blank" rel="noopener">v@VERSION@ Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
+    <p><a class="full-manual" href="../user_guide.en.md" target="_blank" rel="noopener">v@VERSION@ Full user manual (Markdown)</a> covers individual settings, compositing and saved data in detail.</p>
     <h3>Make your first video</h3>
     <ol class="guide-steps">
       <li><strong>Load lyrics and media</strong><p>Import a UTF-8 SRT, audio and a preview background (image/video). You can also type lyrics without SRT. To resume a project, open its JSON and reload only the media. Reimporting SRT replaces restored cues, fillers and local effects.</p></li>
@@ -35,6 +35,8 @@
     <p>Open User themes and choose New. Set 0–10 style and mood weights, Save changes, then select the theme. Zero excludes an entry; each group needs a positive weight. If Choose a random style/mood wins, it chooses uniformly from all eligible candidates in that group, including individually zero-weighted entries.</p>
     <p>Hover, focus or tap names for explanations. Choose from mood uses the traditional style lottery for the drawn mood. Reference mood → Use mood distribution fills approximate style weights and sets that mood to 1, all others to 0. Chaos is a mood name, separate from the random entry.</p>
     <p>Themes support duplicate, edit and delete, and live in a shared browser library plus project JSON. Export/import theme JSON to move the library; Save changes after importing. Applied definitions remain independent, so deleting a theme or recreating its name does not change existing cue-draw baselines.</p>
+    <h3>Technique blacklist</h3>
+    <p>When a cut is on screen, open Blacklist… to the right of Motion library… and select the parts you want to exclude. The list takes effect the next time those kinds of parts are drawn. Choose Allow again to return an entry to the draw. Projects share the list in this browser. Export blacklist JSON and Merge from JSON… let you transfer it to another browser.</p>
     <h3>Motion library</h3>
     <p>Open “Motion library…” to the right of Auto-compose. Initially no library item is selected and the motion to save automatically previews. Click “Save motion” to capture the subtitle’s whole composition and generation settings. A name is optional; blank names receive unique sequential names such as motion001. Older data without generation settings cannot supply this initial preview or be saved; regenerate the cue with 1 or 0 first.</p>
     <p>Seek to the destination subtitle, reopen, and select an item to preview with the new lyrics. Nothing changes until Apply. Incompatible text lengths/durations show a reason and disable Apply. Locked subtitles cannot be replaced. Keep-clear usage must match the source: Center and open custom bands count as enabled. A closed band counts as disabled. Band position and width come from the destination.</p>

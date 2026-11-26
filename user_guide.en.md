@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.5.3 User Manual
+# JIZURA Layer Studio v1.5.4 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.5.3. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the controls and behavior of v1.5.4.
 
 ## Contents
 
@@ -24,6 +24,7 @@ This manual describes the retained features of v1.5.3. Features removed from the
 - [Colors](#colors)
 - [Effects](#effects)
 - [Choosing techniques](#choosing-techniques)
+  - [Technique blacklist](#excluding-parts-from-future-draws)
 - [Editing individual lines and cuts](#editing-individual-lines-and-cuts)
 - [Motion library](#motion-library)
 - [Keep-clear areas](#keep-clear-areas)
@@ -47,7 +48,7 @@ This manual describes the retained features of v1.5.3. Features removed from the
 |---|---|
 | Prepare subtitles | UTF-8 SRT import, editable text/start/end, direct text entry, LRC start times |
 | Animate | Theme-guided Auto-compose, Shuffle, cue draws 0–9, motion pitch, styles, layouts, motion, ornaments and transitions |
-| Constrain choices | Technique checkboxes, expression sets, line locks, parameter and technique-group locks |
+| Constrain choices | Technique checkboxes, expression sets, the blacklist, line locks, parameter and technique-group locks |
 | Follow music | Beat/energy analysis, BPM override, tap synchronization, timeline editing |
 | Fill gaps | Editable placeholders in SRT intros, interludes and outros |
 | Preview | Image/video background, front view, binary/grayscale matte view |
@@ -99,7 +100,7 @@ Binary pairs use Darken then Lighten. Alpha pairs use Multiply then Add; Differe
 | Header | Project name, modes, interface language, Open/Save JSON, Reset project and User guide |
 | Upper left | SRT, fillers, cue editor, preview background, audio/timing, spectrum, opacity/decorative-number settings, display mode, pair/front/simple MP4 export |
 | Lower left | Subtitle text, lyric language, line/cut list |
-| Center | Preview, playback, volume, loop, look history, Auto-compose, timeline, current cut information |
+| Center | Preview, playback, volume, loop, look history, Auto-compose, motion library, blacklist, cue draws, timeline and current cut information |
 | Right | Easy controls or detailed Style, Effects, Techniques and Export tabs; About / rights at the bottom |
 
 On desktop, the entire center pane scrolls vertically with a permanent scrollbar. Effect cards and technique choices expand downward. Card changes preserve the preview size and scroll offset from the pane's top. If closing the picker shortens the content past the current position, the offset clamps to the new bottom. Resizing the window adjusts the preview size. Mobile mode keeps its existing page scrolling.
@@ -535,6 +536,16 @@ The Techniques tab shows looping previews. Filter by name and check which techni
 All on, all off and invert affect the shown items when filtered. Basic fallbacks such as no treatment or still motion can remain available to keep a valid composition.
 
 Thumbnails are isolated examples. Layer-specific omissions and the actual text, background and combinations can change the final appearance.
+
+### Excluding parts from future draws
+
+When an unwanted effect appears, open **Blacklist…** to the right of **Motion library…**. Playback pauses and the dialog shows the parts used in that cut, with their names and animated samples. To exclude just the background, check the background and choose **Exclude selected parts**. You can select individual decorations even when several appear together.
+
+The list applies across projects in the same browser storage. Auto-compose, Shuffle and cue draws consult it when choosing a new part. A palette-only draw keeps the current background. You can still choose a part manually or apply a saved motion. Center layout, cut, still and slow push remain available if a required group runs out of candidates. Optional decorations and transitions can be omitted.
+
+You can open the list during a gap. Choose **Allow again** to return a part to future draws. Adding or removing an entry keeps the current picture intact. If an entrance and an exit share a name, excluding the entrance applies only to entrance draws.
+
+The list survives a project reset. To move it to another browser, use **Export blacklist JSON**, then **Merge from JSON…** in the other browser. Import adds entries to the current list and keeps one copy of each part. If the file format or a technique is unrecognized, the current list is preserved.
 
 ### Transitions that retain the previous subtitle
 
@@ -990,6 +1001,7 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Keep-clear mode, each subtitle’s open/closed state, and its landscape and portrait band geometry | Yes |
 | Preview speed | No; starts at 1× |
 | Preview loop mode (Off/whole piece/line/cut) | No; stored as a browser preference, initially Off |
+| Technique blacklist | No. Shared across projects in this browser and transferable as a separate JSON file |
 | Audio/background/spectrum media binaries | No |
 | PC font binaries | No |
 | Durable undo/look history or rendered MP4 files | No |
@@ -1007,6 +1019,7 @@ Autosave depends on origin, browser/profile and local-file location. Clearing br
 | Loaded audio, backgrounds, external spectra and analysis data | Release; ignore pending load results |
 | Playhead, speed, look history, edit Undo/Redo, temporary download links | Reset |
 | Shared libraries, including user themes | **Keep**; delete items in their management screens |
+| Technique blacklist | **Keep**. Open **Blacklist…** to allow individual parts again |
 | Interface language, display mode, preview volume and loop mode | Keep |
 | Original media, saved JSON and exported videos on your PC | Leave untouched |
 

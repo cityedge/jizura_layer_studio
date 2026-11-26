@@ -93,7 +93,7 @@ J.prepareMotionPitch = (p, current, audio, value, index = null) => {
       fonts: Object.fromEntries(Object.entries(look.style.fonts).map(([r, v]) => [r, v[0]])) };
     if (fixed) draft._cueUnits[i] = old;
   }
-  const fresh = edits.length ? J.plan(draft, audio) : null;
+  const fresh = edits.length ? J.planTechniqueDraw(draft, audio, 'pitch') : null;
   for (const { i, ov, key, old, base, fixed } of edits) {
     const generated = fresh.cuts.filter(c => c.line === i && c.utext != null);
     const cuts = J.lineSnapshot(fresh, i);

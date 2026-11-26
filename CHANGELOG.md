@@ -1,3 +1,11 @@
+## 1.5.4 — 2026-11-26
+
+- 「モーションライブラリ…」の右隣に「ブラックリスト…」を追加。現在のカットから背景や装飾などを個別に選ぶと、次にその種類の部品を抽選するときから除外します。「やっぱり使う」で再び候補に戻せます。
+- ブラックリストは同じブラウザのプロジェクト間で共有し、プロジェクト初期化後も保持します。専用JSONで保存でき、読み込み時は現在の一覧に重複を除いて追加します。
+- Added **Blacklist…** beside **Motion library…**. Select individual parts in the current cut to exclude them the next time that kind of part is drawn. Choose **Allow again** to return a part to the draw.
+- The list is shared across projects in the same browser and survives a project reset. Export it as a separate JSON file or merge entries from a file, with duplicates counted once.
+- 英語版の「User guide」から同梱の英語マニュアルを開くリンクを修正しました。Fixed the English in-app link to the bundled user manual.
+
 ## 1.5.3 — 2026-11-26
 
 - 「任意」で字幕ごとに帯を開閉できるプレビューボタンを追加。閉じた字幕は画面全体を使い、開き直すと横長用・縦長用の保存位置と幅を復元します。

@@ -36,6 +36,7 @@ J.fitRandomCueCuts = (source, duration) => {
   });
 };
 J.makeRandomCue = (p, current, index, audio, rng) => {
+  p = J.techniqueDrawProject(p);
   const ln = current.lines.find(l => l.index === index), original = p.overrides[index];
   const effective = original.cueLook ? J.cueLookProject(p, original.cueLook) : p;
   const fonts = {}, faces = Object.keys(J.FONTS).filter(k => !J.randomOk || J.randomOk(p, 'font', k));

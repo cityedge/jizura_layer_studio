@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.5.3. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.5.4. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -23,6 +23,8 @@ Load an image/video as a preview background. Songs support preview and timing. N
 To keep a character visible, select **Custom band** in export settings. Seek to the subtitle, drag **Move** to position its band, and drag a dotted boundary to resize it. Click ▶│◀ to close the band for this subtitle or ◀│▶ to restore it. Landscape and portrait keep separate band dimensions. [Editing and resetting keep-clear areas](../user_guide.en.md#keep-clear-areas)
 
 ## Themes and cue draws
+
+If an unwanted background or decoration keeps appearing, open **Blacklist…** beside **Motion library…** while the cut is on screen. Use the samples to identify the part and choose **Exclude selected parts**. The next draw for that kind of part uses your list. Choose **Allow again** to return a part to the draw. [Managing and transferring the blacklist](../user_guide.en.md#excluding-parts-from-future-draws)
 
 Lower Motion pitch when choreography feels too fast. The range is ×0.3–×1.2, default ×1.0. Apply the value above Auto-compose through Auto-compose or the global Motion pitch button. A separate value beside 8 applies only to the current cue through key 8 or its button. Editing an input alone changes no artwork. Global application clears unlocked local pitch overrides; draws 0–7/9 preserve applied pitch. Automatic cut counts and motion adapt while cue times, media and beats remain unchanged. Preview and all exports use this setting, stored in project JSON, autosave and motion recipes. See [motion pitch](../user_guide.en.md#motion-pitch).
 

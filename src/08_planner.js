@@ -443,7 +443,8 @@ J.plan = (project, audio) => {
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
       // 統一感: a line that comes back (サビ etc.) is shown exactly as the first time
-      const again = UU && !ovAny && !ov.reroll ? UU.again(li, k, txt) : null;
+      const repeat = UU && !ovAny && !ov.reroll ? UU.again(li, k, txt) : null;
+      const again = repeat && (!J.drawAllowsRepeat || J.drawAllowsRepeat(project,repeat)) ? repeat : null;
       if (again) {
         ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP, weightGrow } = again);
         sch = again.scheme; cutSeed = again.seed; LD = J.LAYOUTS[layout];

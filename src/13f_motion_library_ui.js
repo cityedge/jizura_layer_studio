@@ -190,7 +190,7 @@ function mount() {
 }
 function boot() {
   opener = el('button', tr('モーションライブラリ…', 'Motion library…')); opener.type = 'button'; opener.id = 'btnMotionLibrary'; opener.className = 'small';
-  document.getElementById('btnOmakase').after(opener);
+  document.getElementById('motionTools').append(opener);
   opener.addEventListener('click', () => {
     if (J.ui.exporting || J.ui.tap || J.layerSession?.busy) return;
     mount(); target = J.uiApi.cueRerollTarget(); wasPlaying = J.ui.playing; J.uiApi.pause(); epoch++;

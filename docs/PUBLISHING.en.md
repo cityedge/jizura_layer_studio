@@ -1,10 +1,14 @@
 # Manual publication
 
-## Publishing v1.5.3
+## Publishing v1.5.4
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.3.zip` to your Release. Use the 1.5.3 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.4.zip` to your Release. Use the 1.5.4 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
 
-After publication, check the **v1.5.3** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 0–9, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.5.2. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.5.4** header in both languages and open each manual from **User guide**. Updating from 1.5.3 requires only adding and replacing files.
+
+Open **Blacklist…** beside **Motion library…**, exclude one part in the current cut, then return it to future draws using **Allow again**. To check the JSON round trip, export the list before removing the entry, then choose **Merge from JSON…** to restore it.
+
+For existing workflows, verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 0–9, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. The legacy deletion instructions below cover obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 
