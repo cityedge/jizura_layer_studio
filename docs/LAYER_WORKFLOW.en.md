@@ -1,6 +1,6 @@
 # User guide — JIZURA Layer Studio
 
-This is the short workflow for v1.5.2. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
+This is the short workflow for v1.5.3. See the [detailed user manual](../user_guide.en.md) for retained JIZURA features, including fonts, colors, techniques, locks and individual cut editing.
 
 [日本語](LAYER_WORKFLOW.md) · [README](../README.en.md)
 
@@ -19,6 +19,8 @@ Use Add subtitle at start, Add after and Delete in the SRT editor to add/remove 
 Without SRT, type subtitles using the original lyric syntax. Auto-compose, adjust individual rows, or return to a previous proposal. Effect panels, ribbons, graphics, HUDs and flashes can cover the full frame. Plain base backgrounds and independent title/interlude scenes are excluded.
 
 Load an image/video as a preview background. Songs support preview and timing. Neither background nor audio is included in pair exports.
+
+To keep a character visible, select **Custom band** in export settings. Seek to the subtitle, drag **Move** to position its band, and drag a dotted boundary to resize it. Click ▶│◀ to close the band for this subtitle or ◀│▶ to restore it. Landscape and portrait keep separate band dimensions. [Editing and resetting keep-clear areas](../user_guide.en.md#keep-clear-areas)
 
 ## Themes and cue draws
 

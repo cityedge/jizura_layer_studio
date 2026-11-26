@@ -59,7 +59,7 @@ J.captureMotionRecipe = (p, current, index) => {
   const rule = ov.cueLook || J.cueAppearanceRule(p, base.style);
   const recipe = { version: 1, rule: copy(rule), lang: current.lang, duration: ln.visEnd - ln.start,
     motionPitch: J.cueMotionPitch(p, index),
-    centerFree: !!p.centerFree, centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
+    centerFree: J.cueKeepsArea(p,index), centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
     themeSnapshot: copy(p.themeSnapshots?.[rule.lookTheme] || null), cuts: [] };
   cuts.forEach((c, i) => {
     const layoutPlan = recorded(c.params, c.layout), twinPlan = c.twinParams ? recorded(c.twinParams, c.layout) : null;
@@ -129,7 +129,7 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
   const recipe = J.validateMotionRecipe(input), ln = current.lines.find(l => l.index === index);
   if (!ln || !ln.text.length || ln.interlude) fail('適用先の字幕を選択してください。', 'Select a destination subtitle.');
   if (project.overrides?.[index]?.lock) fail('この字幕はロック中です。', 'This subtitle is locked.');
-  if (!!project.centerFree !== recipe.centerFree) fail('「中央を空ける」の設定が保存元と異なります。', 'The “Keep center clear” setting differs from the saved motion.');
+  if (J.cueKeepsArea(project,index) !== recipe.centerFree) fail('この字幕の空ける領域の有無が保存元と異なります。', 'This subtitle’s keep-clear setting differs from the saved motion.');
   const next = copy(project), text = sampleUnits || distribute(ln.text, recipe.cuts), duration = ln.visEnd - ln.start;
   const cuts = J.fitRandomCueCuts(recipe.cuts, duration);
   cuts.forEach((c, i) => {

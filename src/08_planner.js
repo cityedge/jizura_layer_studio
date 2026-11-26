@@ -298,6 +298,9 @@ J.plan = (project, audio) => {
   const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: project._partPalettes }) : null;
   const globalLook = { st, fx, en, U };
   parsed.lines.forEach((ln, li) => {
+    const customArea = J.freeAreaMode?.(project) === 'custom';
+    const zones = J.cueFreeZones ? J.cueFreeZones(project, li, W, H) : (project.centerFree ? J.sideZones(W,H,project.centerDir) : null);
+    const zoneOf = () => zones ? Object.assign({},zones[0]) : null;
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
     const pitch = J.cueMotionPitch(project, li);
@@ -334,7 +337,8 @@ J.plan = (project, audio) => {
     const n = J.glyphCount(ln.text);
     const visEnd = ln.explicitEnd != null ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
-    plan.lines.push({ index: li, src: ln.src, part: ln.part, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
+    plan.lines.push({ index: li, src: ln.src, part: ln.part, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed,
+      ...(customArea && zones ? {freeArea:J.freeAreaGeometry(project,li,W,H)} : {}) });
     const spaceOnly = /^[\s\u3000]+$/.test(ln.text);
     const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
@@ -345,7 +349,7 @@ J.plan = (project, audio) => {
     const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'motionPitch', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
-    if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
+    if (zones?.length === 2) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // Two bands need two text halves.
     // カット数の指定 (per line): exactly that many cuts — chunks are split further when the line has fewer
     const fixedN = ov.cuts > 0 ? Math.min(12, ov.cuts | 0) : 0;
     let chunks2 = chunks;
@@ -390,7 +394,7 @@ J.plan = (project, audio) => {
     units.forEach((u, k) => {
       const cs = bounds[k], ce = bounds[k + 1], dur = (ce - cs) * pitch;
       const addEvent = (t, type, amp, d) => addTimelineEvent(cs + (t - cs) / pitch, type, amp, d / pitch);
-      const halves = zones ? splitHalf(u.text, plan.lang) : null;               // 中央を空ける: 「花が」｜「咲いた」
+      const halves = zones?.length === 2 ? splitHalf(u.text, plan.lang) : null;
       const txt = halves ? halves[0] : u.text;
       const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
       const emph = kime || ln.impact && (k === 0 || u.recap) || ln.emph.some(w => u.text.includes(w));
@@ -556,7 +560,13 @@ J.plan = (project, audio) => {
       if (weightGrow) cut.weightGrow = true;
       if (morph) cut.morph = { dur: morph.dur / pitch };
       if (UU) UU.remember(li, k, txt, cut);
-      if (zones) splitCut(cut, halves, zones, st, dur, LS);
+      if (customArea && zones) cut.freeAreaLayout = true;
+      if (zones?.length === 2) splitCut(cut, halves, zones, st, dur, LS, customArea || LS?.freeAreaLayout);
+      else if (customArea && zones?.length) {
+        cut.zone = {...zones[0]};
+        cut.params = J.freeAreaParams(cut.params,cut.layout,u.text,zones[0],dur,st,J.h(cut.seed,23));
+      }
+      else if (LS?.freeAreaLayout || (customArea && LS?.twinParams)) cut.params = J.freeAreaParams(cut.params,cut.layout,u.text,{w:W,h:H},dur,st,J.h(cut.seed,23));
       // 文字整列: effects don't pile up — one decoration, no text treatment on top of it
       if (plan.typeset && !ov.randomDraw?.library) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
       plan.cuts.push(cut);
@@ -609,7 +619,8 @@ J.plan = (project, audio) => {
   plan.cuts.sort((a, b) => a.start - b.start);
   plan.cuts.forEach((c, i) => {
     c.index = i;
-    if (!zones || c.zone) return;
+    // Lyric cuts already have their cue's zone, including null for a closed band.
+    if (!zones || c.utext != null || c.zone) return;
     if (c.layout === 'interlude') { c.params = Object.assign({}, c.params, { showTitle: false }); return; }   // no lyric: the whole frame
     c.zone = zoneOf(c.line);
   });
@@ -757,13 +768,13 @@ function splitHalf(text, lang) {
   return [a, b];
 }
 const HEAD_BAD = /[、。，．,.!?！？…・ーっッゃゅょャュョぁぃぅぇぉァィゥェォをがはにでとのへもやよね」』）)]/;
-function splitCut(cut, halves, zones, st, dur, LS) {
+function splitCut(cut, halves, zones, st, dur, LS, customArea = false) {
   const LD = J.LAYOUTS[cut.layout], seed = J.h(cut.seed, 23);
   const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: J.glyphCount(text), W: z.w, H: z.h, dur }, st);
   cut.text = halves[0]; cut.lineText = halves[0]; cut.words = J.chunkText(halves[0]); cut.zone = Object.assign({}, zones[0]);
-  cut.params = LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);   // a locked line keeps its own
+  cut.params = customArea && LS ? J.freeAreaParams(LS.params,cut.layout,halves[0],zones[0],dur,st,seed) : LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);
   const delay = Math.min(0.12, dur * 0.08) / J.normalizeMotionPitch(cut.motionPitch);
-  const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
+  const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: customArea && LS ? J.freeAreaParams(LS.twinParams || LS.params,cut.layout,halves[1],zones[1],dur,st,seed) : LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
     start: cut.start + delay, bg: 'none', bgP: {}, companion: true, trans: null, transP: {}, transDur: 0, morph: cut.morph });
   twin.dur = twin.end - twin.start;
   delete twin.companion_; cut.companion = twin;
@@ -773,7 +784,7 @@ function splitCut(cut, halves, zones, st, dur, LS) {
 J.lineSnapshot = (plan, li) => {
   const cuts = plan.cuts.filter(c => c.line === li && c.utext != null);
   if (!cuts.length) return null;
-  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, motionPitch: c.motionPitch, stagger: c.stagger, renderLook: c.renderLook, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
+  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, motionPitch: c.motionPitch, stagger: c.stagger, renderLook: c.renderLook, ...(c.freeAreaLayout ? {freeAreaLayout:true} : {}), layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
     params: c.params, decor: c.decor, treat: c.treat, treatP: c.treatP, bg: c.bg, bgP: c.bgP, cam: c.cam, camP: c.camP, scheme: c.scheme, seed: c.seed,
     trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [] }))));
   // each accent belongs to the cut it plays in (the ones just before a cut start belong to that cut)

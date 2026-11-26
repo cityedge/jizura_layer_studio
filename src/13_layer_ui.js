@@ -528,7 +528,7 @@ function boot() {
     if (epoch !== J.projectSessionEpoch) return;
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     cueDrafts.clear(); syncCueErrors();
-    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, exportRange: null });
+    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, freeAreas: {}, exportRange: null });
     J.ui.project.simpleExport.duration = null;
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));

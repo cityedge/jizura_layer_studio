@@ -1,3 +1,11 @@
+## 1.5.3 — 2026-11-26
+
+- 「任意」で字幕ごとに帯を開閉できるプレビューボタンを追加。閉じた字幕は画面全体を使い、開き直すと横長用・縦長用の保存位置と幅を復元します。
+- Add preview controls to close a custom band for one subtitle and use the full frame. Reopening restores its saved landscape or portrait dimensions.
+
+- 「空けない／中央を空ける／任意領域を空ける」を追加。任意の帯を字幕単位で移動・幅変更でき、横長用と縦長用を独立保存。出力比率で自動選択し、リセットは表示中の側の全字幕だけに適用。JSON・自動保存・Undo／Redo・字幕ガチャ・ライブラリ適用に対応し、日英マニュアルと利用ガイドを更新。
+- Add None / Center / Custom band keep-clear modes. Move and resize per-subtitle bands, store landscape and portrait settings independently, and select by output aspect. Reset only the active orientation across all subtitles. Support project JSON, autosave, Undo/Redo, cue draws and library application; update both manuals and in-app guides.
+
 ## 1.5.2 — 2026-10-25
 
 - プレビューループの初期値をOFFに変更。OFF・全体・行・カットの選択をブラウザのlocalStorageに保存し、次回起動時に復元。プロジェクトJSONには含めず、プロジェクト初期化でも保持。日英マニュアル・利用ガイドを更新。

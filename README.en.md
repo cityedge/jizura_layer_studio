@@ -1,5 +1,5 @@
 # JIZURA Layer Studio
-**Animated subtitle layers · cityedge fork · v1.5.2**
+**Animated subtitle layers · cityedge fork · v1.5.3**
 
 **Motion library…** saves a subtitle’s motion for previewing and applying to new lyrics. Export/import the shared collection as dedicated JSON. [Instructions](user_guide.en.md#motion-library)
 
@@ -63,7 +63,7 @@ The retained JIZURA effects engine works alongside this edition's layer tools. T
 | Refine typography | [Styles, three font roles and installed PC fonts](user_guide.en.md#styles-and-fonts), [colors](user_guide.en.md#colors) |
 | Control motion | [Motion, glitch, chromatic offset, ornaments, density, texture, HUD, cadence, unity and typesetting](user_guide.en.md#effects) |
 | Choose techniques | [Ten candidate groups, sets and locks](user_guide.en.md#choosing-techniques), [individual line/cut replacement](user_guide.en.md#editing-individual-lines-and-cuts) |
-| Work over footage | [Preview background and display modes](user_guide.en.md#preview-background-and-display-modes), [center-clear layout](user_guide.en.md#leaving-the-center-clear) |
+| Work over footage | [Preview background and display modes](user_guide.en.md#preview-background-and-display-modes), [center and custom bands](user_guide.en.md#keep-clear-areas) |
 | Fill instrumental gaps | [Editable fillers, durations, weights and timestamp tags](user_guide.en.md#filler-subtitles) |
 | Add a spectrum | [Optional matte, pair selection, position, scale and frame synchronization](user_guide.en.md#compositing-a-spectrum-video) |
 | Deliver and resume | [MP4 pairs/ranges](user_guide.en.md#exporting-mp4), [external compositing](user_guide.en.md#compositing-in-a-video-editor), [JSON projects](user_guide.en.md#saving-and-resuming) |

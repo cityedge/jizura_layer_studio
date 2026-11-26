@@ -1,10 +1,10 @@
-# JIZURA Layer Studio v1.5.2 User Manual
+# JIZURA Layer Studio v1.5.3 User Manual
 
 JIZURA Layer Studio animates lyrics and subtitles with typography, motion, graphics and ornaments. Create a **silent front/matte MP4 pair** for external compositing, or a **simple MP4 video** with an image/video background and optional audio already combined. Built on JIZURA's effects engine, it provides SRT editing, fillers, cue-level draws, themes, generated/external spectra and binary or translucent layer output.
 
 [Open app](https://cityedge.github.io/jizura_layer_studio/en/) · [README](README.en.md) · [日本語マニュアル](user_guide.md) · [Publishing instructions](docs/PUBLISHING.en.md)
 
-This manual describes the retained features of v1.5.2. Features removed from the original JIZURA are not presented as available operations.
+This manual describes the retained features of v1.5.3. Features removed from the original JIZURA are not presented as available operations.
 
 ## Contents
 
@@ -26,7 +26,7 @@ This manual describes the retained features of v1.5.2. Features removed from the
 - [Choosing techniques](#choosing-techniques)
 - [Editing individual lines and cuts](#editing-individual-lines-and-cuts)
 - [Motion library](#motion-library)
-- [Leaving the center clear](#leaving-the-center-clear)
+- [Keep-clear areas](#keep-clear-areas)
 - [Filler subtitles](#filler-subtitles)
 - [Compositing a spectrum video](#compositing-a-spectrum-video)
 - [Exterior bloom cleanup](#exterior-bloom-cleanup)
@@ -578,7 +578,7 @@ Open **Motion library…** to the right of Auto-compose in the center pane to sa
 4. Select an item to preview it with the destination lyrics. Previewing does not edit the project.
 5. Click **Apply**. Playback resumes 0.3 seconds before the subtitle if it was playing before opening; otherwise the playhead moves to its start. Ctrl+Z undoes the application.
 
-If the text length or duration is incompatible with the saved layout/entrance/exit, the reason is shown and Apply is disabled. Locked subtitles cannot be replaced. The “Keep center clear” setting must match the source. Incompatible parts are never silently substituted.
+If the text length or duration is incompatible with the saved layout/entrance/exit, the reason is shown and Apply is disabled. Locked subtitles cannot be replaced. Keep-clear usage must match the source: Center and open custom bands count as enabled. A closed band counts as disabled. Custom band positions and widths come from the destination subtitle. Incompatible parts are never silently substituted.
 
 ### What a motion stores
 
@@ -598,11 +598,23 @@ Rename and Delete affect the shared library only; applied subtitles remain uncha
 
 After applying, draws 2–4 and 6 use the inherited source framework. Draws 5/7 change color/fonts, 1 uses the currently selected theme, and 9 uses the destination project’s latest global baseline. Draw 6 is a reroll, not an exact library restore. Reapply the saved item to start from its saved settings again.
 
-## Leaving the center clear
+<a id="leaving-the-center-clear"></a>
 
-The center-clear option places text into side bands, splitting text within a cut across the two regions. Landscape uses left/right; portrait defaults to top/bottom and also offers left/right.
+## Keep-clear areas
 
-The dotted preview guides are editing aids. Graphics and screen effects are not guaranteed to avoid the center completely. Check your character/background in the actual composite.
+In export settings, **Keep-clear area** offers **None / Center / Custom band**. Center retains the original behavior, splitting text within a cut across the two side regions. Landscape uses left/right; portrait defaults to top/bottom and also offers left/right.
+
+Selecting Custom band for the first time initializes landscape and portrait bands at their respective center defaults for all subtitles. Seek to a subtitle, drag a dotted boundary to resize its band, or use the Move handle to reposition it. This applies to every cut in that subtitle. Dragging during playback pauses the preview.
+
+Click **▶│◀** beside Move to close the band for this subtitle and use the full frame. Only **◀│▶** stays on the preview. Click it to restore the saved position and width. The open/closed state applies to both orientations. Reset adjusts only the saved geometry.
+
+Each subtitle keeps independent landscape and portrait settings. The **output aspect ratio**, regardless of background media, selects the active set; square or unknown ratios use landscape. Switching aspect or temporarily choosing None or Center retains both sets.
+
+Band width ranges from 8% to 72% of the relevant frame dimension. If one remaining side is too narrow, the full text goes on the larger side instead of losing half the lyrics. **Reset keep-clear areas resets all subtitles for the current orientation only**, retaining the other orientation. Ctrl+Z / Ctrl+Shift+Z undo and redo edits and resets.
+
+The mode and both band sets are included in project JSON and autosave and survive cue draws. Project reset clears them. Importing a new SRT also clears the previous subtitles’ bands.
+
+Dotted lines and handles are preview-only and never exported. This adjusts lyric placement; it does not punch a hole through background graphics or screen effects. Check the actual composite with your background. Settings apply to Binary and Alpha modes, simple videos and layer exports alike.
 
 ## Filler subtitles
 
@@ -975,6 +987,7 @@ Use Save to download JSON and Open to restore it. Project name primarily supplie
 | Applied library motions | Yes; independent of later library edits/deletion |
 | The full motion library | No; use dedicated library JSON export/import |
 | Simple video duration, audio inclusion, title text/formatting/interval/fades | Yes |
+| Keep-clear mode, each subtitle’s open/closed state, and its landscape and portrait band geometry | Yes |
 | Preview speed | No; starts at 1× |
 | Preview loop mode (Off/whole piece/line/cut) | No; stored as a browser preference, initially Off |
 | Audio/background/spectrum media binaries | No |
@@ -1036,7 +1049,7 @@ Choose the Lyric video or Kinetic theme, explore with Auto-compose, lock strong 
 
 ### Keep a character visible
 
-Load the character footage as a working background, try Alpha mode with adjustable Background color opacity and center-clear layout, and replace panels/tickets or screen-wide effects that obscure the face. Resize/reposition the spectrum to avoid competition with subtitles.
+Load the character footage as a working background. Choose Center for a centered face, or choose Custom band and move the band to follow the face at each subtitle. Click ▶│◀ on subtitles where the character is off screen to use the full frame. Adjust background color opacity, individual effects and spectrum placement as needed.
 
 ### Make interludes less busy
 

@@ -155,6 +155,20 @@ button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px;
 #app:not(.is-mobile) .col-stage .cut-pick-h { flex-wrap: wrap; }
 #app:not(.is-mobile) .col-stage .tl-hint, #app:not(.is-mobile) .col-stage .cut-pick-h .muted { overflow-wrap: anywhere; min-width: 0; }
 .viewport { position: relative; width: 100%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+.free-area-control { min-width:0; margin:10px 0; }
+.free-area-control select { flex:1; min-width:0; max-width:100%; }
+.free-area-control .row { flex-wrap:wrap; }
+.free-area-reset { white-space:normal; max-width:100%; }
+#freeAreaDoor {
+  position:absolute; width:32px; height:24px; padding:0; border:2px solid #00e5d0; border-radius:0;
+  background:linear-gradient(#fff,#fff) center / 1px 13px no-repeat #101820; color:white;
+  display:flex; align-items:center; justify-content:center; gap:5px; touch-action:manipulation;
+}
+#freeAreaDoor::before, #freeAreaDoor::after {
+  content:''; width:0; height:0; border-block:5px solid transparent;
+}
+#freeAreaDoor::before, #freeAreaDoor.open-band::after { border-left:7px solid currentColor; border-right:0; }
+#freeAreaDoor::after, #freeAreaDoor.open-band::before { border-right:7px solid currentColor; border-left:0; }
 .viewport canvas { display: block; width: 100%; height: auto; max-height: 68vh; object-fit: contain; }
 .field-wide { grid-column: span 2; }
 .lang-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 6px; font-size: 11px; color: var(--muted); }
@@ -663,7 +677,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 </div>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.2</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA Layer Studio</span><span class="tag">cityedge fork</span><span class="ver">v1.5.3</span></div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
@@ -945,7 +959,7 @@ dialog.motion-library { box-sizing: border-box; width: min(980px, calc(100vw - 2
 <dialog id="termsDlg" class="terms publication-dialog" aria-labelledby="termsTitle">
   <form method="dialog">
     <h2 id="termsTitle" tabindex="-1">利用について</h2>
-    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.2</p></div>
+    <div class="terms-main"><p class="terms-big">JIZURA Layer Studio</p><p>cityedge fork · v1.5.3</p></div>
     <p>本アプリは、hakoniwa氏の「JIZURA」を基に、cityedgeが字幕レイヤー制作向けに改変した非公式派生版です。原版の作者が本派生版の開発・保守を担当するものではありません。</p>
     <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">原版 JIZURA — hakoniwa</a></p>
     <p>出力動画を利用するために、本アプリのMITライセンス表示を動画へ付ける必要はありません。歌詞・音楽・画像・動画・フォントなど、使用する素材の権利と利用条件は個別に確認してください。</p>
@@ -1427,7 +1441,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
   <form method="dialog">
     <h2 id="guideTitle" tabindex="-1">JIZURA Layer Studio 利用ガイド</h2>
     <p>字幕の演出を作り、背景・音源付きの動画、または編集ソフトで重ねるフロント／マット動画として保存できます。</p>
-    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.5.2 詳細ユーザーマニュアル（Markdown）</a>には、各設定・合成手順・保存データを詳しく掲載しています。</p>
+    <p><a class="full-manual" href="user_guide.md" target="_blank" rel="noopener">v1.5.3 詳細ユーザーマニュアル（Markdown）</a>には、各設定・合成手順・保存データを詳しく掲載しています。</p>
     <h3>まず1本作る</h3>
     <ol class="guide-steps">
       <li><strong>字幕と素材を読み込む</strong><p>「SRTを読み込む」でUTF-8のSRTを選び、音源と作業用背景（画像・動画）を読み込みます。SRTなしで字幕を直接入力することもできます。保存済みプロジェクトを再開する場合はJSONを開き、素材だけを読み直してください。SRTを読み直すと、復元した字幕・フィラー・個別演出を置き換えます。</p></li>
@@ -1462,7 +1476,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>テーマは複製・編集・削除でき、共通ライブラリとプロジェクトJSONに保存します。「テーマJSONを保存／読み込む」で持ち出せます。読み込み後は「変更を保存」。適用済み設定は独立して保持するため、ライブラリから削除・同名で再作成しても字幕ガチャの基準は変わりません。</p>
     <h3>モーションライブラリ</h3>
     <p>「おまかせ」の右の「モーションライブラリ…」を開くと、一覧は未選択で、保存対象のモーションを自動試写します。「モーション保存」で対象字幕全体の演出と初期設定を保存。名前は任意で、空欄ならmotion001などを重複しない通し番号で付けます。古いデータで設定情報がない場合は試写・保存できません。字幕ガチャ1・0などで再生成してください。</p>
-    <p>適用先の字幕へ移動して開き直し、一覧から選ぶと新しい歌詞で試写します。「適用」までプロジェクトは変わりません。文字数・時間などの条件に合わなければ理由を表示して適用を止めます。ロック中は適用不可。「中央を空ける」の有無は保存元と揃えてください。</p>
+    <p>適用先の字幕へ移動して開き直し、一覧から選ぶと新しい歌詞で試写します。「適用」までプロジェクトは変わりません。文字数・時間などの条件に合わなければ理由を表示して適用を止めます。ロック中は適用不可。空ける領域の有無は保存元と揃えてください。「任意」で帯を閉じた字幕は「領域なし」、開いている字幕と「中央」は「領域あり」です。帯の位置・幅は適用先の設定を使います。</p>
     <p>試写は無音・素材背景なしで、透明部分を市松模様で表示します。字幕未選択時や「サンプルで試写」では、保存元の文字数・単語構造からサンプル文字を作ります。保存ボタンは開いたときの対象字幕を保存します。適用後は対象の先頭へ移動し、再生中に開いていた場合は0.3秒前から再生。Ctrl+Zで取り消せます。</p>
     <p>配色・書体・演出とカットの比率は引き継ぎ、配置は新しい文字数・画面サイズで再計算します。元の歌詞・素材本体は保存しません。適用後の2〜4・6は保存元の基礎設定、1は選択中テーマ、9は適用先の全体設定を使います。6は完全復元ではありません。</p>
     <p>共通ライブラリは最大500件。「名前変更」「削除」は適用済みの字幕に影響せず、プロジェクト初期化でも保持します。プロジェクトJSONには適用済み設定だけが入り、一覧全体は「ライブラリJSONを保存／読み込む」で持ち出します。同じID・同じ内容は重複追加せず、同じIDでも内容が違えば別件で追加（入力20MBまで）。ブラウザのデータ削除に備え、専用JSONをバックアップしてください。</p>
@@ -1477,6 +1491,10 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p>速度は1倍・0.8倍・2/3倍・0.5倍。音程を維持し、出力速度には影響しません。音声が不調なら「旧1×」を選べます。通常再生の失敗時も旧方式へ自動切替します。全体の再抽選は最初の字幕の0.5秒前へ、字幕ガチャは再生中なら対象の0.3秒前、停止中なら開始時刻へ移動します。</p>
     <p>PCでは中央ペイン全体を縦スクロールし、演出カードの増減でもプレビューサイズとスクロール位置を維持します。スマホはページ全体をスクロールします。</p>
     <p>詳細設定と簡易動画タイトルには、PCのインストール済みフォントを一覧・絞り込み・見本から選ぶ補助ボタンがあります。対応ブラウザと許可が必要です。取得できない場合は名前を入力してください。フォント本体と一覧は保存せず、利用するPCにも同じフォントが必要です。内蔵書体はGoogle Fontsから取得するものがあります。</p>
+    <h3>空ける領域</h3>
+    <p>書き出し設定の「空ける領域」は「空けない／中央を空ける／任意領域を空ける」の3択。「任意」を初めて選ぶと全字幕の横長用・縦長用を中央に初期化します。字幕の時刻へ移動し、点線の境界をドラッグして幅を、「移動」で位置を調整します。同じ字幕の全カットに反映し、ドラッグ開始時に再生は一時停止します。「移動」の右の ▶│◀ でその字幕だけ帯を閉じて全画面を使い、◀│▶ で元の位置・幅に戻します。開閉は縦横共通です。</p>
+    <p>出力比率を基準に横長用・縦長用を切り替え、背景未設定でも同じ基準を使います。正方形・比率不明時は横長扱い。縦横の切り替えでも両方の値を保持します。リセットは表示中の側の全字幕だけを中央に戻します。編集・リセットはUndo／Redoに対応。幅は8〜72%で、片側が狭すぎれば広い側に全文を配置します。</p>
+    <p>帯設定はJSON・自動保存の対象で、ガチャでも保持します。新しいSRTの読み込み・プロジェクト初期化では消えます。点線は出力されません。背景図形・画面効果を穴抜きする機能ではないため、実際の重なりを確認してください。二値・半透明、簡易動画・レイヤー出力で共通です。</p>
     <h3>スペアナ</h3>
     <p>「音源から生成」は64本のバーを作り、250〜4,000Hzを含む範囲を基本に、音源の上限内で音域を自動設定します。グラデーションは最大高さを基準に固定し、低いバーには下端付近の色だけが見えます。</p>
     <p>「初期設定に戻す」は両端を白、感度+8dB、拍動100%、戻る速さ140msに戻し、位置・倍率・音域は保持します。「外部動画」はフロントと対応する <code>_matte_dark.mp4</code> をまとめて選択できます。マットなしならRGB 000000だけを透過します。</p>
@@ -1495,7 +1513,7 @@ Exhibit B - &quot;Incompatible With Secondary Licenses&quot; Notice
     <p><strong>「プロジェクト初期化」</strong>は現在の字幕・フィラー・区切り・演出・ロック・素材の読み込み・スペアナ・透明度・出力・タイトル設定・再生位置・履歴を初期状態へ戻します。出力の一時保存リンクも消え、自動保存は初期状態に置き換わります。確認後はUndoできません。</p>
     <p><strong>共通ライブラリは削除しません。</strong>ユーザーテーマなど曲をまたいで使うデータと、画面の言語・表示モード・プレビュー音量は保持します。PC上の素材、保存済みJSON、出力動画も削除しません。共通データの削除はそれぞれの管理画面で行います。</p>
     <p>「利用について」は右ペイン最下部にあります。権利・ライセンス・素材の取り扱いを確認できます。</p>
-    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.2</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted">cityedge fork · v1.5.3</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>
 
@@ -4516,7 +4534,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '1.5.2', title, artist, W, H, fps: project.fps || 30,
+    version: 1, generator: 'JIZURA', appVersion: '1.5.3', title, artist, W, H, fps: project.fps || 30,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4552,6 +4570,9 @@ J.plan = (project, audio) => {
   const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed, palettes: project._partPalettes }) : null;
   const globalLook = { st, fx, en, U };
   parsed.lines.forEach((ln, li) => {
+    const customArea = J.freeAreaMode?.(project) === 'custom';
+    const zones = J.cueFreeZones ? J.cueFreeZones(project, li, W, H) : (project.centerFree ? J.sideZones(W,H,project.centerDir) : null);
+    const zoneOf = () => zones ? Object.assign({},zones[0]) : null;
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
     const pitch = J.cueMotionPitch(project, li);
@@ -4588,7 +4609,8 @@ J.plan = (project, audio) => {
     const n = J.glyphCount(ln.text);
     const visEnd = ln.explicitEnd != null ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
-    plan.lines.push({ index: li, src: ln.src, part: ln.part, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
+    plan.lines.push({ index: li, src: ln.src, part: ln.part, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed,
+      ...(customArea && zones ? {freeArea:J.freeAreaGeometry(project,li,W,H)} : {}) });
     const spaceOnly = /^[\s\u3000]+$/.test(ln.text);
     const chunks = ln.manual || (plan.lang === 'en' && !spaceOnly ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
@@ -4599,7 +4621,7 @@ J.plan = (project, audio) => {
     const ovAny = Object.keys(ov).some(k2 => !['lock', 'lockedSeed', 'seed', 'drawSerial', 'reroll', 'motionRecipeVersion', 'motionPitch', 'cueLook', 'cutTech', 'cutLayouts', 'cutQuiet'].includes(k2));
     const kime = !!(U && U.kime.has(li) && !ov.cuts);
     if (ov.single || kime) nC = 1;
-    if (zones) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // 中央を空ける: each cut is split in two, so keep ≥ 2 words per cut
+    if (zones?.length === 2) nC = Math.max(1, Math.min(nC, Math.floor(chunks.length / 2)));   // Two bands need two text halves.
     // カット数の指定 (per line): exactly that many cuts — chunks are split further when the line has fewer
     const fixedN = ov.cuts > 0 ? Math.min(12, ov.cuts | 0) : 0;
     let chunks2 = chunks;
@@ -4644,7 +4666,7 @@ J.plan = (project, audio) => {
     units.forEach((u, k) => {
       const cs = bounds[k], ce = bounds[k + 1], dur = (ce - cs) * pitch;
       const addEvent = (t, type, amp, d) => addTimelineEvent(cs + (t - cs) / pitch, type, amp, d / pitch);
-      const halves = zones ? splitHalf(u.text, plan.lang) : null;               // 中央を空ける: 「花が」｜「咲いた」
+      const halves = zones?.length === 2 ? splitHalf(u.text, plan.lang) : null;
       const txt = halves ? halves[0] : u.text;
       const nn = Math.max(...(halves || [u.text]).map(J.glyphCount));
       const emph = kime || ln.impact && (k === 0 || u.recap) || ln.emph.some(w => u.text.includes(w));
@@ -4810,7 +4832,13 @@ J.plan = (project, audio) => {
       if (weightGrow) cut.weightGrow = true;
       if (morph) cut.morph = { dur: morph.dur / pitch };
       if (UU) UU.remember(li, k, txt, cut);
-      if (zones) splitCut(cut, halves, zones, st, dur, LS);
+      if (customArea && zones) cut.freeAreaLayout = true;
+      if (zones?.length === 2) splitCut(cut, halves, zones, st, dur, LS, customArea || LS?.freeAreaLayout);
+      else if (customArea && zones?.length) {
+        cut.zone = {...zones[0]};
+        cut.params = J.freeAreaParams(cut.params,cut.layout,u.text,zones[0],dur,st,J.h(cut.seed,23));
+      }
+      else if (LS?.freeAreaLayout || (customArea && LS?.twinParams)) cut.params = J.freeAreaParams(cut.params,cut.layout,u.text,{w:W,h:H},dur,st,J.h(cut.seed,23));
       // 文字整列: effects don't pile up — one decoration, no text treatment on top of it
       if (plan.typeset && !ov.randomDraw?.library) { cut.decor = cut.decor.slice(0, 1); if (cut.decor.length && cut.treat !== 'none') { cut.treat = 'none'; cut.treatP = {}; } }
       plan.cuts.push(cut);
@@ -4863,7 +4891,8 @@ J.plan = (project, audio) => {
   plan.cuts.sort((a, b) => a.start - b.start);
   plan.cuts.forEach((c, i) => {
     c.index = i;
-    if (!zones || c.zone) return;
+    // Lyric cuts already have their cue's zone, including null for a closed band.
+    if (!zones || c.utext != null || c.zone) return;
     if (c.layout === 'interlude') { c.params = Object.assign({}, c.params, { showTitle: false }); return; }   // no lyric: the whole frame
     c.zone = zoneOf(c.line);
   });
@@ -5011,13 +5040,13 @@ function splitHalf(text, lang) {
   return [a, b];
 }
 const HEAD_BAD = /[、。，．,.!?！？…・ーっッゃゅょャュョぁぃぅぇぉァィゥェォをがはにでとのへもやよね」』）)]/;
-function splitCut(cut, halves, zones, st, dur, LS) {
+function splitCut(cut, halves, zones, st, dur, LS, customArea = false) {
   const LD = J.LAYOUTS[cut.layout], seed = J.h(cut.seed, 23);
   const planFor = (text, z) => LD.plan(J.rng(seed), { text, n: J.glyphCount(text), W: z.w, H: z.h, dur }, st);
   cut.text = halves[0]; cut.lineText = halves[0]; cut.words = J.chunkText(halves[0]); cut.zone = Object.assign({}, zones[0]);
-  cut.params = LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);   // a locked line keeps its own
+  cut.params = customArea && LS ? J.freeAreaParams(LS.params,cut.layout,halves[0],zones[0],dur,st,seed) : LS && LS.params && LS.twinParams ? LS.params : planFor(halves[0], zones[0]);
   const delay = Math.min(0.12, dur * 0.08) / J.normalizeMotionPitch(cut.motionPitch);
-  const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
+  const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: customArea && LS ? J.freeAreaParams(LS.twinParams || LS.params,cut.layout,halves[1],zones[1],dur,st,seed) : LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
     start: cut.start + delay, bg: 'none', bgP: {}, companion: true, trans: null, transP: {}, transDur: 0, morph: cut.morph });
   twin.dur = twin.end - twin.start;
   delete twin.companion_; cut.companion = twin;
@@ -5027,7 +5056,7 @@ function splitCut(cut, halves, zones, st, dur, LS) {
 J.lineSnapshot = (plan, li) => {
   const cuts = plan.cuts.filter(c => c.line === li && c.utext != null);
   if (!cuts.length) return null;
-  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, motionPitch: c.motionPitch, stagger: c.stagger, renderLook: c.renderLook, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
+  const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, fraction: c.end - c.start, motionPitch: c.motionPitch, stagger: c.stagger, renderLook: c.renderLook, ...(c.freeAreaLayout ? {freeAreaLayout:true} : {}), layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
     params: c.params, decor: c.decor, treat: c.treat, treatP: c.treatP, bg: c.bg, bgP: c.bgP, cam: c.cam, camP: c.camP, scheme: c.scheme, seed: c.seed,
     trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [] }))));
   // each accent belongs to the cut it plays in (the ones just before a cut start belong to that cut)
@@ -38988,7 +39017,7 @@ J.captureMotionRecipe = (p, current, index) => {
   const rule = ov.cueLook || J.cueAppearanceRule(p, base.style);
   const recipe = { version: 1, rule: copy(rule), lang: current.lang, duration: ln.visEnd - ln.start,
     motionPitch: J.cueMotionPitch(p, index),
-    centerFree: !!p.centerFree, centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
+    centerFree: J.cueKeepsArea(p,index), centerDir: p.centerDir, aspect: p.aspect, userFonts: copy(p.userFonts || []),
     themeSnapshot: copy(p.themeSnapshots?.[rule.lookTheme] || null), cuts: [] };
   cuts.forEach((c, i) => {
     const layoutPlan = recorded(c.params, c.layout), twinPlan = c.twinParams ? recorded(c.twinParams, c.layout) : null;
@@ -39058,7 +39087,7 @@ J.prepareMotionApply = (project, current, index, input, audio, sampleUnits = nul
   const recipe = J.validateMotionRecipe(input), ln = current.lines.find(l => l.index === index);
   if (!ln || !ln.text.length || ln.interlude) fail('適用先の字幕を選択してください。', 'Select a destination subtitle.');
   if (project.overrides?.[index]?.lock) fail('この字幕はロック中です。', 'This subtitle is locked.');
-  if (!!project.centerFree !== recipe.centerFree) fail('「中央を空ける」の設定が保存元と異なります。', 'The “Keep center clear” setting differs from the saved motion.');
+  if (J.cueKeepsArea(project,index) !== recipe.centerFree) fail('この字幕の空ける領域の有無が保存元と異なります。', 'This subtitle’s keep-clear setting differs from the saved motion.');
   const next = copy(project), text = sampleUnits || distribute(ln.text, recipe.cuts), duration = ln.visEnd - ln.start;
   const cuts = J.fitRandomCueCuts(recipe.cuts, duration);
   cuts.forEach((c, i) => {
@@ -39245,6 +39274,83 @@ J.prepareMotionPitch = (p, current, audio, value, index = null) => {
 J.prepareCueReroll = (p, current, index, audio, mode = 'fine') => mode === 'pitch'
   ? J.prepareMotionPitch(p, current, audio, p.cuePitchSetting, index)
   : reroll(p, current, index, audio, mode);
+})();
+
+/* Per-cue keep-clear bands. Geometry is a project setting, not part of a draw. */
+(() => {
+'use strict';
+J.freeAreaMode = p => p.centerFree ? (p.freeAreaMode === 'custom' ? 'custom' : 'center') : 'off';
+J.freeAreaSide = p => { const [w,h] = J.designSize(p.aspect || '16:9'); return h > w * 1.1 ? 'tall' : 'wide'; };
+J.freeAreaKey = (p, index) => p.subtitleCues?.[index] ? 'cue:' + p.subtitleCues[index].id : 'line:' + index;
+J.cueKeepsArea = (p, index) => !!p.centerFree &&
+  (p.freeAreaMode !== 'custom' || p.freeAreas?.[J.freeAreaKey(p, index)]?.closed !== true);
+J.defaultFreeBand = (p, side) => {
+  const [w,h] = J.designSize(p.aspect || '16:9');
+  const wide = side === 'wide';
+  const W = wide ? (w >= h ? w : 1920) : (h > w * 1.1 ? w : 1080);
+  const H = wide ? (w >= h ? h : 1080) : (h > w * 1.1 ? h : 1920);
+  const z = J.sideZones(W,H,p.centerDir), vertical = z[0].side === 'left';
+  return { position:.5, width:1 - 2 * (vertical ? z[0].w / W : z[0].h / H) };
+};
+J.normalizeFreeBand = (value, fallback = {position:.5,width:.28}) => {
+  const width = J.clamp(Number.isFinite(value?.width) ? value.width : fallback.width, .08, .72);
+  const position = J.clamp(Number.isFinite(value?.position) ? value.position : fallback.position, width/2, 1-width/2);
+  return { position, width };
+};
+J.cueFreeBand = (p,index,side=J.freeAreaSide(p)) => J.normalizeFreeBand(p.freeAreas?.[J.freeAreaKey(p,index)]?.[side],J.defaultFreeBand(p,side));
+function normalizeCueAreas(p, saved) {
+  const areas = {};
+  for (const side of ['wide', 'tall'])
+    areas[side] = J.normalizeFreeBand(saved?.[side], J.defaultFreeBand(p, side));
+  if (saved?.closed === true) areas.closed = true;
+  return areas;
+}
+J.ensureFreeAreas = (p, lines) => {
+  p.freeAreas ||= {};
+  for (const line of lines) {
+    const key = J.freeAreaKey(p,line.index), saved = p.freeAreas[key] || {};
+    p.freeAreas[key] = normalizeCueAreas(p, saved);
+  }
+};
+J.resetFreeAreas = (p,lines,side=J.freeAreaSide(p)) => {
+  J.ensureFreeAreas(p,lines);
+  for (const line of lines) p.freeAreas[J.freeAreaKey(p,line.index)][side] = J.defaultFreeBand(p,side);
+};
+J.freeAreaGeometry = (p,index,W,H) => {
+  const vertical = H <= W * 1.1 || p.centerDir === 'lr';
+  const band = J.cueFreeBand(p,index), size = vertical ? W : H;
+  const lo = Math.round(size*(band.position-band.width/2)), hi = Math.round(size*(band.position+band.width/2));
+  const rect = vertical ? {x:lo,y:0,w:hi-lo,h:H} : {x:0,y:lo,w:W,h:hi-lo};
+  const zones = vertical
+    ? [{x:0,y:0,w:lo,h:H,side:'left'}, {x:hi,y:0,w:W-hi,h:H,side:'right'}]
+    : [{x:0,y:0,w:W,h:lo,side:'top'}, {x:0,y:hi,w:W,h:H-hi,side:'bottom'}];
+  // Never assign half of a lyric to a sliver of screen. The other side gets the whole text.
+  return {rect,vertical,band,zones:zones.filter(z => (vertical ? z.w/W : z.h/H) >= .16)};
+};
+J.cueFreeZones = (p,index,W,H) => {
+  if (!J.cueKeepsArea(p,index)) return null;
+  return p.freeAreaMode === 'custom' ? J.freeAreaGeometry(p,index,W,H).zones : J.sideZones(W,H,p.centerDir);
+};
+J.freeAreaParams = (params,layout,text,zone,dur,style,seed) => {
+  if (params?._motionPlan && J.recordMotionParams && J.replayMotionParams)
+    return J.replayMotionParams(J.recordMotionParams(params,layout),text,zone.w,zone.h,dur,style);
+  return J.LAYOUTS[layout].plan(J.rng(seed),{text,n:J.glyphCount(text),W:zone.w,H:zone.h,dur},style);
+};
+const defaults = J.defaultProject, upgrade = J.upgradeLayerProject;
+J.defaultProject = () => ({...defaults(),freeAreaMode:null,freeAreas:{}});
+J.upgradeLayerProject = (p,source) => {
+  const saved = source?.freeAreas;
+  upgrade(p,source);
+  p.freeAreaMode = source?.freeAreaMode === 'custom' ? 'custom' : null;
+  p.freeAreas = {};
+  if (saved && typeof saved === 'object') {
+    for (const [key,value] of Object.entries(saved).slice(0,20000)) {
+      if (!/^(cue:|line:)/.test(key) || key.length > 256 || !value) continue;
+      p.freeAreas[key] = normalizeCueAreas(p, value);
+    }
+  }
+  return p;
+};
 })();
 
 /* ============================================================
@@ -39546,6 +39652,7 @@ function replan() {
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
   S.plan = J.plan(S.project, audioLike());
+  if (J.freeAreaMode?.(S.project) === 'custom') J.ensureFreeAreas(S.project,S.plan.lines);
   S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
@@ -39623,6 +39730,7 @@ function sizeViewport() {
 }
 // preview only: dotted outline of the centre that 中央を空ける keeps free (never in exports)
 function drawCenterGuide(ctx, k) {
+  if (J.freeAreaMode?.(S.project) === 'custom') { J.drawFreeAreaGuide?.(ctx,k); return; }
   const P = S.plan, z = P.zones; if (!z) return;
   const r = z[0].side === 'left' ? [z[0].w, 0, P.W - z[0].w - z[1].w, P.H] : [0, z[0].h, P.W, P.H - z[0].h - z[1].h];
   ctx.save(); ctx.setTransform(k, 0, 0, k, 0, 0);
@@ -40189,7 +40297,7 @@ function editLine(li, ln) {
 // old per-cue snapshots can undo a later global palette/font change piecemeal.
 const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'motionPitch', 'motionPitchSetting', 'cuePitchSetting', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ area: {centerFree:S.project.centerFree,centerDir:S.project.centerDir,freeAreaMode:S.project.freeAreaMode,freeAreas:S.project.freeAreas}, look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -40198,6 +40306,7 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   if (o.look) Object.assign(S.project, o.look);
+  if (o.area) Object.assign(S.project, o.area);
   S.project.subtitleCues = o.subtitleCues || null;
   S.project.localLooks = o.localLooks || null;
   S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
@@ -40214,7 +40323,7 @@ function clearLyrics() {
   const snap = JSON.parse(edSnap()); snap.ov = P.overrides || {}; snap.range = P.exportRange || null;
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
-  P.lyrics = ''; delete P.subtitleCues; P.timing.lineTimes = {}; P.overrides = {}; P.localLooks = null; P.exportRange = null; $('lyrics').value = '';
+  P.lyrics = ''; delete P.subtitleCues; P.freeAreas = {}; P.timing.lineTimes = {}; P.overrides = {}; P.localLooks = null; P.exportRange = null; $('lyrics').value = '';
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
@@ -40819,7 +40928,8 @@ function syncOut() {
   $('outQuality').value = S.project.quality || 'high'; $('outAudio').checked = S.project.includeAudio !== false;
   const k = J.keyMode(S.project) || 'off';
   $('outKey').value = k; $('eKey').value = k;
-  $('outCenter').checked = $('eCenter').checked = !!S.project.centerFree;
+  $('outCenter').value = $('eCenter').value = J.freeAreaMode(S.project);
+  J.syncFreeAreaUI?.();
   const tall = J.designSize(S.project.aspect)[1] > J.designSize(S.project.aspect)[0] * 1.1;
   document.querySelectorAll('.center-dir').forEach(el => { el.hidden = !(S.project.centerFree && tall); });
   document.querySelectorAll('.centerDirSel').forEach(el => { el.value = S.project.centerDir === 'lr' ? 'lr' : 'tb'; });
@@ -41127,13 +41237,11 @@ function bind() {
   }));
   $('outAudio').addEventListener('change', e => { S.project.includeAudio = e.target.checked; autosave(); });
   document.querySelectorAll('.centerDirSel').forEach(el => el.addEventListener('change', e => {
-    S.project.centerDir = e.target.value; syncOut(); replan(); flushSave();
+    pushEdit(); S.project.centerDir = e.target.value; syncOut(); replan(); flushSave();
     toast(e.target.value === 'lr' ? '縦長の画面：左右に分けます' : '縦長の画面：上下に分けます');
   }));
   ['outCenter', 'eCenter'].forEach(id => $(id).addEventListener('change', e => {
-    S.project.centerFree = e.target.checked; syncOut(); replan(); flushSave();
-    const tall = S.plan.H > S.plan.W * 1.1 && S.project.centerDir !== 'lr';
-    toast(e.target.checked ? `中央を空けました：文字と演出を${tall ? '上下' : '左右'}に置きます` : '中央を空けるのをやめました');
+    J.changeFreeAreaMode(e.target.value); e.target.blur();
   }));
   $('btnMP4').addEventListener('click', () => runExport('mp4'));
   ['btnMP4File', 'eMP4File'].forEach(id => $(id).addEventListener('click', () => runExport('mp4file')));
@@ -41170,7 +41278,7 @@ function bind() {
   };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.2' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.jizura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '1.5.3' }), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
   $('btnReset').addEventListener('click', () => {
@@ -41339,6 +41447,7 @@ function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
   initLoop();
+  J.initFreeAreaUI?.();
   bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode
@@ -41901,7 +42010,7 @@ function boot() {
     if (epoch !== J.projectSessionEpoch) return;
     const cues = J.parseSRT(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     cueDrafts.clear(); syncCueErrors();
-    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, exportRange: null });
+    J.uiApi.pushEdit(); Object.assign(J.ui.project, { subtitleCues: cues, lyrics: cues.map(c => c.text).join('\n\n'), overrides: {}, localLooks: null, freeAreas: {}, exportRange: null });
     J.ui.project.simpleExport.duration = null;
     J.ui.project.timing.lineTimes = {}; changed(); J.uiApi.seek(0);
     status(tr('SRTを読み込みました。終了時刻・改行・空白区間を保持します。', 'SRT imported. End times, line breaks and gaps are preserved.'));
@@ -42379,6 +42488,153 @@ document.addEventListener('DOMContentLoaded', () => {
   const button = J.createLocalFontPickerButton(name => { input.value = name; add.click(); }); button.id = 'pickEffectFont';
   input.closest('.row').after(button);
 });
+})();
+
+/* Keep-clear editing is a preview overlay; it never enters a renderer/export. */
+(() => {
+'use strict';
+const $ = id => document.getElementById(id), tr = J.layerText;
+let drag = null, pending = 0;
+const target = () => J.ui?.plan && J.cueAtTime(J.ui.plan,J.ui.t);
+function geometry() {
+  const S = J.ui, line = target();
+  if (!S?.plan || J.freeAreaMode(S.project) !== 'custom' || !line?.text.length || line.interlude) return null;
+  return {...J.freeAreaGeometry(S.project,line.index,S.plan.W,S.plan.H),line,closed:!J.cueKeepsArea(S.project,line.index)};
+}
+// Keep the Move handle and its adjacent door button inside the visible picture.
+function handlePosition(g, scale) {
+  const {W,H} = J.ui.plan, r = g.rect;
+  const x = g.vertical ? r.x + r.w/2 : Math.min(W*.12, 90/scale);
+  const y = g.vertical ? Math.min(H*.12, 36/scale) : r.y + r.h/2;
+  return {x:J.clamp(x, 26/scale, W-64/scale), y:J.clamp(y, 13/scale, H-13/scale)};
+}
+function pauseAtPreviewTime() {
+  const time = J.ui.t;
+  J.uiApi.pause();
+  J.ui.t = time;
+}
+function keepLooks() { J.captureLocalLooks(J.ui.project,J.ui.plan,J.uiApi.audioLike()); }
+function redraw() { J.uiApi.replan(); J.uiApi.syncUI(); J.ui.need = true; }
+J.changeFreeAreaMode = mode => {
+  if (!['off','center','custom'].includes(mode) || J.ui.exporting || J.layerSession?.busy) return;
+  const S=J.ui;
+  J.uiApi.pushEdit(); keepLooks();
+  S.project.centerFree = mode !== 'off'; S.project.freeAreaMode = mode === 'custom' ? 'custom' : null;
+  if (mode === 'custom') J.ensureFreeAreas(S.project,S.plan.lines);
+  J.rekeyLocalLooks(S.project,S.plan,J.uiApi.audioLike());
+  redraw(); J.uiApi.flushSave();
+};
+J.syncFreeAreaUI = () => {
+  const S=J.ui;if (!S?.project) return;
+  const custom=J.freeAreaMode(S.project)==='custom',side=J.freeAreaSide(S.project);
+  document.querySelectorAll('.free-area-options').forEach(el=>el.hidden=!custom);
+  document.querySelectorAll('.free-area-reset').forEach(el=>{el.disabled=!S.plan?.lines.length;el.title=side==='wide'?tr('全字幕の横長用だけを中央に戻します。','Reset only landscape settings for all subtitles.'):tr('全字幕の縦長用だけを中央に戻します。','Reset only portrait settings for all subtitles.');});
+  $('view').style.touchAction=custom?'none':'';
+  const info=geometry();
+  $('freeAreaDoor').hidden=!info;
+  document.querySelectorAll('.free-area-status').forEach(el=>el.textContent=(side==='wide'?tr('横長用','Landscape'):tr('縦長用','Portrait'))+' · '+(info?tr('字幕 ','Cue ')+(info.line.index+1):tr('字幕のある時刻へ移動してください','Seek to a subtitle to edit')));
+};
+J.drawFreeAreaGuide = (ctx,k) => {
+  J.syncFreeAreaUI();
+  const g=geometry();if (!g) return;
+  const {rect:r}=g,W=J.ui.plan.W,H=J.ui.plan.H;
+  const canvas=$('view'),bounds=canvas.getBoundingClientRect(),s=Math.min(bounds.width/W,bounds.height/H)||k;
+  const {x:hx,y:hy}=handlePosition(g,s), door=$('freeAreaDoor');
+  door.style.left=(canvas.offsetLeft+(bounds.width-W*s)/2+hx*s+29)+'px';
+  door.style.top=(canvas.offsetTop+(bounds.height-H*s)/2+hy*s-12)+'px';
+  const action=g.closed?tr('この字幕の空ける領域を開く','Open this subtitle’s band'):tr('この字幕の空ける領域を閉じる','Close this subtitle’s band');
+  if(door.title!==action) {
+    door.title=action;
+    door.setAttribute('aria-label',action);
+    door.classList.toggle('open-band',g.closed);
+  }
+  if(g.closed)return;
+  ctx.save();ctx.setTransform(k,0,0,k,0,0);
+  ctx.strokeStyle='#00e5d0';ctx.lineWidth=2/s;ctx.setLineDash([8/s,5/s]);ctx.strokeRect(r.x+1/s,r.y+1/s,Math.max(0,r.w-2/s),Math.max(0,r.h-2/s));ctx.setLineDash([]);
+  ctx.fillStyle='#101820';ctx.fillRect(hx-25/s,hy-12/s,50/s,24/s);ctx.strokeRect(hx-25/s,hy-12/s,50/s,24/s);
+  ctx.fillStyle='#fff';ctx.font=`${11/s}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tr('移動','Move'),hx,hy);
+  ctx.restore();
+};
+function point(e) {
+  const c=$('view'),r=c.getBoundingClientRect(),P=J.ui.plan,s=Math.min(r.width/P.W,r.height/P.H);
+  return {x:(e.clientX-r.left-(r.width-P.W*s)/2)/s,y:(e.clientY-r.top-(r.height-P.H*s)/2)/s,s};
+}
+function hit(e,g) {
+  const p=point(e),r=g.rect,W=J.ui.plan.W,H=J.ui.plan.H;
+  if(g.closed||p.x<0||p.y<0||p.x>W||p.y>H)return null;
+  const {x:hx,y:hy}=handlePosition(g,p.s);
+  if(Math.abs(p.x-hx)<=25/p.s&&Math.abs(p.y-hy)<=12/p.s)return 'move';
+  const v=g.vertical?p.x:p.y,lo=g.vertical?r.x:r.y,hi=lo+(g.vertical?r.w:r.h),tol=9/p.s;
+  if(Math.abs(v-lo)<=tol)return 'lo';if(Math.abs(v-hi)<=tol)return 'hi';
+  return null;
+}
+function finish(e) {
+  if (!drag || (e.pointerId!=null && e.pointerId!==drag.pointer)) return;
+  if(pending){cancelAnimationFrame(pending);pending=0;}
+  const id=drag.pointer;drag=null;
+  if($('view').hasPointerCapture(id))$('view').releasePointerCapture(id);
+  redraw();J.uiApi.flushSave();
+}
+J.initFreeAreaUI = () => {
+  const door=document.createElement('button');
+  door.type='button';door.id='freeAreaDoor';door.hidden=true;
+  $('viewport').append(door);
+  const canToggle=()=>!drag && !J.ui.exporting && !J.layerSession?.busy;
+  door.addEventListener('pointerdown',e=>{
+    if(e.button===0 && canToggle()) pauseAtPreviewTime();
+  });
+  door.addEventListener('keydown',e=>{
+    if(e.key===' '||e.key==='Enter') e.stopPropagation();
+  });
+  door.addEventListener('click',e=>{
+    const g=geometry();
+    if(!g||!canToggle())return;
+    pauseAtPreviewTime();
+    J.uiApi.pushEdit();keepLooks();
+    const p=J.ui.project,areas=p.freeAreas[J.freeAreaKey(p,g.line.index)];
+    if(g.closed)delete areas.closed;
+    else areas.closed=true;
+    redraw();J.uiApi.flushSave();
+    if(e.detail)door.blur();
+  });
+  for (const id of ['outCenter','eCenter']) {
+    const old=$(id),wrap=old.closest('label'),box=document.createElement('div');box.className='free-area-control';
+    const label=document.createElement('label');label.className='row';label.textContent=tr('空ける領域','Keep-clear area');
+    const select=document.createElement('select');select.id=id;select.setAttribute('aria-label',tr('空ける領域','Keep-clear area'));
+    for(const [v,ja,en] of [['off','空けない','None'],['center','中央を空ける','Center'],['custom','任意領域を空ける','Custom band']]){const o=document.createElement('option');o.value=v;o.textContent=tr(ja,en);select.append(o);}
+    label.append(select);box.append(label);
+    const options=document.createElement('div');options.className='free-area-options';options.hidden=true;
+    const button=document.createElement('button');button.type='button';button.className='ghost small free-area-reset';button.id=id+'Reset';button.textContent=tr('空ける領域をリセット','Reset keep-clear areas');
+    button.onclick=()=>{
+      if(J.ui.exporting||J.layerSession?.busy)return;
+      J.uiApi.pushEdit();keepLooks();J.resetFreeAreas(J.ui.project,J.ui.plan.lines);redraw();J.uiApi.flushSave();button.blur();
+      J.uiApi.toast(tr('表示中の側だけ、全字幕の帯を中央に戻しました（Ctrl+Zで戻せます）。','Reset all bands for the current orientation only (Ctrl+Z to undo).'));
+    };
+    const status=document.createElement('p');status.className='note free-area-status';options.append(button,status);box.append(options);
+    const note=document.createElement('p');note.className='note';note.textContent=tr('任意：点線で幅を、「移動」で位置を調整。▶│◀ でこの字幕だけ帯を閉じ、◀│▶ で元に戻します。位置と幅は横長用・縦長用に保存します。背景図形・画面効果は対象外です。','Custom: drag an edge to resize, or Move to reposition. ▶│◀ closes the band for this subtitle. ◀│▶ restores it. Landscape and portrait keep separate positions and widths. Background graphics and screen effects are excluded.');box.append(note);wrap.replaceWith(box);
+  }
+  const canvas=$('view');
+  canvas.addEventListener('pointerdown',e=>{
+    if(e.button!==0||J.ui.exporting||J.layerSession?.busy)return;
+    const g=geometry(),kind=g&&hit(e,g);if(!kind)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    pauseAtPreviewTime();J.uiApi.pushEdit();keepLooks();J.ensureFreeAreas(J.ui.project,J.ui.plan.lines);
+    const p=point(e);drag={pointer:e.pointerId,index:g.line.index,side:J.freeAreaSide(J.ui.project),kind,band:{...g.band},start:g.vertical?p.x:p.y,vertical:g.vertical,size:g.vertical?J.ui.plan.W:J.ui.plan.H};
+    canvas.setPointerCapture(e.pointerId);
+  },true);
+  canvas.addEventListener('pointermove',e=>{
+    if(!drag){const g=geometry(),kind=g&&hit(e,g);canvas.style.cursor=kind==='move'?'move':kind?(g.vertical?'ew-resize':'ns-resize'):'';return;}
+    if(e.pointerId!==drag.pointer)return;e.preventDefault();
+    const d=drag,p=point(e),delta=((d.vertical?p.x:p.y)-d.start)/d.size,b=d.band;
+    let lo=b.position-b.width/2,hi=b.position+b.width/2;
+    if(d.kind==='move'){const shift=J.clamp(delta,-lo,1-hi);lo+=shift;hi+=shift;}
+    else if(d.kind==='lo')lo=J.clamp(lo+delta,Math.max(0,hi-.72),hi-.08);
+    else hi=J.clamp(hi+delta,lo+.08,Math.min(1,lo+.72));
+    J.ui.project.freeAreas[J.freeAreaKey(J.ui.project,d.index)][d.side]={position:(lo+hi)/2,width:hi-lo};
+    if(!pending)pending=requestAnimationFrame(()=>{pending=0;redraw();});
+  });
+  canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',finish);
+};
 })();
 
 /* Browser-wide editable library, portable project definitions, and a draft modal.

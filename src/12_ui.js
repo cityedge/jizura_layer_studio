@@ -297,6 +297,7 @@ function replan() {
   if (S.tap && Array.isArray(S.project.subtitleCues)) { pause(); resetTapSession(); }
   cueRerollHold = null;
   S.plan = J.plan(S.project, audioLike());
+  if (J.freeAreaMode?.(S.project) === 'custom') J.ensureFreeAreas(S.project,S.plan.lines);
   S.project.globalLook = J.globalLookBaseline(S.project, S.plan);
   // lines locked in older projects (seed only): take a snapshot now, so from here on they stay exactly as they are
   for (const [i, o] of Object.entries(S.project.overrides || {})) if (o && o.lock && !Array.isArray(o.lockedCuts)) { const snap = J.lineSnapshot(S.plan, +i); if (snap) o.lockedCuts = snap; }
@@ -374,6 +375,7 @@ function sizeViewport() {
 }
 // preview only: dotted outline of the centre that 中央を空ける keeps free (never in exports)
 function drawCenterGuide(ctx, k) {
+  if (J.freeAreaMode?.(S.project) === 'custom') { J.drawFreeAreaGuide?.(ctx,k); return; }
   const P = S.plan, z = P.zones; if (!z) return;
   const r = z[0].side === 'left' ? [z[0].w, 0, P.W - z[0].w - z[1].w, P.H] : [0, z[0].h, P.W, P.H - z[0].h - z[1].h];
   ctx.save(); ctx.setTransform(k, 0, 0, k, 0, 0);
@@ -940,7 +942,7 @@ function editLine(li, ln) {
 // old per-cue snapshots can undo a later global palette/font change piecemeal.
 const HKEYS = ['style', 'mood', 'seed', 'fx', 'enabled', 'fonts', 'colors', 'overrides', 'locks', 'localLooks', 'globalLook', 'theme', 'lookTheme', 'extra', 'wa', 'horror', 'typo', 'kinetic', 'motionRecipeVersion', 'motionPitch', 'motionPitchSetting', 'cuePitchSetting', 'lang', 'unify', 'typeset'];
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
+const edSnap = () => JSON.stringify({ area: {centerFree:S.project.centerFree,centerDir:S.project.centerDir,freeAreaMode:S.project.freeAreaMode,freeAreas:S.project.freeAreas}, look: Object.fromEntries(HKEYS.filter(k => k !== 'localLooks' && k !== 'overrides').map(k => [k, S.project[k] ?? null])), lyrics: S.project.lyrics, subtitleCues: S.project.subtitleCues || null, fillerSettings: S.project.fillerSettings, localLooks: S.project.localLooks || null, lineTimes: S.project.timing.lineTimes || {}, ov: S.project.overrides, range: S.project.exportRange || null });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -949,6 +951,7 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   if (o.look) Object.assign(S.project, o.look);
+  if (o.area) Object.assign(S.project, o.area);
   S.project.subtitleCues = o.subtitleCues || null;
   S.project.localLooks = o.localLooks || null;
   S.project.fillerSettings = J.normalizeFillerSettings(o.fillerSettings);
@@ -965,7 +968,7 @@ function clearLyrics() {
   const snap = JSON.parse(edSnap()); snap.ov = P.overrides || {}; snap.range = P.exportRange || null;
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
-  P.lyrics = ''; delete P.subtitleCues; P.timing.lineTimes = {}; P.overrides = {}; P.localLooks = null; P.exportRange = null; $('lyrics').value = '';
+  P.lyrics = ''; delete P.subtitleCues; P.freeAreas = {}; P.timing.lineTimes = {}; P.overrides = {}; P.localLooks = null; P.exportRange = null; $('lyrics').value = '';
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
@@ -1570,7 +1573,8 @@ function syncOut() {
   $('outQuality').value = S.project.quality || 'high'; $('outAudio').checked = S.project.includeAudio !== false;
   const k = J.keyMode(S.project) || 'off';
   $('outKey').value = k; $('eKey').value = k;
-  $('outCenter').checked = $('eCenter').checked = !!S.project.centerFree;
+  $('outCenter').value = $('eCenter').value = J.freeAreaMode(S.project);
+  J.syncFreeAreaUI?.();
   const tall = J.designSize(S.project.aspect)[1] > J.designSize(S.project.aspect)[0] * 1.1;
   document.querySelectorAll('.center-dir').forEach(el => { el.hidden = !(S.project.centerFree && tall); });
   document.querySelectorAll('.centerDirSel').forEach(el => { el.value = S.project.centerDir === 'lr' ? 'lr' : 'tb'; });
@@ -1878,13 +1882,11 @@ function bind() {
   }));
   $('outAudio').addEventListener('change', e => { S.project.includeAudio = e.target.checked; autosave(); });
   document.querySelectorAll('.centerDirSel').forEach(el => el.addEventListener('change', e => {
-    S.project.centerDir = e.target.value; syncOut(); replan(); flushSave();
+    pushEdit(); S.project.centerDir = e.target.value; syncOut(); replan(); flushSave();
     toast(e.target.value === 'lr' ? '縦長の画面：左右に分けます' : '縦長の画面：上下に分けます');
   }));
   ['outCenter', 'eCenter'].forEach(id => $(id).addEventListener('change', e => {
-    S.project.centerFree = e.target.checked; syncOut(); replan(); flushSave();
-    const tall = S.plan.H > S.plan.W * 1.1 && S.project.centerDir !== 'lr';
-    toast(e.target.checked ? `中央を空けました：文字と演出を${tall ? '上下' : '左右'}に置きます` : '中央を空けるのをやめました');
+    J.changeFreeAreaMode(e.target.value); e.target.blur();
   }));
   $('btnMP4').addEventListener('click', () => runExport('mp4'));
   ['btnMP4File', 'eMP4File'].forEach(id => $(id).addEventListener('click', () => runExport('mp4file')));
@@ -2090,6 +2092,7 @@ function boot() {
   J.clearLegacyMediaCache?.();
   S.project = loadLocal();
   initLoop();
+  J.initFreeAreaUI?.();
   bind(); initVolume(); initPreviewSpeed(); initOmakaseThemes(); initMotionPitchInputs(); syncUI(); syncLoopBtn(); replan();
   warnLegacyFonts();
   // first visit on a phone: スマホ mode

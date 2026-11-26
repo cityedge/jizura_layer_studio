@@ -1,15 +1,17 @@
 # Manual publication
 
-## Publishing v1.5.2
+## Publishing v1.5.3
 
-Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.2.zip` to your Release. Use the 1.5.2 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
+Upload the contents of the new `upload/` folder and attach `JIZURA-Layer-Studio-v1.5.3.zip` to your Release. Use the 1.5.3 entry in `CHANGELOG.md` for the release description. Both manuals, source files, licenses and verification tests are included.
 
-After publication, check the **v1.5.2** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 0–9, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.5.1. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
+After publication, check the **v1.5.3** header, both interface languages and manual links. Verify Binary/Alpha modes, background color opacity, decorative-number hiding (preserving lyrics and [timestamp]), themes with cue keys 0–9, JSON restoration of settings and fillers, and short pair/simple MP4 exports including titles. The manuals include the Difference-based alpha compositing workflow. This update removes no files relative to v1.5.2. Follow the legacy deletion instructions below only for obsolete files left from earlier multilingual releases.
 
 Publish this derivative as an independent repository without GitHub Fork, git push or upstream synchronization. Preserve the original copyright, MIT license and third-party notices.
 
 
-For the v1.5.2 changes, verify:
+For v1.5.3, drag a custom band and toggle it for one subtitle. Set different landscape and portrait positions, reset one orientation, undo the reset, reopen the project JSON and export a short MP4.
+
+Checks for the v1.5.2 features
 
 - With no saved preference, looping starts Off. Whole-piece/line/cut/Off choices survive reload and Reset project.
 - When SRT cues end before the song, whole-piece looping plays the outro and returns to zero. Seek into the outro and check slow and Legacy 1× playback too.
